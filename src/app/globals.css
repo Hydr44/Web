@@ -1,0 +1,215 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Variante dark basata su classe .dark */
+@custom-variant dark (&:is(.dark *));
+
+/* === Mappa token Tailwind v4 -> CSS vars shadcn === */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* chart & sidebar */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Raggi coerenti col design */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Ombra morbida “brand-aware” */
+  --shadow-soft: 0 12px 32px -10px color-mix(in oklab, var(--primary), transparent 82%);
+}
+
+/* === Palette & token (LIGHT) === */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
+
+  /* BRAND (colore guida) */
+  --primary: oklch(0.208 0.042 265.755);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: oklch(0.208 0.042 265.755);
+
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+
+  --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: oklch(0.208 0.042 265.755);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.704 0.04 256.788);
+
+  /* charts */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* sidebar */
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+/* === Palette & token (DARK) === */
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* === Base layer === */
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground antialiased; }
+}
+
+/* === Decor & utility extra (brand-aware) === */
+
+/* Glow morbido dietro all’hero (bilanciato) */
+.hero-bg {
+  position: relative;
+  isolation: isolate;
+}
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: -12% -12% auto -12%; /* simmetrico */
+  height: 62%;
+  background:
+    radial-gradient(46% 54% at 50% 18%, color-mix(in oklab, var(--primary), transparent 78%) 0%, transparent 70%),  /* bolla centrale alta */
+    radial-gradient(34% 50% at 72% 16%, color-mix(in oklab, var(--primary), black 18%) 0%, transparent 72%),       /* bolla destra */
+    radial-gradient(32% 48% at 28% 22%, color-mix(in oklab, var(--primary), white 10%) 0%, transparent 74%);       /* bolla sinistra */
+  filter: blur(26px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Card “neutra” con ombra brand-based */
+.card {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+/* Contenitore comodo (non sostituisce .container di Tailwind) */
+.rm-container {
+  width: 100%;
+  max-width: 72rem; /* ~1152px */
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Pill brand per CTA leggere (usala con inline-flex) */
+.pill-brand {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary), transparent 88%);
+  color: var(--primary);
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--primary), transparent 86%) inset;
+  border: 1px solid color-mix(in oklab, var(--primary), transparent 72%);
+}
+
+/* === Hero full-bleed image helpers === */
+/* maschera che sfuma l’immagine verso l’alto: la foto “si fonde” con lo sfondo */
+.hero-mask {
+  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
+          mask-image: linear-gradient(to top, black 40%, transparent 100%);
+}
+
+/* fallback per browser senza mask */
+@supports not ((-webkit-mask-image: linear-gradient(black, transparent)) or (mask-image: linear-gradient(black, transparent))) {
+  .hero-mask { opacity: 0.95; }
+}

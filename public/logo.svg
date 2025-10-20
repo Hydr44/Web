@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100">
+  <!-- Simbolo -->
+  <path d="M60 20
+           C45 20, 30 35, 30 50
+           C30 65, 45 80, 60 80
+           C75 80, 90 65, 90 50
+           C90 35, 75 20, 60 20Z
+           M60 35
+           A15 15 0 1 1 59.9 35Z"
+        fill="#2563EB"/>
+  <!-- Testo Rescue -->
+  <text x="110" y="45" font-size="32" font-family="Inter, sans-serif" fill="#2563EB" font-weight="600">
+    Rescue
+  </text>
+  <!-- Testo Manager -->
+  <text x="110" y="80" font-size="32" font-family="Inter, sans-serif" fill="#1F2937" font-weight="600">
+    Manager
+  </text>
+</svg>
