@@ -24,31 +24,17 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // Prima prova con getUser
+        // Semplificato: solo controllo base
         const { data: { user }, error } = await supabase.auth.getUser();
-        console.log("getUser result:", { user: user?.email, error: error?.message });
+        console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         
-        if (error) {
-          console.log("getUser failed, trying getSession...");
-          // Fallback con getSession
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          console.log("getSession result:", { session: session?.user?.email, error: sessionError?.message });
-          
-          if (sessionError || !session?.user) {
-            console.log("Both getUser and getSession failed, redirecting to login");
-            router.push("/login?redirect=/dashboard");
-            return;
-          }
-          
-          setUserEmail(session.user.email || "");
-        } else if (!user) {
-          console.log("No user found, redirecting to login");
+        if (error || !user) {
+          console.log("No authenticated user, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
-        } else {
-          setUserEmail(user.email || "");
         }
 
+        setUserEmail(user.email || "");
         setCurrentOrgName(""); // Semplificato per ora
         setLoading(false);
         console.log("Dashboard auth check completed successfully");
@@ -61,15 +47,7 @@ export default function DashboardLayout({
       }
     };
 
-    // Timeout di sicurezza per evitare loading infinito
-    const timeout = setTimeout(() => {
-      console.log("Auth check timeout, showing dashboard anyway");
-      setLoading(false);
-    }, 5000);
-
     checkAuth();
-
-    return () => clearTimeout(timeout);
   }, [router]);
 
   if (loading) {
