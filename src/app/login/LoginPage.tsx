@@ -94,9 +94,16 @@ export default function LoginPage() {
     console.log("User:", data.user);
     console.log("Session:", data.session);
 
-    // Verifica che la sessione sia valida
-    const { data: { session: currentSession } } = await supabase.auth.getSession();
-    console.log("Current session after login:", currentSession);
+    // Verifica che l'utente sia autenticato correttamente
+    const { data: { user: authenticatedUser }, error: authError } = await supabase.auth.getUser();
+    console.log("Authenticated user after login:", authenticatedUser);
+    console.log("Auth verification error:", authError?.message || "NO ERROR");
+    
+    if (!authenticatedUser || authError) {
+      console.error("Authentication verification failed:", authError);
+      setError("Errore di autenticazione. Riprova.");
+      return;
+    }
 
     // Aspetta un momento per la sincronizzazione della sessione
     setTimeout(() => {

@@ -67,13 +67,14 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
-  console.log("Session in middleware:", session ? "EXISTS" : "NULL");
-  console.log("User in middleware:", session?.user?.email || "NO USER");
+  const { data: { user }, error } = await supabase.auth.getUser();
+  console.log("User in middleware:", user ? "EXISTS" : "NULL");
+  console.log("User email in middleware:", user?.email || "NO USER");
+  console.log("Auth error in middleware:", error?.message || "NO ERROR");
 
   const isProtected = req.nextUrl.pathname.startsWith("/dashboard");
-  if (isProtected && !session) {
-    console.log("Redirecting to login - no session");
+  if (isProtected && (!user || error)) {
+    console.log("Redirecting to login - no authenticated user");
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", req.nextUrl.pathname);
