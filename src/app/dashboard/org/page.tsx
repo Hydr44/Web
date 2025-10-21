@@ -10,9 +10,7 @@ import {
   FileText,
   Users,
   Calendar,
-  Edit,
-  Save,
-  X
+  Edit
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +33,7 @@ export default async function OrgPage() {
 
   const currentOrg = profile?.current_org as string | null;
 
-  let orgData: any = null;
+  let orgData: { id: string; name: string; address?: string; phone?: string; email?: string; website?: string; vat_number?: string; created_at?: string } | null = null;
   if (currentOrg) {
     const { data } = await supabase
       .from("organizations")

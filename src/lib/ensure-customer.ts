@@ -13,7 +13,7 @@ export async function ensureStripeCustomer(userId: string, email?: string | null
 
   if (error) throw new Error("Impossibile leggere il profilo");
 
-  let customerId = profile?.stripe_customer_id ?? null;
+  const customerId = profile?.stripe_customer_id ?? null;
   const effectiveEmail = email ?? profile?.email ?? undefined;
 
   // 2) se già c’è, ritorna

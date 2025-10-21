@@ -11,8 +11,8 @@ export async function POST(req: Request) {
   let event;
   try {
     event = stripe.webhooks.constructEvent(body, sig!, webhookSecret);
-  } catch (err: any) {
-    return NextResponse.json({ error: `Webhook signature failed: ${err.message}` }, { status: 400 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: `Webhook signature failed: ${(err as Error).message}` }, { status: 400 });
   }
 
   const supabase = await supabaseServer();
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub = event.data.object as any;
+        const sub = event.data.object as Stripe.Subscription;
         // Trova user_id dalla customer
         const customerId = sub.customer as string;
 
@@ -56,8 +56,8 @@ export async function POST(req: Request) {
         break;
     }
     return NextResponse.json({ received: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "Webhook handler error" }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: (e as Error)?.message || "Webhook handler error" }, { status: 500 });
   }
 }
 

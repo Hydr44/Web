@@ -3,7 +3,6 @@ import {
   Users, 
   UserPlus, 
   Shield, 
-  Mail, 
   Settings,
   Crown,
   User,
@@ -33,7 +32,7 @@ export default async function TeamPage() {
       .from("org_members")
       .select("user_id, role")
       .eq("org_id", currentOrg);
-    const rows = (data as any[] | null) ?? [];
+    const rows = (data as { user_id: string; role: string }[] | null) ?? [];
     // join con profiles per email
     if (rows.length > 0) {
       const ids = rows.map((r) => r.user_id);
@@ -41,7 +40,7 @@ export default async function TeamPage() {
         .from("profiles")
         .select("id, email")
         .in("id", ids);
-      const emailById = new Map((profiles as any[] | null)?.map((p) => [p.id, p.email]) || []);
+      const emailById = new Map((profiles as { id: string; email?: string | null }[] | null)?.map((p) => [p.id, p.email]) || []);
       members = rows.map((r) => ({ id: r.user_id, role: r.role, email: emailById.get(r.user_id) }));
     }
   }

@@ -11,7 +11,7 @@ export default function ChatwootWidget() {
 
   useEffect(() => {
     // Evita duplicati se il componente viene montato più volte
-    if ((window as any).chatwootSDK) {
+    if ((window as { chatwootSDK?: unknown }).chatwootSDK) {
       setLoaded(true);
       return;
     }
@@ -32,7 +32,7 @@ export default function ChatwootWidget() {
     if (!loaded || started) return;
 
     try {
-      (window as any).chatwootSDK?.run({
+      (window as { chatwootSDK?: { run: (config: { websiteToken: string; baseUrl: string }) => void } }).chatwootSDK?.run({
         websiteToken: CHATWOOT_TOKEN,
         baseUrl: CHATWOOT_BASE_URL,
       });

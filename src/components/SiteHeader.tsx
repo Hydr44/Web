@@ -40,26 +40,26 @@ export default function SiteHeader() {
       if (data.user) {
         // carica org correnti e disponibili
         const prof = await supabase.from("profiles").select("current_org").eq("id", data.user.id).maybeSingle();
-        setCurrentOrg((prof.data as any)?.current_org ?? null);
+        setCurrentOrg((prof.data as { current_org?: string })?.current_org ?? null);
         const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", data.user.id);
         const orgIds = new Set<string>();
         if (Array.isArray(mem1.data)) {
-          for (const m of mem1.data as any[]) orgIds.add(m.org_id);
+          for (const m of mem1.data as { org_id: string }[]) orgIds.add(m.org_id);
         }
         if (orgIds.size === 0) {
           const mem2 = await supabase.from("organization_members").select("org_id").eq("user_id", data.user.id);
           if (Array.isArray(mem2.data)) {
-            for (const m of mem2.data as any[]) orgIds.add(m.org_id);
+            for (const m of mem2.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
         if (orgIds.size === 0) {
           const mem3 = await supabase.from("memberships").select("org_id").eq("user_id", data.user.id);
           if (Array.isArray(mem3.data)) {
-            for (const m of mem3.data as any[]) orgIds.add(m.org_id);
+            for (const m of mem3.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
         const list = await supabase.from("organizations").select("id, name").in("id", Array.from(orgIds));
-        setOrgs((list.data as any) ?? []);
+        setOrgs((list.data as { id: string; name: string }[]) ?? []);
       }
     });
     const {

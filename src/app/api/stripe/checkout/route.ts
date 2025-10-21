@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || "Checkout error" }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: (err as Error)?.message || "Checkout error" }, { status: 500 });
   }
 }

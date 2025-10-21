@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("profiles").update({ current_org: org_id }).eq("id", user.id);
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "server_error" }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: (e as Error)?.message || "server_error" }, { status: 500 });
   }
 }
 

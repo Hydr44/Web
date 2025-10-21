@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { Check, Loader2, Shield, Globe, Bell, Building2, User, Mail, KeyRound, TriangleAlert, Save } from "lucide-react";
+import { Loader2, Shield, Globe, Bell, Building2, User, KeyRound, TriangleAlert, Save } from "lucide-react";
 
 type Profile = {
   user_id: string;
@@ -14,7 +14,7 @@ type Profile = {
   phone: string | null;
   locale: string | null;
   timezone: string | null;
-  notifications: any | null;
+  notifications: Record<string, unknown> | null;
 };
 
 export default function SettingsClient({

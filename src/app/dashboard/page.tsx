@@ -55,16 +55,19 @@ export default async function DashboardPanoramica() {
       .select("status, plan, current_period_end")
       .eq("org_id", currentOrg)
       .maybeSingle();
+    
     if (orgSub) {
-      subscription.status = (orgSub as any).status ?? null;
-      subscription.plan = (orgSub as any).plan ?? null;
-      subscription.renewAt = (orgSub as any).current_period_end
-        ? new Date((orgSub as any).current_period_end).toLocaleDateString("it-IT", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })
-        : null;
+      subscription = {
+        status: (orgSub as { status?: string }).status ?? null,
+        plan: (orgSub as { plan?: string }).plan ?? null,
+        renewAt: (orgSub as { current_period_end?: string }).current_period_end
+          ? new Date((orgSub as { current_period_end: string }).current_period_end).toLocaleDateString("it-IT", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+          : null,
+      };
     }
 
     // Conteggi base
@@ -79,10 +82,12 @@ export default async function DashboardPanoramica() {
         ,
       supabase.from("org_members").select("user_id", { count: "exact", head: true }).eq("org_id", currentOrg),
     ]);
-    counts.vehicles = vehRes.count ?? 0;
-    counts.drivers = drvRes.count ?? 0;
-    counts.transportsOpen = trRes.count ?? 0;
-    counts.members = memRes.count ?? 0;
+    counts = {
+      vehicles: vehRes.count ?? 0,
+      drivers: drvRes.count ?? 0,
+      transportsOpen: trRes.count ?? 0,
+      members: memRes.count ?? 0,
+    };
   }
 
   const planLabel = subscription.plan

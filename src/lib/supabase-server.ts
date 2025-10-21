@@ -27,7 +27,7 @@ export async function supabaseServer() {
 
   // Next consente set/delete SOLO in Route Handlers / Server Actions.
   // In Server Components esiste .set ma non effettua la scrittura: evitiamo errori runtime.
-  const canWriteCookies = typeof (cookieStore as any).set === "function";
+  const canWriteCookies = typeof (cookieStore as unknown as { set?: () => void }).set === "function";
 
   // Opzioni cookie coerenti tra set/remove
   const baseCookieOpts: Partial<CookieOptions> = {

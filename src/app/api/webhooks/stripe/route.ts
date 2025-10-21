@@ -50,9 +50,9 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     event = await stripe.webhooks.constructEventAsync(raw, sig, whSecret);
-  } catch (err: any) {
-    console.error("⚠️ Webhook signature verify failed:", err?.message);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (err: unknown) {
+    console.error("⚠️ Webhook signature verify failed:", (err as Error)?.message);
+    return new NextResponse(`Webhook Error: ${(err as Error).message}`, { status: 400 });
   }
 
   try {
@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
         const subscriptionId = session.subscription as string | undefined;
         const customerId =
           (session.customer as string | undefined) ??
-          (session.customer_details as any)?.customer;
-        const orgId = (session.metadata as any)?.org_id as string | undefined;
+          (session.customer_details as { customer?: string })?.customer;
+        const orgId = (session.metadata as { org_id?: string })?.org_id as string | undefined;
 
         if (!subscriptionId || !customerId || !orgId) break;
 
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         // Risali all'org_id:
         // 1) metadata.org_id se presente
         // 2) altrimenti, se già salvato, tabella org_subscriptions via customer_id (se tieni relazione altrove)
-        const orgIdMeta = (sub.metadata as any)?.org_id as string | undefined;
+        const orgIdMeta = (sub.metadata as { org_id?: string })?.org_id as string | undefined;
         const orgId = orgIdMeta;
         if (!orgId) break;
 

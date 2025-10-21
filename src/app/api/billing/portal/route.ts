@@ -48,9 +48,9 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.redirect(session.url, 303);
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("portal error", e);
-    const msg = encodeURIComponent(e?.message ?? "portal_error");
+    const msg = encodeURIComponent((e as Error)?.message ?? "portal_error");
     return NextResponse.redirect(new URL(`/dashboard/billing?err=${msg}`, req.url), 302);
   }
 }

@@ -37,8 +37,8 @@ export default function SyncAfterCheckoutClient({
 
         setDone(true);
         router.refresh();
-      } catch (e: any) {
-        setErr(e?.message || "sync_failed");
+      } catch (e: unknown) {
+        setErr((e as Error)?.message || "sync_failed");
       }
     };
     run();
