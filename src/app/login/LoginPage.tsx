@@ -73,7 +73,11 @@ export default function LoginPage() {
     console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
     const supabase = supabaseBrowser();
+    console.log("Attempting login with:", { email, password: "***" });
+    
     const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
+    
+    console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 
     if (err) {
       console.error("Login error:", err);
@@ -111,23 +115,21 @@ export default function LoginPage() {
     console.log("All cookies after login:", document.cookie);
     console.log("Supabase cookies found:", document.cookie.includes("sb-"));
 
-    // Aspetta un momento per la sincronizzazione della sessione
-    setTimeout(() => {
+    // Redirect immediato senza timeout
+    console.log("Executing redirect to:", redirectTo);
+    console.log("Current pathname:", window.location.pathname);
+    
+    // Prova prima con window.location per essere sicuri
+    try {
+      window.location.href = redirectTo;
+    } catch (error) {
+      console.error("Window redirect failed:", error);
+      // Fallback con router
       startTransition(() => {
-        console.log("Executing redirect to:", redirectTo);
-        // Prova prima con router.replace
         router.replace(redirectTo);
-        // Fallback con window.location se router non funziona
-        setTimeout(() => {
-          if (window.location.pathname === "/login") {
-            console.log("Router redirect failed, using window.location");
-            window.location.href = redirectTo;
-          }
-        }, 500);
-        // Forza il refresh per sincronizzare la sessione
         router.refresh();
       });
-    }, 100);
+    }
   };
 
   const signInWithProvider = async (provider: "google" | "github") => {
@@ -351,7 +353,10 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+                  <Link href="/reset" className="text-primary hover:underline transition-colors">
+                    Password dimenticata?
+                  </Link>
                   <span className="text-gray-600">
                     Non hai un account?{" "}
                     <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-medium">

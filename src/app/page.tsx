@@ -64,7 +64,7 @@ export default function Home() {
             </h1>
 
               <p className="mt-6 text-lg text-gray-600 max-w-2xl leading-relaxed">
-                Dalla chiamata al traino: dispatch su mappa, rapportini con foto/firma, fatture e analisi —
+              Dalla chiamata al traino: dispatch su mappa, rapportini con foto/firma, fatture e analisi —
                 tutto in un&apos;unica piattaforma veloce.
             </p>
 
@@ -876,7 +876,7 @@ export default function Home() {
                 <blockquote className="text-xl md:text-2xl leading-relaxed mb-6 font-medium">
                   &ldquo;Finalmente vediamo in tempo reale chi è più vicino, quanto manca e cosa serve.
                   I rapportini con foto e firma ci hanno tolto un mondo di carta.&rdquo;
-                </blockquote>
+          </blockquote>
                 
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
@@ -910,7 +910,7 @@ export default function Home() {
                   >
                     Richiedi una demo gratuita
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+            </Link>
                   <SmoothScrollLink
                     href="#pricing"
                     className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border-2 border-white/30 text-white font-semibold hover:bg-white/10 transition-all duration-300"
