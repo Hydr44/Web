@@ -23,7 +23,8 @@ import {
   Trash2,
   Download,
   Upload,
-  RefreshCw
+  RefreshCw,
+  LayoutGrid
 } from "lucide-react";
 
 interface AdminStats {
@@ -221,12 +222,19 @@ export default function AdminPanel() {
                 <p className="text-sm text-gray-500">Gestione completa sistema RescueManager</p>
               </div>
             </div>
-            <button
-              onClick={() => router.push("/dashboard")}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Torna al Dashboard
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Dashboard
+              </button>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <div className="text-sm text-gray-500">
+                Admin Mode
+              </div>
+            </div>
           </div>
         </div>
       </div>

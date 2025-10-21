@@ -17,8 +17,9 @@ import {
   Zap,
   Shield,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import * as React from "react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Item = {
   label: string;
@@ -171,6 +172,28 @@ export default function DashboardShell({
   userEmail?: string;
 }>) {
   const path = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Controlla se l'utente è admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const supabase = supabaseBrowser();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", user.id)
+            .maybeSingle();
+          setIsAdmin(profile?.is_admin ?? false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      }
+    };
+    checkAdmin();
+  }, []);
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50/50 to-white">
@@ -245,6 +268,25 @@ export default function DashboardShell({
                 );
               })}
             </div>
+
+            {/* Admin Panel Link */}
+            {isAdmin && (
+              <motion.div
+                className="mt-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              >
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all duration-200 group"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>Pannello Admin</span>
+                  <ChevronRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </motion.div>
+            )}
 
             <motion.form 
               action="/logout" 
