@@ -181,15 +181,19 @@ export default function DashboardShell({
         const supabase = supabaseBrowser();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: profile } = await supabase
+          console.log("Checking admin status for user:", user.email);
+          const { data: profile, error } = await supabase
             .from("profiles")
             .select("is_admin")
             .eq("id", user.id)
             .maybeSingle();
+          
+          console.log("Admin check result:", { profile, error: error?.message });
           setIsAdmin(profile?.is_admin ?? false);
         }
       } catch (error) {
         console.error("Error checking admin status:", error);
+        setIsAdmin(false);
       }
     };
     checkAdmin();

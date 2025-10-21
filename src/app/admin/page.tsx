@@ -76,13 +76,17 @@ export default function AdminPanel() {
         }
 
         // Controlla se l'utente è admin (fondatore)
-        const { data: profile } = await supabase
+        console.log("Checking admin status for user:", user.email);
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("is_admin")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
+        
+        console.log("Admin check result:", { profile, error: profileError?.message });
 
         if (!profile?.is_admin) {
+          console.log("User is not admin, redirecting to dashboard");
           alert("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
           router.push("/dashboard");
           return;
