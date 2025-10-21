@@ -351,10 +351,7 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-                  <Link href="/reset" className="text-primary hover:underline transition-colors">
-                    Password dimenticata?
-                  </Link>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                   <span className="text-gray-600">
                     Non hai un account?{" "}
                     <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-medium">
