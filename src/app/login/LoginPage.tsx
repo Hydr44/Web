@@ -51,6 +51,20 @@ export default function LoginPage() {
       return;
     }
 
+    // Pulisci cookie corrotti prima del login
+    try {
+      document.cookie.split(";").forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        if (name.startsWith("sb-") || name.includes("supabase")) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+        }
+      });
+    } catch (error) {
+      console.warn("Error clearing cookies:", error);
+    }
+
     console.log("=== LOGIN DEBUG ===");
     console.log("Current URL:", window.location.href);
     console.log("Redirect to:", redirectTo);

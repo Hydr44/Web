@@ -20,7 +20,14 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return req.cookies.get(name)?.value;
+          try {
+            const cookie = req.cookies.get(name);
+            if (!cookie) return undefined;
+            return cookie.value;
+          } catch (error) {
+            console.warn(`Error getting cookie ${name}:`, error);
+            return undefined;
+          }
         },
         set(name: string, value: string, options: any) {
           req.cookies.set({

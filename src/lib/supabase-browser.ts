@@ -18,5 +18,40 @@ export const supabaseBrowser = () =>
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
+      cookies: {
+        get(name: string) {
+          if (typeof document === "undefined") return undefined;
+          try {
+            const value = document.cookie
+              .split("; ")
+              .find((row) => row.startsWith(`${name}=`))
+              ?.split("=")[1];
+            return value ? decodeURIComponent(value) : undefined;
+          } catch (error) {
+            console.warn(`Error parsing cookie ${name}:`, error);
+            return undefined;
+          }
+        },
+        set(name: string, value: string, options: any) {
+          if (typeof document === "undefined") return;
+          try {
+            document.cookie = `${name}=${encodeURIComponent(value)}; ${Object.entries(options)
+              .map(([key, val]) => `${key}=${val}`)
+              .join("; ")}`;
+          } catch (error) {
+            console.warn(`Error setting cookie ${name}:`, error);
+          }
+        },
+        remove(name: string, options: any) {
+          if (typeof document === "undefined") return;
+          try {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; ${Object.entries(options)
+              .map(([key, val]) => `${key}=${val}`)
+              .join("; ")}`;
+          } catch (error) {
+            console.warn(`Error removing cookie ${name}:`, error);
+          }
+        },
+      },
     }
   );
