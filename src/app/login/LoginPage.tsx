@@ -74,17 +74,36 @@ export default function LoginPage() {
     console.log("Current URL:", window.location.href);
     console.log("Redirect to:", redirectTo);
     console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log("Supabase ANON KEY exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    console.log("Supabase ANON KEY length:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length || 0);
 
     const supabase = supabaseBrowser();
     console.log("Attempting login with:", { email, password: "***" });
+    console.log("Supabase client created:", !!supabase);
+    console.log("Supabase auth object:", !!supabase.auth);
     
-    // Aggiungi timeout per evitare blocchi
-    const loginPromise = supabase.auth.signInWithPassword({ email, password });
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Login timeout after 10 seconds")), 10000)
-    );
+    // Test connessione Supabase prima del login
+    try {
+      console.log("Testing Supabase connection...");
+      const { data: testData, error: testError } = await supabase.auth.getSession();
+      console.log("Supabase connection test:", { testData: !!testData, testError: testError?.message });
+      
+      // Test di rete diretto
+      console.log("Testing network connection to Supabase...");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
+        method: 'GET',
+        headers: {
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+        }
+      });
+      console.log("Network test response:", { status: response.status, ok: response.ok });
+    } catch (testErr) {
+      console.error("Supabase connection test failed:", testErr);
+    }
     
-    const { error: err, data } = await Promise.race([loginPromise, timeoutPromise]) as any;
+    console.log("Starting actual login...");
+    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
     
     console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 
