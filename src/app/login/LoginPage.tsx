@@ -65,7 +65,7 @@ export default function LoginPage() {
       console.warn("Error clearing cookies:", error);
     }
 
-    console.log("=== LOGIN DEBUG (v3) ===");
+    console.log("=== LOGIN DEBUG (PUBLIC REPO) ===");
     console.log("Current URL:", window.location.href);
     console.log("Redirect to:", redirectTo);
     console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
