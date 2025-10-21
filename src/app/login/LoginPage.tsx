@@ -65,7 +65,14 @@ export default function LoginPage() {
       return;
     }
 
-    startTransition(() => router.replace(redirectTo));
+    // Aspetta un momento per la sincronizzazione della sessione
+    setTimeout(() => {
+      startTransition(() => {
+        router.replace(redirectTo);
+        // Forza il refresh per sincronizzare la sessione
+        router.refresh();
+      });
+    }, 100);
   };
 
   const signInWithProvider = async (provider: "google" | "github") => {

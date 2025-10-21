@@ -35,36 +35,49 @@ export default function SiteHeader() {
   // read session (client) just to toggle Accedi/Registrati vs Dashboard/Esci
   useEffect(() => {
     const supabase = supabaseBrowser();
-    supabase.auth.getUser().then(async ({ data }) => {
-      setEmail(data.user?.email ?? null);
-      if (data.user) {
+    
+    // Funzione per aggiornare lo stato utente
+    const updateUserState = async (user: any) => {
+      setEmail(user?.email ?? null);
+      if (user) {
         // carica org correnti e disponibili
-        const prof = await supabase.from("profiles").select("current_org").eq("id", data.user.id).maybeSingle();
+        const prof = await supabase.from("profiles").select("current_org").eq("id", user.id).maybeSingle();
         setCurrentOrg((prof.data as { current_org?: string })?.current_org ?? null);
-        const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", data.user.id);
+        const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", user.id);
         const orgIds = new Set<string>();
         if (Array.isArray(mem1.data)) {
           for (const m of mem1.data as { org_id: string }[]) orgIds.add(m.org_id);
         }
         if (orgIds.size === 0) {
-          const mem2 = await supabase.from("organization_members").select("org_id").eq("user_id", data.user.id);
+          const mem2 = await supabase.from("organization_members").select("org_id").eq("user_id", user.id);
           if (Array.isArray(mem2.data)) {
             for (const m of mem2.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
         if (orgIds.size === 0) {
-          const mem3 = await supabase.from("memberships").select("org_id").eq("user_id", data.user.id);
+          const mem3 = await supabase.from("memberships").select("org_id").eq("user_id", user.id);
           if (Array.isArray(mem3.data)) {
             for (const m of mem3.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
         const list = await supabase.from("organizations").select("id, name").in("id", Array.from(orgIds));
         setOrgs((list.data as { id: string; name: string }[]) ?? []);
+      } else {
+        setCurrentOrg(null);
+        setOrgs([]);
       }
+    };
+
+    // Carica stato iniziale
+    supabase.auth.getUser().then(async ({ data }) => {
+      await updateUserState(data.user);
     });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_e, s) => setEmail(s?.user?.email ?? null));
+
+    // Listener per cambiamenti di autenticazione
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      await updateUserState(session?.user);
+    });
+
     return () => subscription.unsubscribe();
   }, []);
 
