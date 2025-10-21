@@ -77,15 +77,35 @@ export default function AdminPanel() {
 
         // Controlla se l'utente è admin (fondatore)
         console.log("Checking admin status for user:", user.email);
-        const { data: profile, error: profileError } = await supabase
+        
+        // Prova prima con profiles (tabella principale)
+        let { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("is_admin")
           .eq("id", user.id)
           .maybeSingle();
         
-        console.log("Admin check result:", { profile, error: profileError?.message });
-
-        if (!profile?.is_admin) {
+        console.log("Profiles check result:", { profile, error: profileError?.message });
+        
+        // Se profiles non funziona, prova con memberships
+        if (profileError || !profile) {
+          console.log("Profiles failed, trying memberships...");
+          const { data: membership } = await supabase
+            .from("memberships")
+            .select("role")
+            .eq("user_id", user.id)
+            .eq("role", "owner")
+            .maybeSingle();
+          
+          console.log("Memberships check result:", { membership });
+          
+          if (!membership) {
+            console.log("User is not admin, redirecting to dashboard");
+            alert("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
+            router.push("/dashboard");
+            return;
+          }
+        } else if (!profile?.is_admin) {
           console.log("User is not admin, redirecting to dashboard");
           alert("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
           router.push("/dashboard");

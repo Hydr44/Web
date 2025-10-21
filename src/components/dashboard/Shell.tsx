@@ -182,14 +182,31 @@ export default function DashboardShell({
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           console.log("Checking admin status for user:", user.email);
-          const { data: profile, error } = await supabase
+          
+          // Prova prima con profiles (tabella principale)
+          let { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("is_admin")
             .eq("id", user.id)
             .maybeSingle();
           
-          console.log("Admin check result:", { profile, error: error?.message });
-          setIsAdmin(profile?.is_admin ?? false);
+          console.log("Profiles check result:", { profile, error: profileError?.message });
+          
+          // Se profiles non funziona, prova con memberships
+          if (profileError || !profile) {
+            console.log("Profiles failed, trying memberships...");
+            const { data: membership } = await supabase
+              .from("memberships")
+              .select("role")
+              .eq("user_id", user.id)
+              .eq("role", "owner")
+              .maybeSingle();
+            
+            console.log("Memberships check result:", { membership });
+            setIsAdmin(!!membership);
+          } else {
+            setIsAdmin(profile?.is_admin ?? false);
+          }
         }
       } catch (error) {
         console.error("Error checking admin status:", error);
