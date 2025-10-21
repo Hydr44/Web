@@ -52,9 +52,10 @@ export default function LoginPage() {
     }
 
     const supabase = supabaseBrowser();
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
 
     if (err) {
+      console.error("Login error:", err);
       if (/invalid login credentials/i.test(err.message)) {
         setError("Email o password non corretti.");
       } else if (/email.*confirm/i.test(err.message)) {
@@ -65,10 +66,22 @@ export default function LoginPage() {
       return;
     }
 
+    console.log("Login successful:", data);
+    console.log("Redirecting to:", redirectTo);
+
     // Aspetta un momento per la sincronizzazione della sessione
     setTimeout(() => {
       startTransition(() => {
+        console.log("Executing redirect to:", redirectTo);
+        // Prova prima con router.replace
         router.replace(redirectTo);
+        // Fallback con window.location se router non funziona
+        setTimeout(() => {
+          if (window.location.pathname === "/login") {
+            console.log("Router redirect failed, using window.location");
+            window.location.href = redirectTo;
+          }
+        }, 500);
         // Forza il refresh per sincronizzare la sessione
         router.refresh();
       });
