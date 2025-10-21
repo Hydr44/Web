@@ -27,4 +27,4 @@ export async function middleware(req: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/dashboard/:path*"] };
+export const config = { matcher: ["/dashboard/:path*", "/admin/:path*"] };

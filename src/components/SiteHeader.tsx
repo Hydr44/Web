@@ -23,6 +23,7 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // scroll style
   useEffect(() => {
@@ -40,9 +41,10 @@ export default function SiteHeader() {
     const updateUserState = async (user: any) => {
       setEmail(user?.email ?? null);
       if (user) {
-        // carica org correnti e disponibili
-        const prof = await supabase.from("profiles").select("current_org").eq("id", user.id).maybeSingle();
+        // carica org correnti e disponibili + controllo admin
+        const prof = await supabase.from("profiles").select("current_org, is_admin").eq("id", user.id).maybeSingle();
         setCurrentOrg((prof.data as { current_org?: string })?.current_org ?? null);
+        setIsAdmin((prof.data as { is_admin?: boolean })?.is_admin ?? false);
         const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", user.id);
         const orgIds = new Set<string>();
         if (Array.isArray(mem1.data)) {
@@ -65,6 +67,7 @@ export default function SiteHeader() {
       } else {
         setCurrentOrg(null);
         setOrgs([]);
+        setIsAdmin(false);
       }
     };
 
@@ -213,6 +216,17 @@ export default function SiteHeader() {
                         Impostazioni
                       </Link>
                       
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <Shield className="h-4 w-4" />
+                          Pannello Admin
+                        </Link>
+                      )}
+                      
                       <div className="border-t border-gray-100 my-1"></div>
                       
                       <button
@@ -326,6 +340,18 @@ export default function SiteHeader() {
                     <Home className="h-4 w-4" />
                     Dashboard
                   </Link>
+                  
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-red-600 text-white hover:bg-red-700 transition-all duration-300 font-medium"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <Shield className="h-4 w-4" />
+                      Pannello Admin
+                    </Link>
+                  )}
+                  
                   <div className="border-t border-gray-200 my-2"></div>
                   <button 
                     className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 font-medium"
