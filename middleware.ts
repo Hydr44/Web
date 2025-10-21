@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
   console.log("=== MIDDLEWARE DEBUG ===");
   console.log("Request URL:", req.url);
   console.log("Request pathname:", req.nextUrl.pathname);
+  console.log("All cookies:", req.cookies.getAll().map(c => `${c.name}=${c.value?.substring(0, 20)}...`));
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +23,10 @@ export async function middleware(req: NextRequest) {
         get(name: string) {
           try {
             const cookie = req.cookies.get(name);
+            console.log(`Middleware getting cookie ${name}:`, cookie ? "EXISTS" : "NOT FOUND");
+            if (cookie) {
+              console.log(`Cookie ${name} value length:`, cookie.value?.length || 0);
+            }
             if (!cookie) return undefined;
             return cookie.value;
           } catch (error) {
