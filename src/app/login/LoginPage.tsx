@@ -49,9 +49,12 @@ export default function LoginPage() {
     }
 
     if (!acceptTerms) {
+      console.log("Terms not accepted, blocking login");
       setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
       return;
     }
+    
+    console.log("Terms accepted, proceeding with login");
 
     // Pulisci cookie corrotti prima del login
     try {
@@ -75,7 +78,13 @@ export default function LoginPage() {
     const supabase = supabaseBrowser();
     console.log("Attempting login with:", { email, password: "***" });
     
-    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
+    // Aggiungi timeout per evitare blocchi
+    const loginPromise = supabase.auth.signInWithPassword({ email, password });
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Login timeout after 10 seconds")), 10000)
+    );
+    
+    const { error: err, data } = await Promise.race([loginPromise, timeoutPromise]) as any;
     
     console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 
@@ -101,8 +110,9 @@ export default function LoginPage() {
     console.log("Session:", data.session);
 
     // Verifica che l'utente sia autenticato correttamente
+    console.log("Verifying authentication...");
     const { data: { user: authenticatedUser }, error: authError } = await supabase.auth.getUser();
-    console.log("Authenticated user after login:", authenticatedUser);
+    console.log("Authenticated user after login:", authenticatedUser?.email);
     console.log("Auth verification error:", authError?.message || "NO ERROR");
     
     if (!authenticatedUser || authError) {
