@@ -11,7 +11,16 @@ import ChatwootWidget from "@/components/ChatwootWidget"; // <- widget chat
 export const metadata: Metadata = {
   title: "RescueManager — Gestionale soccorso stradale",
   description:
-    "Dispatch su mappa, turni, rapportini, fatture e analisi in un’unica piattaforma per il soccorso stradale.",
+    "Dispatch su mappa, turni, rapportini, fatture e analisi in un'unica piattaforma per il soccorso stradale.",
+  icons: {
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/logoufficiale_1024.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

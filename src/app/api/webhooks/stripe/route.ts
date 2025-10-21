@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
 });
 
-async function upsertSubscription(params: {
-  user_id: string;
+async function upsertOrgSubscription(params: {
+  org_id: string;
   customer_id: string;
   subscription_id: string;
   price_id: string | null;
@@ -18,7 +18,7 @@ async function upsertSubscription(params: {
   current_period_end: number; // epoch seconds
 }) {
   const {
-    user_id,
+    org_id,
     customer_id,
     subscription_id,
     price_id,
@@ -27,18 +27,16 @@ async function upsertSubscription(params: {
   } = params;
 
   await supabaseAdmin
-    .from("subscriptions")
+    .from("org_subscriptions")
     .upsert(
       {
-        user_id,
-        stripe_customer_id: customer_id,
-        stripe_subscription_id: subscription_id,
-        price_id: price_id ?? null,
+        org_id,
+        plan: price_id ?? null,
         status,
         current_period_end: new Date(current_period_end * 1000).toISOString(),
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "user_id" } // <-- richiede UNIQUE(user_id)
+      { onConflict: "org_id" }
     );
 }
 
@@ -68,15 +66,15 @@ export async function POST(req: NextRequest) {
         const customerId =
           (session.customer as string | undefined) ??
           (session.customer_details as any)?.customer;
-        const userId = session.metadata?.user_id;
+        const orgId = (session.metadata as any)?.org_id as string | undefined;
 
-        if (!subscriptionId || !customerId || !userId) break;
+        if (!subscriptionId || !customerId || !orgId) break;
 
         const sub = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = sub.items?.data?.[0]?.price?.id ?? null;
 
-        await upsertSubscription({
-          user_id: userId,
+        await upsertOrgSubscription({
+          org_id: orgId,
           customer_id: customerId,
           subscription_id: subscriptionId,
           price_id: priceId,
@@ -94,23 +92,15 @@ export async function POST(req: NextRequest) {
         const customerId = sub.customer as string;
         const priceId = sub.items?.data?.[0]?.price?.id ?? null;
 
-        // Prova a risalire all'utente:
-        // 1) se c'è già in tabella (lookup via customer)
-        // 2) altrimenti metadata dello subscription
-        let userId: string | null = null;
+        // Risali all'org_id:
+        // 1) metadata.org_id se presente
+        // 2) altrimenti, se già salvato, tabella org_subscriptions via customer_id (se tieni relazione altrove)
+        const orgIdMeta = (sub.metadata as any)?.org_id as string | undefined;
+        const orgId = orgIdMeta;
+        if (!orgId) break;
 
-        const { data: existing } = await supabaseAdmin
-          .from("subscriptions")
-          .select("user_id")
-          .eq("stripe_customer_id", customerId)
-          .maybeSingle();
-
-        userId = existing?.user_id ?? (sub.metadata?.user_id ?? null);
-
-        if (!userId) break;
-
-        await upsertSubscription({
-          user_id: userId,
+        await upsertOrgSubscription({
+          org_id: orgId,
           customer_id: customerId,
           subscription_id: sub.id,
           price_id: priceId,

@@ -2,7 +2,7 @@ import { stripe } from "./stripe";
 import { supabaseServer } from "./supabase-server";
 
 export async function ensureStripeCustomer(userId: string, email?: string | null) {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
 
   // 1) leggi l’eventuale customer esistente
   const { data: profile, error } = await supabase

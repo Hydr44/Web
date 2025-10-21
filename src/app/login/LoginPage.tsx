@@ -2,7 +2,16 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import SiteHeader from "@/components/SiteHeader";
+import { motion } from "framer-motion";
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  LogIn,
+  Shield,
+  Zap
+} from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 function safeRedirect(val: string | null, fallback = "/dashboard") {
@@ -20,6 +29,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -33,6 +43,11 @@ export default function LoginPage() {
 
     if (!email || !password) {
       setError("Inserisci email e password.");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
       return;
     }
 
@@ -55,7 +70,7 @@ export default function LoginPage() {
 
   const signInWithProvider = async (provider: "google" | "github") => {
     const supabase = supabaseBrowser();
-    const callback = `${window.location.origin}${redirectTo}`;
+    const callback = `${globalThis.location.origin}${redirectTo}`;
     await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: callback },
@@ -63,100 +78,226 @@ export default function LoginPage() {
   };
 
   return (
-    <main>
-      <SiteHeader />
-
-      <section className="mx-auto max-w-md px-4 py-16">
-        <h1 className="text-3xl font-semibold text-center">Accedi</h1>
-        <p className="mt-2 text-gray-600 text-center">
-          Entra con le tue credenziali o usa un provider.
-        </p>
-
-        <div className="mt-8 grid gap-2">
-          <button
-            type="button"
-            onClick={() => signInWithProvider("google")}
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50 transition"
-          >
-            Continua con Google
-          </button>
-          <button
-            type="button"
-            onClick={() => signInWithProvider("github")}
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50 transition"
-          >
-            Continua con GitHub
-          </button>
-        </div>
-
-        <div className="my-6 flex items-center gap-3 text-xs text-gray-500">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span>oppure</span>
-          <div className="h-px flex-1 bg-gray-200" />
-        </div>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <div className="mt-1 relative">
-              <input
-                type={showPw ? "text" : "password"}
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 pr-10 focus:ring-2 focus:ring-primary focus:outline-none"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw((v) => !v)}
-                className="absolute inset-y-0 right-0 px-3 text-xs text-gray-500 hover:text-gray-700"
-                aria-label={showPw ? "Nascondi password" : "Mostra password"}
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
+      {/* Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+        
+        <div className="rm-container relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left content */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="max-w-2xl"
+            >
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
               >
-                {showPw ? "Nascondi" : "Mostra"}
-              </button>
-            </div>
+                <LogIn className="h-3 w-3" />
+                Accesso Sicuro
+              </motion.div>
+              
+              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                Benvenuto in{" "}
+                <span className="block text-primary">RescueManager</span>
+              </h1>
+              
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Accedi al tuo account per gestire la tua officina di soccorso stradale con tutti gli strumenti avanzati di RescueManager.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 mb-8">
+                {[
+                  { icon: Shield, text: "Sicuro" },
+                  { icon: Zap, text: "Veloce" },
+                  { icon: Mail, text: "Sincronizzato" }
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.text}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200"
+                  >
+                    <item.icon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-gray-700">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right content - Form */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Accedi al tuo account
+                </h2>
+                <p className="text-gray-600">
+                  Inserisci le tue credenziali per accedere
+                </p>
+              </div>
+
+              {/* Social login */}
+              <div className="grid gap-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => signInWithProvider("google")}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200"
+                >
+                  <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">G</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Continua con Google</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signInWithProvider("github")}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200"
+                >
+                  <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">G</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Continua con GitHub</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs text-gray-500 mb-6">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span>oppure</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+
+              <form onSubmit={onSubmit} className="space-y-6">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2"
+                  >
+                    <Shield className="h-4 w-4" />
+                    {error}
+                  </motion.div>
+                )}
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      placeholder="la-tua-email@azienda.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      id="password"
+                      type={showPw ? "text" : "password"}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      placeholder="La tua password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw((v) => !v)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      aria-label={showPw ? "Nascondi password" : "Mostra password"}
+                    >
+                      {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Terms acceptance */}
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="accept-terms"
+                      type="checkbox"
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                      required
+                    />
+                  </div>
+                  <label htmlFor="accept-terms" className="text-sm text-gray-600 leading-relaxed">
+                    Accetto i{" "}
+                    <Link href="/terms-of-use" target="_blank" className="text-primary hover:underline font-medium">
+                      Termini d'Uso
+                    </Link>
+                    {" "}e la{" "}
+                    <Link href="/privacy-policy" target="_blank" className="text-primary hover:underline font-medium">
+                      Privacy Policy
+                    </Link>
+                    {" "}di RescueManager
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={pending}
+                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {pending ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Accesso in corso...
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <LogIn className="h-5 w-5" />
+                      Accedi
+                    </div>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+                  <Link href="/reset" className="text-primary hover:underline transition-colors">
+                    Password dimenticata?
+                  </Link>
+                  <span className="text-gray-600">
+                    Non hai un account?{" "}
+                    <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-medium">
+                      Registrati
+                    </Link>
+                  </span>
+                </div>
+              </div>
+            </motion.div>
           </div>
-
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full py-2 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition disabled:opacity-60"
-          >
-            {pending ? "Accesso..." : "Accedi"}
-          </button>
-        </form>
-
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <Link href="/reset" className="text-primary hover:underline">
-            Password dimenticata?
-          </Link>
-          <span className="text-gray-600">
-            Non hai un account?{" "}
-            <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline">
-              Registrati
-            </Link>
-          </span>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

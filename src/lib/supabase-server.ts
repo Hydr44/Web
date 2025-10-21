@@ -13,8 +13,17 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
  * In Server Component la scrittura viene ignorata (e non va in errore).
  */
 export async function supabaseServer() {
-  const cookieStore = await cookies(); // Next 15: è async
+  const cookieStore = await cookies();
   const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
+
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error(
+      "Supabase non configurato: impostare NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    );
+  }
 
   // Next consente set/delete SOLO in Route Handlers / Server Actions.
   // In Server Components esiste .set ma non effettua la scrittura: evitiamo errori runtime.
@@ -25,13 +34,13 @@ export async function supabaseServer() {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    secure: true, // in dev su http puoi forzarla a false se serve
+    secure: process.env.NODE_ENV === "production",
     ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
   };
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         get: (name: string) => cookieStore.get(name)?.value,

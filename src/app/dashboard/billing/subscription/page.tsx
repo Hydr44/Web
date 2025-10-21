@@ -3,6 +3,16 @@ import { supabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
+import { 
+  CreditCard, 
+  Calendar, 
+  CheckCircle2, 
+  AlertCircle, 
+  ArrowRight,
+  Shield,
+  Zap,
+  ExternalLink
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -29,17 +39,27 @@ export default async function SubscriptionPage({
 
   if (!user) redirect("/login?redirect=/dashboard/billing/subscription");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("current_org")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const currentOrg = profile?.current_org as string | undefined;
+
   // se torniamo da Stripe, prova una sync ottimistica lato client
   // (fa un POST a /api/billing/sync usando session_id)
   // non blocca il render
   // ↓↓↓
   // <SyncAfterCheckoutClient status={sp?.status} sessionId={sp?.session_id} />
 
-  const { data: sub } = await supabase
-    .from("subscriptions")
-    .select("status, price_id, current_period_end")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const { data: sub } = currentOrg
+    ? await supabase
+        .from("org_subscriptions")
+        .select("status, plan as price_id, current_period_end")
+        .eq("org_id", currentOrg)
+        .maybeSingle()
+    : { data: null };
 
   const isActive = !!sub && ["active", "trialing", "past_due"].includes(sub.status || "");
   const currentPriceId = sub?.price_id || "";
@@ -75,82 +95,146 @@ export default async function SubscriptionPage({
       : null;
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-2xl md:text-3xl font-semibold">Il mio abbonamento</h1>
-      <p className="mt-2 text-gray-600">Dettagli del piano e gestione pagamenti.</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <header className="text-center lg:text-left">
+        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+          <CreditCard className="h-4 w-4" />
+          Piano & Licenze
+        </div>
+        
+        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          Il tuo <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">abbonamento</span>
+        </h1>
+        
+        <p className="text-lg text-gray-600 max-w-2xl">
+          Gestisci il tuo piano, visualizza i dettagli di fatturazione e controlla lo stato del tuo abbonamento.
+        </p>
+      </header>
 
       {/* Sync ottimistica dopo il ritorno dal checkout */}
       <SyncAfterCheckoutClient status={sp?.status} sessionId={sp?.session_id} />
 
+      {/* Banner di stato */}
       {banner && (
-        <div
-          className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
-            banner.tone === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : banner.tone === "warn"
-              ? "border-amber-200 bg-amber-50 text-amber-800"
-              : "border-red-200 bg-red-50 text-red-800"
-          }`}
-        >
-          {banner.text}
+        <div className={`p-4 rounded-xl border ${
+          banner.tone === "success"
+            ? "border-green-200 bg-green-50 text-green-800"
+            : banner.tone === "warn"
+            ? "border-amber-200 bg-amber-50 text-amber-800"
+            : "border-red-200 bg-red-50 text-red-800"
+        }`}>
+          <div className="flex items-center gap-3">
+            {banner.tone === "success" ? (
+              <CheckCircle2 className="h-5 w-5" />
+            ) : banner.tone === "warn" ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : (
+              <AlertCircle className="h-5 w-5" />
+            )}
+            <span className="font-medium">{banner.text}</span>
+          </div>
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      {/* Contenuto principale */}
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Stato piano */}
-        <div className="p-6 rounded-2xl border bg-white">
-          <div className="text-sm font-medium text-gray-700">Piano attuale</div>
-          <div className="mt-1 text-lg">{currentPlanName}</div>
-
-          {isActive ? (
-            <>
-              <div className="mt-2 text-sm">
-                <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-800 border border-green-200">
-                  {sub?.status}
-                </span>
-              </div>
-              {renewAt && (
-                <div className="mt-2 text-sm text-gray-600">
-                  Prossimo rinnovo: <span className="font-medium">{renewAt}</span>
-                </div>
-              )}
-              <a
-                href="/api/billing/portal?return=/dashboard/billing/subscription"
-                className="mt-5 inline-flex px-4 py-2 rounded-lg ring-1 ring-gray-300 text-sm"
-              >
-                Apri Billing Portal
-              </a>
-            </>
-          ) : (
-            <div className="mt-3 text-sm text-gray-600">
-              Nessun abbonamento attivo. Vai a{" "}
-              <Link href="/dashboard/billing" className="underline">
-                Piani & licenze
-              </Link>{" "}
-              per attivare un piano.
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-white" />
             </div>
-          )}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Piano Attuale</h3>
+              <p className="text-sm text-gray-600">Stato del tuo abbonamento</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <div className="text-sm text-gray-500 mb-1">Piano</div>
+              <div className="text-xl font-semibold text-gray-900">{currentPlanName}</div>
+            </div>
+
+            {isActive ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span className="text-sm font-medium text-green-700 capitalize">{sub?.status}</span>
+                </div>
+                
+                {renewAt && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span>Prossimo rinnovo: <span className="font-medium">{renewAt}</span></span>
+                  </div>
+                )}
+
+                <a
+                  href="/api/billing/portal?return=/dashboard/billing/subscription"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-medium hover:shadow-lg transition-all duration-200"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Apri Billing Portal
+                </a>
+              </>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <AlertCircle className="h-4 w-4 text-orange-500" />
+                <span>Nessun abbonamento attivo</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Azioni rapide */}
-        <div className="p-6 rounded-2xl border bg-white">
-          <div className="text-sm font-medium text-gray-700">Azioni</div>
-          <div className="mt-3 grid gap-2">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Azioni Rapide</h3>
+              <p className="text-sm text-gray-600">Gestisci il tuo abbonamento</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
             <Link
               href="/dashboard/billing"
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-900 text-white text-sm"
+              className="group flex items-center justify-between p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
             >
-              Cambia piano
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">Cambia Piano</div>
+                  <div className="text-xs text-gray-600">Scegli un nuovo piano</div>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </Link>
+
             <a
               href="/api/billing/portal?return=/dashboard/billing/subscription"
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg ring-1 ring-gray-300 text-sm"
+              className="group flex items-center justify-between p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
             >
-              Metodi di pagamento / Fatture
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <ExternalLink className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">Fatture & Pagamenti</div>
+                  <div className="text-xs text-gray-600">Gestisci metodi di pagamento</div>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </a>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

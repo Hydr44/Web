@@ -38,14 +38,30 @@ export async function GET(req: NextRequest) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" });
 
+    // Recupera l'organizzazione corrente dell'utente
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("current_org")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const orgId = profile?.current_org as string | undefined;
+    if (!orgId) {
+      return NextResponse.redirect(new URL(`/dashboard/billing?err=missing_org`, base), 302);
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price, quantity: 1 }],
       customer_email: user.email,
       allow_promotion_codes: true,
+      // Propaga org_id anche nella Subscription generata da Stripe
+      subscription_data: {
+        metadata: { org_id: orgId, user_id: user.id },
+      },
       success_url: `${base}${ret}?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}${ret}?status=cancel`,
-      metadata: { user_id: user.id },
+      metadata: { user_id: user.id, org_id: orgId },
     });
 
     if (!session.url) {

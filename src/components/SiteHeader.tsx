@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { LogIn, LogOut, User2 } from "lucide-react";
+import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home, ArrowRight } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
 
@@ -21,6 +21,8 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
+  const [currentOrg, setCurrentOrg] = useState<string | null>(null);
 
   // scroll style
   useEffect(() => {
@@ -33,7 +35,33 @@ export default function SiteHeader() {
   // read session (client) just to toggle Accedi/Registrati vs Dashboard/Esci
   useEffect(() => {
     const supabase = supabaseBrowser();
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    supabase.auth.getUser().then(async ({ data }) => {
+      setEmail(data.user?.email ?? null);
+      if (data.user) {
+        // carica org correnti e disponibili
+        const prof = await supabase.from("profiles").select("current_org").eq("id", data.user.id).maybeSingle();
+        setCurrentOrg((prof.data as any)?.current_org ?? null);
+        const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", data.user.id);
+        const orgIds = new Set<string>();
+        if (Array.isArray(mem1.data)) {
+          for (const m of mem1.data as any[]) orgIds.add(m.org_id);
+        }
+        if (orgIds.size === 0) {
+          const mem2 = await supabase.from("organization_members").select("org_id").eq("user_id", data.user.id);
+          if (Array.isArray(mem2.data)) {
+            for (const m of mem2.data as any[]) orgIds.add(m.org_id);
+          }
+        }
+        if (orgIds.size === 0) {
+          const mem3 = await supabase.from("memberships").select("org_id").eq("user_id", data.user.id);
+          if (Array.isArray(mem3.data)) {
+            for (const m of mem3.data as any[]) orgIds.add(m.org_id);
+          }
+        }
+        const list = await supabase.from("organizations").select("id, name").in("id", Array.from(orgIds));
+        setOrgs((list.data as any) ?? []);
+      }
+    });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_e, s) => setEmail(s?.user?.email ?? null));
@@ -51,38 +79,51 @@ export default function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all ${
-        scrolled ? "bg-white/90 backdrop-blur border-b shadow-sm" : "bg-transparent"
+      className={`sticky top-0 z-50 transition-all duration-500 ${
+        scrolled 
+          ? "bg-white/95 backdrop-blur-xl border-b border-gray-200/60 shadow-xl shadow-black/10" 
+          : "bg-white/90 backdrop-blur-lg"
       }`}
     >
-      {!scrolled && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-white/20 backdrop-blur"
-        />
-      )}
-
-      <nav className="container relative flex h-16 items-center justify-between">
+      <nav className="container relative flex h-20 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="RescueManager" width={180} height={48} priority />
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative overflow-hidden rounded-xl">
+            <Image 
+              src="/logoufficiale_1024.png" 
+              alt="RescueManager" 
+              width={240} 
+              height={64} 
+              priority 
+              className="transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
         </Link>
 
         {/* Center nav (desktop) */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-8">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`relative text-sm transition-colors ${
-                item.active ? "text-gray-900" : "text-gray-700 hover:text-gray-900"
+              className={`relative group text-sm font-medium transition-all duration-300 ${
+                item.active 
+                  ? "text-primary" 
+                  : "text-gray-700 hover:text-primary"
               }`}
             >
-              {item.label}
+              <span className="relative z-10">{item.label}</span>
               {/* underline animata */}
               <span
-                className={`absolute left-0 -bottom-1 h-[2px] w-full rounded-full bg-current transition-transform duration-200 ${
+                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-primary to-blue-600 transition-all duration-300 ${
                   item.active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+              {/* background hover */}
+              <span
+                className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-primary/5 transition-all duration-300 ${
+                  item.active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                 }`}
                 aria-hidden
               />
@@ -91,144 +132,205 @@ export default function SiteHeader() {
         </div>
 
         {/* Right actions */}
-        <div className="hidden md:flex items-center gap-3">
-          {!email ? (
+        <div className="hidden lg:flex items-center gap-3">
+          {email ? (
             <>
+              {/* Dashboard link con icona */}
               <Link
-                href="/login"
-                className="inline-flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900"
+                href="/dashboard"
+                className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
               >
-                <LogIn className="h-4 w-4" />
-                Accedi
+                <Home className="h-4 w-4" />
+                Dashboard
               </Link>
-              <Link
-                href="/register"
-                className="text-sm px-3 py-2 rounded-full ring-1 ring-brand text-brand hover:bg-brand/10 transition"
-              >
-                Registrati
-              </Link>
-              <Link
-                href="/contatti"
-                className="text-sm px-3 py-2 rounded-full bg-brand text-white hover:bg-brand-700 transition shadow-sm"
-              >
-                Richiedi demo
-              </Link>
+
+              {/* Avatar/menu migliorato */}
+              <div className="relative flex items-center gap-2">
+                {orgs.length > 0 && (
+                  <div className="relative">
+                    <select
+                      className="text-xs rounded-xl ring-1 ring-gray-200 px-3 py-2 bg-white hover:ring-primary/30 hover:bg-primary/5 transition-all duration-300 appearance-none pr-8 cursor-pointer"
+                      value={currentOrg ?? ''}
+                      onChange={async (e) => {
+                        const val = e.target.value || null;
+                        setCurrentOrg(val);
+                        await fetch("/api/org/select", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ org_id: val }) });
+                        globalThis.location.reload();
+                      }}
+                    >
+                      <option value="">Seleziona org</option>
+                      {orgs.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
+                  </div>
+                )}
+                
+                <div className="relative">
+                  <button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group"
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                      <User2 className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-700 max-w-[140px] truncate font-medium">{email}</span>
+                    <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {menuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 mt-2 w-64 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50"
+                    >
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
+                        <div className="text-sm font-medium text-gray-900 truncate">{email}</div>
+                      </div>
+                      
+                      <Link
+                        href="/dashboard/settings"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <User2 className="h-4 w-4" />
+                        Impostazioni
+                      </Link>
+                      
+                      <div className="border-t border-gray-100 my-1"></div>
+                      
+                      <form action="/logout" method="POST">
+                        <button
+                          className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Esci dall&apos;account
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           ) : (
             <>
               <Link
-                href="/dashboard"
-                className="text-sm px-3 py-2 rounded-full bg-gray-900 text-white hover:opacity-90 transition"
+                href="/demo"
+                className="text-sm px-4 py-2 rounded-xl ring-1 ring-primary/30 text-primary hover:bg-primary/10 hover:ring-primary/50 transition-all duration-300 font-medium"
               >
-                Dashboard
+                Demo
               </Link>
-
-              {/* Avatar/menu semplice */}
-              <div className="relative">
-                <button
-                  onClick={() => setMenuOpen((v) => !v)}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 ring-1 ring-gray-200 hover:bg-gray-50"
-                  aria-haspopup="menu"
-                  aria-expanded={menuOpen}
-                >
-                  <User2 className="h-4 w-4 text-gray-600" />
-                  <span className="text-xs text-gray-700 max-w-[160px] truncate">{email}</span>
-                </button>
-                {menuOpen && (
-                  <div
-                    role="menu"
-                    className="absolute right-0 mt-2 w-56 rounded-xl border bg-white shadow-lg p-2"
-                  >
-                    <Link
-                      role="menuitem"
-                      href="/dashboard/settings"
-                      className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Impostazioni
-                    </Link>
-                    <form role="menuitem" action="/logout" method="POST">
-                      <button
-                        className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 inline-flex items-center gap-2"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Esci
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
+              <Link
+                href="/preventivo"
+                className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
+              >
+                Preventivo
+              </Link>
+              <Link
+                href="/login"
+                className="text-sm px-4 py-2 rounded-xl text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300 font-medium"
+              >
+                Accedi
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+              >
+                Registrati
+              </Link>
             </>
           )}
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger migliorato */}
         <button
-          className="md:hidden inline-flex items-center justify-center rounded-lg p-2 ring-1 ring-gray-200"
+          className="lg:hidden inline-flex items-center justify-center rounded-xl p-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Apri menu"
           aria-expanded={menuOpen}
         >
-          <span className="i-[hamburger]" />
-          <div className="sr-only">Menu</div>
+          {menuOpen ? (
+            <X className="h-5 w-5 text-gray-600" />
+          ) : (
+            <Menu className="h-5 w-5 text-gray-600" />
+          )}
         </button>
 
-        {/* Mobile drawer */}
+        {/* Mobile drawer migliorato */}
         {menuOpen && (
-          <div className="md:hidden absolute top-16 left-0 w-full border-b bg-white/95 backdrop-blur">
-            <div className="container py-4 flex flex-col gap-2">
+          <div className="lg:hidden absolute top-20 left-0 w-full border-b border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-xl">
+            <div className="container py-6 flex flex-col gap-2">
               {nav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-lg px-3 py-2 text-sm ${
-                    item.active ? "bg-gray-100 text-gray-900" : "text-gray-700 hover:bg-gray-50"
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                    item.active 
+                      ? "bg-primary/10 text-primary border border-primary/20" 
+                      : "text-gray-700 hover:bg-gray-50 hover:text-primary"
                   }`}
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
+                  {item.active && <ArrowRight className="h-4 w-4 ml-auto" />}
                 </Link>
               ))}
 
-              {!email ? (
+              <div className="border-t border-gray-200 my-4"></div>
+
+              {email ? (
                 <>
                   <Link
-                    href="/login"
-                    className="rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    href="/dashboard"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg transition-all duration-300 font-medium"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Accedi
+                    <Home className="h-4 w-4" />
+                    Dashboard
                   </Link>
-                  <Link
-                    href="/register"
-                    className="rounded-lg px-3 py-2 text-sm ring-1 ring-brand text-brand hover:bg-brand/10"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Registrati
-                  </Link>
-                  <Link
-                    href="/contatti"
-                    className="rounded-lg px-3 py-2 text-sm bg-brand text-white text-center"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Richiedi demo
-                  </Link>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <form action="/logout" method="POST" onSubmit={() => setMenuOpen(false)}>
+                    <button className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 font-medium">
+                      <LogOut className="h-4 w-4" />
+                      Esci dall&apos;account
+                    </button>
+                  </form>
                 </>
               ) : (
                 <>
                   <Link
-                    href="/dashboard"
-                    className="rounded-lg px-3 py-2 text-sm bg-gray-900 text-white text-center"
+                    href="/demo"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm ring-1 ring-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 font-medium"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Dashboard
+                    Demo
                   </Link>
-                  <form action="/logout" method="POST" onSubmit={() => setMenuOpen(false)}>
-                    <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50">
-                      Esci
-                    </button>
-                  </form>
+                  <Link
+                    href="/preventivo"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg transition-all duration-300 font-medium"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Preventivo
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-300 font-medium"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Accedi
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gray-900 text-white hover:bg-gray-800 transition-all duration-300 font-medium"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Registrati
+                  </Link>
                 </>
               )}
             </div>

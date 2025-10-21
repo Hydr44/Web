@@ -34,11 +34,32 @@ export default async function BillingPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/dashboard/billing");
 
-  const { data: sub } = await supabase
-    .from("subscriptions")
-    .select("status, price_id, current_period_end")
-    .eq("user_id", user.id)
+  // Recupera l'organizzazione corrente
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("current_org")
+    .eq("id", user.id)
     .maybeSingle();
+
+  const currentOrg = profile?.current_org as string | undefined;
+  if (!currentOrg) {
+    return (
+      <main className="max-w-3xl mx-auto px-4 py-10">
+        <h1 className="text-2xl md:text-3xl font-semibold">Piano & licenze</h1>
+        <div className="mt-4 rounded-lg border bg-amber-50 text-amber-900 border-amber-200 px-3 py-2 text-sm">
+          Nessuna organizzazione selezionata. Vai a <a className="underline" href="/dashboard/org">Organizzazione</a> e seleziona/crea la tua azienda.
+        </div>
+      </main>
+    );
+  }
+
+  const { data: sub } = currentOrg
+    ? await supabase
+        .from("org_subscriptions")
+        .select("status, plan as price_id, current_period_end")
+        .eq("org_id", currentOrg)
+        .maybeSingle()
+    : { data: null };
 
   const isActive =
     !!sub && ["active", "trialing", "past_due"].includes(sub.status || "");

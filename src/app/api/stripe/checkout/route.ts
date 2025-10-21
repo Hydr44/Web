@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
     }
 
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     const {
       data: { user },
     } = await supabase.auth.getUser();

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     const returnPath = req.nextUrl.searchParams.get("return") || "/dashboard/billing";
 
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     const {
       data: { user },
     } = await supabase.auth.getUser();
