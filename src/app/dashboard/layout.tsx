@@ -34,7 +34,7 @@ export default function DashboardLayout({
 
         setUserEmail(user.email || "");
         
-        // Get organization info
+        // Get organization info (solo se necessario)
         const { data: profile } = await supabase.from("profiles").select("current_org").eq("id", user.id).maybeSingle();
         if (profile?.current_org) {
           const { data: org } = await supabase.from("organizations").select("name").eq("id", profile.current_org).maybeSingle();
