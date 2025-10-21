@@ -105,6 +105,10 @@ export default function LoginPage() {
       return;
     }
 
+    // Verifica che i cookie siano stati salvati
+    console.log("All cookies after login:", document.cookie);
+    console.log("Supabase cookies found:", document.cookie.includes("sb-"));
+
     // Aspetta un momento per la sincronizzazione della sessione
     setTimeout(() => {
       startTransition(() => {
