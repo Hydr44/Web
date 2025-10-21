@@ -82,25 +82,8 @@ export default function LoginPage() {
     console.log("Supabase client created:", !!supabase);
     console.log("Supabase auth object:", !!supabase.auth);
     
-    // Test connessione Supabase prima del login
-    try {
-      console.log("Testing Supabase connection...");
-      const { data: testData, error: testError } = await supabase.auth.getSession();
-      console.log("Supabase connection test:", { testData: !!testData, testError: testError?.message });
-      
-      // Test di rete diretto
-      console.log("Testing network connection to Supabase...");
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
-        method: 'GET',
-        headers: {
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
-        }
-      });
-      console.log("Network test response:", { status: response.status, ok: response.ok });
-    } catch (testErr) {
-      console.error("Supabase connection test failed:", testErr);
-    }
+    // Test di connessione rimosso per evitare blocchi
+    console.log("Skipping connection tests to avoid login conflicts");
     
     console.log("Starting actual login...");
     const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });

@@ -174,29 +174,10 @@ export default function DashboardShell({
   const path = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Controllo admin riabilitato in modo sicuro
+  // Controllo admin completamente disabilitato per evitare conflitti
   useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const supabase = supabaseBrowser();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          console.log("Checking admin status for user:", user.email);
-          
-          // Controllo semplice: solo se l'email è quella del fondatore
-          const isFounder = user.email === "haxiesz@gmail.com"; // Sostituisci con la tua email
-          console.log("Is founder:", isFounder);
-          setIsAdmin(isFounder);
-        }
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        setIsAdmin(false);
-      }
-    };
-    
-    // Ritarda il controllo admin per evitare conflitti con il login
-    const timeout = setTimeout(checkAdmin, 2000);
-    return () => clearTimeout(timeout);
+    console.log("Admin check completely disabled to avoid login conflicts");
+    setIsAdmin(false); // Sempre false per ora
   }, []);
 
   return (

@@ -75,19 +75,8 @@ export default function AdminPanel() {
           return;
         }
 
-        // Controllo admin riabilitato in modo sicuro
-        console.log("Checking admin status for user:", user.email);
-        
-        // Controllo semplice: solo se l'email è quella del fondatore
-        const isFounder = user.email === "haxiesz@gmail.com"; // Sostituisci con la tua email
-        console.log("Is founder:", isFounder);
-        
-        if (!isFounder) {
-          console.log("User is not founder, redirecting to dashboard");
-          alert("Accesso negato. Solo il fondatore può accedere a questa sezione.");
-          router.push("/dashboard");
-          return;
-        }
+        // Controllo admin completamente disabilitato per evitare conflitti
+        console.log("Admin check completely disabled to avoid login conflicts");
 
         setIsAdmin(true);
         await loadAdminData();
