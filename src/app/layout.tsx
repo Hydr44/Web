@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import SiteFooter from "@/components/SiteFooter";
 import CookieBanner from "@/components/CookieBanner";
@@ -40,6 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Chatwoot web widget (caricato una volta qui) */}
         <ChatwootWidget />
+        
+        {/* Vercel Speed Insights per monitoraggio performance */}
+        <SpeedInsights />
       </body>
     </html>
   );

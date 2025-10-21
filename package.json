@@ -13,14 +13,15 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
+    "@vercel/speed-insights": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.13",
     "lucide-react": "^0.544.0",
-    "stripe": "^16.0.0",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "stripe": "^16.0.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
