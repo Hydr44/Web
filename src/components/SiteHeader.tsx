@@ -215,15 +215,33 @@ export default function SiteHeader() {
                       
                       <div className="border-t border-gray-100 my-1"></div>
                       
-                      <form action="/logout" method="POST">
-                        <button
-                          className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Esci dall&apos;account
-                        </button>
-                      </form>
+                      <button
+                        className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                        onClick={async () => {
+                          setMenuOpen(false);
+                          console.log("Logout clicked");
+                          try {
+                            const supabase = supabaseBrowser();
+                            const { error } = await supabase.auth.signOut();
+                            if (error) {
+                              console.error("Logout error:", error);
+                              alert("Errore durante il logout: " + error.message);
+                            } else {
+                              console.log("Logout successful");
+                              // Pulisci localStorage
+                              localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
+                              // Redirect alla home
+                              window.location.href = "/";
+                            }
+                          } catch (err) {
+                            console.error("Logout exception:", err);
+                            alert("Errore durante il logout");
+                          }
+                        }}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Esci dall&apos;account
+                      </button>
                     </div>
                   )}
                 </div>
@@ -246,6 +264,9 @@ export default function SiteHeader() {
               <Link
                 href="/login"
                 className="text-sm px-4 py-2 rounded-xl text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300 font-medium"
+                onClick={() => {
+                  console.log("Login link clicked");
+                }}
               >
                 Accedi
               </Link>
@@ -306,12 +327,33 @@ export default function SiteHeader() {
                     Dashboard
                   </Link>
                   <div className="border-t border-gray-200 my-2"></div>
-                  <form action="/logout" method="POST" onSubmit={() => setMenuOpen(false)}>
-                    <button className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 font-medium">
-                      <LogOut className="h-4 w-4" />
-                      Esci dall&apos;account
-                    </button>
-                  </form>
+                  <button 
+                    className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 font-medium"
+                    onClick={async () => {
+                      setMenuOpen(false);
+                      console.log("Mobile logout clicked");
+                      try {
+                        const supabase = supabaseBrowser();
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                          console.error("Mobile logout error:", error);
+                          alert("Errore durante il logout: " + error.message);
+                        } else {
+                          console.log("Mobile logout successful");
+                          // Pulisci localStorage
+                          localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
+                          // Redirect alla home
+                          window.location.href = "/";
+                        }
+                      } catch (err) {
+                        console.error("Mobile logout exception:", err);
+                        alert("Errore durante il logout");
+                      }
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Esci dall&apos;account
+                  </button>
                 </>
               ) : (
                 <>

@@ -40,6 +40,8 @@ export default function LoginPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    console.log("Form submitted:", { email, password: password ? "***" : "", acceptTerms });
 
     if (!email || !password) {
       setError("Inserisci email e password.");
@@ -325,6 +327,13 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={pending}
+                  onClick={(e) => {
+                    console.log("Login button clicked");
+                    if (pending) {
+                      e.preventDefault();
+                      console.log("Button disabled, preventing submit");
+                    }
+                  }}
                   className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {pending ? (
