@@ -10,6 +10,10 @@ export async function middleware(req: NextRequest) {
     },
   });
 
+  console.log("=== MIDDLEWARE DEBUG ===");
+  console.log("Request URL:", req.url);
+  console.log("Request pathname:", req.nextUrl.pathname);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -57,15 +61,19 @@ export async function middleware(req: NextRequest) {
   );
 
   const { data: { session } } = await supabase.auth.getSession();
+  console.log("Session in middleware:", session ? "EXISTS" : "NULL");
+  console.log("User in middleware:", session?.user?.email || "NO USER");
 
   const isProtected = req.nextUrl.pathname.startsWith("/dashboard");
   if (isProtected && !session) {
+    console.log("Redirecting to login - no session");
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
   
+  console.log("Middleware: allowing access");
   return response;
 }
 

@@ -51,11 +51,21 @@ export default function LoginPage() {
       return;
     }
 
+    console.log("=== LOGIN DEBUG ===");
+    console.log("Current URL:", window.location.href);
+    console.log("Redirect to:", redirectTo);
+    console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+
     const supabase = supabaseBrowser();
     const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
 
     if (err) {
       console.error("Login error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        status: err.status,
+        name: err.name
+      });
       if (/invalid login credentials/i.test(err.message)) {
         setError("Email o password non corretti.");
       } else if (/email.*confirm/i.test(err.message)) {
@@ -67,7 +77,12 @@ export default function LoginPage() {
     }
 
     console.log("Login successful:", data);
-    console.log("Redirecting to:", redirectTo);
+    console.log("User:", data.user);
+    console.log("Session:", data.session);
+
+    // Verifica che la sessione sia valida
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    console.log("Current session after login:", currentSession);
 
     // Aspetta un momento per la sincronizzazione della sessione
     setTimeout(() => {
