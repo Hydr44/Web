@@ -174,7 +174,7 @@ export default function DashboardShell({
   const path = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Controllo admin riabilitato con database pulito
+  // Controllo admin semplificato - solo per mostrare il link
   useEffect(() => {
     const checkAdmin = async () => {
       try {
@@ -183,15 +183,10 @@ export default function DashboardShell({
         if (user) {
           console.log("Checking admin status for user:", user.email);
           
-          // Controllo usando il campo is_admin nella tabella profiles
-          const { data: profile, error } = await supabase
-            .from("profiles")
-            .select("is_admin")
-            .eq("id", user.id)
-            .maybeSingle();
-          
-          console.log("Admin check result:", { profile, error: error?.message });
-          setIsAdmin(profile?.is_admin ?? false);
+          // Controllo semplice: solo se l'email è quella del fondatore
+          const isFounder = user.email === "haxiesz@gmail.com";
+          console.log("Is founder:", isFounder);
+          setIsAdmin(isFounder);
         }
       } catch (error) {
         console.error("Error checking admin status:", error);
@@ -200,7 +195,7 @@ export default function DashboardShell({
     };
     
     // Ritarda il controllo admin per evitare conflitti con il login
-    const timeout = setTimeout(checkAdmin, 3000);
+    const timeout = setTimeout(checkAdmin, 5000);
     return () => clearTimeout(timeout);
   }, []);
 
@@ -287,7 +282,7 @@ export default function DashboardShell({
                 transition={{ duration: 0.4, delay: 0.5 }}
               >
                 <Link
-                  href="/admin"
+                  href="/admin-login"
                   className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all duration-200 group"
                 >
                   <Shield className="h-4 w-4" />
