@@ -36,11 +36,29 @@ export default function AdminLoginPage() {
     }
 
     console.log("Starting admin login...");
+    console.log("Environment check:", {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING",
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "SET" : "MISSING"
+    });
 
     const supabase = supabaseBrowser();
     console.log("Supabase client created for admin login:", !!supabase);
     
     console.log("Starting actual admin login...");
+    
+    // Test di connessione diretta a Supabase
+    try {
+      console.log("Testing Supabase connection...");
+      const testResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
+        headers: {
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
+        }
+      });
+      console.log("Supabase connection test:", testResponse.status, testResponse.statusText);
+    } catch (testError) {
+      console.error("Supabase connection test failed:", testError);
+    }
     
     // Aggiungi timeout per evitare blocchi
     const loginPromise = supabase.auth.signInWithPassword({ email, password });
