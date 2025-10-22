@@ -75,21 +75,16 @@ export default function AdminPanel() {
           return;
         }
 
-        // Controllo admin riabilitato con database pulito
+        // Controllo admin semplificato per evitare blocchi
         console.log("Checking admin status for user:", user.email);
         
-        // Controllo usando il campo is_admin nella tabella profiles
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("is_admin")
-          .eq("id", user.id)
-          .maybeSingle();
+        // Controllo semplice: solo se l'email è quella del fondatore
+        const isFounder = user.email === "haxiesz@gmail.com";
+        console.log("Is founder:", isFounder);
         
-        console.log("Admin check result:", { profile, error: profileError?.message });
-        
-        if (!profile?.is_admin) {
-          console.log("User is not admin, redirecting to dashboard");
-          alert("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
+        if (!isFounder) {
+          console.log("User is not founder, redirecting to dashboard");
+          alert("Accesso negato. Solo il fondatore può accedere a questa sezione.");
           router.push("/dashboard");
           return;
         }
@@ -115,17 +110,26 @@ export default function AdminPanel() {
   }, [activeTab, isAdmin]);
 
   const loadAdminData = async () => {
+    console.log("Loading admin data for tab:", activeTab);
     setDataLoading(true);
     try {
       const supabase = supabaseBrowser();
+      console.log("Supabase client created for admin data:", !!supabase);
       
       // Carica solo le statistiche base per la panoramica
       if (activeTab === "overview") {
+        console.log("Loading overview data...");
         const [usersRes, orgsRes, subsRes] = await Promise.all([
           supabase.from("profiles").select("id", { count: "exact", head: true }),
           supabase.from("organizations").select("id", { count: "exact", head: true }),
           supabase.from("org_subscriptions").select("status").eq("status", "active")
         ]);
+
+        console.log("Overview data loaded:", { 
+          users: usersRes.count, 
+          orgs: orgsRes.count, 
+          subs: subsRes.data?.length 
+        });
 
         setStats({
           totalUsers: usersRes.count || 0,
@@ -138,7 +142,8 @@ export default function AdminPanel() {
 
       // Carica utenti solo se necessario
       if (activeTab === "users") {
-        const { data: usersData } = await supabase
+        console.log("Loading users data...");
+        const { data: usersData, error: usersError } = await supabase
           .from("profiles")
           .select(`
             id,
@@ -150,6 +155,7 @@ export default function AdminPanel() {
           .order("created_at", { ascending: false })
           .limit(50);
 
+        console.log("Users data loaded:", { users: usersData?.length, error: usersError?.message });
         setUsers(usersData || []);
       }
 
