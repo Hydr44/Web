@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
-// import DashboardShell from "@/components/dashboard/Shell"; // Temporaneamente disabilitato
+import SimpleDashboardShell from "@/components/dashboard/SimpleShell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -94,13 +94,10 @@ export default function DashboardLayout({
   return (
     <>
       <SiteHeader />
-        {/* Temporaneamente senza sidebar */}
-        <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Breadcrumbs currentOrgName={currentOrgName} />
-            {children}
-          </div>
-        </div>
+      <SimpleDashboardShell userEmail={userEmail}>
+        <Breadcrumbs currentOrgName={currentOrgName} />
+        {children}
+      </SimpleDashboardShell>
     </>
   );
 }
