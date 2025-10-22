@@ -86,7 +86,14 @@ export default function LoginPage() {
     console.log("Skipping connection tests to avoid login conflicts");
     
     console.log("Starting actual login...");
-    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
+    
+    // Aggiungi timeout per evitare blocchi
+    const loginPromise = supabase.auth.signInWithPassword({ email, password });
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Login timeout after 15 seconds")), 15000)
+    );
+    
+    const { error: err, data } = await Promise.race([loginPromise, timeoutPromise]) as any;
     
     console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 
@@ -97,7 +104,9 @@ export default function LoginPage() {
         status: err.status,
         name: err.name
       });
-      if (/invalid login credentials/i.test(err.message)) {
+      if (/timeout/i.test(err.message)) {
+        setError("Timeout: La connessione è troppo lenta. Riprova.");
+      } else if (/invalid login credentials/i.test(err.message)) {
         setError("Email o password non corretti.");
       } else if (/email.*confirm/i.test(err.message)) {
         setError("Email non confermata: controlla la posta per il link di verifica.");
