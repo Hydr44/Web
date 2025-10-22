@@ -40,13 +40,23 @@ export default function AdminLoginPage() {
     const supabase = supabaseBrowser();
     console.log("Supabase client created for admin login:", !!supabase);
     
-    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
+    console.log("Starting actual admin login...");
+    
+    // Aggiungi timeout per evitare blocchi
+    const loginPromise = supabase.auth.signInWithPassword({ email, password });
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Admin login timeout after 15 seconds")), 15000)
+    );
+    
+    const { error: err, data } = await Promise.race([loginPromise, timeoutPromise]) as any;
     
     console.log("Admin login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 
     if (err) {
       console.error("Admin login error:", err);
-      if (/invalid login credentials/i.test(err.message)) {
+      if (/timeout/i.test(err.message)) {
+        setError("Timeout: La connessione è troppo lenta. Riprova.");
+      } else if (/invalid login credentials/i.test(err.message)) {
         setError("Email o password non corretti.");
       } else if (/email.*confirm/i.test(err.message)) {
         setError("Email non confermata: controlla la posta per il link di verifica.");
