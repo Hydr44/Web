@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   LayoutGrid,
   Download,
@@ -180,21 +179,11 @@ export default function DashboardShell({
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50/50 to-white">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6">
         {/* Sidebar */}
-        <motion.aside 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-6 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 shadow-xl"
-        >
+        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-6 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 shadow-xl">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
             {/* User block */}
             {userEmail && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20"
-              >
+              <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                     <Shield className="h-4 w-4 text-white" />
@@ -207,7 +196,7 @@ export default function DashboardShell({
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             <div className="text-xs uppercase tracking-wide text-gray-500 px-2 pb-3 font-semibold">
@@ -252,12 +241,7 @@ export default function DashboardShell({
 
             {/* Admin Panel Link */}
             {isAdmin && (
-              <motion.div
-                className="mt-6"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.5 }}
-              >
+              <div className="mt-6">
                 <Link
                   href="/admin-login"
                   className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all duration-200 group"
@@ -266,41 +250,30 @@ export default function DashboardShell({
                   <span>Pannello Admin</span>
                   <ChevronRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
-              </motion.div>
+              </div>
             )}
 
-            <motion.form 
+            <form 
               action="/logout" 
               method="POST" 
               className="mt-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
             >
-              <motion.button 
+              <button 
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
               >
                 <LogOut className="h-5 w-5" /> 
                 Esci dall&apos;account
-              </motion.button>
-            </motion.form>
+              </button>
+            </form>
           </nav>
-        </motion.aside>
+        </aside>
 
         {/* Content */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="p-6 lg:p-8"
-        >
+        <section className="p-6 lg:p-8">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>
-        </motion.section>
+        </section>
       </div>
     </div>
   );

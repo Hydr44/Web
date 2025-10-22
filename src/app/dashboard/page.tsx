@@ -22,25 +22,8 @@ export default function DashboardPanoramica() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // BYPASS: Controlla il localStorage per i dati utente
-    const bypassAuth = localStorage.getItem("rescuemanager-auth");
-    if (bypassAuth) {
-      try {
-        const authData = JSON.parse(bypassAuth);
-        if (authData.user?.email === "haxiesz@gmail.com") {
-          console.log("BYPASS: Dashboard page detected founder auth");
-          setUserEmail(authData.user.email);
-          setCurrentOrg("RescueManager");
-          setLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.warn("BYPASS: Error parsing localStorage auth in dashboard page:", error);
-      }
-    }
-    
-    // Fallback: mostra comunque il dashboard
-    setUserEmail("haxiesz@gmail.com");
+    // Dashboard normale per tutti gli utenti
+    setUserEmail("Utente");
     setCurrentOrg("RescueManager");
     setLoading(false);
   }, []);

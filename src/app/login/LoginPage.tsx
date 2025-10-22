@@ -87,34 +87,7 @@ export default function LoginPage() {
     
     console.log("Starting actual login...");
     
-    // BYPASS: Per il fondatore, bypassiamo Supabase completamente
-    if (email === "haxiesz@gmail.com") {
-      console.log("BYPASS: Founder login detected - skipping Supabase auth");
-      
-      // Simula un login di successo
-      const mockData = {
-        user: { email, id: "founder-user-id" },
-        session: { access_token: "founder-token" }
-      };
-      
-      console.log("BYPASS: Mock login successful:", mockData);
-      
-      // Salva nel localStorage per il bypass
-      localStorage.setItem("rescuemanager-auth", JSON.stringify({
-        user: mockData.user,
-        session: mockData.session,
-        timestamp: Date.now()
-      }));
-      
-      console.log("BYPASS: Auth data saved to localStorage");
-      console.log("BYPASS: Redirecting to dashboard...");
-      
-      // Redirect immediato
-      window.location.href = redirectTo;
-      return;
-    }
-    
-    // Per altri utenti, prova Supabase con timeout
+    // Login normale per tutti gli utenti
     const loginPromise = supabase.auth.signInWithPassword({ email, password });
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error("Login timeout after 15 seconds")), 15000)

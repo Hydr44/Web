@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
-import SimpleDashboardShell from "@/components/dashboard/SimpleShell";
+import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -24,48 +24,18 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // BYPASS: Controlla prima il localStorage per il fondatore
-        const bypassAuth = localStorage.getItem("rescuemanager-auth");
-        if (bypassAuth) {
-          try {
-            const authData = JSON.parse(bypassAuth);
-            if (authData.user?.email === "haxiesz@gmail.com") {
-              console.log("BYPASS: Founder auth detected in localStorage");
-              setUserEmail(authData.user.email);
-              setCurrentOrgName("RescueManager");
-              setLoading(false);
-              console.log("BYPASS: Dashboard auth check completed successfully");
-              return;
-            }
-          } catch (error) {
-            console.warn("BYPASS: Error parsing localStorage auth:", error);
-          }
-        }
-        
-        // Semplificato: solo controllo base con timeout
-        const getUserPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Dashboard auth timeout after 10 seconds")), 10000)
-        );
-        
-        const { data: { user }, error } = await Promise.race([getUserPromise, timeoutPromise]) as any;
+        // Controllo auth normale per tutti gli utenti
+        const { data: { user }, error } = await supabase.auth.getUser();
         console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         
         if (error || !user) {
-          if (/timeout/i.test(error?.message || "")) {
-            console.log("Dashboard auth timeout, showing dashboard anyway");
-            setUserEmail("");
-            setCurrentOrgName("");
-            setLoading(false);
-            return;
-          }
           console.log("No authenticated user, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
         }
 
         setUserEmail(user.email || "");
-        setCurrentOrgName(""); // Semplificato per ora
+        setCurrentOrgName("RescueManager"); // Semplificato per ora
         setLoading(false);
         console.log("Dashboard auth check completed successfully");
       } catch (error) {
@@ -94,10 +64,10 @@ export default function DashboardLayout({
   return (
     <>
       <SiteHeader />
-      <SimpleDashboardShell userEmail={userEmail}>
+      <DashboardShell userEmail={userEmail}>
         <Breadcrumbs currentOrgName={currentOrgName} />
         {children}
-      </SimpleDashboardShell>
+      </DashboardShell>
     </>
   );
 }

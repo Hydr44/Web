@@ -35,31 +35,6 @@ export default function SiteHeader() {
 
   // read session (client) just to toggle Accedi/Registrati vs Dashboard/Esci
   useEffect(() => {
-    // BYPASS: Controlla prima il localStorage per il fondatore
-    const checkBypassAuth = () => {
-      const bypassAuth = localStorage.getItem("rescuemanager-auth");
-      if (bypassAuth) {
-        try {
-          const authData = JSON.parse(bypassAuth);
-          if (authData.user?.email === "haxiesz@gmail.com") {
-            console.log("BYPASS: Header detected founder auth");
-            setEmail(authData.user.email);
-            setCurrentOrg("RescueManager");
-            setIsAdmin(true);
-            return true;
-          }
-        } catch (error) {
-          console.warn("BYPASS: Error parsing localStorage auth in header:", error);
-        }
-      }
-      return false;
-    };
-
-    // Se il bypass è attivo, non controllare Supabase
-    if (checkBypassAuth()) {
-      return;
-    }
-
     const supabase = supabaseBrowser();
     
     // Funzione per aggiornare lo stato utente
