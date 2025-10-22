@@ -14,11 +14,9 @@ import {
   ChevronRight,
   LogOut,
   Zap,
-  Shield,
 } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import * as React from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Item = {
   label: string;
@@ -171,9 +169,6 @@ export default function DashboardShell({
   userEmail?: string;
 }>) {
   const path = usePathname();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Admin check rimosso per evitare conflitti con login normale
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50/50 to-white">
@@ -186,7 +181,7 @@ export default function DashboardShell({
               <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
-                    <Shield className="h-4 w-4 text-white" />
+                    <Zap className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-gray-900 text-sm truncate">{userEmail}</div>
@@ -239,19 +234,6 @@ export default function DashboardShell({
               })}
             </div>
 
-            {/* Admin Panel Link */}
-            {isAdmin && (
-              <div className="mt-6">
-                <Link
-                  href="/admin-login"
-                  className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all duration-200 group"
-                >
-                  <Shield className="h-4 w-4" />
-                  <span>Pannello Admin</span>
-                  <ChevronRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </div>
-            )}
 
             <form 
               action="/logout" 
