@@ -174,10 +174,34 @@ export default function DashboardShell({
   const path = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Controllo admin completamente disabilitato per evitare conflitti
+  // Controllo admin riabilitato con database pulito
   useEffect(() => {
-    console.log("Admin check completely disabled to avoid login conflicts");
-    setIsAdmin(false); // Sempre false per ora
+    const checkAdmin = async () => {
+      try {
+        const supabase = supabaseBrowser();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          console.log("Checking admin status for user:", user.email);
+          
+          // Controllo usando il campo is_admin nella tabella profiles
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", user.id)
+            .maybeSingle();
+          
+          console.log("Admin check result:", { profile, error: error?.message });
+          setIsAdmin(profile?.is_admin ?? false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      }
+    };
+    
+    // Ritarda il controllo admin per evitare conflitti con il login
+    const timeout = setTimeout(checkAdmin, 3000);
+    return () => clearTimeout(timeout);
   }, []);
 
   return (

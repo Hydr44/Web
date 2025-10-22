@@ -75,8 +75,24 @@ export default function AdminPanel() {
           return;
         }
 
-        // Controllo admin completamente disabilitato per evitare conflitti
-        console.log("Admin check completely disabled to avoid login conflicts");
+        // Controllo admin riabilitato con database pulito
+        console.log("Checking admin status for user:", user.email);
+        
+        // Controllo usando il campo is_admin nella tabella profiles
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .maybeSingle();
+        
+        console.log("Admin check result:", { profile, error: profileError?.message });
+        
+        if (!profile?.is_admin) {
+          console.log("User is not admin, redirecting to dashboard");
+          alert("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
+          router.push("/dashboard");
+          return;
+        }
 
         setIsAdmin(true);
         await loadAdminData();
