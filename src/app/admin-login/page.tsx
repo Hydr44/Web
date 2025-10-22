@@ -68,6 +68,19 @@ export default function AdminLoginPage() {
     
     console.log("Admin check result:", { profile, error: profileError?.message });
     
+    // Controllo temporaneo: se non c'è profilo o errore, permetti accesso per haxiesz@gmail.com
+    if (!profile || profileError) {
+      console.log("No profile found or error, checking email...");
+      if (data.user.email === "haxiesz@gmail.com") {
+        console.log("Founder email detected, allowing access");
+        // Redirect al pannello admin
+        startTransition(() => {
+          router.push("/admin");
+        });
+        return;
+      }
+    }
+    
     if (!profile?.is_admin) {
       console.log("User is not admin, showing error");
       setError("Accesso negato. Solo gli amministratori possono accedere a questa sezione.");
