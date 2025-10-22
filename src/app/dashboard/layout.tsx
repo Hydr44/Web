@@ -24,11 +24,23 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // Semplificato: solo controllo base
-        const { data: { user }, error } = await supabase.auth.getUser();
+        // Semplificato: solo controllo base con timeout
+        const getUserPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Dashboard auth timeout after 10 seconds")), 10000)
+        );
+        
+        const { data: { user }, error } = await Promise.race([getUserPromise, timeoutPromise]) as any;
         console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         
         if (error || !user) {
+          if (/timeout/i.test(error?.message || "")) {
+            console.log("Dashboard auth timeout, showing dashboard anyway");
+            setUserEmail("");
+            setCurrentOrgName("");
+            setLoading(false);
+            return;
+          }
           console.log("No authenticated user, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
