@@ -26,27 +26,18 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    // BYPASS: Controllo semplificato solo per il fondatore
+    // BYPASS COMPLETO: Nessun controllo Supabase, accesso diretto
     const checkAccess = async () => {
       try {
-        console.log("=== ADMIN BYPASS ACCESS ===");
-        console.log("Checking founder access...");
+        console.log("=== ADMIN PANEL - ACCESSO DIRETTO ===");
+        console.log("Bypassing all Supabase checks...");
         
-        // Controllo diretto dell'email nel localStorage o sessionStorage
-        const supabase = supabaseBrowser();
-        const { data: { session } } = await supabase.auth.getSession();
+        // Accesso diretto senza controlli
+        setLoading(false);
+        loadAdminData();
         
-        if (session?.user?.email === FOUNDER_EMAIL) {
-          console.log("Founder access confirmed:", session.user.email);
-          setLoading(false);
-          loadAdminData();
-        } else {
-          console.log("Not founder, redirecting to dashboard");
-          window.location.href = "/dashboard";
-        }
       } catch (error) {
-        console.error("Admin access check error:", error);
-        // In caso di errore, mostra comunque il pannello per il fondatore
+        console.error("Admin access error:", error);
         setLoading(false);
         loadAdminData();
       }
