@@ -24,6 +24,24 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
+        // BYPASS: Controlla prima il localStorage per il fondatore
+        const bypassAuth = localStorage.getItem("rescuemanager-auth");
+        if (bypassAuth) {
+          try {
+            const authData = JSON.parse(bypassAuth);
+            if (authData.user?.email === "haxiesz@gmail.com") {
+              console.log("BYPASS: Founder auth detected in localStorage");
+              setUserEmail(authData.user.email);
+              setCurrentOrgName("RescueManager");
+              setLoading(false);
+              console.log("BYPASS: Dashboard auth check completed successfully");
+              return;
+            }
+          } catch (error) {
+            console.warn("BYPASS: Error parsing localStorage auth:", error);
+          }
+        }
+        
         // Semplificato: solo controllo base con timeout
         const getUserPromise = supabase.auth.getUser();
         const timeoutPromise = new Promise((_, reject) => 
