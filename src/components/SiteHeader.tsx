@@ -241,16 +241,7 @@ export default function SiteHeader() {
                         Impostazioni
                       </Link>
                       
-                      {isAdmin && (
-                        <Link
-                          href="/admin"
-                          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          <Shield className="h-4 w-4" />
-                          Pannello Admin
-                        </Link>
-                      )}
+                      {/* Admin panel rimosso - accesso separato */}
                       
                       <div className="border-t border-gray-100 my-1"></div>
                       
@@ -369,16 +360,7 @@ export default function SiteHeader() {
                     Dashboard
                   </Link>
                   
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-red-600 text-white hover:bg-red-700 transition-all duration-300 font-medium"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <Shield className="h-4 w-4" />
-                      Pannello Admin
-                    </Link>
-                  )}
+                  {/* Admin panel rimosso - accesso separato */}
                   
                   <div className="border-t border-gray-200 my-2"></div>
                   <button 
