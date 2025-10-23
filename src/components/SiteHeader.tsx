@@ -155,7 +155,7 @@ export default function SiteHeader() {
           : "bg-white/90 backdrop-blur-lg"
       }`}
     >
-      <nav className="container relative flex h-20 items-center justify-between">
+      <nav className="container relative flex h-20 items-center justify-between overflow-hidden">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative overflow-hidden rounded-xl">
@@ -372,8 +372,8 @@ export default function SiteHeader() {
 
         {/* Mobile drawer migliorato */}
         {menuOpen && (
-          <div className="lg:hidden absolute top-20 left-0 w-full border-b border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-xl">
-            <div className="container py-6 flex flex-col gap-2">
+          <div className="lg:hidden absolute top-20 left-0 right-0 w-full max-w-full border-b border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-xl">
+            <div className="container mx-auto px-4 py-6 flex flex-col gap-2">
               {nav.map((item) => (
                 <Link
                   key={item.href}
