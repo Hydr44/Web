@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Prevenire scroll extra sotto il footer */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 /* Variante dark basata su classe .dark */
 @custom-variant dark (&:is(.dark *));
 
