@@ -46,13 +46,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-dvh h-dvh bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
+      <body className="min-h-dvh bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
         {/* Header pubblico visibile solo FUORI dalla dashboard */}
         <HeaderGate>
           <SiteHeader />
         </HeaderGate>
 
-        {/* Contenuto pagina - flex-1 per occupare spazio rimanente */}
+        {/* Contenuto pagina */}
         <main className="flex-1">
           {children}
         </main>

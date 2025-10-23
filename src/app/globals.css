@@ -3,8 +3,18 @@
 
 /* Prevenire scroll extra sotto il footer */
 html, body {
-  height: 100%;
   overflow-x: hidden;
+}
+
+/* Assicura che il footer rimanga in fondo */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
 }
 
 /* Variante dark basata su classe .dark */
