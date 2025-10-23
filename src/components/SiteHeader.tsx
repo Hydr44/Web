@@ -231,11 +231,13 @@ export default function SiteHeader() {
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 mt-2 w-64 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50"
+                      className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50"
                     >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
-                        <div className="text-sm font-medium text-gray-900 truncate">{email}</div>
+                        <div className="text-sm font-medium text-gray-900 break-all max-w-full overflow-hidden">
+                          <span className="block truncate" title={email || ""}>{email}</span>
+                        </div>
                       </div>
                       
                       <Link
