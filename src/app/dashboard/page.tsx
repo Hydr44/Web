@@ -12,7 +12,8 @@ import {
   Zap,
   Shield,
   BarChart3,
-  Download
+  Download,
+  Building2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -21,6 +22,7 @@ export default function DashboardPanoramica() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [currentOrg, setCurrentOrg] = useState<string>("RescueManager");
   const [loading, setLoading] = useState(true);
+  const [hasOrganization, setHasOrganization] = useState<boolean>(true);
   const [stats, setStats] = useState({
     vehicles: 0,
     drivers: 0,
@@ -46,7 +48,29 @@ export default function DashboardPanoramica() {
         }
         
         setUserEmail(user.email || "");
-        setCurrentOrg("RescueManager");
+        
+        // Controlla se l'utente ha un'organizzazione
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("current_org")
+          .eq("id", user.id)
+          .single();
+        
+        if (!profile?.current_org) {
+          setHasOrganization(false);
+          setCurrentOrg("Nessuna organizzazione");
+          setLoading(false);
+          return;
+        }
+        
+        // Carica nome organizzazione
+        const { data: org } = await supabase
+          .from("orgs")
+          .select("name")
+          .eq("id", profile.current_org)
+          .single();
+        
+        setCurrentOrg(org?.name || "Organizzazione");
         
         // Carica statistiche reali con gestione errori
         const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.allSettled([
@@ -92,6 +116,66 @@ export default function DashboardPanoramica() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Se l'utente non ha organizzazione, mostra messaggio
+  if (!hasOrganization) {
+    return (
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Building2 className="h-8 w-8 text-yellow-600" />
+          </div>
+          
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Benvenuto in RescueManager!
+          </h1>
+          
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Per iniziare a utilizzare RescueManager, devi prima creare o unirti a un'organizzazione.
+            Questo ti permetterà di gestire la tua officina e i tuoi dati in modo sicuro.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/dashboard/create-org"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200"
+            >
+              <Building2 className="h-5 w-5" />
+              Crea Organizzazione
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            
+            <button className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+              <Users className="h-5 w-5" />
+              Unisciti a un'Organizzazione
+            </button>
+          </div>
+        </div>
+
+        {/* Benefits */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { icon: Building2, title: "Gestione Completa", desc: "Organizza la tua officina con tutti gli strumenti necessari" },
+            { icon: Users, title: "Team Collaboration", desc: "Lavora con il tuo team in modo efficiente" },
+            { icon: Shield, title: "Sicurezza Dati", desc: "I tuoi dati sono protetti e sicuri" }
+          ].map((benefit, i) => (
+            <motion.div
+              key={benefit.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm"
+            >
+              <benefit.icon className="h-8 w-8 text-primary mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+              <p className="text-gray-600">{benefit.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     );
   }
