@@ -42,6 +42,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Controlla se l'utente è già membro di un'organizzazione
+    console.log("Checking existing memberships...");
+    const { data: existingMemberships, error: membershipError } = await supabase
+      .from("org_members")
+      .select("org_id, role")
+      .eq("user_id", user.id);
+
+    if (membershipError) {
+      console.error("Errore controllo memberships:", membershipError);
+      return NextResponse.json(
+        { error: `Errore controllo memberships: ${membershipError.message}` },
+        { status: 500 }
+      );
+    }
+
+    console.log("Existing memberships:", existingMemberships);
+
     // Prova prima a creare l'organizzazione manualmente
     console.log("Creating organization manually...");
     
@@ -72,26 +89,32 @@ export async function POST(request: NextRequest) {
 
     console.log("Organization created:", org.id);
 
-    // 2. Aggiungi utente come owner
-    const { error: memberError } = await supabase
-      .from("org_members")
-      .insert({
-        org_id: org.id,
-        user_id: user.id,
-        role: "owner"
-      });
+    // 2. Se l'utente non è già membro di un'organizzazione, aggiungilo
+    if (!existingMemberships || existingMemberships.length === 0) {
+      console.log("User not in any organization, adding as owner...");
+      
+      const { error: memberError } = await supabase
+        .from("org_members")
+        .insert({
+          org_id: org.id,
+          user_id: user.id,
+          role: "owner"
+        });
 
-    if (memberError) {
-      console.error("Errore aggiunta membro:", memberError);
-      return NextResponse.json(
-        { error: `Errore aggiunta membro: ${memberError.message}` },
-        { status: 500 }
-      );
+      if (memberError) {
+        console.error("Errore aggiunta membro:", memberError);
+        return NextResponse.json(
+          { error: `Errore aggiunta membro: ${memberError.message}` },
+          { status: 500 }
+        );
+      }
+
+      console.log("Member added successfully");
+    } else {
+      console.log("User already in organization, skipping member addition");
     }
 
-    console.log("Member added successfully");
-
-    // 3. Aggiorna profilo utente
+    // 3. Aggiorna profilo utente con la nuova organizzazione come corrente
     const { error: profileError } = await supabase
       .from("profiles")
       .upsert({
