@@ -88,33 +88,42 @@ export default function LoginPage() {
     console.log("Starting actual login...");
     
     // TENTATIVO DI LOGIN REALE CON SUPABASE
-    const { data, error: err } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (err) {
-      console.error("Login error:", err);
-      console.error("Error details:", {
-        message: err.message,
-        status: err.status,
-        name: err.name
+    try {
+      console.log("Calling supabase.auth.signInWithPassword...");
+      const { data, error: err } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      if (/timeout/i.test(err.message)) {
-        setError("Timeout: La connessione è troppo lenta. Riprova.");
-      } else if (/invalid login credentials/i.test(err.message)) {
-        setError("Email o password non corretti.");
-      } else if (/email.*confirm/i.test(err.message)) {
-        setError("Email non confermata: controlla la posta per il link di verifica.");
-      } else {
-        setError(err.message || "Accesso non riuscito.");
+      
+      console.log("Login response received:", { data: !!data, error: !!err });
+      
+      if (err) {
+        console.error("Login error:", err);
+        console.error("Error details:", {
+          message: err.message,
+          status: err.status,
+          name: err.name
+        });
+        if (/timeout/i.test(err.message)) {
+          setError("Timeout: La connessione è troppo lenta. Riprova.");
+        } else if (/invalid login credentials/i.test(err.message)) {
+          setError("Email o password non corretti.");
+        } else if (/email.*confirm/i.test(err.message)) {
+          setError("Email non confermata: controlla la posta per il link di verifica.");
+        } else {
+          setError(err.message || "Accesso non riuscito.");
+        }
+        return;
       }
+
+      console.log("Login successful:", data);
+      console.log("User:", data.user);
+      console.log("Session:", data.session);
+    } catch (error) {
+      console.error("Unexpected error during login:", error);
+      setError("Errore imprevisto durante l'accesso. Riprova.");
       return;
     }
-
-    console.log("Login successful:", data);
-    console.log("User:", data.user);
-    console.log("Session:", data.session);
 
     // Verifica che l'utente sia autenticato correttamente
     console.log("Verifying authentication...");

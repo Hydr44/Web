@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value:
-              "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+              "geolocation=(), interest-cohort=()",
           },
           {
             key: "Content-Security-Policy",
@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
               "connect-src 'self' https: http:",
+              "frame-src 'self' https://help.rescuemanager.eu",
               "frame-ancestors 'none'",
             ].join("; "),
           },
