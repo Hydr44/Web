@@ -27,14 +27,16 @@ export default function DashboardLayout({
         // Controllo auth normale per tutti gli utenti
         const { data: { user }, error } = await supabase.auth.getUser();
         console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
-        
-        if (error || !user) {
-          console.log("No authenticated user, redirecting to login");
+
+        // Fallback: se non ritorna user ma esiste un cookie di sessione Supabase, lasciamo passare
+        const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
+        if ((error || !user) && !hasSbCookie) {
+          console.log("No authenticated user and no sb-* cookie, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
         }
 
-        setUserEmail(user.email || "");
+        setUserEmail(user?.email || "");
         setCurrentOrgName("RescueManager"); // Semplificato per ora
         setLoading(false);
         console.log("Dashboard auth check completed successfully");
