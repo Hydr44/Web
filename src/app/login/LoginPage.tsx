@@ -13,6 +13,7 @@ import {
   Zap
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 function safeRedirect(val: string | null, fallback = "/dashboard") {
   if (!val) return fallback;
@@ -189,14 +190,6 @@ export default function LoginPage() {
     }
   };
 
-  const signInWithProvider = async (provider: "google" | "github") => {
-    const supabase = supabaseBrowser();
-    const callback = `${globalThis.location.origin}${redirectTo}`;
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: callback },
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
@@ -270,28 +263,16 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {/* Social login */}
-              <div className="grid gap-3 mb-6">
-                <button
-                  type="button"
-                  onClick={() => signInWithProvider("google")}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200"
-                >
-                  <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">G</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Continua con Google</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => signInWithProvider("github")}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition-all duration-200"
-                >
-                  <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">G</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Continua con GitHub</span>
-                </button>
+              {/* Google Login */}
+              <div className="mb-6">
+                <GoogleLoginButton 
+                  onSuccess={() => {
+                    console.log("Google login initiated");
+                  }}
+                  onError={(error) => {
+                    setError(error);
+                  }}
+                />
               </div>
 
               <div className="flex items-center gap-3 text-xs text-gray-500 mb-6">

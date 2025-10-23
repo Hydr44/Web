@@ -41,10 +41,19 @@ export default function SiteHeader() {
     const updateUserState = async (user: any) => {
       setEmail(user?.email ?? null);
       if (user) {
-        // carica org correnti e disponibili + controllo admin
-        const prof = await supabase.from("profiles").select("current_org, is_admin").eq("id", user.id).maybeSingle();
+        // carica org correnti e disponibili + controllo admin + info OAuth
+        const prof = await supabase.from("profiles").select("current_org, is_admin, provider, avatar_url, full_name").eq("id", user.id).maybeSingle();
         setCurrentOrg((prof.data as { current_org?: string })?.current_org ?? null);
         setIsAdmin((prof.data as { is_admin?: boolean })?.is_admin ?? false);
+        
+        // Log info OAuth per debug
+        if (prof.data) {
+          console.log("User profile loaded:", {
+            provider: (prof.data as any)?.provider,
+            hasAvatar: !!(prof.data as any)?.avatar_url,
+            fullName: (prof.data as any)?.full_name
+          });
+        }
         const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", user.id);
         const orgIds = new Set<string>();
         if (Array.isArray(mem1.data)) {
