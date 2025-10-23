@@ -28,41 +28,36 @@ type Item = {
 
 const NAV: Item[] = [
   { label: "Panoramica", href: "/dashboard", icon: LayoutGrid },
-  { label: "Download", href: "/dashboard/download", icon: Download },
-  // Unica voce per la fatturazione → tutto il resto nel Billing Portal
-  { label: "Piano & licenze", href: "/dashboard/billing/subscription", icon: Wallet },
   {
     label: "Organizzazione",
     icon: Building2,
     children: [
-      { label: "Team & ruoli", href: "/dashboard/team", icon: Users },
+      { label: "Team & Ruoli", href: "/dashboard/team" },
       { label: "Azienda", href: "/dashboard/org" },
-      // (Categorie in pausa)
     ],
   },
-  { label: "Impostazioni", href: "/dashboard/settings", icon: Settings },
+  { label: "Piani & Licenze", href: "/dashboard/billing", icon: Wallet },
+  { label: "Download", href: "/dashboard/download", icon: Download },
+  {
+    label: "Impostazioni",
+    icon: Settings,
+    children: [
+      { label: "Generali", href: "/dashboard/settings" },
+      { label: "Notifiche", href: "/dashboard/settings/notifications" },
+    ],
+  },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 
-function NavLink({
-  href,
-  children,
-  active,
-  icon: Icon,
-  badge,
-}: Readonly<{
+const NavLink: React.FC<{
   href: string;
   children: React.ReactNode;
   active: boolean;
   icon?: React.ElementType;
   badge?: string;
-}>) {
+}> = ({ href, children, active, icon: Icon, badge }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-    >
+    <div>
       <Link
         href={href}
         className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
@@ -82,84 +77,64 @@ function NavLink({
           <span className={`text-xs px-2 py-1 rounded-full font-medium ${
             active 
               ? "bg-white/20 text-white" 
-              : "bg-primary/10 text-primary"
+              : "bg-blue-100 text-blue-800"
           }`}>
             {badge}
           </span>
         )}
+        <ChevronRight className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
       </Link>
-    </motion.div>
+    </div>
   );
-}
+};
 
-function NavGroup({ item, activePath }: Readonly<{ item: Item; activePath: string }>) {
-  const anyChildActive = useMemo(
-    () => (item.children ?? []).some((c) => (c.href ? activePath.startsWith(c.href) : false)),
-    [item.children, activePath]
+const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePath }) => {
+  const [open, setOpen] = React.useState(
+    item.children?.some(child => child.href && activePath.startsWith(child.href)) ?? false
   );
-  const [open, setOpen] = useState<boolean>(anyChildActive);
   const Icon = item.icon;
 
   return (
     <div className="mb-2">
-      <motion.button
+      <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-          anyChildActive 
-            ? "bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary border border-primary/20" 
-            : "text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-900"
+          open 
+            ? "text-gray-900 bg-gray-100" 
+            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
         }`}
-        aria-expanded={open}
-        aria-controls={`group-${item.label}`}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2 }}
       >
         {Icon && (
           <Icon className={`h-5 w-5 transition-colors ${
-            anyChildActive ? "text-primary" : "text-gray-500"
+            open ? "text-gray-700" : "text-gray-500 group-hover:text-gray-700"
           }`} />
         )}
         <span className="flex-1 text-left">{item.label}</span>
-        <motion.div
-          animate={{ rotate: open ? 90 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
+        <div className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
           <ChevronRight className="h-4 w-4" />
-        </motion.div>
-      </motion.button>
-
-      <motion.div
-        id={`group-${item.label}`}
-        initial={false}
-        animate={{ 
-          height: open ? "auto" : 0,
-          opacity: open ? 1 : 0
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="overflow-hidden"
-      >
-        <div className="mt-2 ml-4 space-y-1">
-          {(item.children ?? []).map((child) => {
-            const active = child.href ? activePath.startsWith(child.href) : false;
-            return (
-              <NavLink
-                key={child.label}
-                href={child.href!}
-                active={active}
-                icon={child.icon}
-                badge={child.badge}
-              >
-                {child.label}
-              </NavLink>
-            );
-          })}
         </div>
-      </motion.div>
+      </button>
+
+      <div className={`ml-6 mt-2 space-y-1 border-l border-gray-200 pl-3 ${open ? "block" : "hidden"}`}>
+        {item.children?.map((child) => {
+          const active = child.href ? activePath.startsWith(child.href) : false;
+          return (
+            <NavLink
+              key={child.label}
+              href={child.href || "#"}
+              active={active}
+              icon={child.icon}
+              badge={child.badge}
+            >
+              {child.label}
+            </NavLink>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
 
 export default function DashboardShell({
   children,
@@ -199,41 +174,30 @@ export default function DashboardShell({
             </div>
 
             <div className="flex-1 space-y-1">
-              {NAV.map((item, index) => {
+              {NAV.map((item) => {
                 if (item.children?.length) {
                   return (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.1 * index }}
-                    >
+                    <div key={item.label}>
                       <NavGroup item={item} activePath={path} />
-                    </motion.div>
+                    </div>
                   );
                 }
                 const active = item.href ? path.startsWith(item.href) : false;
                 const Icon = item.icon;
                 return (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 * index }}
-                  >
+                  <div key={item.label}>
                     <NavLink
-                      href={item.href!}
+                      href={item.href || "#"}
                       active={active}
                       icon={Icon}
                       badge={item.badge}
                     >
                       {item.label}
                     </NavLink>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-
 
             <form 
               action="/logout" 
