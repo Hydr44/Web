@@ -32,6 +32,7 @@ export default function LoginPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [clicked, setClicked] = useState(false);
 
   const router = useRouter();
   const params = useSearchParams();
@@ -40,7 +41,9 @@ export default function LoginPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setClicked(true);
     
+    console.log("=== FORM SUBMIT TRIGGERED ===");
     console.log("Form submitted:", { email, password: password ? "***" : "", acceptTerms });
 
     if (!email || !password) {
@@ -292,7 +295,13 @@ export default function LoginPage() {
                 <div className="h-px flex-1 bg-gray-200" />
               </div>
 
-              <form onSubmit={onSubmit} className="space-y-6">
+              <form 
+                onSubmit={(e) => {
+                  console.log("=== FORM ONSUBMIT CALLED ===");
+                  onSubmit(e);
+                }} 
+                className="space-y-6"
+              >
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -377,15 +386,8 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  disabled={pending}
-                  onClick={(e) => {
-                    console.log("Login button clicked");
-                    if (pending) {
-                      e.preventDefault();
-                      console.log("Button disabled, preventing submit");
-                    }
-                  }}
-                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={pending || clicked}
+                  className={`w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${clicked ? 'animate-pulse' : ''}`}
                 >
                   {pending ? (
                     <div className="flex items-center justify-center gap-2">
