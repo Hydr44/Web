@@ -82,11 +82,11 @@ export default function LoginPage() {
     console.log("Supabase client created:", !!supabase);
     console.log("Supabase auth object:", !!supabase.auth);
     
-    // Test di connettività rapido
+    // Test di connettività rapido - usa auth invece di database
     try {
       console.log("Testing Supabase connectivity...");
-      const { data: testData, error: testError } = await supabase.from("orgs").select("id").limit(1);
-      console.log("Connectivity test result:", { success: !testError, error: testError?.message });
+      const { data: { user }, error: testError } = await supabase.auth.getUser();
+      console.log("Connectivity test result:", { success: !testError, error: testError?.message, user: !!user });
     } catch (connectError) {
       console.warn("Connectivity test failed:", connectError);
     }
