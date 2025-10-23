@@ -24,7 +24,6 @@ const nextConfig: NextConfig = {
   compress: true,
   // Ottimizzazioni bundle
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   async headers() {
