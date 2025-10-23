@@ -33,47 +33,40 @@ export default function DashboardPanoramica() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        // BYPASS: Controlla il localStorage per i dati utente
-        const bypassAuth = localStorage.getItem("rescuemanager-auth");
-        if (bypassAuth) {
-          try {
-            const authData = JSON.parse(bypassAuth);
-            console.log("BYPASS: Dashboard page detected auth bypass");
-            setUserEmail(authData.user.email);
-            setCurrentOrg("RescueManager");
-            
-            // Carica dati reali dal database
-            const supabase = supabaseBrowser();
-            
-            // Carica statistiche reali
-            const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.all([
-              supabase.from("vehicles").select("id", { count: "exact" }),
-              supabase.from("drivers").select("id", { count: "exact" }),
-              supabase.from("transports").select("id", { count: "exact" }),
-              supabase.from("clients").select("id", { count: "exact" }),
-              supabase.from("invoices").select("id", { count: "exact" }),
-              supabase.from("quotes").select("id", { count: "exact" })
-            ]);
-
-            setStats({
-              vehicles: vehiclesResult.count || 0,
-              drivers: driversResult.count || 0,
-              transports: transportsResult.count || 0,
-              clients: clientsResult.count || 0,
-              invoices: invoicesResult.count || 0,
-              quotes: quotesResult.count || 0
-            });
-            
-            setLoading(false);
-            return;
-          } catch (error) {
-            console.warn("BYPASS: Error parsing localStorage auth in dashboard page:", error);
-          }
+        const supabase = supabaseBrowser();
+        
+        // Ottieni l'utente corrente
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          console.error("Error getting user:", userError);
+          setUserEmail("Utente");
+          setCurrentOrg("RescueManager");
+          setLoading(false);
+          return;
         }
         
-        // Fallback: mostra comunque il dashboard
-        setUserEmail("Utente");
+        setUserEmail(user.email || "");
         setCurrentOrg("RescueManager");
+        
+        // Carica statistiche reali
+        const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.all([
+          supabase.from("vehicles").select("id", { count: "exact" }),
+          supabase.from("drivers").select("id", { count: "exact" }),
+          supabase.from("transports").select("id", { count: "exact" }),
+          supabase.from("clients").select("id", { count: "exact" }),
+          supabase.from("invoices").select("id", { count: "exact" }),
+          supabase.from("quotes").select("id", { count: "exact" })
+        ]);
+
+        setStats({
+          vehicles: vehiclesResult.count || 0,
+          drivers: driversResult.count || 0,
+          transports: transportsResult.count || 0,
+          clients: clientsResult.count || 0,
+          invoices: invoicesResult.count || 0,
+          quotes: quotesResult.count || 0
+        });
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading dashboard data:", error);

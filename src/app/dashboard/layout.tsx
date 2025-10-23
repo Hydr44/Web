@@ -24,23 +24,7 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // BYPASS: Controlla prima il localStorage per l'auth bypass
-        const bypassAuth = localStorage.getItem("rescuemanager-auth");
-        if (bypassAuth) {
-          try {
-            const authData = JSON.parse(bypassAuth);
-            console.log("BYPASS: Dashboard detected auth bypass");
-            setUserEmail(authData.user.email);
-            setCurrentOrgName("RescueManager");
-            setLoading(false);
-            console.log("BYPASS: Dashboard auth check completed successfully");
-            return;
-          } catch (error) {
-            console.warn("BYPASS: Error parsing localStorage auth:", error);
-          }
-        }
-        
-        // Fallback: controlla cookie Supabase
+        // Controlla cookie Supabase
         const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
         
         if (!hasSbCookie) {
@@ -49,30 +33,23 @@ export default function DashboardLayout({
           return;
         }
 
-        // Prova a ottenere l'utente, ma non bloccare se fallisce
-        try {
-          const { data: { user }, error } = await supabase.auth.getUser();
-          console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
-          
-          if (user?.email) {
-            setUserEmail(user.email);
-          } else {
-            setUserEmail("Utente");
-          }
-        } catch (error) {
-          console.warn("Auth check failed, proceeding anyway:", error);
-          setUserEmail("Utente");
+        // Prova a ottenere l'utente
+        const { data: { user }, error } = await supabase.auth.getUser();
+        console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
+        
+        if (error || !user) {
+          console.log("Auth check failed, redirecting to login");
+          router.push("/login?redirect=/dashboard");
+          return;
         }
-
+        
+        setUserEmail(user.email || "Utente");
         setCurrentOrgName("RescueManager");
         setLoading(false);
         console.log("Dashboard auth check completed successfully");
       } catch (error) {
         console.error("Auth check error:", error);
-        // Non redirectare immediatamente, prova a mostrare il dashboard comunque
-        setUserEmail("");
-        setCurrentOrgName("");
-        setLoading(false);
+        router.push("/login?redirect=/dashboard");
       }
     };
 

@@ -21,35 +21,27 @@ export default function OrgPage() {
   useEffect(() => {
     const loadOrgData = async () => {
       try {
-        // BYPASS: Controlla il localStorage per i dati utente
-        const bypassAuth = localStorage.getItem("rescuemanager-auth");
-        if (bypassAuth) {
-          try {
-            const authData = JSON.parse(bypassAuth);
-            console.log("BYPASS: Org page detected auth bypass");
-            
-            // Carica dati reali dal database
-            const supabase = supabaseBrowser();
-            
-            // Carica dati organizzazione
-            const { data: orgs } = await supabase
-              .from("orgs")
-              .select("*")
-              .limit(1)
-              .single();
-            
-            if (orgs) {
-              setOrgData(orgs);
-            }
-            
-            setLoading(false);
-            return;
-          } catch (error) {
-            console.warn("BYPASS: Error loading org data:", error);
-          }
+        const supabase = supabaseBrowser();
+        
+        // Ottieni l'utente corrente
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          console.error("Error getting user:", userError);
+          setLoading(false);
+          return;
         }
         
-        // Fallback: mostra pagina vuota
+        // Carica dati organizzazione
+        const { data: orgs } = await supabase
+          .from("orgs")
+          .select("*")
+          .limit(1)
+          .single();
+        
+        if (orgs) {
+          setOrgData(orgs);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading org data:", error);
