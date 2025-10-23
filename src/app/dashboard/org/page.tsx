@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import Link from "next/link";
 import { 
   Building2, 
   MapPin, 
@@ -261,10 +262,13 @@ export default function OrgPage() {
             </div>
 
             <div className="flex gap-4">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg transition-all duration-200">
+              <Link
+                href="/dashboard/org/edit"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg transition-all duration-200"
+              >
                 <Edit className="h-4 w-4" />
                 Modifica informazioni
-              </button>
+              </Link>
               <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-primary/30 hover:shadow-md transition-all duration-200">
                 <FileText className="h-4 w-4" />
                 Esporta dati

@@ -224,7 +224,7 @@ export default function SiteHeader() {
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 max-w-[140px] truncate font-medium">{email}</span>
+                    <span className="text-xs text-gray-700 max-w-[120px] sm:max-w-[160px] truncate font-medium" title={email}>{email}</span>
                     <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
