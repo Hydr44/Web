@@ -56,12 +56,7 @@ export default function SiteHeader() {
             for (const m of mem2.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
-        if (orgIds.size === 0) {
-          const mem3 = await supabase.from("memberships").select("org_id").eq("user_id", user.id);
-          if (Array.isArray(mem3.data)) {
-            for (const m of mem3.data as { org_id: string }[]) orgIds.add(m.org_id);
-          }
-        }
+        // Tabella memberships non esiste, rimuoviamo questo controllo
         const list = await supabase.from("orgs").select("id, name").in("id", Array.from(orgIds));
         setOrgs((list.data as { id: string; name: string }[]) ?? []);
       } else {
