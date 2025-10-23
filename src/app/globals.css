@@ -158,6 +158,26 @@
   /* Smooth scroll behavior */
   html {
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ottimizzazioni specifiche per iOS Safari */
+  * {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+  }
+  
+  /* Riduci reflow su animazioni */
+  .motion-safe\:transform-gpu {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  /* Ottimizza immagini per iOS */
+  img {
+    -webkit-transform: translateZ(0);
+    image-rendering: -webkit-optimize-contrast;
   }
 }
 
@@ -217,4 +237,37 @@
 /* fallback per browser senza mask */
 @supports not ((-webkit-mask-image: linear-gradient(black, transparent)) or (mask-image: linear-gradient(black, transparent))) {
   .hero-mask { opacity: 0.95; }
+}
+
+/* === Utility per performance iOS === */
+@layer utilities {
+  /* Utility per hardware acceleration */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Riduci motion per utenti con preferenze */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Ottimizzazioni per dispositivi mobili */
+  @media (max-width: 768px) {
+    .motion-reduce-mobile {
+      animation-duration: 0.3s !important;
+      transition-duration: 0.3s !important;
+    }
+  }
+  
+  /* Ottimizza scrolling su iOS */
+  .ios-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
 }

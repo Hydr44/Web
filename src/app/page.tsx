@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { SmoothScrollLink } from "@/components/SmoothScrollLink";
 import { BackToTopButton } from "@/components/BackToTopButton";
 import { 
@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const shouldReduceMotion = useReducedMotion();
+  
   return (
     <main className="hero-bg">
       {/* HERO */}

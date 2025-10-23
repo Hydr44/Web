@@ -25,7 +25,13 @@ const nextConfig: NextConfig = {
   // Ottimizzazioni bundle
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // Ottimizzazioni per mobile
+    optimizeServerReact: true,
+    serverMinification: true,
   },
+  // Ottimizzazioni per iOS
+  swcMinify: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {
