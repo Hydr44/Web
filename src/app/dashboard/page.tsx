@@ -185,7 +185,7 @@ export default function DashboardPanoramica() {
               <p className="text-gray-600">{benefit.desc}</p>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     );
   }
