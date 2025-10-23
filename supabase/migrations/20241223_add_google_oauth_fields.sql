@@ -13,10 +13,19 @@ ADD COLUMN IF NOT EXISTS full_name TEXT;
 CREATE INDEX IF NOT EXISTS idx_profiles_google_id ON public.profiles(google_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_provider_id ON public.profiles(provider_id);
 
--- Aggiornare constraint per provider
-ALTER TABLE public.profiles 
-ADD CONSTRAINT IF NOT EXISTS check_provider 
-CHECK (provider IN ('email', 'google', 'github', 'apple'));
+-- Aggiornare constraint per provider (PostgreSQL non supporta IF NOT EXISTS per constraint)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'check_provider' 
+        AND conrelid = 'public.profiles'::regclass
+    ) THEN
+        ALTER TABLE public.profiles 
+        ADD CONSTRAINT check_provider 
+        CHECK (provider IN ('email', 'google', 'github', 'apple'));
+    END IF;
+END $$;
 
 -- Funzione per gestire nuovi utenti OAuth
 CREATE OR REPLACE FUNCTION public.handle_new_user()
