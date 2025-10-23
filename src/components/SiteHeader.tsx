@@ -21,9 +21,32 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<'left' | 'right'>('right');
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const handleMenuToggle = () => {
+    if (!menuOpen) {
+      // Calcola la posizione ottimale del dropdown
+      setTimeout(() => {
+        const button = document.querySelector('[aria-haspopup="menu"]') as HTMLElement;
+        if (button) {
+          const rect = button.getBoundingClientRect();
+          const viewportWidth = window.innerWidth;
+          const dropdownWidth = 288; // w-72 = 18rem = 288px
+          
+          // Se il dropdown esce a destra, posizionalo a sinistra
+          if (rect.right + dropdownWidth > viewportWidth) {
+            setDropdownPosition('left');
+          } else {
+            setDropdownPosition('right');
+          }
+        }
+      }, 0);
+    }
+    setMenuOpen(!menuOpen);
+  };
 
   // scroll style
   useEffect(() => {
@@ -215,12 +238,12 @@ export default function SiteHeader() {
                 )}
                 
                 <div className="relative">
-                  <button
-                    onClick={() => setMenuOpen((v) => !v)}
-                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group max-w-[200px] sm:max-w-[240px]"
-                    aria-haspopup="menu"
-                    aria-expanded={menuOpen}
-                  >
+                    <button
+                      onClick={handleMenuToggle}
+                      className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group max-w-[200px] sm:max-w-[240px]"
+                      aria-haspopup="menu"
+                      aria-expanded={menuOpen}
+                    >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
@@ -233,7 +256,7 @@ export default function SiteHeader() {
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50"
+                      className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50`}
                     >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
