@@ -12,7 +12,11 @@ import {
   Globe,
   CheckCircle2,
   ArrowRight,
-  Zap
+  Zap,
+  FileText,
+  Calculator,
+  Search,
+  AlertCircle
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -34,6 +38,11 @@ export default function CreateOrgPage() {
     taxCode: ""
   });
 
+  // Stati per funzionalità avanzate
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [calculatingCF, setCalculatingCF] = useState(false);
+
   useEffect(() => {
     // Carica email utente
     const loadUser = async () => {
@@ -46,6 +55,63 @@ export default function CreateOrgPage() {
     };
     loadUser();
   }, []);
+
+  // Funzione per suggerimenti indirizzo (mock - in produzione usare API geocoding)
+  const handleAddressSearch = async (query: string) => {
+    if (query.length < 3) return;
+    
+    // Mock suggerimenti - in produzione usare API come Google Places
+    const mockSuggestions = [
+      `${query}, Roma, RM`,
+      `${query}, Milano, MI`,
+      `${query}, Napoli, NA`,
+      `${query}, Torino, TO`,
+      `${query}, Firenze, FI`
+    ];
+    
+    setAddressSuggestions(mockSuggestions);
+    setShowAddressSuggestions(true);
+  };
+
+  // Funzione per calcolo Codice Fiscale (semplificata)
+  const calculateCodiceFiscale = async () => {
+    if (!formData.name) {
+      setError("Inserisci il nome dell'organizzazione per calcolare il Codice Fiscale");
+      return;
+    }
+
+    setCalculatingCF(true);
+    
+    try {
+      // Mock calcolo CF - in produzione usare API specifica
+      const name = formData.name.toUpperCase().replace(/[^A-Z]/g, '');
+      const mockCF = name.substring(0, 6) + '80A01H501S'; // Esempio
+      
+      setFormData(prev => ({ ...prev, taxCode: mockCF }));
+    } catch (error) {
+      setError("Errore nel calcolo del Codice Fiscale");
+    } finally {
+      setCalculatingCF(false);
+    }
+  };
+
+  // Seleziona suggerimento indirizzo
+  const selectAddressSuggestion = (suggestion: string) => {
+    setFormData(prev => ({ ...prev, address: suggestion }));
+    setShowAddressSuggestions(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Gestione suggerimenti indirizzo
+    if (name === 'address' && value.length > 2) {
+      handleAddressSearch(value);
+    } else if (name === 'address') {
+      setShowAddressSuggestions(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,99 +216,154 @@ export default function CreateOrgPage() {
             transition={{ delay: 0.2 }}
             className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200"
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Nome Organizzazione */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome Organizzazione *
-                </label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="es. Autofficina Rossi"
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
-                    required
-                    disabled={loading}
-                  />
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Informazioni Principali */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Informazioni Principali</h3>
                 </div>
-              </div>
 
-              {/* Descrizione */}
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  Descrizione
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Breve descrizione della tua attività..."
-                  rows={3}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
-                  disabled={loading}
-                />
-              </div>
+                {/* Nome Organizzazione */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Organizzazione <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="es. Autofficina Rossi"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
 
-              {/* Indirizzo */}
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                  Indirizzo
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Via, Città, CAP"
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                {/* Descrizione */}
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                    Descrizione
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Breve descrizione della tua attività..."
+                    rows={3}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
                     disabled={loading}
                   />
                 </div>
               </div>
 
               {/* Contatti */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                    <MapPin className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Contatti</h3>
+                </div>
+
+                {/* Indirizzo con suggerimenti */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Telefono
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                    Indirizzo
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="+39 123 456 7890"
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder="Via, Città, CAP"
                       className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
                       disabled={loading}
                     />
+                    {showAddressSuggestions && addressSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                        {addressSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => selectAddressSuggestion(suggestion)}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <Search className="h-4 w-4 text-gray-400" />
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
+                {/* Telefono e Email */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                      Telefono
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+39 123 456 7890"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="info@azienda.com"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Website */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
+                    Sito Web
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="info@azienda.com"
+                      type="url"
+                      id="website"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleChange}
+                      placeholder="https://www.azienda.com"
                       className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
                       disabled={loading}
                     />
@@ -250,23 +371,64 @@ export default function CreateOrgPage() {
                 </div>
               </div>
 
-              {/* Website */}
-              <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
-                  Sito Web
-                </label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="url"
-                    id="website"
-                    name="website"
-                    value={formData.website}
-                    onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                    placeholder="https://www.azienda.com"
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
-                    disabled={loading}
-                  />
+              {/* Dati Fiscali */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Dati Fiscali</h3>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Partita IVA */}
+                  <div>
+                    <label htmlFor="vat" className="block text-sm font-medium text-gray-700 mb-2">
+                      Partita IVA
+                    </label>
+                    <input
+                      type="text"
+                      id="vat"
+                      name="vat"
+                      value={formData.vat}
+                      onChange={handleChange}
+                      placeholder="IT12345678901"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {/* Codice Fiscale con calcolo */}
+                  <div>
+                    <label htmlFor="taxCode" className="block text-sm font-medium text-gray-700 mb-2">
+                      Codice Fiscale
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="taxCode"
+                        name="taxCode"
+                        value={formData.taxCode}
+                        onChange={handleChange}
+                        placeholder="RSSMRA80A01H501S"
+                        className="flex-1 px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        onClick={calculateCodiceFiscale}
+                        disabled={calculatingCF || loading}
+                        className="px-4 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {calculatingCF ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Calculator className="h-4 w-4" />
+                        )}
+                        {calculatingCF ? "Calcolo..." : "Calcola"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
