@@ -8,6 +8,7 @@ import CookieBanner from "@/components/CookieBanner";
 import SiteHeader from "@/components/SiteHeader";
 import HeaderGate from "@/components/HeaderGate";
 import ChatwootWidget from "@/components/ChatwootWidget"; // <- widget chat
+import ImagePreloader from "@/components/ImagePreloader";
 
 export const metadata: Metadata = {
   title: "RescueManager — Gestionale soccorso stradale",
@@ -40,9 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it">
       <head>
-        {/* Preload risorse critiche */}
-        <link rel="preload" href="/mockups/dashboard-mockup.jpg" as="image" />
-        <link rel="preload" href="/670shots_so.png" as="image" />
+        {/* Preload solo risorse critiche */}
+        <link rel="preload" href="/logo-rentri.png" as="image" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
@@ -60,6 +60,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Chatwoot web widget (caricato una volta qui) */}
         <ChatwootWidget />
+        
+        {/* Precaricamento intelligente delle immagini */}
+        <ImagePreloader 
+          images={[
+            "/mockups/dashboard-mockup.jpg",
+            "/670shots_so.png"
+          ]}
+          preloadOnMount={false}
+          preloadOnHover={true}
+        />
         
         {/* Vercel Speed Insights per monitoraggio performance */}
         <SpeedInsights />
