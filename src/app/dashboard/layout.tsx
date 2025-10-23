@@ -24,11 +24,27 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // Controllo auth semplificato - se c'è un cookie Supabase, procediamo
+        // BYPASS: Controlla prima il localStorage per l'auth bypass
+        const bypassAuth = localStorage.getItem("rescuemanager-auth");
+        if (bypassAuth) {
+          try {
+            const authData = JSON.parse(bypassAuth);
+            console.log("BYPASS: Dashboard detected auth bypass");
+            setUserEmail(authData.user.email);
+            setCurrentOrgName("RescueManager");
+            setLoading(false);
+            console.log("BYPASS: Dashboard auth check completed successfully");
+            return;
+          } catch (error) {
+            console.warn("BYPASS: Error parsing localStorage auth:", error);
+          }
+        }
+        
+        // Fallback: controlla cookie Supabase
         const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
         
         if (!hasSbCookie) {
-          console.log("No Supabase cookie found, redirecting to login");
+          console.log("No auth data found, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
         }

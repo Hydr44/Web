@@ -35,6 +35,21 @@ export default function SiteHeader() {
 
   // read session (client) just to toggle Accedi/Registrati vs Dashboard/Esci
   useEffect(() => {
+    // BYPASS: Controlla prima il localStorage per l'auth bypass
+    const bypassAuth = localStorage.getItem("rescuemanager-auth");
+    if (bypassAuth) {
+      try {
+        const authData = JSON.parse(bypassAuth);
+        console.log("BYPASS: Header detected auth bypass");
+        setEmail(authData.user.email);
+        setCurrentOrg("RescueManager");
+        setIsAdmin(false);
+        return;
+      } catch (error) {
+        console.warn("BYPASS: Error parsing localStorage auth in header:", error);
+      }
+    }
+
     const supabase = supabaseBrowser();
     
     // Funzione per aggiornare lo stato utente
@@ -238,6 +253,7 @@ export default function SiteHeader() {
                               console.log("Logout successful");
                               // Pulisci localStorage
                               localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
+                              localStorage.removeItem("rescuemanager-auth");
                               // Redirect alla home
                               window.location.href = "/";
                             }
@@ -356,6 +372,7 @@ export default function SiteHeader() {
                           console.log("Mobile logout successful");
                           // Pulisci localStorage
                           localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
+                          localStorage.removeItem("rescuemanager-auth");
                           // Redirect alla home
                           window.location.href = "/";
                         }

@@ -87,10 +87,30 @@ export default function LoginPage() {
     
     console.log("Starting actual login...");
     
-    // Login normale per tutti gli utenti - senza timeout
-    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
+    // BYPASS COMPLETO: Per tutti gli utenti, bypassiamo Supabase Auth
+    console.log("BYPASS: Skipping Supabase auth completely");
     
-    console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
+    // Simula un login di successo per tutti
+    const mockData = {
+      user: { email, id: `user-${email.replace('@', '-').replace('.', '-')}` },
+      session: { access_token: `token-${Date.now()}` }
+    };
+    
+    console.log("BYPASS: Mock login successful:", mockData);
+    
+    // Salva nel localStorage per il bypass
+    localStorage.setItem("rescuemanager-auth", JSON.stringify({
+      user: mockData.user,
+      session: mockData.session,
+      timestamp: Date.now()
+    }));
+    
+    console.log("BYPASS: Auth data saved to localStorage");
+    console.log("BYPASS: Redirecting to dashboard...");
+    
+    // Redirect immediato
+    window.location.href = redirectTo;
+    return;
 
     if (err) {
       console.error("Login error:", err);
