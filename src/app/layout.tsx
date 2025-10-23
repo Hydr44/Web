@@ -27,6 +27,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
+      <head>
+        {/* Preload risorse critiche */}
+        <link rel="preload" href="/mockups/dashboard-mockup.jpg" as="image" />
+        <link rel="preload" href="/670shots_so.png" as="image" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-dvh bg-background text-foreground antialiased">
         {/* Header pubblico visibile solo FUORI dalla dashboard */}
         <HeaderGate>

@@ -156,12 +156,14 @@ export default function Home() {
               <div className="pointer-events-none relative mx-auto w-[1200px] max-w-none rounded-[28px] md:rounded-[32px] overflow-hidden ring-1 ring-black/5 shadow-2xl">
             <Image
               src="/mockups/dashboard-mockup.jpg"
-                  alt="RescueManager Dashboard"
+              alt="RescueManager Dashboard"
               width={2400}
               height={1200}
               priority
-              sizes="(min-width: 1200px) 1200px, 100vw"
+              loading="eager"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
               className="w-full h-auto object-cover"
+              quality={85}
             />
             {/* Fades di fusione */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/0 to-transparent" />

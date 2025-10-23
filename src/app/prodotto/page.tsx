@@ -245,7 +245,10 @@ export default function Prodotto() {
                   alt="RescueManager Desktop App" 
                   width={600} 
                   height={400} 
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
                   className="w-full h-auto"
+                  quality={80}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>

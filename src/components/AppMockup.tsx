@@ -35,8 +35,10 @@ export default function AppMockup({
             alt={current.alt}
             width={1300}
             height={740}
-            priority
+            priority={idx === 0}
+            loading={idx === 0 ? "eager" : "lazy"}
             className="w-full h-auto object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
           {/* PRIVACY PATCH (copre l’angolo alto-destro) */}
@@ -64,7 +66,9 @@ export default function AppMockup({
                 alt={s.alt}
                 width={180}
                 height={110}
+                loading="lazy"
                 className="h-20 w-36 object-cover"
+                sizes="(max-width: 768px) 50vw, 25vw"
               />
               {/* mini patch anche nelle thumbs */}
               <span className="absolute top-1.5 right-1.5 h-3.5 w-12 rounded bg-[#0f1220]/90" />
