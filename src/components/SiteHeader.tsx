@@ -54,20 +54,36 @@ export default function SiteHeader() {
             fullName: (prof.data as any)?.full_name
           });
         }
-        const mem1 = await supabase.from("org_members").select("org_id").eq("user_id", user.id);
-        const orgIds = new Set<string>();
-        if (Array.isArray(mem1.data)) {
-          for (const m of mem1.data as { org_id: string }[]) orgIds.add(m.org_id);
-        }
-        if (orgIds.size === 0) {
-          const mem2 = await supabase.from("organization_members").select("org_id").eq("user_id", user.id);
-          if (Array.isArray(mem2.data)) {
-            for (const m of mem2.data as { org_id: string }[]) orgIds.add(m.org_id);
+        // Carica organizzazioni dell'utente con gestione errori
+        try {
+          const { data: memberships, error: memError } = await supabase
+            .from("org_members")
+            .select("org_id")
+            .eq("user_id", user.id);
+          
+          if (memError) {
+            console.warn("Errore caricamento memberships:", memError);
+            setOrgs([]);
+          } else if (Array.isArray(memberships) && memberships.length > 0) {
+            const orgIds = memberships.map(m => m.org_id);
+            const { data: orgs, error: orgError } = await supabase
+              .from("orgs")
+              .select("id, name")
+              .in("id", orgIds);
+            
+            if (orgError) {
+              console.warn("Errore caricamento organizzazioni:", orgError);
+              setOrgs([]);
+            } else {
+              setOrgs((orgs as { id: string; name: string }[]) ?? []);
+            }
+          } else {
+            setOrgs([]);
           }
+        } catch (error) {
+          console.warn("Errore generale caricamento org:", error);
+          setOrgs([]);
         }
-        // Tabella memberships non esiste, rimuoviamo questo controllo
-        const list = await supabase.from("orgs").select("id, name").in("id", Array.from(orgIds));
-        setOrgs((list.data as { id: string; name: string }[]) ?? []);
       } else {
         setCurrentOrg(null);
         setOrgs([]);
@@ -241,23 +257,34 @@ export default function SiteHeader() {
                           setMenuOpen(false);
                           console.log("Logout clicked");
                           try {
-                            // BYPASS: Pulisci anche il bypass auth
-                            
                             const supabase = supabaseBrowser();
+                            
+                            // Logout da Supabase
                             const { error } = await supabase.auth.signOut();
                             if (error) {
                               console.error("Logout error:", error);
-                              alert("Errore durante il logout: " + error.message);
-                            } else {
-                              console.log("Logout successful");
-                              // Pulisci localStorage
-                              localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
-                              // Redirect alla home
-                              window.location.href = "/";
                             }
+                            
+                            // Pulisci tutti i dati locali
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            
+                            // Pulisci cookie
+                            document.cookie.split(";").forEach((c) => {
+                              const eqPos = c.indexOf("=");
+                              const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+                              document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                            });
+                            
+                            console.log("Logout successful");
+                            
+                            // Forza refresh completo per pulire tutto
+                            window.location.href = "/";
+                            
                           } catch (err) {
                             console.error("Logout exception:", err);
-                            alert("Errore durante il logout");
+                            // Anche in caso di errore, forza il redirect
+                            window.location.href = "/";
                           }
                         }}
                       >

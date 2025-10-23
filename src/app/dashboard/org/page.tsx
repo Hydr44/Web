@@ -31,15 +31,25 @@ export default function OrgPage() {
           return;
         }
         
-        // Carica dati organizzazione
-        const { data: orgs } = await supabase
-          .from("orgs")
-          .select("*")
-          .limit(1)
+        // Carica dati organizzazione dell'utente corrente
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("current_org")
+          .eq("id", user.id)
           .single();
         
-        if (orgs) {
-          setOrgData(orgs);
+        if (profile?.current_org) {
+          const { data: org, error: orgError } = await supabase
+            .from("orgs")
+            .select("*")
+            .eq("id", profile.current_org)
+            .single();
+          
+          if (orgError) {
+            console.warn("Errore caricamento organizzazione:", orgError);
+          } else if (org) {
+            setOrgData(org);
+          }
         }
         
         setLoading(false);

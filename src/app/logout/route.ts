@@ -3,30 +3,46 @@ import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function POST(req: Request) {
-  const cookieStore = await cookies();
+  try {
+    const cookieStore = await cookies();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options });
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+          },
         },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options, maxAge: 0 });
-        },
-      },
+      }
+    );
+
+    // Logout da Supabase
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error("Logout error:", error);
     }
-  );
 
-  await supabase.auth.signOut();
-
-  // Redirect alla home usando il dominio configurato
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || req.url;
-  const url = new URL("/", siteUrl);
-  return NextResponse.redirect(url, { status: 302 });
+    // Pulisci tutti i cookie di sessione
+    const response = NextResponse.json({ success: true });
+    
+    // Rimuovi cookie Supabase
+    response.cookies.set('sb-access-token', '', { maxAge: 0, path: '/' });
+    response.cookies.set('sb-refresh-token', '', { maxAge: 0, path: '/' });
+    response.cookies.set('supabase-auth-token', '', { maxAge: 0, path: '/' });
+    
+    return response;
+    
+  } catch (error) {
+    console.error("Logout route error:", error);
+    return NextResponse.json({ error: "Logout failed" }, { status: 500 });
+  }
 }

@@ -16,6 +16,7 @@ import {
   Building2
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function DashboardPanoramica() {
