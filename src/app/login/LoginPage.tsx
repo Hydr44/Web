@@ -117,7 +117,23 @@ export default function LoginPage() {
       
       // Aspetta 3 secondi e poi verifica se l'utente è autenticato
       console.log("Waiting 3 seconds to check authentication...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Mostra feedback all'utente durante l'attesa
+      setError(null);
+      const waitMessage = "Verificando autenticazione...";
+      setError(waitMessage);
+      
+      // Aggiorna il messaggio ogni secondo
+      const messages = [
+        "Verificando autenticazione...",
+        "Controllo credenziali...",
+        "Completamento accesso..."
+      ];
+      
+      for (let i = 0; i < 3; i++) {
+        setError(messages[i]);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
       
       console.log("Checking authentication status...");
       const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
@@ -129,6 +145,13 @@ export default function LoginPage() {
       }
       
       console.log("User authenticated successfully:", currentUser.email);
+      
+      // Mostra messaggio di successo
+      setError(null);
+      setError("✅ Accesso completato! Reindirizzamento...");
+      
+      // Piccola pausa per mostrare il messaggio di successo
+      await new Promise(resolve => setTimeout(resolve, 500));
       
     } catch (error) {
       console.error("Unexpected error during login:", error);
@@ -367,7 +390,7 @@ export default function LoginPage() {
                   {pending ? (
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Accesso in corso...
+                      <span className="animate-pulse">Accesso in corso...</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-2">
