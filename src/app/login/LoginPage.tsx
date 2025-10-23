@@ -82,60 +82,60 @@ export default function LoginPage() {
     console.log("Supabase client created:", !!supabase);
     console.log("Supabase auth object:", !!supabase.auth);
     
-    // Test di connessione rimosso per evitare blocchi
-    console.log("Skipping connection tests to avoid login conflicts");
+    // Test di connettività rapido
+    try {
+      console.log("Testing Supabase connectivity...");
+      const { data: testData, error: testError } = await supabase.from("orgs").select("id").limit(1);
+      console.log("Connectivity test result:", { success: !testError, error: testError?.message });
+    } catch (connectError) {
+      console.warn("Connectivity test failed:", connectError);
+    }
     
     console.log("Starting actual login...");
     
     // TENTATIVO DI LOGIN REALE CON SUPABASE
     try {
       console.log("Calling supabase.auth.signInWithPassword...");
-      const { data, error: err } = await supabase.auth.signInWithPassword({
+      
+      // Avvia il login senza aspettare la risposta
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      console.log("Login response received:", { data: !!data, error: !!err });
-      
-      if (err) {
-        console.error("Login error:", err);
-        console.error("Error details:", {
-          message: err.message,
-          status: err.status,
-          name: err.name
-        });
-        if (/timeout/i.test(err.message)) {
-          setError("Timeout: La connessione è troppo lenta. Riprova.");
-        } else if (/invalid login credentials/i.test(err.message)) {
-          setError("Email o password non corretti.");
-        } else if (/email.*confirm/i.test(err.message)) {
-          setError("Email non confermata: controlla la posta per il link di verifica.");
-        } else {
+      // Non aspettiamo la risposta, ma verifichiamo lo stato dopo un delay
+      loginPromise.then(({ data, error: err }) => {
+        console.log("Login response received:", { data: !!data, error: !!err });
+        if (err) {
+          console.error("Login error:", err);
           setError(err.message || "Accesso non riuscito.");
         }
+      }).catch((error) => {
+        console.error("Login promise error:", error);
+        setError("Errore durante l'accesso. Riprova.");
+      });
+      
+      // Aspetta 3 secondi e poi verifica se l'utente è autenticato
+      console.log("Waiting 3 seconds to check authentication...");
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log("Checking authentication status...");
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (!currentUser || authError) {
+        console.error("User not authenticated after login attempt:", authError);
+        setError("Accesso non riuscito. Verifica le credenziali.");
         return;
       }
-
-      console.log("Login successful:", data);
-      console.log("User:", data.user);
-      console.log("Session:", data.session);
+      
+      console.log("User authenticated successfully:", currentUser.email);
+      
     } catch (error) {
       console.error("Unexpected error during login:", error);
       setError("Errore imprevisto durante l'accesso. Riprova.");
       return;
     }
 
-    // Verifica che l'utente sia autenticato correttamente
-    console.log("Verifying authentication...");
-    const { data: { user: authenticatedUser }, error: authError } = await supabase.auth.getUser();
-    console.log("Authenticated user after login:", authenticatedUser?.email);
-    console.log("Auth verification error:", authError?.message || "NO ERROR");
-    
-    if (!authenticatedUser || authError) {
-      console.error("Authentication verification failed:", authError);
-      setError("Errore di autenticazione. Riprova.");
-      return;
-    }
 
     // Verifica che i cookie siano stati salvati
     console.log("All cookies after login:", document.cookie);
