@@ -48,8 +48,8 @@ export default function DashboardPanoramica() {
         setUserEmail(user.email || "");
         setCurrentOrg("RescueManager");
         
-        // Carica statistiche reali
-        const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.all([
+        // Carica statistiche reali con gestione errori
+        const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.allSettled([
           supabase.from("vehicles").select("id", { count: "exact" }),
           supabase.from("drivers").select("id", { count: "exact" }),
           supabase.from("transports").select("id", { count: "exact" }),
@@ -58,13 +58,22 @@ export default function DashboardPanoramica() {
           supabase.from("quotes").select("id", { count: "exact" })
         ]);
 
+        // Estrai i risultati con gestione errori
+        const getCount = (result: PromiseSettledResult<any>) => {
+          if (result.status === 'fulfilled' && !result.value.error) {
+            return result.value.count || 0;
+          }
+          console.warn("Query failed:", result.status === 'rejected' ? result.reason : result.value.error);
+          return 0;
+        };
+
         setStats({
-          vehicles: vehiclesResult.count || 0,
-          drivers: driversResult.count || 0,
-          transports: transportsResult.count || 0,
-          clients: clientsResult.count || 0,
-          invoices: invoicesResult.count || 0,
-          quotes: quotesResult.count || 0
+          vehicles: getCount(vehiclesResult),
+          drivers: getCount(driversResult),
+          transports: getCount(transportsResult),
+          clients: getCount(clientsResult),
+          invoices: getCount(invoicesResult),
+          quotes: getCount(quotesResult)
         });
         
         setLoading(false);
