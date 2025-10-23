@@ -153,6 +153,11 @@ export default function LoginPage() {
       setError(null);
       setError("✅ Accesso completato! Reindirizzamento...");
       
+      // Emetti evento personalizzato per aggiornare l'header
+      window.dispatchEvent(new CustomEvent('authStateChanged', { 
+        detail: { user: currentUser, event: 'SIGNED_IN' } 
+      }));
+      
       // Piccola pausa per mostrare il messaggio di successo
       await new Promise(resolve => setTimeout(resolve, 500));
       

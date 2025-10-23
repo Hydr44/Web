@@ -19,10 +19,11 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
+    const supabase = supabaseBrowser();
+    
     const checkAuth = async () => {
       try {
         console.log("Starting dashboard auth check...");
-        const supabase = supabaseBrowser();
         
         // Controlla cookie Supabase
         const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
@@ -53,7 +54,25 @@ export default function DashboardLayout({
       }
     };
 
+    // Carica stato iniziale
     checkAuth();
+
+    // Listener per cambiamenti di autenticazione
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Dashboard auth state change:", event, session?.user?.email);
+      
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUserEmail(session.user.email || "Utente");
+        setCurrentOrgName("RescueManager");
+        setLoading(false);
+        console.log("User signed in, dashboard updated");
+      } else if (event === 'SIGNED_OUT') {
+        console.log("User signed out, redirecting to login");
+        router.push("/login?redirect=/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   if (loading) {

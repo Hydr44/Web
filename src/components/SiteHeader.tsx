@@ -76,7 +76,18 @@ export default function SiteHeader() {
       await updateUserState(session?.user);
     });
 
-    return () => subscription.unsubscribe();
+    // Listener per evento personalizzato dal login
+    const handleAuthStateChange = async (event: CustomEvent) => {
+      console.log("Custom auth state change event:", event.detail);
+      await updateUserState(event.detail.user);
+    };
+
+    window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('authStateChanged', handleAuthStateChange as EventListener);
+    };
   }, []);
 
   const nav = useMemo(
