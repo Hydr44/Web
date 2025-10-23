@@ -62,7 +62,7 @@ export default function SiteHeader() {
             for (const m of mem3.data as { org_id: string }[]) orgIds.add(m.org_id);
           }
         }
-        const list = await supabase.from("organizations").select("id, name").in("id", Array.from(orgIds));
+        const list = await supabase.from("orgs").select("id, name").in("id", Array.from(orgIds));
         setOrgs((list.data as { id: string; name: string }[]) ?? []);
       } else {
         setCurrentOrg(null);

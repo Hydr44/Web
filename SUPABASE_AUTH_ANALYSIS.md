@@ -19,7 +19,7 @@ Risolvere completamente i problemi di autenticazione Supabase e rimuovere il sis
 3. Vai su **Settings** → **API**
 4. Copia il **Project URL**
 ```
-Esempio: https://ienzdgrqalltvkdkuamp.supabase.co
+reale https://ienzdgrqalltvkdkuamp.supabase.co
 ```
 
 **B. Chiavi API:**
@@ -28,22 +28,161 @@ Esempio: https://ienzdgrqalltvkdkuamp.supabase.co
    - **anon/public key** (per il frontend)
    - **service_role key** (per il backend - NON condividere!)
 
+anon public = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllbnpkZ3JxYWxsdHZrZGt1YW1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxNzcwNDUsImV4cCI6MjA3Mzc1MzA0NX0.sj4ZQJcSMjGkqpizDgmUDImm9esIvTLrsPOT0IIBegA
+
+service_role secret = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllbnpkZ3JxYWxsdHZrZGt1YW1wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODE3NzA0NSwiZXhwIjoyMDczNzUzMDQ1fQ.sET1rBO-r0tT-GIVC_2Zalc0qAQ0i5C22PybvThFf4o
+
+
 **C. Configurazione Auth Settings:**
 1. Vai su **Authentication** → **Settings**
 2. Controlla:
-   - **Site URL**: deve essere `https://rescuemanager.eu`
+   - **Site URL**: deve essere `https://rescuemanager.eu` conferma
    - **Redirect URLs**: deve includere `https://rescuemanager.eu/**`
-   - **Email Auth**: deve essere abilitato
-   - **Email Confirmations**: configurazione
+   - **Email Auth**: deve essere abilitato attivo
+   - **Email Confirmations**: configurazione attivo
 
 **D. RLS (Row Level Security) Policies:**
 1. Vai su **Authentication** → **Policies**
 2. Controlla le policies per le tabelle:
    - `profiles`
+
+profiles
+
+Disable RLS
+
+Create policy
+
+Name	Command	Applied to	Actions
+
+admin can update profiles org_id
+UPDATE	
+authenticated
+
+
+admin can upsert profiles org_id
+INSERT	
+authenticated
+
+
+profiles_admin_read
+SELECT	
+public
+
+
+profiles_select_mine
+SELECT	
+public
+
+
+profiles_select_self
+SELECT	
+public
+
+
+profiles_self_rw
+ALL	
+public
+
+
+profiles_update_self
+UPDATE	
+public
+
+
+read own profile
+SELECT	
+authenticated
+
+
+update own profile
+UPDATE	
+authenticated
+
+
    - `orgs`
+
+orgs
+
+Disable RLS
+
+Create policy
+
+Name	Command	Applied to	Actions
+
+insert orgs
+INSERT	
+authenticated
+
+
+orgs_select
+SELECT	
+public
+
+
+orgs_select_where_member
+SELECT	
+public
+
+
+select orgs for members
+SELECT	
+authenticated
+
+
+
+
    - `vehicles`
+
+
+vehicles
+
+Disable RLS
+
+Create policy
+
+Name	Command	Applied to	Actions
+
+vehicles_delete
+DELETE	
+authenticated
+
+
+vehicles_insert
+INSERT	
+authenticated
+
+
+vehicles_select
+SELECT	
+authenticated
+
+
+vehicles_update
+UPDATE	
+authenticated
+
+
+vehicles: by org
+SELECT	
+authenticated
+
    - `drivers`
+
+drivers
+
+Disable RLS
+
+Create policy
+
+Name	Command	Applied to	Actions
+
+drivers: by org
+
+
+
    - etc.
+
+   non so dimmi gli altri
 
 ### 1.2 CONFIGURAZIONE AMBIENTE
 
@@ -53,6 +192,9 @@ Esempio: https://ienzdgrqalltvkdkuamp.supabase.co
 NEXT_PUBLIC_SUPABASE_URL=https://ienzdgrqalltvkdkuamp.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+
+li ho poiche prima funzionava, ma mi hanno rimosso la stripe key anonima la devo rigenerare ma il login funziona anche senza almeno credo
 ```
 
 #### **Configurazione Vercel:**
@@ -60,6 +202,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 2. Seleziona il progetto `webapp`
 3. Vai su **Settings** → **Environment Variables**
 4. Controlla che le variabili siano impostate per **Production**
+
+
+è messo su all enviroment
 
 ### 1.3 LOGS DETTAGLIATI
 
@@ -70,6 +215,8 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 4. Prova a fare login
 5. Copia tutti gli errori che appaiono
 
+al momento ce il bypass quindi non si vede
+
 #### **B. Network tab:**
 1. Nello stesso DevTools, vai su **Network**
 2. Prova a fare login
@@ -79,17 +226,233 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    - Response body
    - Headers
 
+
+   togli il bypass
+
 #### **C. Supabase Dashboard logs:**
 1. Vai su Supabase Dashboard
 2. Vai su **Logs** → **Auth**
 3. Prova a fare login
 4. Controlla i log per errori
 
+
+apiworker: template cache worker started
+Go runtime metrics collection started
+apiworker: template cache worker exited
+received graceful shutdown signal
+DEPRECATION NOTICE: GOTRUE_JWT_DEFAULT_GROUP_NAME not supported by Supabase's GoTrue, will be removed soon
+starting configuration reloader
+DEPRECATION NOTICE: GOTRUE_JWT_ADMIN_GROUP_NAME not supported by Supabase's GoTrue, will be removed soon
+prometheus server listening on 0.0.0.0:9122
+GoTrue API started on: localhost:9999
+config reloader is exiting
+GoTrue migrations applied successfully
+prometheus server (0.0.0.0:9122) shut down
+http server closed
+background apiworker is exiting
+config reloader is exiting
+
+
 #### **D. Vercel function logs:**
 1. Vai su Vercel Dashboard
 2. Seleziona il progetto
 3. Vai su **Functions** → **Logs**
 4. Controlla errori durante il login
+
+
+Oct 23 15:24:55.69
+GET
+200
+rescuemanager.eu
+/dashboard/support
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:55.69
+GET
+200
+rescuemanager.eu
+/dashboard/download
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:55.68
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:55.19
+GET
+200
+rescuemanager.eu
+/dashboard/billing
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:11.12
+GET
+200
+rescuemanager.eu
+/dashboard/support
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:11.12
+GET
+200
+rescuemanager.eu
+/dashboard/download
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:11.12
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:10.37
+GET
+200
+rescuemanager.eu
+/dashboard/billing
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:24:04.49
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:56.67
+GET
+200
+rescuemanager.eu
+/login
+Oct 23 15:23:56.34
+GET
+200
+rescuemanager.eu
+/dashboard/billing
+6
+Warning: NODE_ENV was incorrectly set to "development", this value is being overridden to "production"
+Oct 23 15:23:40.19
+GET
+200
+rescuemanager.eu
+/dashboard/support
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:40.18
+GET
+200
+rescuemanager.eu
+/dashboard/download
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:40.17
+GET
+200
+rescuemanager.eu
+/dashboard/billing
+6
+Warning: NODE_ENV was incorrectly set to "development", this value is being overridden to "production"
+Oct 23 15:23:40.16
+GET
+200
+rescuemanager.eu
+/dashboard/team
+6
+Warning: NODE_ENV was incorrectly set to "development", this value is being overridden to "production"
+Oct 23 15:23:40.12
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:38.77
+GET
+200
+rescuemanager.eu
+/dashboard/org
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:26.88
+GET
+200
+rescuemanager.eu
+/register
+Oct 23 15:23:26.88
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+Dashboard access - allowing through (client-side auth check)
+Oct 23 15:23:26.64
+GET
+200
+rescuemanager.eu
+/cookie-policy
+Oct 23 15:23:26.49
+GET
+200
+rescuemanager.eu
+/terms-of-use
+Oct 23 15:23:26.48
+GET
+200
+rescuemanager.eu
+/privacy-policy
+Oct 23 15:23:26.41
+GET
+200
+rescuemanager.eu
+/contatti
+Oct 23 15:23:26.32
+GET
+200
+rescuemanager.eu
+/preventivo
+Oct 23 15:23:26.11
+GET
+200
+rescuemanager.eu
+/download
+Oct 23 15:23:26.11
+GET
+200
+rescuemanager.eu
+/demo
+Oct 23 15:23:26.11
+GET
+200
+rescuemanager.eu
+/
+Oct 23 15:23:26.11
+GET
+200
+rescuemanager.eu
+/prezzi
+Oct 23 15:23:25.68
+GET
+200
+rescuemanager.eu
+/login
+Oct 23 15:23:24.92
+GET
+200
+rescuemanager.eu
+/prodotto
+Oct 23 15:23:24.58
+GET
+200
+rescuemanager.eu
+/dashboard
+5
+
+
+
 
 ### 1.4 TEST DI CONNETTIVITÀ
 
