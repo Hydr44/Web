@@ -19,6 +19,8 @@ import {
   AlertCircle
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function CreateOrgPage() {
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,7 @@ export default function CreateOrgPage() {
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
+  const animations = useOptimizedAnimations();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -153,8 +156,7 @@ export default function CreateOrgPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50/30 flex items-center justify-center px-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          {...animations.scaleIn}
           className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center"
         >
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -170,10 +172,7 @@ export default function CreateOrgPage() {
             Ora puoi iniziare a utilizzare RescueManager.
           </p>
           
-          <div className="flex items-center justify-center gap-2 text-primary">
-            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <span>Reindirizzamento alla dashboard...</span>
-          </div>
+          <LoadingSpinner size="sm" color="primary" text="Reindirizzamento alla dashboard..." />
         </motion.div>
       </div>
     );
@@ -183,16 +182,13 @@ export default function CreateOrgPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
       <div className="rm-container py-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          {...animations.slideUp}
           className="max-w-2xl mx-auto"
         >
           {/* Header */}
           <div className="text-center mb-8">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
+              {...animations.scaleIn}
               className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
             >
               <Building2 className="h-3 w-3" />
@@ -211,9 +207,7 @@ export default function CreateOrgPage() {
 
           {/* Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            {...animations.slideUp}
             className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200"
           >
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -421,7 +415,7 @@ export default function CreateOrgPage() {
                         className="px-4 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {calculatingCF ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <LoadingSpinner size="sm" color="white" />
                         ) : (
                           <Calculator className="h-4 w-4" />
                         )}
@@ -435,10 +429,10 @@ export default function CreateOrgPage() {
               {/* Error Message */}
               {error && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  {...animations.fadeIn}
                   className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2"
                 >
+                  <AlertCircle className="h-4 w-4" />
                   {error}
                 </motion.div>
               )}
@@ -450,10 +444,7 @@ export default function CreateOrgPage() {
                 className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creazione in corso...
-                  </>
+                  <LoadingSpinner size="sm" color="white" text="Creazione in corso..." />
                 ) : (
                   <>
                     <Building2 className="h-5 w-5" />
@@ -467,9 +458,7 @@ export default function CreateOrgPage() {
 
           {/* Benefits */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            {...animations.staggerContainer}
             className="mt-8 grid md:grid-cols-3 gap-4"
           >
             {[
@@ -477,11 +466,15 @@ export default function CreateOrgPage() {
               { icon: Zap, title: "Produttività", desc: "Strumenti avanzati per la tua officina" },
               { icon: Building2, title: "Personalizzazione", desc: "Configura tutto per la tua attività" }
             ].map((benefit, i) => (
-              <div key={benefit.title} className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200">
+              <motion.div 
+                key={benefit.title} 
+                {...animations.staggerItem}
+                className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200"
+              >
                 <benefit.icon className="h-6 w-6 text-primary mb-2" />
                 <h3 className="font-semibold text-gray-900 mb-1">{benefit.title}</h3>
                 <p className="text-sm text-gray-600">{benefit.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>

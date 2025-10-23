@@ -18,6 +18,8 @@ import {
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function DashboardPanoramica() {
   const [userEmail, setUserEmail] = useState<string>("");
@@ -32,6 +34,7 @@ export default function DashboardPanoramica() {
     invoices: 0,
     quotes: 0
   });
+  const animations = useOptimizedAnimations();
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -121,7 +124,7 @@ export default function DashboardPanoramica() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="lg" color="primary" text="Caricamento dashboard..." />
       </div>
     );
   }
@@ -163,7 +166,10 @@ export default function DashboardPanoramica() {
         </div>
 
         {/* Benefits */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <motion.div 
+          {...animations.staggerContainer}
+          className="grid md:grid-cols-3 gap-6"
+        >
           {[
             { icon: Building2, title: "Gestione Completa", desc: "Organizza la tua officina con tutti gli strumenti necessari" },
             { icon: Users, title: "Team Collaboration", desc: "Lavora con il tuo team in modo efficiente" },
@@ -171,9 +177,7 @@ export default function DashboardPanoramica() {
           ].map((benefit, i) => (
             <motion.div
               key={benefit.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
+              {...animations.staggerItem}
               className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm"
             >
               <benefit.icon className="h-8 w-8 text-primary mb-4" />
