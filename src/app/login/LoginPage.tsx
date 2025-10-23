@@ -87,13 +87,8 @@ export default function LoginPage() {
     
     console.log("Starting actual login...");
     
-    // Login normale per tutti gli utenti
-    const loginPromise = supabase.auth.signInWithPassword({ email, password });
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Login timeout after 15 seconds")), 15000)
-    );
-    
-    const { error: err, data } = await Promise.race([loginPromise, timeoutPromise]) as any;
+    // Login normale per tutti gli utenti - senza timeout
+    const { error: err, data } = await supabase.auth.signInWithPassword({ email, password });
     
     console.log("Login response:", { error: err?.message, user: data?.user?.email, session: !!data?.session });
 

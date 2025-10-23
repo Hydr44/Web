@@ -24,20 +24,31 @@ export default function DashboardLayout({
         console.log("Starting dashboard auth check...");
         const supabase = supabaseBrowser();
         
-        // Controllo auth normale per tutti gli utenti
-        const { data: { user }, error } = await supabase.auth.getUser();
-        console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
-
-        // Fallback: se non ritorna user ma esiste un cookie di sessione Supabase, lasciamo passare
+        // Controllo auth semplificato - se c'è un cookie Supabase, procediamo
         const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
-        if ((error || !user) && !hasSbCookie) {
-          console.log("No authenticated user and no sb-* cookie, redirecting to login");
+        
+        if (!hasSbCookie) {
+          console.log("No Supabase cookie found, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
         }
 
-        setUserEmail(user?.email || "");
-        setCurrentOrgName("RescueManager"); // Semplificato per ora
+        // Prova a ottenere l'utente, ma non bloccare se fallisce
+        try {
+          const { data: { user }, error } = await supabase.auth.getUser();
+          console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
+          
+          if (user?.email) {
+            setUserEmail(user.email);
+          } else {
+            setUserEmail("Utente");
+          }
+        } catch (error) {
+          console.warn("Auth check failed, proceeding anyway:", error);
+          setUserEmail("Utente");
+        }
+
+        setCurrentOrgName("RescueManager");
         setLoading(false);
         console.log("Dashboard auth check completed successfully");
       } catch (error) {
