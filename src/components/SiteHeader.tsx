@@ -217,14 +217,16 @@ export default function SiteHeader() {
                 <div className="relative">
                   <button
                     onClick={() => setMenuOpen((v) => !v)}
-                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group"
+                    className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group max-w-[200px] sm:max-w-[240px]"
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 max-w-[120px] sm:max-w-[160px] truncate font-medium" title={email}>{email}</span>
+                    <span className="text-xs text-gray-700 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={email}>
+                      {email && email.length > 20 ? `${email.split('@')[0].substring(0, 8)}...@${email.split('@')[1]}` : email}
+                    </span>
                     <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
