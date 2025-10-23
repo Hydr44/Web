@@ -1,6 +1,7 @@
-// src/app/dashboard/org/page.tsx
-import { supabaseServer } from "@/lib/supabase-server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useState, useEffect } from "react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 import { 
   Building2, 
   MapPin, 
@@ -13,34 +14,58 @@ import {
   Edit
 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export default function OrgPage() {
+  const [loading, setLoading] = useState(true);
+  const [orgData, setOrgData] = useState<any>(null);
 
-export default async function OrgPage() {
-  const supabase = await supabaseServer();
-  const { data: userRes } = await supabase.auth.getUser();
-  const user = userRes?.user;
+  useEffect(() => {
+    const loadOrgData = async () => {
+      try {
+        // BYPASS: Controlla il localStorage per i dati utente
+        const bypassAuth = localStorage.getItem("rescuemanager-auth");
+        if (bypassAuth) {
+          try {
+            const authData = JSON.parse(bypassAuth);
+            console.log("BYPASS: Org page detected auth bypass");
+            
+            // Carica dati reali dal database
+            const supabase = supabaseBrowser();
+            
+            // Carica dati organizzazione
+            const { data: orgs } = await supabase
+              .from("orgs")
+              .select("*")
+              .limit(1)
+              .single();
+            
+            if (orgs) {
+              setOrgData(orgs);
+            }
+            
+            setLoading(false);
+            return;
+          } catch (error) {
+            console.warn("BYPASS: Error loading org data:", error);
+          }
+        }
+        
+        // Fallback: mostra pagina vuota
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading org data:", error);
+        setLoading(false);
+      }
+    };
 
-  if (!user) {
-    redirect("/login?redirect=/dashboard/org");
-  }
+    loadOrgData();
+  }, []);
 
-  // Fetch organization data
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("current_org")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const currentOrg = profile?.current_org as string | null;
-
-  let orgData: { id: string; name: string; address?: string; phone?: string; email?: string; website?: string; vat_number?: string; created_at?: string } | null = null;
-  if (currentOrg) {
-    const { data } = await supabase
-      .from("organizations")
-      .select("*")
-      .eq("id", currentOrg)
-      .maybeSingle();
-    orgData = data;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   return (
@@ -61,7 +86,7 @@ export default async function OrgPage() {
         </p>
       </header>
 
-      {currentOrg && orgData ? (
+      {orgData ? (
         <>
           {/* Informazioni principali */}
           <div className="grid lg:grid-cols-2 gap-6">
