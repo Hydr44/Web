@@ -27,6 +27,7 @@ export default function SiteHeader() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const handleMenuToggle = () => {
+    console.log("Menu toggle clicked, current state:", menuOpen);
     if (!menuOpen) {
       // Calcola la posizione ottimale del dropdown
       setTimeout(() => {
@@ -46,6 +47,7 @@ export default function SiteHeader() {
       }, 0);
     }
     setMenuOpen(!menuOpen);
+    console.log("Menu state after toggle:", !menuOpen);
   };
 
   // scroll style
@@ -257,6 +259,7 @@ export default function SiteHeader() {
                     <div
                       role="menu"
                       className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50`}
+                      style={{ zIndex: 9999 }}
                     >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
