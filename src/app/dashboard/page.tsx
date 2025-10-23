@@ -73,14 +73,16 @@ export default function DashboardPanoramica() {
         
         setCurrentOrg(org?.name || "Organizzazione");
         
-        // Carica statistiche reali con gestione errori
+        console.log("Loading stats for org:", profile.current_org, "org name:", org?.name);
+        
+        // Carica statistiche reali con gestione errori - FILTRATE PER ORG_ID
         const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.allSettled([
-          supabase.from("vehicles").select("id", { count: "exact" }),
-          supabase.from("drivers").select("id", { count: "exact" }),
-          supabase.from("transports").select("id", { count: "exact" }),
-          supabase.from("clients").select("id", { count: "exact" }),
-          supabase.from("invoices").select("id", { count: "exact" }),
-          supabase.from("quotes").select("id", { count: "exact" })
+          supabase.from("vehicles").select("id", { count: "exact" }).eq("org_id", profile.current_org),
+          supabase.from("drivers").select("id", { count: "exact" }).eq("org_id", profile.current_org),
+          supabase.from("transports").select("id", { count: "exact" }).eq("org_id", profile.current_org),
+          supabase.from("clients").select("id", { count: "exact" }).eq("org_id", profile.current_org),
+          supabase.from("invoices").select("id", { count: "exact" }).eq("org_id", profile.current_org),
+          supabase.from("quotes").select("id", { count: "exact" }).eq("org_id", profile.current_org)
         ]);
 
         // Estrai i risultati con gestione errori
@@ -92,14 +94,17 @@ export default function DashboardPanoramica() {
           return 0;
         };
 
-        setStats({
+        const finalStats = {
           vehicles: getCount(vehiclesResult),
           drivers: getCount(driversResult),
           transports: getCount(transportsResult),
           clients: getCount(clientsResult),
           invoices: getCount(invoicesResult),
           quotes: getCount(quotesResult)
-        });
+        };
+        
+        console.log("Final stats loaded:", finalStats);
+        setStats(finalStats);
         
         setLoading(false);
       } catch (error) {
