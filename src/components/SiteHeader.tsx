@@ -321,8 +321,28 @@ export default function SiteHeader() {
                           console.log("Dropdown DOM element:", dropdown);
                           if (dropdown) {
                             const rect = dropdown.getBoundingClientRect();
-                            console.log("Dropdown rect:", rect);
-                            console.log("Dropdown computed style:", window.getComputedStyle(dropdown));
+                            console.log("Dropdown rect:", {
+                              x: rect.x,
+                              y: rect.y,
+                              width: rect.width,
+                              height: rect.height,
+                              top: rect.top,
+                              left: rect.left,
+                              right: rect.right,
+                              bottom: rect.bottom
+                            });
+                            
+                            const computedStyle = window.getComputedStyle(dropdown);
+                            console.log("Dropdown key styles:", {
+                              display: computedStyle.display,
+                              visibility: computedStyle.visibility,
+                              opacity: computedStyle.opacity,
+                              position: computedStyle.position,
+                              zIndex: computedStyle.zIndex,
+                              top: computedStyle.top,
+                              left: computedStyle.left,
+                              right: computedStyle.right
+                            });
                           }
                         }, 100);
                         
@@ -394,14 +414,19 @@ export default function SiteHeader() {
                             const supabase = supabaseBrowser();
                             console.log("Supabase client created (reusing existing instance)");
                             
-                            // Per Google OAuth, dobbiamo fare logout da Google
-                            const { data: { user }, error: userError } = await supabase.auth.getUser();
-                            console.log("User data:", user);
-                            console.log("User error:", userError);
-                            console.log("User app_metadata:", user?.app_metadata);
-                            console.log("User provider:", user?.app_metadata?.provider);
+                            // Verifica se l'utente è ancora autenticato
+                            const { data: { user: currentUser } } = await supabase.auth.getUser();
+                            if (!currentUser) {
+                              console.log("No user found, redirecting immediately");
+                              window.location.replace("/");
+                              return;
+                            }
                             
-                            if (user?.app_metadata?.provider === 'google') {
+                            // Per Google OAuth, dobbiamo fare logout da Google
+                            console.log("User app_metadata:", currentUser?.app_metadata);
+                            console.log("User provider:", currentUser?.app_metadata?.provider);
+                            
+                            if (currentUser?.app_metadata?.provider === 'google') {
                               console.log("Google OAuth user detected, redirecting to Google logout");
                               
                               // Pulisci tutti i dati locali
