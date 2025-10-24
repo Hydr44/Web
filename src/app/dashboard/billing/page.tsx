@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
 import ForceSyncButton from "@/components/billing/ForceSyncButton";
+import DebugButton from "@/components/billing/DebugButton";
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -301,6 +302,7 @@ export default async function BillingPage({
               </p>
             </div>
             <div className="flex gap-3">
+              <DebugButton />
               <ForceSyncButton />
               <Link
                 href="/api/billing/portal"

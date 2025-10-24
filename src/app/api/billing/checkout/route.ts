@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     // Recupera l'organizzazione corrente dell'utente
     const { data: profile } = await supabase
       .from("profiles")
-      .select("current_org")
+      .select("current_org, stripe_customer_id")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -50,10 +50,26 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL(`/dashboard/billing?err=missing_org`, base), 302);
     }
 
+    // Crea o recupera il customer Stripe
+    let customerId = profile?.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: { user_id: user.id, org_id: orgId },
+      });
+      customerId = customer.id;
+      
+      // Salva il customer_id nel profilo
+      await supabase
+        .from("profiles")
+        .update({ stripe_customer_id: customerId })
+        .eq("id", user.id);
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      customer: customerId,
       line_items: [{ price, quantity: 1 }],
-      customer_email: user.email,
       allow_promotion_codes: true,
       // Propaga org_id anche nella Subscription generata da Stripe
       subscription_data: {
