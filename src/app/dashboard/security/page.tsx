@@ -320,36 +320,76 @@ export default function SecurityPage() {
         </div>
       </div>
 
-      {/* Security Tips */}
+      {/* Security Progress */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-200/50 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Usa password uniche e complesse</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Abilita l'autenticazione a due fattori</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Monitora regolarmente le sessioni attive</span>
-            </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Migliora la Sicurezza del tuo Account</h2>
+        
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">Livello di Sicurezza</span>
+            <span className="text-sm font-bold text-gray-900">{securityData.securityScore}%</span>
           </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${
+                securityData.securityScore < 40 ? 'bg-red-500' : 
+                securityData.securityScore < 70 ? 'bg-yellow-500' : 'bg-green-500'
+              }`}
+              style={{ width: `${securityData.securityScore}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">Azioni per raggiungere il 100%:</h3>
+          
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Non condividere le tue credenziali</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <Shield className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">Abilita l'autenticazione a due fattori</p>
+                <p className="text-sm text-gray-600">Aggiungi un ulteriore livello di sicurezza</p>
+              </div>
+              <Link 
+                href="/dashboard/security/2fa"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
+              >
+                Configura
+              </Link>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Fai logout da dispositivi condivisi</span>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <Key className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">Aggiorna la tua password</p>
+                <p className="text-sm text-gray-600">Usa una password forte e unica</p>
+              </div>
+              <Link 
+                href="/dashboard/security/password"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
+              >
+                Cambia
+              </Link>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Aggiorna regolarmente le tue informazioni</span>
+
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <Monitor className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">Monitora le sessioni attive</p>
+                <p className="text-sm text-gray-600">Controlla i dispositivi connessi</p>
+              </div>
+              <Link 
+                href="/dashboard/security/sessions"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
+              >
+                Gestisci
+              </Link>
             </div>
           </div>
         </div>

@@ -387,56 +387,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <Link
-          href="/dashboard/security"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sicurezza</h3>
-              <p className="text-sm text-gray-600">Gestisci password e 2FA</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600">Proteggi il tuo account con le migliori pratiche di sicurezza.</p>
-        </Link>
-
-        <Link
-          href="/dashboard/notifications"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Bell className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Notifiche</h3>
-              <p className="text-sm text-gray-600">Preferenze notifiche</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600">Personalizza come e quando ricevere le notifiche.</p>
-        </Link>
-
-        <Link
-          href="/dashboard/privacy"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Database className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Privacy</h3>
-              <p className="text-sm text-gray-600">Gestione dati personali</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600">Controlla come vengono utilizzati i tuoi dati.</p>
-        </Link>
-      </div>
     </div>
   );
 }

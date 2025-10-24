@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
 
         {/* Contenuto pagina - flex-1 per occupare spazio rimanente */}
-        <main className="flex-1">
+        <main className="flex-1 min-h-0">
           {children}
         </main>
 

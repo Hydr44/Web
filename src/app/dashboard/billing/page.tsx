@@ -2,8 +2,6 @@
 import { supabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
-import ForceSyncButton from "@/components/billing/ForceSyncButton";
 import CheckoutButton from "@/components/billing/CheckoutButton";
 import { 
   CreditCard, 
@@ -459,7 +457,6 @@ export default async function BillingPage({
               </p>
             </div>
             <div className="flex gap-3">
-              <ForceSyncButton />
               {hasStripeCustomer && (
                 <Link
                   href="/api/billing/portal"
@@ -509,10 +506,6 @@ export default async function BillingPage({
         </div>
       </div>
 
-      {/* Sync After Checkout */}
-      {sp.status === "success" && sp.session_id && (
-        <SyncAfterCheckoutClient status={sp.status} sessionId={sp.session_id} />
-      )}
 
       {/* Error Messages */}
       {sp.err && (

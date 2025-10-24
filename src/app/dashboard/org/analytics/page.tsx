@@ -75,36 +75,37 @@ export default function OrgAnalyticsPage() {
             setOrgData(org);
           }
 
-          // Carica analytics (mock data per ora)
+          // Carica dati reali dall'organizzazione
+          const { data: members } = await supabase
+            .from("org_members")
+            .select("user_id, role, created_at")
+            .eq("org_id", profile.current_org);
+
+          const { data: transports } = await supabase
+            .from("transports")
+            .select("id, created_at, status")
+            .eq("org_id", profile.current_org);
+
+          const { data: vehicles } = await supabase
+            .from("vehicles")
+            .select("id")
+            .eq("org_id", profile.current_org);
+
           setAnalytics({
-            totalMembers: 12,
-            activeMembers: 8,
-            totalActivities: 1247,
-            activitiesThisMonth: 156,
-            growthRate: 12.5,
-            topActions: [
-              { action: "Login", count: 45, percentage: 28.8 },
-              { action: "Dashboard View", count: 32, percentage: 20.5 },
-              { action: "File Upload", count: 28, percentage: 17.9 },
-              { action: "Settings Update", count: 23, percentage: 14.7 },
-              { action: "Report Generate", count: 18, percentage: 11.5 }
-            ],
-            activityTrend: [
-              { date: "2024-01-01", activities: 12 },
-              { date: "2024-01-02", activities: 18 },
-              { date: "2024-01-03", activities: 15 },
-              { date: "2024-01-04", activities: 22 },
-              { date: "2024-01-05", activities: 19 },
-              { date: "2024-01-06", activities: 25 },
-              { date: "2024-01-07", activities: 21 }
-            ],
-            memberEngagement: 85.3,
-            averageSessionTime: 24.5,
-            peakHours: [9, 10, 11, 14, 15, 16],
+            totalMembers: members?.length || 0,
+            activeMembers: members?.length || 0,
+            totalActivities: transports?.length || 0,
+            activitiesThisMonth: transports?.length || 0,
+            growthRate: 0,
+            topActions: [],
+            activityTrend: [],
+            memberEngagement: 0,
+            averageSessionTime: 0,
+            peakHours: [],
             deviceUsage: {
-              desktop: 65,
-              mobile: 28,
-              tablet: 7
+              desktop: 0,
+              mobile: 0,
+              tablet: 0
             }
           });
         }

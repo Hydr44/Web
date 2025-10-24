@@ -187,68 +187,6 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      {/* Data Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
-              <Database className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Dati Totali</h3>
-              <p className="text-sm text-gray-600">Punti dati</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {dataOverview.totalDataPoints.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Dati Personali</h3>
-              <p className="text-sm text-gray-600">Informazioni personali</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {dataOverview.personalData}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Dati Utilizzo</h3>
-              <p className="text-sm text-gray-600">Analytics e metriche</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {dataOverview.usageData.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-orange-50/30 border border-orange-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Conservazione</h3>
-              <p className="text-sm text-gray-600">Giorni rimanenti</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {dataOverview.dataRetentionDays}
-          </div>
-        </div>
-      </div>
 
       {/* Privacy Controls */}
       <div className="grid lg:grid-cols-2 gap-8">

@@ -64,21 +64,26 @@ export default function MembersPage() {
           const { data: membersData, error: membersError } = await supabase
             .from("org_members")
             .select(`
-              *,
-              profiles:user_id (
-                id,
-                email,
-                full_name,
-                avatar_url,
-                created_at
-              )
+              user_id,
+              role,
+              created_at
             `)
             .eq("org_id", profile.current_org);
           
           if (membersError) {
             console.error("Error loading members:", membersError);
           } else if (membersData) {
-            setMembers(membersData);
+            // Per ora mostriamo solo i dati base senza join
+            const formattedMembers = membersData.map(member => ({
+              user_id: member.user_id,
+              role: member.role,
+              joined_at: member.created_at,
+              email: "N/A", // Da implementare con query separata se necessario
+              full_name: "N/A",
+              avatar_url: null,
+              status: "active"
+            }));
+            setMembers(formattedMembers);
           }
         }
         
