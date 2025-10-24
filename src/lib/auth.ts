@@ -183,10 +183,19 @@ export class AuthManager {
 
       // Gestione Google OAuth logout
       if (isGoogleUser) {
-        console.log("Google OAuth logout - redirecting to Google");
-        const returnUrl = `${globalThis.location.origin}?logout=success`;
-        const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(returnUrl)}`;
-        globalThis.location.href = googleLogoutUrl;
+        console.log("Google OAuth logout - using simplified approach");
+        
+        // Per Google OAuth, usiamo un approccio semplificato
+        // Non proviamo a revocare il token o redirect a Google
+        // perché Google ha cambiato le sue API
+        
+        console.log("Google OAuth user - performing local logout only");
+        console.log("Note: User will need to logout from Google manually if needed");
+        
+        // Per Google OAuth, facciamo solo logout locale
+        // L'utente può fare logout da Google manualmente se necessario
+        console.log("Local logout completed for Google user");
+        globalThis.location.href = "/";
         return { success: true };
       }
 
