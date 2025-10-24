@@ -47,14 +47,32 @@ export default async function BillingPage({
     redirect("/login?redirect=/dashboard/billing");
   }
 
-  // Carica il profilo utente per ottenere il piano corrente
+  // Carica il profilo utente e la subscription per ottenere il piano corrente
   const { data: profile } = await supabase
     .from("profiles")
-    .select("current_plan, stripe_customer_id")
+    .select("stripe_customer_id")
     .eq("id", user.id)
     .single();
 
-  const currentPlanName = profile?.current_plan || "Nessun piano attivo";
+  // Carica la subscription attiva per ottenere il piano
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("status, price_id")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  // Mappa price_id ai nomi dei piani
+  const PLAN_MAPPING: Record<string, string> = {
+    [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
+    [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
+    [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
+  };
+
+  const currentPlanName = subscription?.price_id 
+    ? PLAN_MAPPING[subscription.price_id] || "Piano Sconosciuto"
+    : "Nessun piano attivo";
+    
   const hasStripeCustomer = !!profile?.stripe_customer_id;
   const hasActivePlan = currentPlanName !== "Nessun piano attivo";
 

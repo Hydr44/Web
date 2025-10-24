@@ -129,12 +129,11 @@ export async function POST(req: Request) {
       }
       console.log("✅ Subscriptions table updated");
 
-      // Aggiorna profilo utente
+      // Aggiorna profilo utente (solo stripe_customer_id, il piano è nella tabella subscriptions)
       console.log("👤 Updating profiles table...");
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({
-          current_plan: planName,
           stripe_customer_id: customerId,
           updated_at: new Date().toISOString(),
         })
