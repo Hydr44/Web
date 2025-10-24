@@ -19,13 +19,20 @@ const PLAN_MAPPING: Record<string, string> = {
 
 export async function POST(req: Request) {
   try {
+    console.log("🧪 Test sync API called");
+    
     const supabase = await supabaseServer();
+    console.log("✅ Supabase client created");
+    
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
+    console.log("🔐 Auth check:", { user: user?.email, error: authError?.message });
+
     if (authError || !user) {
+      console.error("❌ Auth failed:", authError);
       return NextResponse.json(
         { ok: false, error: "not_authenticated" },
         { status: 401 }
@@ -38,6 +45,7 @@ export async function POST(req: Request) {
     const subscriptionId = "sub_1SLqetINO7pl3frNtcvJxsOQ";
     
     try {
+      console.log(`🔍 Retrieving subscription: ${subscriptionId}`);
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       console.log(`📋 Subscription details:`, {
         id: subscription.id,
@@ -54,6 +62,7 @@ export async function POST(req: Request) {
       console.log(`🔄 Syncing: ${planName} (${priceId}) for customer: ${customerId}`);
 
       // Aggiorna tabella subscriptions
+      console.log("📝 Updating subscriptions table...");
       const { error: subError } = await supabaseAdmin
         .from("subscriptions")
         .upsert(
@@ -75,8 +84,10 @@ export async function POST(req: Request) {
         console.error("❌ Subscription update error:", subError);
         return NextResponse.json({ ok: false, error: subError.message }, { status: 500 });
       }
+      console.log("✅ Subscriptions table updated");
 
       // Aggiorna profilo utente
+      console.log("👤 Updating profiles table...");
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({
@@ -90,6 +101,7 @@ export async function POST(req: Request) {
         console.error("❌ Profile update error:", profileError);
         return NextResponse.json({ ok: false, error: profileError.message }, { status: 500 });
       }
+      console.log("✅ Profiles table updated");
 
       console.log(`✅ Test sync complete: ${planName} for user ${user.email}`);
 
