@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
+import ForceSyncButton from "@/components/billing/ForceSyncButton";
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -299,13 +300,16 @@ export default async function BillingPage({
                 Accedi al portale di fatturazione per gestire il tuo abbonamento
               </p>
             </div>
-            <Link
-              href="/api/billing/portal"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Apri Portale Fatturazione
-            </Link>
+            <div className="flex gap-3">
+              <ForceSyncButton />
+              <Link
+                href="/api/billing/portal"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Apri Portale Fatturazione
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -50,6 +50,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Aggiorna la tabella subscriptions
     await supabaseAdmin
       .from("subscriptions")
       .upsert(
@@ -66,6 +67,25 @@ export async function POST(req: Request) {
         },
         { onConflict: "user_id" } // <-- richiede UNIQUE(user_id)
       );
+
+    // Mappa price_id al nome del piano
+    const planMapping: Record<string, string> = {
+      [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
+      [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
+      [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
+    };
+
+    const planName = planMapping[priceId || ""] || "Unknown";
+
+    // Aggiorna il profilo utente con il piano corrente
+    await supabaseAdmin
+      .from("profiles")
+      .update({
+        current_plan: planName,
+        stripe_customer_id: customerId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
 
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {
