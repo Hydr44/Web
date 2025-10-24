@@ -83,11 +83,12 @@ export async function POST(req: Request) {
         { onConflict: "user_id" }
       );
 
-    // Aggiorna il profilo utente con il piano corrente
+    // Aggiorna il profilo utente con il piano corrente e customer ID
     await supabaseAdmin
       .from("profiles")
       .update({
         current_plan: planName,
+        stripe_customer_id: subscription.customer as string,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);

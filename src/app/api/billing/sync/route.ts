@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 
     const planName = PLAN_MAPPING[priceId || ""] || "Unknown";
 
-    // Aggiorna il profilo utente con il piano corrente
+    // Aggiorna il profilo utente con il piano corrente e customer ID
     await supabaseAdmin
       .from("profiles")
       .update({

@@ -12,7 +12,7 @@ export default function ForceSyncButton() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/billing/force-sync", {
+      const response = await fetch("/api/billing/force-sync-complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
