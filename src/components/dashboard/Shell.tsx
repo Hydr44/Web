@@ -14,6 +14,10 @@ import {
   ChevronRight,
   LogOut,
   Zap,
+  Shield,
+  Database,
+  User,
+  Bell,
 } from "lucide-react";
 import { useMemo } from "react";
 import * as React from "react";
@@ -32,20 +36,18 @@ const NAV: Item[] = [
     label: "Organizzazione",
     icon: Building2,
     children: [
-      { label: "Team & Ruoli", href: "/dashboard/team" },
-      { label: "Azienda", href: "/dashboard/org" },
+      { label: "Dashboard", href: "/dashboard/org" },
+      { label: "Membri", href: "/dashboard/org/members" },
+      { label: "Analytics", href: "/dashboard/org/analytics" },
+      { label: "Impostazioni", href: "/dashboard/org/settings" },
     ],
   },
-  { label: "Piani & Licenze", href: "/dashboard/billing", icon: Wallet },
+  { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet },
+  { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
+  { label: "Privacy", href: "/dashboard/privacy", icon: Database },
+  { label: "Profilo", href: "/dashboard/profile", icon: User },
+  { label: "Notifiche", href: "/dashboard/notifications", icon: Bell },
   { label: "Download", href: "/dashboard/download", icon: Download },
-  {
-    label: "Impostazioni",
-    icon: Settings,
-    children: [
-      { label: "Generali", href: "/dashboard/settings" },
-      { label: "Notifiche", href: "/dashboard/settings/notifications" },
-    ],
-  },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 
