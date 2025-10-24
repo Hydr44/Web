@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { staffAuth, StaffUser } from "@/lib/staff-auth-real-db";
 import { 
@@ -20,9 +20,16 @@ export default function StaffLayout({
   const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const checkAuth = () => {
+      // Skip authentication check for login page
+      if (pathname === '/staff/login') {
+        setLoading(false);
+        return;
+      }
+
       const currentUser = staffAuth.getCurrentUser();
       if (!currentUser) {
         router.push('/staff/login');
@@ -33,7 +40,7 @@ export default function StaffLayout({
     };
 
     checkAuth();
-  }, [router]);
+  }, [router, pathname]);
 
   const handleLogout = async () => {
     await staffAuth.logout();
@@ -49,6 +56,11 @@ export default function StaffLayout({
         </div>
       </div>
     );
+  }
+
+  // For login page, just render children without header
+  if (pathname === '/staff/login') {
+    return <>{children}</>;
   }
 
   if (!user) {
@@ -80,7 +92,7 @@ export default function StaffLayout({
                 <User className="h-4 w-4" />
                 <span>{user.full_name}</span>
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                  {user.role}
+                  {user.staff_role}
                 </span>
               </div>
               
