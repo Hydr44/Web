@@ -12,6 +12,27 @@ export default function ForceSyncButton() {
     setResult(null);
 
     try {
+      // Prova prima il test sync diretto
+      const testResponse = await fetch("/api/billing/test-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (testResponse.ok) {
+        const testData = await testResponse.json();
+        if (testData.ok) {
+          setResult({ 
+            success: true, 
+            message: `Test sync completato! Piano: ${testData.plan}` 
+          });
+          setTimeout(() => {
+            globalThis.location.reload();
+          }, 2000);
+          return;
+        }
+      }
+
+      // Se il test fallisce, prova il sync completo
       const response = await fetch("/api/billing/force-sync-complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

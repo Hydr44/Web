@@ -47,14 +47,22 @@ export async function POST(req: Request) {
 
     // Cerca subscription attive tra tutti i customer
     for (const customer of customers.data) {
-      const subscriptions = await stripe.subscriptions.list({
+      console.log(`🔍 Checking customer: ${customer.id}`);
+      
+      // Cerca tutte le subscription (non solo active)
+      const allSubscriptions = await stripe.subscriptions.list({
         customer: customer.id,
-        status: "active",
-        limit: 1,
+        limit: 10,
       });
-
-      if (subscriptions.data.length > 0) {
-        activeSubscription = subscriptions.data[0];
+      
+      console.log(`Found ${allSubscriptions.data.length} subscriptions for customer ${customer.id}`);
+      
+      // Cerca subscription attive
+      const activeSubscriptions = allSubscriptions.data.filter(sub => sub.status === 'active');
+      console.log(`Active subscriptions: ${activeSubscriptions.length}`);
+      
+      if (activeSubscriptions.length > 0) {
+        activeSubscription = activeSubscriptions[0];
         activeCustomer = customer;
         console.log(`✅ Found active subscription: ${activeSubscription.id} for customer: ${customer.id}`);
         break;
