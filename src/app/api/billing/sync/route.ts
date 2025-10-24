@@ -70,14 +70,14 @@ export async function POST(req: Request) {
         { onConflict: "user_id" } // <-- richiede UNIQUE(user_id)
       );
 
-    // Mappa price_id al nome del piano
-    const planMapping: Record<string, string> = {
+    // Mappa price_id al nome del piano (stessa logica del webhook)
+    const PLAN_MAPPING: Record<string, string> = {
       [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
       [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
       [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
     };
 
-    const planName = planMapping[priceId || ""] || "Unknown";
+    const planName = PLAN_MAPPING[priceId || ""] || "Unknown";
 
     // Aggiorna il profilo utente con il piano corrente
     await supabaseAdmin

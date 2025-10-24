@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
 import ForceSyncButton from "@/components/billing/ForceSyncButton";
 import DebugButton from "@/components/billing/DebugButton";
+import CheckoutButton from "@/components/billing/CheckoutButton";
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -26,12 +27,6 @@ const PRICES = {
   consortium: process.env.STRIPE_PRICE_CONSORTIUM ?? "",
 } as const;
 
-function goToCheckout(price: string) {
-  if (!price) return "/dashboard/billing?err=missing_price";
-  return `/api/billing/checkout?price=${encodeURIComponent(
-    price
-  )}&return=${encodeURIComponent("/dashboard/billing")}`;
-}
 
 export default async function BillingPage({
   searchParams,
@@ -144,26 +139,12 @@ export default async function BillingPage({
             </li>
           </ul>
 
-          <Link
-            href={PRICES.starter ? goToCheckout(PRICES.starter) : "/dashboard/billing?err=missing_price"}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
-              currentPlanName === "Starter"
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-900 text-white hover:bg-gray-800'
-            }`}
-          >
-            {currentPlanName === "Starter" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                Piano Attivo
-              </>
-            ) : (
-              <>
-                Scegli Starter
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </Link>
+          <CheckoutButton
+            priceId={PRICES.starter}
+            currentPlan={currentPlanName}
+            planName="Starter"
+            isActive={currentPlanName === "Starter"}
+          />
         </div>
 
         {/* Fleet Plan */}
@@ -206,26 +187,12 @@ export default async function BillingPage({
             </li>
           </ul>
 
-          <Link
-            href={PRICES.fleet ? goToCheckout(PRICES.fleet) : "/dashboard/billing?err=missing_price"}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
-              currentPlanName === "Flotta"
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-900 text-white hover:bg-gray-800'
-            }`}
-          >
-            {currentPlanName === "Flotta" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                Piano Attivo
-              </>
-            ) : (
-              <>
-                Scegli Flotta
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </Link>
+          <CheckoutButton
+            priceId={PRICES.fleet}
+            currentPlan={currentPlanName}
+            planName="Flotta"
+            isActive={currentPlanName === "Flotta"}
+          />
         </div>
 
         {/* Consortium Plan */}
@@ -268,26 +235,12 @@ export default async function BillingPage({
             </li>
           </ul>
 
-          <Link
-            href={PRICES.consortium ? goToCheckout(PRICES.consortium) : "/dashboard/billing?err=missing_price"}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
-              currentPlanName === "Azienda / Consorzio"
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-900 text-white hover:bg-gray-800'
-            }`}
-          >
-            {currentPlanName === "Azienda / Consorzio" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                Piano Attivo
-              </>
-            ) : (
-              <>
-                Scegli Enterprise
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </Link>
+          <CheckoutButton
+            priceId={PRICES.consortium}
+            currentPlan={currentPlanName}
+            planName="Enterprise"
+            isActive={currentPlanName === "Azienda / Consorzio"}
+          />
         </div>
       </div>
 
