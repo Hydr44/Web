@@ -274,17 +274,19 @@ export default function SiteHeader() {
                         }}
                       />
                       
+                      {console.log("Rendering dropdown menu, position:", dropdownPosition)}
                       <div
                         role="menu"
-                        className={`fixed w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
+                        className={`absolute w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
                         style={{ 
-                          zIndex: 999999,
-                          position: 'fixed',
-                          top: '80px',
-                          right: dropdownPosition === 'right' ? '20px' : 'auto',
-                          left: dropdownPosition === 'right' ? 'auto' : '20px',
+                          zIndex: 9999999,
+                          position: 'absolute',
+                          top: '100%',
+                          right: dropdownPosition === 'right' ? '0' : 'auto',
+                          left: dropdownPosition === 'right' ? 'auto' : '0',
                           backgroundColor: 'white',
-                          border: '2px solid rgba(59, 130, 246, 0.2)'
+                          border: '2px solid rgba(59, 130, 246, 0.2)',
+                          marginTop: '8px'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
