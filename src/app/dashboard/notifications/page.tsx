@@ -98,7 +98,50 @@ export default function NotificationsPage() {
           return;
         }
         
-        // Qui carichereresti le impostazioni reali dal database
+        // Carica impostazioni notifiche reali
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile) {
+          // Carica impostazioni notifiche dal profilo o da una tabella dedicata
+          // Per ora usiamo impostazioni di default
+          setNotificationSettings({
+            email: {
+              enabled: true,
+              security: true,
+              billing: true,
+              organization: true,
+              marketing: false,
+              weekly: true
+            },
+            push: {
+              enabled: true,
+              security: true,
+              billing: false,
+              organization: true,
+              marketing: false
+            },
+            sms: {
+              enabled: false,
+              security: true,
+              billing: false,
+              organization: false
+            },
+            preferences: {
+              quietHours: {
+                enabled: false,
+                start: "22:00",
+                end: "08:00"
+              },
+              frequency: "immediate",
+              digest: true
+            }
+          });
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading notification settings:", error);

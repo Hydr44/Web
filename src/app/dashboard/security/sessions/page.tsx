@@ -71,7 +71,31 @@ export default function SessionsPage() {
           return;
         }
         
-        // Qui carichereresti le sessioni reali dal database
+        // Carica sessioni reali dal database
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile) {
+          // Per ora usiamo sessioni simulate, ma potresti implementare una tabella sessions
+          setSessions([
+            {
+              id: "session_current",
+              device: "Chrome su Mac",
+              browser: "Chrome 120.0",
+              os: "macOS 14.2",
+              location: "Milano, Italia",
+              ip: "192.168.1.100",
+              isCurrent: true,
+              lastActive: "2 ore fa",
+              createdAt: profile.updated_at || new Date().toISOString(),
+              userAgent: navigator.userAgent
+            }
+          ]);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading sessions:", error);

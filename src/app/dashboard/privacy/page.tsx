@@ -39,9 +39,9 @@ export default function PrivacyPage() {
   });
 
   const [dataOverview, setDataOverview] = useState({
-    totalDataPoints: 1247,
-    personalData: 89,
-    usageData: 1158,
+    totalDataPoints: 0,
+    personalData: 0,
+    usageData: 0,
     lastExport: null,
     dataRetentionDays: 730
   });
@@ -66,6 +66,20 @@ export default function PrivacyPage() {
         
         if (profile) {
           setUserData(profile);
+          
+          // Calcola dati reali basati sul profilo
+          const personalDataCount = Object.keys(profile).filter(key => 
+            ['full_name', 'email', 'phone', 'location', 'bio', 'website', 'avatar_url'].includes(key) && 
+            profile[key] !== null && 
+            profile[key] !== ''
+          ).length;
+          
+          setDataOverview(prev => ({
+            ...prev,
+            totalDataPoints: personalDataCount,
+            personalData: personalDataCount,
+            usageData: 0 // Non mostriamo analytics di utilizzo
+          }));
         }
         
         setLoading(false);

@@ -55,7 +55,29 @@ export default function SecurityPage() {
           return;
         }
         
-        // Qui carichereresti i dati reali di sicurezza
+        // Carica dati reali di sicurezza
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile) {
+          // Calcola score sicurezza basato su dati reali
+          let score = 50; // Base score
+          if (profile.full_name) score += 10;
+          if (profile.phone) score += 10;
+          if (profile.avatar_url) score += 5;
+          // Qui potresti aggiungere controlli per 2FA, password strength, etc.
+          
+          setSecurityData(prev => ({
+            ...prev,
+            securityScore: Math.min(score, 100),
+            lastLogin: profile.updated_at || new Date().toISOString(),
+            twoFactorEnabled: false // Da implementare con tabella dedicata
+          }));
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading security data:", error);
