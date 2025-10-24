@@ -28,25 +28,42 @@ export default function StaffLayout({
 }) {
   const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = () => {
-      const currentUser = staffAuth.getCurrentUser();
-      if (!currentUser) {
-        router.push('/staff/login');
-        return;
+    const checkAuth = async () => {
+      try {
+        console.log("Checking staff auth...");
+        const currentUser = staffAuth.getCurrentUser();
+        console.log("Current user:", currentUser);
+        
+        if (!currentUser) {
+          console.log("No user found, redirecting to login");
+          router.push('/staff/login');
+          return;
+        }
+        
+        setUser(currentUser);
+        setLoading(false);
+        console.log("Auth check completed successfully");
+      } catch (err) {
+        console.error("Auth check error:", err);
+        setError("Errore durante l'autenticazione");
+        setLoading(false);
       }
-      setUser(currentUser);
-      setLoading(false);
     };
 
     checkAuth();
   }, [router]);
 
   const handleLogout = async () => {
-    await staffAuth.logout();
-    router.push('/staff/login');
+    try {
+      await staffAuth.logout();
+      router.push('/staff/login');
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   if (loading) {
@@ -55,13 +72,50 @@ export default function StaffLayout({
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Caricamento...</p>
+          <p className="text-sm text-gray-500 mt-2">Verifica autenticazione staff...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="h-8 w-8 text-red-600">⚠</div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Errore di Autenticazione</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.href = '/staff/login'}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Vai al Login
+          </button>
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return null; // Will redirect to login
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="h-8 w-8 text-yellow-600">🔒</div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Accesso Richiesto</h2>
+          <p className="text-gray-600 mb-4">Devi effettuare il login per accedere al pannello staff.</p>
+          <button 
+            onClick={() => window.location.href = '/staff/login'}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Vai al Login
+          </button>
+        </div>
+      </div>
+    );
   }
   return (
     <div className="min-h-screen bg-gray-50">
