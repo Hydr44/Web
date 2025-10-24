@@ -13,7 +13,30 @@ export async function middleware(req: NextRequest) {
   console.log("=== MIDDLEWARE DEBUG ===");
   console.log("Request URL:", req.url);
   console.log("Request pathname:", req.nextUrl.pathname);
+  console.log("Host:", req.headers.get('host'));
   console.log("All cookies:", req.cookies.getAll().map(c => `${c.name}=${c.value?.substring(0, 20)}...`));
+
+  const hostname = req.headers.get('host') || '';
+  const isStaffSubdomain = hostname.includes('staff.rescuemanager.eu') || hostname.includes('staff.localhost');
+
+  // Handle staff subdomain routing
+  if (isStaffSubdomain) {
+    console.log("Staff subdomain detected:", hostname);
+    
+    // Redirect staff root to login
+    if (req.nextUrl.pathname === '/') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/staff/login';
+      return NextResponse.redirect(url);
+    }
+    
+    // Ensure all staff routes are prefixed correctly
+    if (!req.nextUrl.pathname.startsWith('/staff')) {
+      const url = req.nextUrl.clone();
+      url.pathname = `/staff${req.nextUrl.pathname}`;
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Per ora, permettiamo l'accesso al dashboard senza controllo di autenticazione
   // Il controllo sarà fatto lato client
@@ -27,4 +50,10 @@ export async function middleware(req: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/dashboard/:path*"] };
+export const config = { 
+  matcher: [
+    "/dashboard/:path*",
+    "/staff/:path*",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)"
+  ] 
+};
