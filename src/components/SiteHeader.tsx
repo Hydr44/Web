@@ -254,7 +254,7 @@ export default function SiteHeader() {
                   </div>
                 )}
                 
-                <div className="relative">
+                <div className="relative" style={{ overflow: 'visible' }}>
                     <button
                       onClick={handleMenuToggle}
                       className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
@@ -332,7 +332,7 @@ export default function SiteHeader() {
                         className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                         onClick={async () => {
                           setMenuOpen(false);
-                          console.log("Logout clicked - starting logout process");
+                          console.log("Google OAuth logout clicked - starting logout process");
                           
                           try {
                             // Dispatch logout event immediately
@@ -340,7 +340,38 @@ export default function SiteHeader() {
                             
                             const supabase = supabaseBrowser();
                             
-                            // Logout da Supabase
+                            // Per Google OAuth, dobbiamo fare logout da Google
+                            const { data: { user } } = await supabase.auth.getUser();
+                            if (user?.app_metadata?.provider === 'google') {
+                              console.log("Google OAuth user detected, redirecting to Google logout");
+                              
+                              // Pulisci tutti i dati locali
+                              localStorage.clear();
+                              sessionStorage.clear();
+                              
+                              // Pulisci cookie Supabase
+                              const cookiesToClear = [
+                                'sb-access-token',
+                                'sb-refresh-token', 
+                                'supabase-auth-token',
+                                'sb-ienzdgrqalltvkdkuamp-auth-token'
+                              ];
+                              
+                              cookiesToClear.forEach(cookieName => {
+                                document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.rescuemanager.eu`;
+                                document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                              });
+                              
+                              // Logout da Supabase
+                              await supabase.auth.signOut();
+                              
+                              // Per Google OAuth, redirect a Google logout
+                              const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(window.location.origin)}`;
+                              window.location.href = googleLogoutUrl;
+                              return;
+                            }
+                            
+                            // Logout normale per altri provider
                             const { error } = await supabase.auth.signOut();
                             if (error) {
                               console.error("Logout error:", error);
