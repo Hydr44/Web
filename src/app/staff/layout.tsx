@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { staffAuth, StaffUser } from "@/lib/staff-auth-real";
 import { 
   Shield, 
   Globe, 
-  LogOut
+  LogOut,
+  User,
+  Settings
 } from "lucide-react";
 
 export default function StaffLayout({
@@ -12,6 +17,44 @@ export default function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [user, setUser] = useState<StaffUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const currentUser = staffAuth.getCurrentUser();
+      if (!currentUser) {
+        router.push('/staff/login');
+        return;
+      }
+      setUser(currentUser);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await staffAuth.logout();
+    router.push('/staff/login');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -32,13 +75,22 @@ export default function StaffLayout({
                 <Globe className="h-4 w-4" />
                 <span>staff.rescuemanager.eu</span>
               </div>
-              <Link 
-                href="/staff/login"
+              
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                <span>{user.full_name}</span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  {user.role}
+                </span>
+              </div>
+              
+              <button 
+                onClick={handleLogout}
                 className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
                 <LogOut className="h-4 w-4" />
-                Login
-              </Link>
+                Logout
+              </button>
             </div>
           </div>
         </div>
