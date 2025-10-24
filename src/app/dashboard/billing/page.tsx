@@ -15,7 +15,14 @@ import {
   ExternalLink,
   Star,
   Crown,
-  Users
+  Users,
+  Wallet,
+  TrendingUp,
+  Calendar,
+  FileText,
+  Settings,
+  Bell,
+  Download
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -123,10 +130,144 @@ export default async function BillingPage({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Fatturazione e Abbonamenti</h1>
-        <p className="text-gray-600 mt-2">
-          Gestisci il tuo abbonamento e i metodi di pagamento
+        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+          <Wallet className="h-4 w-4" />
+          Centro Pagamenti
+        </div>
+        
+        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          Gestione <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Pagamenti</span>
+        </h1>
+        
+        <p className="text-lg text-gray-600 max-w-2xl">
+          Gestisci il tuo abbonamento, metodi di pagamento e monitora l'utilizzo delle risorse.
         </p>
+      </div>
+
+      {/* Billing Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Piano Attuale</h3>
+              <p className="text-sm text-gray-600">Abbonamento</p>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">
+            {currentPlanName}
+          </div>
+          <div className="text-sm text-gray-600">
+            {hasActivePlan ? "Attivo" : "Nessun piano"}
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Utilizzo</h3>
+              <p className="text-sm text-gray-600">Risorse</p>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">
+            85%
+          </div>
+          <div className="text-sm text-gray-600">
+            Del limite mensile
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Prossima Fattura</h3>
+              <p className="text-sm text-gray-600">Scadenza</p>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">
+            15 Gen
+          </div>
+          <div className="text-sm text-gray-600">
+            {hasActivePlan ? "€29,00" : "N/A"}
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-orange-50/30 border border-orange-200/50 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Fatture</h3>
+              <p className="text-sm text-gray-600">Storico</p>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">
+            12
+          </div>
+          <div className="text-sm text-gray-600">
+            Fatture totali
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Link
+          href="/dashboard/billing"
+          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Gestione Piano</h3>
+              <p className="text-sm text-gray-600">Modifica abbonamento</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600">Cambia piano, aggiorna metodi di pagamento e gestisci la fatturazione.</p>
+        </Link>
+
+        <Link
+          href="/dashboard/billing"
+          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <Download className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Fatture</h3>
+              <p className="text-sm text-gray-600">Download e storico</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600">Scarica le tue fatture e visualizza lo storico dei pagamenti.</p>
+        </Link>
+
+        <Link
+          href="/dashboard/notifications"
+          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <Bell className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Notifiche</h3>
+              <p className="text-sm text-gray-600">Preferenze fatturazione</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600">Configura le notifiche per fatture e scadenze di pagamento.</p>
+        </Link>
       </div>
 
       {/* Current Plan Status */}

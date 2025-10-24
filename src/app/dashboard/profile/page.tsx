@@ -18,7 +18,8 @@ import {
   Bell,
   Shield,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Database
 } from "lucide-react";
 
 export default function ProfilePage() {

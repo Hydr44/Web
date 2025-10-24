@@ -20,7 +20,8 @@ import {
   User,
   Bell,
   Mail,
-  Smartphone
+  Smartphone,
+  Activity
 } from "lucide-react";
 
 export default function PrivacyPage() {
