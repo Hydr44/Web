@@ -56,6 +56,7 @@ export default async function BillingPage({
 
   const currentPlanName = profile?.current_plan || "Nessun piano attivo";
   const hasStripeCustomer = !!profile?.stripe_customer_id;
+  const hasActivePlan = currentPlanName !== "Nessun piano attivo";
 
   return (
     <div className="space-y-8">
@@ -245,7 +246,7 @@ export default async function BillingPage({
       </div>
 
       {/* Billing Portal */}
-      {hasStripeCustomer && (
+      {(hasStripeCustomer || hasActivePlan) && (
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -257,13 +258,33 @@ export default async function BillingPage({
             <div className="flex gap-3">
               <DebugButton />
               <ForceSyncButton />
-              <Link
-                href="/api/billing/portal"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Apri Portale Fatturazione
-              </Link>
+              {hasStripeCustomer && (
+                <Link
+                  href="/api/billing/portal"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Apri Portale Fatturazione
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sezione Debug per utenti senza customer */}
+      {!hasStripeCustomer && (
+        <div className="bg-yellow-50 rounded-2xl border border-yellow-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-900">Debug Abbonamento</h3>
+              <p className="text-yellow-700 mt-1">
+                Se hai appena completato un acquisto, usa questi strumenti per sincronizzare
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <DebugButton />
+              <ForceSyncButton />
             </div>
           </div>
         </div>

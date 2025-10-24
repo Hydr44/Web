@@ -41,9 +41,9 @@ export async function POST(req: Request) {
       (sub.customer as string | undefined) ??
       null;
 
-    console.log("Sync debug:", { userId, customerId, priceId, sessionId: session.id });
-
     const priceId = sub.items?.data?.[0]?.price?.id ?? null;
+    
+    console.log("Sync debug:", { userId, customerId, priceId, sessionId: session.id });
 
     if (!userId) {
       return NextResponse.json(
