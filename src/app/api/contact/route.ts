@@ -1,50 +1,72 @@
-import { supabaseServer } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
     const body = await request.json();
-    const { name, email, phone, company, type, message, source = "website" } = body;
+    const {
+      type,
+      source,
+      name,
+      email,
+      phone,
+      company,
+      role,
+      vehicles,
+      message,
+      additional_data
+    } = body;
 
-    // Validazione base
+    // Validate required fields
     if (!name || !email || !type) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Campi obbligatori mancanti" },
+        { status: 400 }
+      );
     }
 
-    // Crea nuovo lead
-    const { data: lead, error: leadError } = await supabase
-      .from("leads")
+    // Create lead in database
+    const { data: lead, error } = await supabaseAdmin()
+      .from('leads')
       .insert({
+        type,
+        source,
         name,
         email,
-        phone,
-        company,
-        type,
-        status: "new",
-        priority: "medium",
-        source,
-        notes: message
+        phone: phone || null,
+        company: company || null,
+        role: role || null,
+        vehicles: vehicles || null,
+        message: message || null,
+        additional_data: additional_data || null,
+        status: 'new',
+        priority: type === 'quote' ? 'high' : 'medium'
       })
       .select()
       .single();
 
-    if (leadError) {
-      console.error("Error creating lead:", leadError);
-      return NextResponse.json({ error: "Failed to create lead" }, { status: 500 });
+    if (error) {
+      console.error('Error creating lead:', error);
+      return NextResponse.json(
+        { success: false, error: "Errore durante il salvataggio" },
+        { status: 500 }
+      );
     }
 
-    // Qui potresti inviare una notifica email allo staff
-    // await sendNotificationEmail(lead);
+    // TODO: Send notification email to staff
+    // TODO: Send confirmation email to customer
 
-    return NextResponse.json({ 
-      success: true, 
-      lead: { id: lead.id },
-      message: "Richiesta inviata con successo. Ti contatteremo presto!"
+    return NextResponse.json({
+      success: true,
+      lead_id: lead.id,
+      message: "Richiesta inviata con successo"
     });
+
   } catch (error) {
-    console.error("Error in contact API:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Contact API error:', error);
+    return NextResponse.json(
+      { success: false, error: "Errore interno del server" },
+      { status: 500 }
+    );
   }
 }
