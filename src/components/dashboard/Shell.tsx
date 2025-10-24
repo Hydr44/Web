@@ -199,18 +199,34 @@ export default function DashboardShell({
               })}
             </div>
 
-            <form 
-              action="/logout" 
-              method="POST" 
-              className="mt-6"
+            <button 
+              onClick={async () => {
+                try {
+                  // Logout da Supabase
+                  const { createClient } = await import('@supabase/supabase-js');
+                  const supabase = createClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                  );
+                  
+                  await supabase.auth.signOut();
+                  
+                  // Pulisci dati locali
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  
+                  // Redirect
+                  window.location.href = "/";
+                } catch (err) {
+                  console.error("Logout error:", err);
+                  window.location.href = "/";
+                }
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
             >
-              <button 
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
-              >
-                <LogOut className="h-5 w-5" /> 
-                Esci dall&apos;account
-              </button>
-            </form>
+              <LogOut className="h-5 w-5" /> 
+              Esci dall&apos;account
+            </button>
           </nav>
         </aside>
 
