@@ -9,11 +9,22 @@ export interface LogoutOptions {
   forceGoogleLogout?: boolean;
 }
 
+// Flag per prevenire logout multipli
+let isLoggingOut = false;
+
 /**
  * Sistema di logout unificato e robusto
  * Gestisce tutti i tipi di logout: standard, Google OAuth, e cleanup completo
  */
 export async function performLogout(options: LogoutOptions = {}): Promise<void> {
+  // Prevenire logout multipli
+  if (isLoggingOut) {
+    console.log("Logout already in progress, ignoring duplicate call");
+    return;
+  }
+
+  isLoggingOut = true;
+
   const {
     redirectTo = "/",
     clearAll = true,
@@ -111,6 +122,11 @@ export async function performLogout(options: LogoutOptions = {}): Promise<void> 
     // Anche in caso di errore, forza il redirect
     console.log("Forcing redirect due to error");
     globalThis.location.href = redirectTo;
+  } finally {
+    // Reset flag dopo timeout per sicurezza
+    setTimeout(() => {
+      isLoggingOut = false;
+    }, 5000);
   }
 }
 

@@ -25,6 +25,7 @@ export default function SiteHeader() {
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [, setIsAdmin] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Scroll handler
   useEffect(() => {
@@ -117,7 +118,13 @@ export default function SiteHeader() {
 
   // Logout handler usando il nuovo sistema
   const handleLogout = async () => {
+    if (isLoggingOut) {
+      console.log("Logout already in progress, ignoring");
+      return;
+    }
+
     setMenuOpen(false);
+    setIsLoggingOut(true);
     console.log("=== HEADER LOGOUT START ===");
     
     try {
@@ -130,6 +137,9 @@ export default function SiteHeader() {
       console.error("Header logout error:", error);
       // Fallback: redirect forzato
       globalThis.location.href = "/";
+    } finally {
+      // Reset dopo timeout
+      setTimeout(() => setIsLoggingOut(false), 3000);
     }
   };
 
@@ -274,11 +284,25 @@ export default function SiteHeader() {
                       <div className="border-t border-gray-100 my-1"></div>
                       
                       <button
-                        className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors duration-200 ${
+                          isLoggingOut 
+                            ? 'text-gray-500 bg-gray-50 cursor-not-allowed' 
+                            : 'text-red-600 hover:bg-red-50'
+                        }`}
                         onClick={handleLogout}
+                        disabled={isLoggingOut}
                       >
-                        <LogOut className="h-4 w-4" />
-                        Esci dall&apos;account
+                        {isLoggingOut ? (
+                          <>
+                            <div className="h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                            Disconnessione...
+                          </>
+                        ) : (
+                          <>
+                            <LogOut className="h-4 w-4" />
+                            Esci dall&apos;account
+                          </>
+                        )}
                       </button>
                     </div>
                   )}
