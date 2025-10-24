@@ -36,6 +36,10 @@ export async function middleware(req: NextRequest) {
       url.pathname = `/staff${req.nextUrl.pathname}`;
       return NextResponse.redirect(url);
     }
+    
+    // For staff subdomain, don't apply other middleware logic
+    console.log("Staff subdomain - allowing through");
+    return response;
   }
 
   // Per ora, permettiamo l'accesso al dashboard senza controllo di autenticazione
