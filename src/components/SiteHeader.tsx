@@ -300,7 +300,12 @@ export default function SiteHeader() {
                           marginTop: '8px',
                           opacity: 1,
                           visibility: 'visible',
-                          display: 'block'
+                          display: 'block',
+                          minHeight: '200px',
+                          height: 'auto',
+                          overflow: 'visible',
+                          clipPath: 'none',
+                          transform: 'none'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
@@ -327,15 +332,20 @@ export default function SiteHeader() {
                         className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                         onClick={async () => {
                           setMenuOpen(false);
-                          console.log("Logout clicked");
+                          console.log("Logout clicked - starting logout process");
                           
                           try {
+                            // Dispatch logout event immediately
+                            window.dispatchEvent(new CustomEvent('logout'));
+                            
                             const supabase = supabaseBrowser();
                             
                             // Logout da Supabase
                             const { error } = await supabase.auth.signOut();
                             if (error) {
                               console.error("Logout error:", error);
+                            } else {
+                              console.log("Supabase logout successful");
                             }
                             
                             // Pulisci tutti i dati locali
@@ -357,16 +367,13 @@ export default function SiteHeader() {
                             
                             console.log("Logout successful, redirecting...");
                             
-                            // Dispatch logout event
-                            window.dispatchEvent(new CustomEvent('logout'));
-                            
-                            // Redirect immediato alla homepage
-                            window.location.href = "/";
+                            // Forza refresh completo
+                            window.location.replace("/");
                             
                           } catch (err) {
                             console.error("Logout exception:", err);
                             // Anche in caso di errore, forza il redirect
-                            window.location.href = "/";
+                            window.location.replace("/");
                           }
                         }}
                       >
