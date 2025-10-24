@@ -57,6 +57,16 @@ export default function SiteHeader() {
             console.log("Setting position to RIGHT");
             setDropdownPosition('right');
           }
+          
+          // Debug posizionamento finale
+          console.log("Final positioning:");
+          console.log("- Button rect:", rect);
+          console.log("- Dropdown will be at:", {
+            left: dropdownPosition === 'left' ? rect.left : 'auto',
+            right: dropdownPosition === 'right' ? 0 : 'auto',
+            x: dropdownPosition === 'left' ? rect.left : rect.right,
+            endX: dropdownPosition === 'left' ? rect.left + dropdownWidth : rect.right + dropdownWidth
+          });
         } else {
           console.log("Button element NOT found!");
         }
@@ -341,7 +351,11 @@ export default function SiteHeader() {
                           transform: 'none',
                           // Forza posizionamento visibile
                           maxWidth: '288px',
-                          width: '288px'
+                          width: '288px',
+                          // Forza rimanere nel viewport
+                          maxWidth: dropdownPosition === 'left' ? 'calc(100vw - 20px)' : '288px',
+                          right: dropdownPosition === 'left' ? '20px' : 'auto',
+                          left: dropdownPosition === 'left' ? 'auto' : '0'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
