@@ -6,7 +6,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteFooter from "@/components/SiteFooter";
 import CookieBanner from "@/components/CookieBanner";
 import SiteHeader from "@/components/SiteHeader";
-import HeaderGate from "@/components/HeaderGate";
 import ChatwootWidget from "@/components/ChatwootWidget"; // <- widget chat
 import ImagePreloader from "@/components/ImagePreloader";
 
@@ -47,10 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
-        {/* Header pubblico visibile solo FUORI dalla dashboard */}
-        <HeaderGate>
-          <SiteHeader />
-        </HeaderGate>
+        {/* Header sempre visibile */}
+        <SiteHeader />
 
         {/* Contenuto pagina - flex-1 per occupare spazio rimanente */}
         <main className="flex-1">

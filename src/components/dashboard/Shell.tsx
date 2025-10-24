@@ -146,10 +146,10 @@ export default function DashboardShell({
   const path = usePathname();
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50/50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white pt-20">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6">
         {/* Sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-6 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 shadow-xl">
+        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-100px)] p-6 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 shadow-xl">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
             {/* User block */}
             {userEmail && (
