@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { staffAuth, StaffUser } from "@/lib/staff-auth";
 import { 
   Users, 
   Building2, 
@@ -17,16 +21,45 @@ import {
   X
 } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Staff Panel - RescueManager",
-  description: "Pannello di controllo per lo staff di RescueManager",
-};
-
 export default function StaffLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [user, setUser] = useState<StaffUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const currentUser = staffAuth.getCurrentUser();
+      if (!currentUser) {
+        router.push('/staff/login');
+        return;
+      }
+      setUser(currentUser);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await staffAuth.logout();
+    router.push('/staff/login');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -47,7 +80,10 @@ export default function StaffLayout({
                 <Globe className="h-4 w-4" />
                 <span>staff.rescuemanager.eu</span>
               </div>
-              <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200">
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
                 <LogOut className="h-4 w-4" />
                 Logout
               </button>
