@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { performLogout } from "@/lib/logout";
 import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
@@ -67,22 +68,25 @@ export default function SiteHeader() {
 
     // Listener per cambiamenti di autenticazione
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state change:", event, session?.user?.email);
       await updateUserState(session?.user);
     });
 
-    // Listener per logout
-    const handleLogout = () => {
+    // Listener per logout event
+    const handleLogoutEvent = (event: CustomEvent) => {
+      console.log("Logout event received:", event.detail);
       setEmail(null);
       setCurrentOrg(null);
       setOrgs([]);
       setIsAdmin(false);
+      setMenuOpen(false);
     };
 
-    globalThis.addEventListener('logout', handleLogout);
+    globalThis.addEventListener('logout', handleLogoutEvent as EventListener);
 
     return () => {
       subscription.unsubscribe();
-      globalThis.removeEventListener('logout', handleLogout);
+      globalThis.removeEventListener('logout', handleLogoutEvent as EventListener);
     };
   }, []);
 
@@ -111,32 +115,20 @@ export default function SiteHeader() {
     };
   }, [menuOpen]);
 
-  // Logout handler
+  // Logout handler usando il nuovo sistema
   const handleLogout = async () => {
     setMenuOpen(false);
+    console.log("=== HEADER LOGOUT START ===");
     
     try {
-      const supabase = supabaseBrowser();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user?.app_metadata?.provider === 'google') {
-        // Google OAuth logout
-        await supabase.auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        const returnUrl = `${globalThis.location.origin}?logout=true`;
-        const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(returnUrl)}`;
-        globalThis.location.href = googleLogoutUrl;
-      } else {
-        // Standard logout
-        await supabase.auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-        globalThis.location.href = "/";
-      }
+      await performLogout({
+        redirectTo: "/",
+        clearAll: true,
+        forceGoogleLogout: false // Lascia che il sistema decida automaticamente
+      });
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("Header logout error:", error);
+      // Fallback: redirect forzato
       globalThis.location.href = "/";
     }
   };
@@ -225,7 +217,7 @@ export default function SiteHeader() {
                           headers: { "Content-Type": "application/json" }, 
                           body: JSON.stringify({ org_id: val }) 
                         });
-                        window.location.reload();
+                        globalThis.location.reload();
                       }}
                     >
                       <option value="">Seleziona org</option>

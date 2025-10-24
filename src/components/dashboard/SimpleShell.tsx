@@ -102,15 +102,17 @@ export default function SimpleDashboardShell({
             <button
               className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all duration-200 group w-full"
               onClick={async () => {
-                console.log("Logout clicked");
+                console.log("SimpleShell logout clicked");
                 try {
-                  // BYPASS: Pulisci anche il bypass auth
-                  localStorage.removeItem("rescuemanager-auth");
-                  
-                  // Redirect alla home
-                  window.location.href = "/";
+                  const { performLogout } = await import('@/lib/logout');
+                  await performLogout({
+                    redirectTo: "/",
+                    clearAll: true,
+                    forceGoogleLogout: false
+                  });
                 } catch (err) {
-                  console.error("Logout exception:", err);
+                  console.error("SimpleShell logout error:", err);
+                  globalThis.location.href = "/";
                 }
               }}
             >
