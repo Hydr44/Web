@@ -12,7 +12,8 @@ import {
   FileText,
   Users,
   Calendar,
-  Edit
+  Edit,
+  Zap
 } from "lucide-react";
 
 export default function OrgPage() {
@@ -80,13 +81,33 @@ export default function OrgPage() {
           Informazioni Azienda
         </div>
         
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          La tua <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">azienda</span>
-        </h1>
-        
-        <p className="text-lg text-gray-600 max-w-2xl">
-          Gestisci le informazioni della tua azienda, i contatti e i dettagli fiscali per una gestione completa.
-        </p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              La tua <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">azienda</span>
+            </h1>
+            
+            <p className="text-lg text-gray-600 max-w-2xl">
+              Gestisci le informazioni della tua azienda, i contatti e i dettagli fiscali per una gestione completa.
+            </p>
+          </div>
+          
+          {orgData && (
+            <div className="flex gap-3">
+              <Link
+                href="/dashboard/org/edit"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium"
+              >
+                <Edit className="h-4 w-4" />
+                Modifica
+              </Link>
+              <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 font-medium">
+                <FileText className="h-4 w-4" />
+                Esporta
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {orgData ? (
@@ -201,7 +222,7 @@ export default function OrgPage() {
           </div>
 
           {/* Statistiche e informazioni aggiuntive */}
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-4 gap-6">
             <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
@@ -212,9 +233,15 @@ export default function OrgPage() {
                   <p className="text-sm text-gray-600">Team attivo</p>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-gray-900 mb-2">
                 {orgData.member_count || 0}
               </div>
+              <Link 
+                href="/dashboard/org/members"
+                className="text-sm text-primary hover:text-primary/80 font-medium"
+              >
+                Gestisci membri →
+              </Link>
             </div>
 
             <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg">
@@ -245,6 +272,24 @@ export default function OrgPage() {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
                 <span className="text-sm font-medium text-gray-900">Attiva</span>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Attività</h3>
+                  <p className="text-sm text-gray-600">Ultimi 30 giorni</p>
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900">
+                24
+              </div>
+              <div className="text-sm text-green-600 font-medium">
+                +12% vs mese scorso
               </div>
             </div>
           </div>
