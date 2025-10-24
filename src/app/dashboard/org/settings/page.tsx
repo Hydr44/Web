@@ -46,18 +46,7 @@ export default function OrgSettingsPage() {
     // Notifications
     emailNotifications: true,
     pushNotifications: true,
-    weeklyReports: true,
-    memberActivity: true,
-    
-    // Security
-    twoFactorRequired: false,
-    sessionTimeout: 24,
-    ipRestrictions: false,
-    
-    // Billing
-    planType: "starter",
-    billingEmail: "",
-    autoRenewal: true
+    weeklyReports: true
   });
 
   useEffect(() => {
@@ -96,8 +85,7 @@ export default function OrgSettingsPage() {
               website: org.website || "",
               primaryColor: org.primary_color || "#3B82F6",
               secondaryColor: org.secondary_color || "#1E40AF",
-              logoUrl: org.logo_url || "",
-              billingEmail: org.billing_email || ""
+              logoUrl: org.logo_url || ""
             }));
           }
         }
@@ -139,23 +127,12 @@ export default function OrgSettingsPage() {
             primary_color: formData.primaryColor,
             secondary_color: formData.secondaryColor,
             logo_url: formData.logoUrl,
-            billing_email: formData.billingEmail,
             settings: {
               timezone: formData.timezone,
               notifications: {
                 email: formData.emailNotifications,
                 push: formData.pushNotifications,
-                weekly_reports: formData.weeklyReports,
-                member_activity: formData.memberActivity
-              },
-              security: {
-                two_factor_required: formData.twoFactorRequired,
-                session_timeout: formData.sessionTimeout,
-                ip_restrictions: formData.ipRestrictions
-              },
-              billing: {
-                plan_type: formData.planType,
-                auto_renewal: formData.autoRenewal
+                weekly_reports: formData.weeklyReports
               }
             },
             updated_at: new Date().toISOString()
@@ -179,9 +156,7 @@ export default function OrgSettingsPage() {
   const tabs = [
     { id: "general", label: "Generale", icon: Building2 },
     { id: "branding", label: "Branding", icon: Palette },
-    { id: "notifications", label: "Notifiche", icon: Bell },
-    { id: "security", label: "Sicurezza", icon: Shield },
-    { id: "billing", label: "Fatturazione", icon: CreditCard }
+    { id: "notifications", label: "Notifiche", icon: Bell }
   ];
 
   if (loading) {
@@ -456,137 +431,10 @@ export default function OrgSettingsPage() {
                     </label>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
-                    <div>
-                      <h3 className="font-medium text-gray-900">Attività Membri</h3>
-                      <p className="text-sm text-gray-600">Notifiche quando i membri compiono azioni</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.memberActivity}
-                        onChange={(e) => setFormData(prev => ({ ...prev, memberActivity: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
                 </div>
               </div>
             )}
 
-            {activeTab === "security" && (
-              <div className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Sicurezza</h2>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
-                    <div>
-                      <h3 className="font-medium text-gray-900">Autenticazione a Due Fattori</h3>
-                      <p className="text-sm text-gray-600">Richiedi 2FA per tutti i membri</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.twoFactorRequired}
-                        onChange={(e) => setFormData(prev => ({ ...prev, twoFactorRequired: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Timeout Sessione (ore)
-                    </label>
-                    <select
-                      value={formData.sessionTimeout}
-                      onChange={(e) => setFormData(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
-                    >
-                      <option value={1}>1 ora</option>
-                      <option value={8}>8 ore</option>
-                      <option value={24}>24 ore</option>
-                      <option value={168}>7 giorni</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
-                    <div>
-                      <h3 className="font-medium text-gray-900">Restrizioni IP</h3>
-                      <p className="text-sm text-gray-600">Limita l'accesso a IP specifici</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.ipRestrictions}
-                        onChange={(e) => setFormData(prev => ({ ...prev, ipRestrictions: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "billing" && (
-              <div className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Fatturazione</h2>
-                
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Fatturazione
-                    </label>
-                    <input
-                      type="email"
-                      value={formData.billingEmail}
-                      onChange={(e) => setFormData(prev => ({ ...prev, billingEmail: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
-                      placeholder="billing@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Piano Attuale
-                    </label>
-                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-blue-900">Starter Plan</h3>
-                          <p className="text-sm text-blue-700">€29/mese</p>
-                        </div>
-                        <Link 
-                          href="/dashboard/billing"
-                          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          Gestisci →
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
-                    <div>
-                      <h3 className="font-medium text-gray-900">Rinnovo Automatico</h3>
-                      <p className="text-sm text-gray-600">Rinnova automaticamente il piano</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.autoRenewal}
-                        onChange={(e) => setFormData(prev => ({ ...prev, autoRenewal: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Save Button */}
             <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">

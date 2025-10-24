@@ -15,7 +15,9 @@ import {
   Edit,
   Zap,
   Settings,
-  BarChart3
+  BarChart3,
+  Shield,
+  CreditCard
 } from "lucide-react";
 
 export default function OrgPage() {
@@ -325,6 +327,29 @@ export default function OrgPage() {
                   <Settings className="h-4 w-4" />
                   Impostazioni
                 </Link>
+              </div>
+              
+              <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-200">
+                <h4 className="font-medium text-blue-900 mb-2">Impostazioni Avanzate</h4>
+                <p className="text-sm text-blue-700 mb-3">
+                  Per sicurezza e fatturazione, utilizza le impostazioni globali
+                </p>
+                <div className="flex gap-3">
+                  <Link
+                    href="/dashboard/settings/security"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-blue-200 text-blue-700 text-sm font-medium hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Sicurezza
+                  </Link>
+                  <Link
+                    href="/dashboard/billing"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-blue-200 text-blue-700 text-sm font-medium hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Fatturazione
+                  </Link>
+                </div>
               </div>
             </div>
 
