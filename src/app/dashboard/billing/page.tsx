@@ -107,6 +107,7 @@ export default async function BillingPage({
           {hasStripeCustomer && (
             <Link
               href="/api/billing/portal"
+              prefetch={false}
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
             >
               <CreditCard className="h-4 w-4" />
@@ -279,6 +280,7 @@ export default async function BillingPage({
               {hasStripeCustomer && (
                 <Link
                   href="/api/billing/portal"
+                  prefetch={false}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
                 >
                   <ExternalLink className="h-4 w-4" />
