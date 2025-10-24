@@ -40,38 +40,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it">
       <head>
-        {/* Preload solo risorse critiche */}
+        {/* Preload solo risorse critiche - solo per il sito principale */}
         <link rel="preload" href="/logo-rentri.png" as="image" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
-        {/* Header sempre visibile */}
-        <SiteHeader />
-
         {/* Contenuto pagina - flex-1 per occupare spazio rimanente */}
         <main className="flex-1 min-h-0">
           {children}
         </main>
-
-        <SiteFooter />
-        <CookieBanner />
-
-        {/* Chatwoot web widget (caricato una volta qui) */}
-        <ChatwootWidget />
-        
-        {/* Precaricamento intelligente delle immagini */}
-        <ImagePreloader 
-          images={[
-            "/mockups/dashboard-mockup.jpg",
-            "/670shots_so.png"
-          ]}
-          preloadOnMount={false}
-          preloadOnHover={true}
-        />
-        
-        {/* Vercel Speed Insights per monitoraggio performance */}
-        <SpeedInsights />
       </body>
     </html>
   );
