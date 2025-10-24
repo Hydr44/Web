@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { staffAuth, StaffUser } from "@/lib/staff-auth-real";
+import { staffAuth, StaffUser } from "@/lib/staff-auth-demo";
 import { 
   Shield, 
   Globe, 
