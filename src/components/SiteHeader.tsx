@@ -128,7 +128,7 @@ export default function SiteHeader() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10">
               <Image
-                src="/logo-rentri.png"
+                src="/logoufficiale_1024.png"
                 alt="RescueManager"
                 fill
                 className="object-contain transition-transform duration-300 group-hover:scale-105"
@@ -182,7 +182,7 @@ export default function SiteHeader() {
                 {/* Dashboard link */}
                 <Link
                   href="/dashboard"
-                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-md hover:shadow-primary/20 transition-all duration-300 font-medium"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
@@ -238,7 +238,7 @@ export default function SiteHeader() {
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white shadow-2xl shadow-black/20 border border-gray-200 p-2 z-[9999]"
+                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white shadow-lg shadow-black/10 border border-gray-200 p-2 z-[9999]"
                     >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
@@ -289,7 +289,7 @@ export default function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-md hover:shadow-primary/20 transition-all duration-300 font-medium"
               >
                 <LogIn className="h-4 w-4" />
                 Accedi
