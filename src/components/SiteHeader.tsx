@@ -276,13 +276,13 @@ export default function SiteHeader() {
                       
                       <div
                         role="menu"
-                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
+                        className={`fixed w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
                         style={{ 
-                          zIndex: 99999,
-                          position: 'absolute',
-                          top: '100%',
-                          left: dropdownPosition === 'right' ? 'auto' : '0',
-                          right: dropdownPosition === 'right' ? '0' : 'auto',
+                          zIndex: 999999,
+                          position: 'fixed',
+                          top: '80px',
+                          right: dropdownPosition === 'right' ? '20px' : 'auto',
+                          left: dropdownPosition === 'right' ? 'auto' : '20px',
                           backgroundColor: 'white',
                           border: '2px solid rgba(59, 130, 246, 0.2)'
                         }}
