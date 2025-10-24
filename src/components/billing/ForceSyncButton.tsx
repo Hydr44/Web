@@ -12,7 +12,35 @@ export default function ForceSyncButton() {
     setResult(null);
 
     try {
-      // Prova prima il test sync diretto
+      // Prima testa l'API di debug semplice
+      console.log("🔧 Testing simple debug API...");
+      const debugResponse = await fetch("/api/billing/debug-simple", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (debugResponse.ok) {
+        const debugData = await debugResponse.json();
+        console.log("🔍 Debug data:", debugData);
+        
+        if (debugData.ok) {
+          setResult({ 
+            success: true, 
+            message: `Debug OK - Environment: ${JSON.stringify(debugData.debug.environment)}` 
+          });
+          return;
+        }
+      } else {
+        const errorData = await debugResponse.json();
+        setResult({ 
+          success: false, 
+          message: `Debug failed: ${errorData.error}` 
+        });
+        return;
+      }
+
+      // Se il debug funziona, prova il test sync diretto
+      console.log("🧪 Testing sync API...");
       const testResponse = await fetch("/api/billing/test-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
