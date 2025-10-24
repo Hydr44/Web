@@ -256,11 +256,18 @@ export default function SiteHeader() {
                   </button>
                   
                   {menuOpen && (
-                    <div
-                      role="menu"
-                      className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50`}
-                      style={{ zIndex: 9999 }}
-                    >
+                    <>
+                      {/* Backdrop per chiudere il menu */}
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setMenuOpen(false)}
+                      />
+                      
+                      <div
+                        role="menu"
+                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50`}
+                        style={{ zIndex: 9999 }}
+                      >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
                         <div className="text-sm font-medium text-gray-900 break-all max-w-full overflow-hidden">
@@ -322,6 +329,7 @@ export default function SiteHeader() {
                         Esci dall&apos;account
                       </button>
                     </div>
+                    </>
                   )}
                 </div>
               </div>

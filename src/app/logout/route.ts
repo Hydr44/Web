@@ -31,8 +31,8 @@ export async function POST(req: Request) {
       console.error("Logout error:", error);
     }
 
-    // Pulisci tutti i cookie di sessione
-    const response = NextResponse.json({ success: true });
+    // Pulisci tutti i cookie di sessione e redirect
+    const response = NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
     
     // Rimuovi cookie Supabase
     response.cookies.set('sb-access-token', '', { maxAge: 0, path: '/' });
