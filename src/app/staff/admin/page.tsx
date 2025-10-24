@@ -1,417 +1,292 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import { staffAuth, StaffUser } from "@/lib/staff-auth-real-db";
 import { 
-  Settings, 
   Users, 
-  Building2, 
-  CreditCard, 
-  BarChart3, 
+  Plus, 
+  Edit, 
+  Trash2, 
   Shield, 
-  Database, 
-  Server, 
-  Globe, 
-  Zap, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  TrendingUp, 
-  Activity, 
-  FileText, 
   Mail, 
-  Phone, 
-  MapPin, 
+  Phone,
   Calendar,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-  Download,
-  RefreshCw
+  Search,
+  Filter,
+  MoreVertical,
+  UserPlus,
+  Settings
 } from "lucide-react";
 
-export default function AdminPanel() {
+export default function StaffAdminPage() {
+  const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalOrgs: 0,
-    activeSubscriptions: 0,
-    totalRevenue: 0,
-    systemHealth: "healthy",
-    lastBackup: "2024-01-15T10:30:00Z"
-  });
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [systemAlerts, setSystemAlerts] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<string>("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
 
   useEffect(() => {
-    const loadAdminData = async () => {
-      try {
-        const supabase = supabaseBrowser();
-        
-        // Carica statistiche del sistema
-        const [usersResult, orgsResult, subscriptionsResult] = await Promise.allSettled([
-          supabase
-            .from("profiles")
-            .select("id", { count: "exact" }),
-          supabase
-            .from("orgs")
-            .select("id", { count: "exact" }),
-          supabase
-            .from("subscriptions")
-            .select("id, status", { count: "exact" })
-        ]);
-
-        const totalUsers = usersResult.status === "fulfilled" ? usersResult.value.count || 0 : 0;
-        const totalOrgs = orgsResult.status === "fulfilled" ? orgsResult.value.count || 0 : 0;
-        const activeSubscriptions = subscriptionsResult.status === "fulfilled" 
-          ? (subscriptionsResult.value.data?.filter(s => s.status === "active").length || 0) 
-          : 0;
-
-        setStats({
-          totalUsers,
-          totalOrgs,
-          activeSubscriptions,
-          totalRevenue: 0, // Da calcolare da Stripe
-          systemHealth: "healthy",
-          lastBackup: new Date().toISOString()
-        });
-
-        // Mock data per attività recenti
-        setRecentActivity([
-          {
-            id: "activity_1",
-            type: "user_signup",
-            user: "Mario Rossi",
-            timestamp: "2024-01-15T10:30:00Z",
-            description: "Nuovo utente registrato"
-          },
-          {
-            id: "activity_2",
-            type: "org_created",
-            user: "Giulia Bianchi",
-            timestamp: "2024-01-15T09:15:00Z",
-            description: "Organizzazione creata"
-          },
-          {
-            id: "activity_3",
-            type: "subscription_created",
-            user: "Alessandro Verdi",
-            timestamp: "2024-01-15T08:45:00Z",
-            description: "Abbonamento attivato"
-          }
-        ]);
-
-        // Mock data per alert di sistema
-        setSystemAlerts([
-          {
-            id: "alert_1",
-            type: "warning",
-            title: "Backup in ritardo",
-            description: "L'ultimo backup è stato eseguito 2 giorni fa",
-            timestamp: "2024-01-13T10:30:00Z"
-          },
-          {
-            id: "alert_2",
-            type: "info",
-            title: "Aggiornamento disponibile",
-            description: "Nuova versione del sistema disponibile",
-            timestamp: "2024-01-14T15:20:00Z"
-          }
-        ]);
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading admin data:", error);
-        setLoading(false);
-      }
-    };
-
-    loadAdminData();
+    loadStaffUsers();
   }, []);
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "user_signup":
-        return <Users className="h-4 w-4 text-green-600" />;
-      case "org_created":
-        return <Building2 className="h-4 w-4 text-blue-600" />;
-      case "subscription_created":
-        return <CreditCard className="h-4 w-4 text-purple-600" />;
-      default:
-        return <Activity className="h-4 w-4 text-gray-600" />;
+  const loadStaffUsers = async () => {
+    try {
+      setLoading(true);
+      const users = await staffAuth.getAllStaffUsers();
+      setStaffUsers(users);
+    } catch (error) {
+      console.error('Error loading staff users:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case "warning":
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case "error":
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      case "info":
-        return <CheckCircle className="h-4 w-4 text-blue-600" />;
-      default:
-        return <AlertTriangle className="h-4 w-4 text-gray-600" />;
+  const filteredUsers = staffUsers.filter(user => {
+    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        user.full_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole === "all" || user.staff_role === filterRole;
+    return matchesSearch && matchesRole;
+  });
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'marketing': return 'bg-blue-100 text-blue-800';
+      case 'support': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getAlertColor = (type: string) => {
-    switch (type) {
-      case "warning":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "error":
-        return "text-red-600 bg-red-50 border-red-200";
-      case "info":
-        return "text-blue-600 bg-blue-50 border-blue-200";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin': return <Shield className="h-4 w-4" />;
+      case 'marketing': return <Mail className="h-4 w-4" />;
+      case 'support': return <Phone className="h-4 w-4" />;
+      default: return <Users className="h-4 w-4" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento utenti staff...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-              <Settings className="h-4 w-4" />
-              Pannello Amministratore
+    <div className="min-h-screen bg-gray-50 p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto"
+      >
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Gestione <span className="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Staff</span>
+          </h1>
+          <p className="text-gray-600">
+            Amministra gli account staff e i loro ruoli
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Totale Staff</p>
+                <p className="text-2xl font-bold text-gray-900">{staffUsers.length}</p>
+              </div>
+              <Users className="h-8 w-8 text-blue-600" />
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Controllo <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Sistema</span>
-            </h1>
-            <p className="text-lg text-gray-600">
-              Gestisci utenti, organizzazioni e monitora il sistema
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Admin</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {staffUsers.filter(u => u.staff_role === 'admin').length}
+                </p>
+              </div>
+              <Shield className="h-8 w-8 text-red-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Marketing</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {staffUsers.filter(u => u.staff_role === 'marketing').length}
+                </p>
+              </div>
+              <Mail className="h-8 w-8 text-blue-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Support</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {staffUsers.filter(u => u.staff_role === 'support').length}
+                </p>
+              </div>
+              <Phone className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions Bar */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Cerca utenti..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Filter */}
+              <select
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">Tutti i ruoli</option>
+                <option value="admin">Admin</option>
+                <option value="marketing">Marketing</option>
+                <option value="support">Support</option>
+                <option value="staff">Staff</option>
+              </select>
+            </div>
+
+            {/* Add User Button */}
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              <UserPlus className="h-4 w-4" />
+              Aggiungi Staff
+            </button>
+          </div>
+        </div>
+
+        {/* Users Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Utente
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ruolo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Creato
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Azioni
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
+                          {user.full_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {user.full_name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.staff_role)}`}>
+                        {getRoleIcon(user.staff_role)}
+                        {user.staff_role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.is_staff ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.is_staff ? 'Attivo' : 'Inattivo'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {new Date(user.created_at).toLocaleDateString('it-IT')}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setEditingUser(user)}
+                          className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm('Sei sicuro di voler eliminare questo utente?')) {
+                              // Handle delete
+                            }
+                          }}
+                          className="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Empty State */}
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Nessun utente trovato
+            </h3>
+            <p className="text-gray-500">
+              {searchTerm || filterRole !== "all" 
+                ? "Prova a modificare i filtri di ricerca"
+                : "Inizia aggiungendo il primo utente staff"
+              }
             </p>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200">
-              <RefreshCw className="h-4 w-4" />
-              Aggiorna
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-200">
-              <Download className="h-4 w-4" />
-              Report
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* System Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-blue-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Utenti</h3>
-              <p className="text-sm text-gray-600">Totale registrati</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {stats.totalUsers}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Organizzazioni</h3>
-              <p className="text-sm text-gray-600">Aziende attive</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {stats.totalOrgs}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Abbonamenti</h3>
-              <p className="text-sm text-gray-600">Attivi</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {stats.activeSubscriptions}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-orange-50/30 border border-orange-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Ricavi</h3>
-              <p className="text-sm text-gray-600">Questo mese</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            €{stats.totalRevenue.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sistema</h3>
-              <p className="text-sm text-gray-600">Stato</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-            <span className="text-sm font-medium text-gray-900">Sano</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Recent Activity */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900">Attività Recente</h3>
-          </div>
-          
-          <div className="divide-y divide-gray-200">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="p-6 hover:bg-gray-50 transition-colors duration-200">
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-900">{activity.user}</h4>
-                      <span className="text-xs text-gray-500">
-                        {new Date(activity.timestamp).toLocaleString('it-IT')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600">{activity.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* System Alerts */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900">Alert Sistema</h3>
-          </div>
-          
-          <div className="divide-y divide-gray-200">
-            {systemAlerts.map((alert) => (
-              <div key={alert.id} className="p-6 hover:bg-gray-50 transition-colors duration-200">
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                    {getAlertIcon(alert.type)}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-900">{alert.title}</h4>
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getAlertColor(alert.type)}`}>
-                        {alert.type}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{alert.description}</p>
-                    <span className="text-xs text-gray-500">
-                      {new Date(alert.timestamp).toLocaleString('it-IT')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-4 gap-6">
-        <Link
-          href="/staff/admin/users"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Gestione Utenti</h3>
-              <p className="text-sm text-gray-600">Amministra utenti</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/staff/admin/organizations"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Organizzazioni</h3>
-              <p className="text-sm text-gray-600">Gestisci aziende</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/staff/admin/billing"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <CreditCard className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Fatturazione</h3>
-              <p className="text-sm text-gray-600">Gestisci abbonamenti</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/staff/admin/system"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <Settings className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sistema</h3>
-              <p className="text-sm text-gray-600">Configurazioni</p>
-            </div>
-          </div>
-        </Link>
-      </div>
+        )}
+      </motion.div>
     </div>
   );
 }
