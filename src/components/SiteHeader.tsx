@@ -147,6 +147,13 @@ export default function SiteHeader() {
     // Carica stato iniziale
     supabase.auth.getUser().then(async ({ data }) => {
       await updateUserState(data.user);
+      
+      // Verifica se siamo tornati da un logout
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('logout') === 'true') {
+        console.log("Returned from logout, checking auth status");
+        await checkAuthAfterRedirect();
+      }
     });
 
     // Listener per cambiamenti di autenticazione
@@ -167,6 +174,22 @@ export default function SiteHeader() {
       setCurrentOrg(null);
       setOrgs([]);
       setIsAdmin(false);
+    };
+
+    // Verifica se l'utente è ancora loggato dopo redirect
+    const checkAuthAfterRedirect = async () => {
+      const supabase = supabaseBrowser();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        console.log("User still authenticated after logout attempt:", user.email);
+        // Se l'utente è ancora loggato, forza logout completo
+        await supabase.auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace("/");
+      } else {
+        console.log("User successfully logged out");
+      }
     };
 
     window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
@@ -427,7 +450,15 @@ export default function SiteHeader() {
                             console.log("User provider:", currentUser?.app_metadata?.provider);
                             
                             if (currentUser?.app_metadata?.provider === 'google') {
-                              console.log("Google OAuth user detected, redirecting to Google logout");
+                              console.log("Google OAuth user detected, performing complete Google logout");
+                              
+                              // Logout da Supabase PRIMA
+                              const { error: signOutError } = await supabase.auth.signOut();
+                              if (signOutError) {
+                                console.error("Supabase signOut error:", signOutError);
+                              } else {
+                                console.log("Supabase signOut successful");
+                              }
                               
                               // Pulisci tutti i dati locali
                               localStorage.clear();
@@ -446,11 +477,12 @@ export default function SiteHeader() {
                                 document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
                               });
                               
-                              // Logout da Supabase
-                              await supabase.auth.signOut();
+                              console.log("Local data cleared, redirecting to Google logout");
                               
-                              // Per Google OAuth, redirect a Google logout
-                              const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(window.location.origin)}`;
+                              // Per Google OAuth, redirect a Google logout con revoke
+                              const returnUrl = `${window.location.origin}?logout=true`;
+                              const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(returnUrl)}`;
+                              console.log("Redirecting to Google logout:", googleLogoutUrl);
                               window.location.href = googleLogoutUrl;
                               return;
                             }
