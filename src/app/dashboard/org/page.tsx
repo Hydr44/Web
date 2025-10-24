@@ -13,7 +13,9 @@ import {
   Users,
   Calendar,
   Edit,
-  Zap
+  Zap,
+  Settings,
+  BarChart3
 } from "lucide-react";
 
 export default function OrgPage() {
@@ -294,30 +296,63 @@ export default function OrgPage() {
             </div>
           </div>
 
-          {/* Azioni */}
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 shadow-lg">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
-                <Edit className="h-5 w-5 text-white" />
+          {/* Quick Actions */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Gestione Azienda */}
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 shadow-lg">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                  <Edit className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Gestione Azienda</h3>
+                  <p className="text-sm text-gray-600">Modifica le informazioni aziendali</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Gestione Azienda</h3>
-                <p className="text-sm text-gray-600">Modifica le informazioni aziendali</p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/dashboard/org/edit"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg transition-all duration-200"
+                >
+                  <Edit className="h-4 w-4" />
+                  Modifica informazioni
+                </Link>
+                <Link
+                  href="/dashboard/org/settings"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-primary/30 hover:shadow-md transition-all duration-200"
+                >
+                  <Settings className="h-4 w-4" />
+                  Impostazioni
+                </Link>
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <Link
-                href="/dashboard/org/edit"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg transition-all duration-200"
-              >
-                <Edit className="h-4 w-4" />
-                Modifica informazioni
-              </Link>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-primary/30 hover:shadow-md transition-all duration-200">
-                <FileText className="h-4 w-4" />
-                Esporta dati
-              </button>
+            {/* Analytics e Report */}
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-green-200/50 shadow-lg">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Analytics</h3>
+                  <p className="text-sm text-gray-600">Monitora le performance</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/dashboard/org/analytics"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:shadow-lg transition-all duration-200"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Visualizza Analytics
+                </Link>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-green-300 hover:shadow-md transition-all duration-200">
+                  <FileText className="h-4 w-4" />
+                  Esporta Report
+                </button>
+              </div>
             </div>
           </div>
         </>
