@@ -26,8 +26,11 @@ export default function SiteHeader() {
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleMenuToggle = () => {
+  const handleMenuToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log("Menu toggle clicked, current state:", menuOpen);
+    
     if (!menuOpen) {
       // Calcola la posizione ottimale del dropdown
       setTimeout(() => {
@@ -46,6 +49,7 @@ export default function SiteHeader() {
         }
       }, 0);
     }
+    
     setMenuOpen(!menuOpen);
     console.log("Menu state after toggle:", !menuOpen);
   };
@@ -242,7 +246,11 @@ export default function SiteHeader() {
                 <div className="relative">
                     <button
                       onClick={handleMenuToggle}
-                      className="inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300 group max-w-[200px] sm:max-w-[240px]"
+                      className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
+                        menuOpen 
+                          ? 'ring-primary bg-primary/5' 
+                          : 'ring-gray-200 hover:bg-gray-50 hover:ring-primary/30'
+                      }`}
                       aria-haspopup="menu"
                       aria-expanded={menuOpen}
                     >
@@ -260,13 +268,22 @@ export default function SiteHeader() {
                       {/* Backdrop per chiudere il menu */}
                       <div 
                         className="fixed inset-0 z-40" 
-                        onClick={() => setMenuOpen(false)}
+                        onClick={() => {
+                          console.log("Backdrop clicked, closing menu");
+                          setMenuOpen(false);
+                        }}
                       />
                       
                       <div
                         role="menu"
-                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-2xl shadow-black/10 p-2 z-50`}
-                        style={{ zIndex: 9999 }}
+                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2 z-50`}
+                        style={{ 
+                          zIndex: 9999,
+                          position: 'absolute',
+                          top: '100%',
+                          left: dropdownPosition === 'right' ? 'auto' : '0',
+                          right: dropdownPosition === 'right' ? '0' : 'auto'
+                        }}
                       >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
@@ -293,6 +310,7 @@ export default function SiteHeader() {
                         onClick={async () => {
                           setMenuOpen(false);
                           console.log("Logout clicked");
+                          
                           try {
                             const supabase = supabaseBrowser();
                             
@@ -306,22 +324,28 @@ export default function SiteHeader() {
                             localStorage.clear();
                             sessionStorage.clear();
                             
-                            // Pulisci cookie
-                            document.cookie.split(";").forEach((c) => {
-                              const eqPos = c.indexOf("=");
-                              const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-                              document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                            // Pulisci cookie Supabase
+                            const cookiesToClear = [
+                              'sb-access-token',
+                              'sb-refresh-token', 
+                              'supabase-auth-token',
+                              'sb-ienzdgrqalltvkdkuamp-auth-token'
+                            ];
+                            
+                            cookiesToClear.forEach(cookieName => {
+                              document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.rescuemanager.eu`;
+                              document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
                             });
                             
-                            console.log("Logout successful");
+                            console.log("Logout successful, redirecting...");
                             
-                            // Forza refresh completo per pulire tutto
-                            window.location.href = "/";
+                            // Redirect immediato alla homepage
+                            window.location.replace("/");
                             
                           } catch (err) {
                             console.error("Logout exception:", err);
                             // Anche in caso di errore, forza il redirect
-                            window.location.href = "/";
+                            window.location.replace("/");
                           }
                         }}
                       >

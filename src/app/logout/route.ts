@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     }
 
     // Pulisci tutti i cookie di sessione e redirect
-    const response = NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
+    const baseUrl = new URL(req.url).origin;
+    const response = NextResponse.redirect(new URL('/', baseUrl));
     
     // Rimuovi cookie Supabase
     response.cookies.set('sb-access-token', '', { maxAge: 0, path: '/' });
