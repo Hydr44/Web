@@ -40,8 +40,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it">
       <head>
-        {/* Preload solo risorse critiche - solo per il sito principale */}
-        <link rel="preload" href="/logo-rentri.png" as="image" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>

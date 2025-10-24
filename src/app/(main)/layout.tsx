@@ -12,6 +12,9 @@ export default function MainLayout({
 }) {
   return (
     <>
+      {/* Preload risorse critiche solo per il sito principale */}
+      <link rel="preload" href="/logo-rentri.png" as="image" />
+      
       {/* Header sempre visibile */}
       <SiteHeader />
 
