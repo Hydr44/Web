@@ -4,7 +4,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
 import ForceSyncButton from "@/components/billing/ForceSyncButton";
-import DebugButton from "@/components/billing/DebugButton";
 import CheckoutButton from "@/components/billing/CheckoutButton";
 import { 
   CreditCard, 
@@ -75,6 +74,50 @@ export default async function BillingPage({
     
   const hasStripeCustomer = !!profile?.stripe_customer_id;
   const hasActivePlan = currentPlanName !== "Nessun piano attivo";
+  
+  // Colori specifici per ogni piano
+  const getPlanColors = (planName: string) => {
+    switch (planName) {
+      case "Starter":
+        return {
+          bg: "bg-gradient-to-r from-blue-50 to-indigo-50",
+          border: "border-blue-200",
+          iconBg: "bg-blue-100",
+          iconColor: "text-blue-600",
+          titleColor: "text-blue-900",
+          textColor: "text-blue-700"
+        };
+      case "Flotta":
+        return {
+          bg: "bg-gradient-to-r from-purple-50 to-violet-50",
+          border: "border-purple-200",
+          iconBg: "bg-purple-100",
+          iconColor: "text-purple-600",
+          titleColor: "text-purple-900",
+          textColor: "text-purple-700"
+        };
+      case "Azienda / Consorzio":
+        return {
+          bg: "bg-gradient-to-r from-amber-50 to-orange-50",
+          border: "border-amber-200",
+          iconBg: "bg-amber-100",
+          iconColor: "text-amber-600",
+          titleColor: "text-amber-900",
+          textColor: "text-amber-700"
+        };
+      default:
+        return {
+          bg: "bg-gradient-to-r from-gray-50 to-slate-50",
+          border: "border-gray-200",
+          iconBg: "bg-gray-100",
+          iconColor: "text-gray-400",
+          titleColor: "text-gray-500",
+          textColor: "text-gray-500"
+        };
+    }
+  };
+  
+  const planColors = getPlanColors(currentPlanName);
 
   return (
     <div className="space-y-8">
@@ -87,17 +130,17 @@ export default async function BillingPage({
       </div>
 
       {/* Current Plan Status */}
-      <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-2xl p-6 border border-primary/20">
+      <div className={`rounded-2xl p-6 border ${planColors.bg} ${planColors.border}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Shield className="h-6 w-6 text-primary" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${planColors.iconBg}`}>
+              <Shield className={`h-6 w-6 ${planColors.iconColor}`} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className={`text-lg font-semibold ${planColors.titleColor}`}>
                 Piano Attuale: {currentPlanName}
               </h3>
-              <p className="text-gray-600">
+              <p className={planColors.textColor}>
                 {currentPlanName === "Nessun piano attivo" 
                   ? "Seleziona un piano per iniziare" 
                   : "Il tuo abbonamento è attivo"}
@@ -275,7 +318,6 @@ export default async function BillingPage({
               </p>
             </div>
             <div className="flex gap-3">
-              <DebugButton />
               <ForceSyncButton />
               {hasStripeCustomer && (
                 <Link
@@ -292,23 +334,6 @@ export default async function BillingPage({
         </div>
       )}
 
-      {/* Sezione Debug per utenti senza customer */}
-      {!hasStripeCustomer && (
-        <div className="bg-yellow-50 rounded-2xl border border-yellow-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-yellow-900">Debug Abbonamento</h3>
-              <p className="text-yellow-700 mt-1">
-                Se hai appena completato un acquisto, usa questi strumenti per sincronizzare
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <DebugButton />
-              <ForceSyncButton />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Help Section */}
       <div className="bg-gray-50 rounded-2xl p-6">
