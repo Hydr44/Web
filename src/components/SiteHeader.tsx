@@ -136,11 +136,22 @@ export default function SiteHeader() {
       await updateUserState(event.detail.user);
     };
 
+    // Listener per logout
+    const handleLogout = () => {
+      console.log("Logout event received, clearing user state");
+      setEmail(null);
+      setCurrentOrg(null);
+      setOrgs([]);
+      setIsAdmin(false);
+    };
+
     window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
+    window.addEventListener('logout', handleLogout);
 
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('authStateChanged', handleAuthStateChange as EventListener);
+      window.removeEventListener('logout', handleLogout);
     };
   }, []);
 
@@ -277,7 +288,7 @@ export default function SiteHeader() {
                       {console.log("Rendering dropdown menu, position:", dropdownPosition)}
                       <div
                         role="menu"
-                        className={`absolute w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
+                        className={`absolute w-64 sm:w-72 rounded-2xl border-2 border-red-500 bg-white shadow-2xl shadow-black/20 p-2`}
                         style={{ 
                           zIndex: 9999999,
                           position: 'absolute',
@@ -285,8 +296,11 @@ export default function SiteHeader() {
                           right: dropdownPosition === 'right' ? '0' : 'auto',
                           left: dropdownPosition === 'right' ? 'auto' : '0',
                           backgroundColor: 'white',
-                          border: '2px solid rgba(59, 130, 246, 0.2)',
-                          marginTop: '8px'
+                          border: '2px solid red',
+                          marginTop: '8px',
+                          opacity: 1,
+                          visibility: 'visible',
+                          display: 'block'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
@@ -342,6 +356,9 @@ export default function SiteHeader() {
                             });
                             
                             console.log("Logout successful, redirecting...");
+                            
+                            // Dispatch logout event
+                            window.dispatchEvent(new CustomEvent('logout'));
                             
                             // Redirect immediato alla homepage
                             window.location.href = "/";
