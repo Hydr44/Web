@@ -276,13 +276,15 @@ export default function SiteHeader() {
                       
                       <div
                         role="menu"
-                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2 z-50`}
+                        className={`absolute ${dropdownPosition === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 sm:w-72 rounded-2xl border-2 border-primary/20 bg-white shadow-2xl shadow-black/20 p-2`}
                         style={{ 
-                          zIndex: 9999,
+                          zIndex: 99999,
                           position: 'absolute',
                           top: '100%',
                           left: dropdownPosition === 'right' ? 'auto' : '0',
-                          right: dropdownPosition === 'right' ? '0' : 'auto'
+                          right: dropdownPosition === 'right' ? '0' : 'auto',
+                          backgroundColor: 'white',
+                          border: '2px solid rgba(59, 130, 246, 0.2)'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
@@ -340,12 +342,12 @@ export default function SiteHeader() {
                             console.log("Logout successful, redirecting...");
                             
                             // Redirect immediato alla homepage
-                            window.location.replace("/");
+                            window.location.href = "/";
                             
                           } catch (err) {
                             console.error("Logout exception:", err);
                             // Anche in caso di errore, forza il redirect
-                            window.location.replace("/");
+                            window.location.href = "/";
                           }
                         }}
                       >

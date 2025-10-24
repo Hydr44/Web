@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
+export async function GET(req: Request) {
+  return handleLogout(req);
+}
+
 export async function POST(req: Request) {
+  return handleLogout(req);
+}
+
+async function handleLogout(req: Request) {
   try {
     const cookieStore = await cookies();
 
