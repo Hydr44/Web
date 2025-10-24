@@ -23,13 +23,15 @@ export default function ForceSyncButton() {
         const debugData = await debugResponse.json();
         console.log("🔍 Debug data:", debugData);
         
-        if (debugData.ok) {
+        if (!debugData.ok) {
           setResult({ 
-            success: true, 
-            message: `Debug OK - Environment: ${JSON.stringify(debugData.debug.environment)}` 
+            success: false, 
+            message: `Debug failed: ${debugData.error}` 
           });
           return;
         }
+        // Se debug OK, continua con il sync
+        console.log("✅ Debug OK, proceeding to sync...");
       } else {
         const errorData = await debugResponse.json();
         setResult({ 
@@ -46,8 +48,12 @@ export default function ForceSyncButton() {
         headers: { "Content-Type": "application/json" },
       });
 
+      console.log("📡 Test sync response status:", testResponse.status);
+
       if (testResponse.ok) {
         const testData = await testResponse.json();
+        console.log("📋 Test sync response data:", testData);
+        
         if (testData.ok) {
           setResult({ 
             success: true, 
@@ -57,7 +63,21 @@ export default function ForceSyncButton() {
             globalThis.location.reload();
           }, 2000);
           return;
+        } else {
+          setResult({ 
+            success: false, 
+            message: `Test sync failed: ${testData.error}` 
+          });
+          return;
         }
+      } else {
+        const errorData = await testResponse.json();
+        console.error("❌ Test sync error:", errorData);
+        setResult({ 
+          success: false, 
+          message: `Test sync failed: ${errorData.error}` 
+        });
+        return;
       }
 
       // Se il test fallisce, prova il sync completo

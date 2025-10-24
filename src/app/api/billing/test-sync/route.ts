@@ -57,6 +57,17 @@ export async function POST(req: Request) {
 
       const customerId = subscription.customer as string;
       const priceId = subscription.items?.data?.[0]?.price?.id ?? null;
+      
+      console.log("🔍 Price ID mapping debug:", {
+        priceId,
+        planMapping: PLAN_MAPPING,
+        envVars: {
+          starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER,
+          fleet: process.env.STRIPE_PRICE_FLEET,
+          consortium: process.env.STRIPE_PRICE_CONSORTIUM
+        }
+      });
+      
       const planName = PLAN_MAPPING[priceId || ""] || "Unknown";
 
       console.log(`🔄 Syncing: ${planName} (${priceId}) for customer: ${customerId}`);
