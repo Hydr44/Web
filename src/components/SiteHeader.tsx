@@ -4,8 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import { performLogout } from "@/lib/logout";
+import { authManager, addAuthListener, type AuthUser } from "@/lib/auth";
 import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
@@ -20,11 +19,10 @@ const NAV: NavItem[] = [
 export default function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [email, setEmail] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
+  const [, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
-  const [, setIsAdmin] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Scroll handler
@@ -36,58 +34,25 @@ export default function SiteHeader() {
 
   // Auth state management
   useEffect(() => {
-    const supabase = supabaseBrowser();
-
-    const updateUserState = async (user: any) => {
-      if (user) {
-        setEmail(user.email);
-        
-        // Carica organizzazioni
-        const { data: orgsData } = await supabase.from("orgs").select("id, name");
-        if (orgsData) {
-          setOrgs(orgsData);
-        }
-
-        // Carica profilo utente
-        const { data: profile } = await supabase.from("profiles").select("current_org, is_admin").eq("id", user.id).single();
-        if (profile) {
-          setCurrentOrg(profile.current_org);
-          setIsAdmin(profile.is_admin || false);
-        }
-      } else {
-        setEmail(null);
-        setCurrentOrg(null);
-        setOrgs([]);
-        setIsAdmin(false);
-      }
-    };
-
-    // Carica stato iniziale
-    supabase.auth.getUser().then(async ({ data }) => {
-      await updateUserState(data.user);
+    // Inizializza auth manager
+    authManager.initialize().then(() => {
+      setUser(authManager.getCurrentUser());
     });
 
     // Listener per cambiamenti di autenticazione
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, session?.user?.email);
-      await updateUserState(session?.user);
+    const removeListener = addAuthListener((newUser) => {
+      console.log("Auth state changed:", newUser?.email);
+      setUser(newUser);
+      
+      // Se l'utente si è disconnesso, chiudi il menu
+      if (!newUser) {
+        setMenuOpen(false);
+        setIsLoggingOut(false);
+      }
     });
 
-    // Listener per logout event
-    const handleLogoutEvent = (event: CustomEvent) => {
-      console.log("Logout event received:", event.detail);
-      setEmail(null);
-      setCurrentOrg(null);
-      setOrgs([]);
-      setIsAdmin(false);
-      setMenuOpen(false);
-    };
-
-    globalThis.addEventListener('logout', handleLogoutEvent as EventListener);
-
     return () => {
-      subscription.unsubscribe();
-      globalThis.removeEventListener('logout', handleLogoutEvent as EventListener);
+      removeListener();
     };
   }, []);
 
@@ -116,7 +81,7 @@ export default function SiteHeader() {
     };
   }, [menuOpen]);
 
-  // Logout handler usando il nuovo sistema
+  // Logout handler
   const handleLogout = async () => {
     if (isLoggingOut) {
       console.log("Logout already in progress, ignoring");
@@ -128,11 +93,7 @@ export default function SiteHeader() {
     console.log("=== HEADER LOGOUT START ===");
     
     try {
-      await performLogout({
-        redirectTo: "/",
-        clearAll: true,
-        forceGoogleLogout: false // Lascia che il sistema decida automaticamente
-      });
+      await authManager.logout();
     } catch (error) {
       console.error("Header logout error:", error);
       // Fallback: redirect forzato
@@ -202,7 +163,7 @@ export default function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-3">
-            {email ? (
+            {user ? (
               <>
                 {/* Dashboard link */}
                 <Link
@@ -254,8 +215,8 @@ export default function SiteHeader() {
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={email}>
-                      {email && email.length > 20 ? `${email.split('@')[0].substring(0, 8)}...@${email.split('@')[1]}` : email}
+                    <span className="text-xs text-gray-700 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={user.email}>
+                      {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
                     </span>
                     <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -268,7 +229,10 @@ export default function SiteHeader() {
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
                         <div className="text-sm font-medium text-gray-900 break-all max-w-full overflow-hidden">
-                          <span className="block truncate" title={email || ""}>{email}</span>
+                          <span className="block truncate" title={user.email}>{user.email}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {user.isGoogle ? "Google Account" : "Email Account"}
                         </div>
                       </div>
                       

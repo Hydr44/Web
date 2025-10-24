@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { loginWithGoogle } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Chrome } from "lucide-react";
 
@@ -22,27 +22,15 @@ export default function GoogleLoginButton({
     setLoading(true);
     
     try {
-      const supabase = supabaseBrowser();
+      const result = await loginWithGoogle();
       
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${globalThis.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Google login error:', error);
-        onError?.(error.message || 'Errore durante il login con Google');
-        return;
+      if (result.success) {
+        console.log('Google login initiated');
+        onSuccess?.();
+      } else {
+        console.error('Google login error:', result.error);
+        onError?.(result.error || 'Errore durante il login con Google');
       }
-
-      // Il redirect avviene automaticamente
-      onSuccess?.();
       
     } catch (error) {
       console.error('Unexpected error during Google login:', error);
