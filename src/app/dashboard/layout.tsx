@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import SiteHeader from "@/components/SiteHeader";
 import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -87,12 +86,9 @@ export default function DashboardLayout({
   }
 
   return (
-    <>
-      <SiteHeader />
-      <DashboardShell userEmail={userEmail}>
-        <Breadcrumbs currentOrgName={currentOrgName} />
-        {children}
-      </DashboardShell>
-    </>
+    <DashboardShell userEmail={userEmail}>
+      <Breadcrumbs currentOrgName={currentOrgName} />
+      {children}
+    </DashboardShell>
   );
 }

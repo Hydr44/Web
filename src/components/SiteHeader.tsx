@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home, ArrowRight } from "lucide-react";
+import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
 
@@ -21,123 +21,39 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState<'left' | 'right'>('right');
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [, setIsAdmin] = useState(false);
 
-  const handleMenuToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("=== MENU TOGGLE DEBUG ===");
-    console.log("Menu toggle clicked, current state:", menuOpen);
-    console.log("Event target:", e.target);
-    console.log("Event currentTarget:", e.currentTarget);
-    
-    if (!menuOpen) {
-      // Calcola la posizione ottimale del dropdown
-      setTimeout(() => {
-        const button = document.querySelector('[aria-haspopup="menu"]') as HTMLElement;
-        console.log("Button element found:", button);
-        if (button) {
-          const rect = button.getBoundingClientRect();
-          const viewportWidth = window.innerWidth;
-          const dropdownWidth = 288; // w-72 = 18rem = 288px
-          
-          console.log("Button rect:", rect);
-          console.log("Viewport width:", viewportWidth);
-          console.log("Dropdown width:", dropdownWidth);
-          console.log("Right position:", rect.right + dropdownWidth);
-          
-          // Se il dropdown esce a destra, posizionalo a sinistra
-          if (rect.right + dropdownWidth > viewportWidth) {
-            console.log("Setting position to LEFT");
-            setDropdownPosition('left');
-          } else {
-            console.log("Setting position to RIGHT");
-            setDropdownPosition('right');
-          }
-          
-          // Debug posizionamento finale
-          console.log("Final positioning:");
-          console.log("- Button rect:", rect);
-          console.log("- Dropdown will be at:", {
-            left: dropdownPosition === 'left' ? rect.left : 'auto',
-            right: dropdownPosition === 'right' ? 0 : 'auto',
-            x: dropdownPosition === 'left' ? rect.left : rect.right,
-            endX: dropdownPosition === 'left' ? rect.left + dropdownWidth : rect.right + dropdownWidth
-          });
-        } else {
-          console.log("Button element NOT found!");
-        }
-      }, 0);
-    }
-    
-    setMenuOpen(!menuOpen);
-    console.log("Menu state after toggle:", !menuOpen);
-    console.log("=== END MENU TOGGLE DEBUG ===");
-  };
-
-  // scroll style
+  // Scroll handler
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const handleScroll = () => setScrolled(globalThis.scrollY > 20);
+    globalThis.addEventListener("scroll", handleScroll);
+    return () => globalThis.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // read session (client) just to toggle Accedi/Registrati vs Dashboard/Esci
+  // Auth state management
   useEffect(() => {
     const supabase = supabaseBrowser();
-    
-    // Funzione per aggiornare lo stato utente
+
     const updateUserState = async (user: any) => {
-      setEmail(user?.email ?? null);
       if (user) {
-        // carica org correnti e disponibili + controllo admin + info OAuth
-        const prof = await supabase.from("profiles").select("current_org, is_admin, provider, avatar_url, full_name").eq("id", user.id).maybeSingle();
-        setCurrentOrg((prof.data as { current_org?: string })?.current_org ?? null);
-        setIsAdmin((prof.data as { is_admin?: boolean })?.is_admin ?? false);
+        setEmail(user.email);
         
-        // Log info OAuth per debug
-        if (prof.data) {
-          console.log("User profile loaded:", {
-            provider: (prof.data as any)?.provider,
-            hasAvatar: !!(prof.data as any)?.avatar_url,
-            fullName: (prof.data as any)?.full_name
-          });
+        // Carica organizzazioni
+        const { data: orgsData } = await supabase.from("orgs").select("id, name");
+        if (orgsData) {
+          setOrgs(orgsData);
         }
-        // Carica organizzazioni dell'utente con gestione errori
-        try {
-          const { data: memberships, error: memError } = await supabase
-            .from("org_members")
-            .select("org_id")
-            .eq("user_id", user.id);
-          
-          if (memError) {
-            console.warn("Errore caricamento memberships:", memError);
-            setOrgs([]);
-          } else if (Array.isArray(memberships) && memberships.length > 0) {
-            const orgIds = memberships.map(m => m.org_id);
-            const { data: orgs, error: orgError } = await supabase
-              .from("orgs")
-              .select("id, name")
-              .in("id", orgIds);
-            
-            if (orgError) {
-              console.warn("Errore caricamento organizzazioni:", orgError);
-              setOrgs([]);
-            } else {
-              setOrgs((orgs as { id: string; name: string }[]) ?? []);
-            }
-          } else {
-            setOrgs([]);
-          }
-        } catch (error) {
-          console.warn("Errore generale caricamento org:", error);
-          setOrgs([]);
+
+        // Carica profilo utente
+        const { data: profile } = await supabase.from("profiles").select("current_org, is_admin").eq("id", user.id).single();
+        if (profile) {
+          setCurrentOrg(profile.current_org);
+          setIsAdmin(profile.is_admin || false);
         }
       } else {
+        setEmail(null);
         setCurrentOrg(null);
         setOrgs([]);
         setIsAdmin(false);
@@ -147,13 +63,6 @@ export default function SiteHeader() {
     // Carica stato iniziale
     supabase.auth.getUser().then(async ({ data }) => {
       await updateUserState(data.user);
-      
-      // Verifica se siamo tornati da un logout
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('logout') === 'true') {
-        console.log("Returned from logout, checking auth status");
-        await checkAuthAfterRedirect();
-      }
     });
 
     // Listener per cambiamenti di autenticazione
@@ -161,135 +70,162 @@ export default function SiteHeader() {
       await updateUserState(session?.user);
     });
 
-    // Listener per evento personalizzato dal login
-    const handleAuthStateChange = async (event: CustomEvent) => {
-      console.log("Custom auth state change event:", event.detail);
-      await updateUserState(event.detail.user);
-    };
-
     // Listener per logout
     const handleLogout = () => {
-      console.log("Logout event received, clearing user state");
       setEmail(null);
       setCurrentOrg(null);
       setOrgs([]);
       setIsAdmin(false);
     };
 
-    // Verifica se l'utente è ancora loggato dopo redirect
-    const checkAuthAfterRedirect = async () => {
-      const supabase = supabaseBrowser();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        console.log("User still authenticated after logout attempt:", user.email);
-        // Se l'utente è ancora loggato, forza logout completo
-        await supabase.auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.replace("/");
-      } else {
-        console.log("User successfully logged out");
-      }
-    };
-
-    window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
-    window.addEventListener('logout', handleLogout);
+    globalThis.addEventListener('logout', handleLogout);
 
     return () => {
       subscription.unsubscribe();
-      window.removeEventListener('authStateChanged', handleAuthStateChange as EventListener);
-      window.removeEventListener('logout', handleLogout);
+      globalThis.removeEventListener('logout', handleLogout);
     };
   }, []);
 
-  const nav = useMemo(
-    () =>
-      NAV.map((n) => ({
-        ...n,
-        active: (n.match ? n.match(pathname) : pathname === n.href) || false,
-      })),
-    [pathname]
-  );
+  // Dropdown toggle
+  const handleMenuToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen(!menuOpen);
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (menuOpen && !target.closest('[data-dropdown]')) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [menuOpen]);
+
+  // Logout handler
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    
+    try {
+      const supabase = supabaseBrowser();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user?.app_metadata?.provider === 'google') {
+        // Google OAuth logout
+        await supabase.auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        const returnUrl = `${globalThis.location.origin}?logout=true`;
+        const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(returnUrl)}`;
+        globalThis.location.href = googleLogoutUrl;
+      } else {
+        // Standard logout
+        await supabase.auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        globalThis.location.href = "/";
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      globalThis.location.href = "/";
+    }
+  };
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${
-        scrolled 
-          ? "bg-white/95 backdrop-blur-xl border-b border-gray-200/60 shadow-xl shadow-black/10" 
-          : "bg-white/90 backdrop-blur-lg"
-      }`}
-    >
-      <nav className="container relative flex h-20 items-center justify-between overflow-hidden">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative overflow-hidden rounded-xl">
-            <Image 
-              src="/logoufficiale_1024.png" 
-              alt="RescueManager" 
-              width={240} 
-              height={64} 
-              priority 
-              className="transition-transform duration-300 group-hover:scale-105"
-            />
-          </div>
-        </Link>
-
-        {/* Center nav (desktop) */}
-        <div className="hidden lg:flex items-center gap-8">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`relative group text-sm font-medium transition-all duration-300 ${
-                item.active 
-                  ? "text-primary" 
-                  : "text-gray-700 hover:text-primary"
-              }`}
-            >
-              <span className="relative z-10">{item.label}</span>
-              {/* underline animata */}
-              <span
-                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-primary to-blue-600 transition-all duration-300 ${
-                  item.active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                }`}
-                aria-hidden
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-white/80 backdrop-blur-sm"
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10">
+              <Image
+                src="/logo-rentri.png"
+                alt="RescueManager"
+                fill
+                className="object-contain transition-transform duration-300 group-hover:scale-105"
+                priority
               />
-              {/* background hover */}
-              <span
-                className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-primary/5 transition-all duration-300 ${
-                  item.active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}
-                aria-hidden
-              />
-            </Link>
-          ))}
-        </div>
+            </div>
+            <div className="hidden sm:block">
+              <div className="text-xl font-bold text-gray-900">RescueManager</div>
+              <div className="text-xs text-gray-500 -mt-1">Gestione Trasporti</div>
+            </div>
+          </Link>
 
-        {/* Right actions */}
-        <div className="hidden lg:flex items-center gap-3">
-          {email ? (
-            <>
-              {/* Dashboard link con icona */}
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
-              >
-                <Home className="h-4 w-4" />
-                Dashboard
-              </Link>
+          {/* Navigation */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {NAV.map((item) => {
+              const active = item.match ? item.match(pathname) : pathname === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
+                    active
+                      ? "text-primary"
+                      : "text-gray-600 hover:text-primary"
+                  }`}
+                >
+                  {item.label}
+                  {/* underline animata */}
+                  <span
+                    className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-primary to-blue-600 transition-all duration-300 ${
+                      active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                    }`}
+                    aria-hidden
+                  />
+                  {/* background hover */}
+                  <span
+                    className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-primary/5 transition-all duration-300 ${
+                      active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    }`}
+                    aria-hidden
+                  />
+                </Link>
+              );
+            })}
+          </nav>
 
-              {/* Avatar/menu migliorato */}
-              <div className="relative flex items-center gap-2">
+          {/* Right actions */}
+          <div className="flex items-center gap-3">
+            {email ? (
+              <>
+                {/* Dashboard link */}
+                <Link
+                  href="/dashboard"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
+                >
+                  <Home className="h-4 w-4" />
+                  Dashboard
+                </Link>
+
+                {/* Organization selector */}
                 {orgs.length > 0 && (
-                  <div className="relative">
+                  <div className="hidden md:block relative">
                     <select
                       className="text-xs rounded-xl ring-1 ring-gray-200 px-3 py-2 bg-white hover:ring-primary/30 hover:bg-primary/5 transition-all duration-300 appearance-none pr-8 cursor-pointer"
                       value={currentOrg ?? ''}
                       onChange={async (e) => {
                         const val = e.target.value || null;
                         setCurrentOrg(val);
-                        await fetch("/api/org/select", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ org_id: val }) });
-                        globalThis.location.reload();
+                        await fetch("/api/org/select", { 
+                          method: "POST", 
+                          headers: { "Content-Type": "application/json" }, 
+                          body: JSON.stringify({ org_id: val }) 
+                        });
+                        window.location.reload();
                       }}
                     >
                       <option value="">Seleziona org</option>
@@ -301,17 +237,18 @@ export default function SiteHeader() {
                   </div>
                 )}
                 
-                <div className="relative" style={{ overflow: 'visible' }}>
-                    <button
-                      onClick={handleMenuToggle}
-                      className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
-                        menuOpen 
-                          ? 'ring-primary bg-primary/5' 
-                          : 'ring-gray-200 hover:bg-gray-50 hover:ring-primary/30'
-                      }`}
-                      aria-haspopup="menu"
-                      aria-expanded={menuOpen}
-                    >
+                {/* User dropdown */}
+                <div className="relative" data-dropdown>
+                  <button
+                    onClick={handleMenuToggle}
+                    className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
+                      menuOpen 
+                        ? 'ring-primary bg-primary/5' 
+                        : 'ring-gray-200 hover:bg-gray-50 hover:ring-primary/30'
+                    }`}
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                  >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
@@ -322,85 +259,10 @@ export default function SiteHeader() {
                   </button>
                   
                   {menuOpen && (
-                    <>
-                      {/* Backdrop per chiudere il menu */}
-                      <div 
-                        className="fixed inset-0 z-40" 
-                        onClick={() => {
-                          console.log("Backdrop clicked, closing menu");
-                          setMenuOpen(false);
-                        }}
-                      />
-                      
-                      {(() => {
-                        console.log("=== DROPDOWN RENDER DEBUG ===");
-                        console.log("menuOpen:", menuOpen);
-                        console.log("dropdownPosition:", dropdownPosition);
-                        console.log("email:", email);
-                        
-                        // Debug DOM dopo render
-                        setTimeout(() => {
-                          const dropdown = document.querySelector('[role="menu"]');
-                          console.log("Dropdown DOM element:", dropdown);
-                          if (dropdown) {
-                            const rect = dropdown.getBoundingClientRect();
-                            console.log("Dropdown rect:", {
-                              x: rect.x,
-                              y: rect.y,
-                              width: rect.width,
-                              height: rect.height,
-                              top: rect.top,
-                              left: rect.left,
-                              right: rect.right,
-                              bottom: rect.bottom
-                            });
-                            
-                            const computedStyle = window.getComputedStyle(dropdown);
-                            console.log("Dropdown key styles:", {
-                              display: computedStyle.display,
-                              visibility: computedStyle.visibility,
-                              opacity: computedStyle.opacity,
-                              position: computedStyle.position,
-                              zIndex: computedStyle.zIndex,
-                              top: computedStyle.top,
-                              left: computedStyle.left,
-                              right: computedStyle.right
-                            });
-                          }
-                        }, 100);
-                        
-                        console.log("=== END DROPDOWN RENDER DEBUG ===");
-                        return null;
-                      })()}
-                      <div
-                        role="menu"
-                        className={`absolute w-64 sm:w-72 rounded-2xl border-2 border-red-500 bg-white shadow-2xl shadow-black/20 p-2`}
-                        style={{ 
-                          zIndex: 9999999,
-                          position: 'absolute',
-                          top: '100%',
-                          right: dropdownPosition === 'right' ? '0' : 'auto',
-                          left: dropdownPosition === 'right' ? 'auto' : '0',
-                          backgroundColor: 'white',
-                          border: '2px solid red',
-                          marginTop: '8px',
-                          opacity: 1,
-                          visibility: 'visible',
-                          display: 'block',
-                          minHeight: '200px',
-                          height: 'auto',
-                          overflow: 'visible',
-                          clipPath: 'none',
-                          transform: 'none',
-                          // Forza posizionamento visibile
-                          maxWidth: '288px',
-                          width: '288px',
-                          // Forza rimanere nel viewport
-                          maxWidth: dropdownPosition === 'left' ? 'calc(100vw - 20px)' : '288px',
-                          right: dropdownPosition === 'left' ? '20px' : 'auto',
-                          left: dropdownPosition === 'left' ? 'auto' : '0'
-                        }}
-                      >
+                    <div
+                      role="menu"
+                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white shadow-2xl shadow-black/20 border border-gray-200 p-2 z-[9999]"
+                    >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
                         <div className="text-sm font-medium text-gray-900 break-all max-w-full overflow-hidden">
@@ -417,272 +279,63 @@ export default function SiteHeader() {
                         Impostazioni
                       </Link>
                       
-                      {/* Admin panel rimosso - accesso separato */}
-                      
                       <div className="border-t border-gray-100 my-1"></div>
                       
                       <button
                         className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-                        onClick={async () => {
-                          setMenuOpen(false);
-                          console.log("=== GOOGLE OAUTH LOGOUT DEBUG ===");
-                          console.log("Google OAuth logout clicked - starting logout process");
-                          
-                          try {
-                            // Dispatch logout event immediately
-                            window.dispatchEvent(new CustomEvent('logout'));
-                            console.log("Logout event dispatched");
-                            
-                            // Usa la stessa istanza Supabase per evitare conflitti
-                            const supabase = supabaseBrowser();
-                            console.log("Supabase client created (reusing existing instance)");
-                            
-                            // Verifica se l'utente è ancora autenticato
-                            const { data: { user: currentUser } } = await supabase.auth.getUser();
-                            if (!currentUser) {
-                              console.log("No user found, redirecting immediately");
-                              window.location.replace("/");
-                              return;
-                            }
-                            
-                            // Per Google OAuth, dobbiamo fare logout da Google
-                            console.log("User app_metadata:", currentUser?.app_metadata);
-                            console.log("User provider:", currentUser?.app_metadata?.provider);
-                            
-                            if (currentUser?.app_metadata?.provider === 'google') {
-                              console.log("Google OAuth user detected, performing complete Google logout");
-                              
-                              // Logout da Supabase PRIMA
-                              const { error: signOutError } = await supabase.auth.signOut();
-                              if (signOutError) {
-                                console.error("Supabase signOut error:", signOutError);
-                              } else {
-                                console.log("Supabase signOut successful");
-                              }
-                              
-                              // Pulisci tutti i dati locali
-                              localStorage.clear();
-                              sessionStorage.clear();
-                              
-                              // Pulisci cookie Supabase
-                              const cookiesToClear = [
-                                'sb-access-token',
-                                'sb-refresh-token', 
-                                'supabase-auth-token',
-                                'sb-ienzdgrqalltvkdkuamp-auth-token'
-                              ];
-                              
-                              cookiesToClear.forEach(cookieName => {
-                                document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.rescuemanager.eu`;
-                                document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-                              });
-                              
-                              console.log("Local data cleared, redirecting to Google logout");
-                              
-                              // Per Google OAuth, redirect a Google logout con revoke
-                              const returnUrl = `${window.location.origin}?logout=true`;
-                              const googleLogoutUrl = `https://accounts.google.com/logout?continue=${encodeURIComponent(returnUrl)}`;
-                              console.log("Redirecting to Google logout:", googleLogoutUrl);
-                              window.location.href = googleLogoutUrl;
-                              return;
-                            }
-                            
-                            // Logout normale per altri provider
-                            const { error } = await supabase.auth.signOut();
-                            if (error) {
-                              console.error("Logout error:", error);
-                            } else {
-                              console.log("Supabase logout successful");
-                            }
-                            
-                            // Pulisci tutti i dati locali
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            
-                            // Pulisci cookie Supabase
-                            const cookiesToClear = [
-                              'sb-access-token',
-                              'sb-refresh-token', 
-                              'supabase-auth-token',
-                              'sb-ienzdgrqalltvkdkuamp-auth-token'
-                            ];
-                            
-                            cookiesToClear.forEach(cookieName => {
-                              document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.rescuemanager.eu`;
-                              document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-                            });
-                            
-                            console.log("Logout successful, redirecting...");
-                            
-                            // Forza refresh completo
-                            window.location.replace("/");
-                            
-                          } catch (err) {
-                            console.error("Logout exception:", err);
-                            // Anche in caso di errore, forza il redirect
-                            window.location.replace("/");
-                          }
-                        }}
+                        onClick={handleLogout}
                       >
                         <LogOut className="h-4 w-4" />
                         Esci dall&apos;account
                       </button>
                     </div>
-                    </>
                   )}
                 </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/demo"
-                className="text-sm px-4 py-2 rounded-xl ring-1 ring-primary/30 text-primary hover:bg-primary/10 hover:ring-primary/50 transition-all duration-300 font-medium"
-              >
-                Demo
-              </Link>
-              <Link
-                href="/preventivo"
-                className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
-              >
-                Preventivo
-              </Link>
+              </>
+            ) : (
               <Link
                 href="/login"
-                className="text-sm px-4 py-2 rounded-xl text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300 font-medium"
-                onClick={() => {
-                  console.log("Login link clicked");
-                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 font-medium"
               >
+                <LogIn className="h-4 w-4" />
                 Accedi
               </Link>
-              <Link
-                href="/register"
-                className="text-sm px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-              >
-                Registrati
-              </Link>
-            </>
-          )}
+            )}
+
+            {/* Mobile menu button */}
+            <button
+              className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile hamburger migliorato */}
-        <button
-          className="lg:hidden inline-flex items-center justify-center rounded-xl p-2 ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-primary/30 transition-all duration-300"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label="Apri menu"
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? (
-            <X className="h-5 w-5 text-gray-600" />
-          ) : (
-            <Menu className="h-5 w-5 text-gray-600" />
-          )}
-        </button>
-
-        {/* Mobile drawer migliorato */}
+        {/* Mobile menu */}
         {menuOpen && (
-          <div className="lg:hidden absolute top-20 left-0 right-0 w-full max-w-full border-b border-gray-200/60 bg-white/95 backdrop-blur-xl shadow-xl">
-            <div className="container mx-auto px-4 py-6 flex flex-col gap-2">
-              {nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
-                    item.active 
-                      ? "bg-primary/10 text-primary border border-primary/20" 
-                      : "text-gray-700 hover:bg-gray-50 hover:text-primary"
-                  }`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item.label}
-                  {item.active && <ArrowRight className="h-4 w-4 ml-auto" />}
-                </Link>
-              ))}
-
-              <div className="border-t border-gray-200 my-4"></div>
-
-              {email ? (
-                <>
+          <div className="lg:hidden border-t border-gray-200 py-4">
+            <div className="flex flex-col gap-2">
+              {NAV.map((item) => {
+                const active = item.match ? item.match(pathname) : pathname === item.href;
+                return (
                   <Link
-                    href="/dashboard"
-                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg transition-all duration-300 font-medium"
-                    onClick={() => setMenuOpen(false)}
+                    key={item.label}
+                    href={item.href}
+                    className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
+                      active
+                        ? "text-primary bg-primary/5"
+                        : "text-gray-600 hover:text-primary hover:bg-primary/5"
+                    }`}
                   >
-                    <Home className="h-4 w-4" />
-                    Dashboard
+                    {item.label}
                   </Link>
-                  
-                  {/* Admin panel rimosso - accesso separato */}
-                  
-                  <div className="border-t border-gray-200 my-2"></div>
-                  <button 
-                    className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 font-medium"
-                    onClick={async () => {
-                      setMenuOpen(false);
-                      console.log("Mobile logout clicked");
-                      try {
-                        // BYPASS: Pulisci anche il bypass auth
-                        
-                        const supabase = supabaseBrowser();
-                        const { error } = await supabase.auth.signOut();
-                        if (error) {
-                          console.error("Mobile logout error:", error);
-                          alert("Errore durante il logout: " + error.message);
-                        } else {
-                          console.log("Mobile logout successful");
-                          // Pulisci localStorage
-                          localStorage.removeItem("sb-" + process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0] + "-auth-token");
-                          // Redirect alla home
-                          window.location.href = "/";
-                        }
-                      } catch (err) {
-                        console.error("Mobile logout exception:", err);
-                        alert("Errore durante il logout");
-                      }
-                    }}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Esci dall&apos;account
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/demo"
-                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm ring-1 ring-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Demo
-                  </Link>
-                  <Link
-                    href="/preventivo"
-                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg transition-all duration-300 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Preventivo
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-300 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Accedi
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm bg-gray-900 text-white hover:bg-gray-800 transition-all duration-300 font-medium"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Registrati
-                  </Link>
-                </>
-              )}
+                );
+              })}
             </div>
           </div>
         )}
-      </nav>
+      </div>
     </header>
   );
 }
