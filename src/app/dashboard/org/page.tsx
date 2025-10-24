@@ -23,6 +23,12 @@ import {
 export default function OrgPage() {
   const [loading, setLoading] = useState(true);
   const [orgData, setOrgData] = useState<any>(null);
+  const [stats, setStats] = useState({
+    totalMembers: 0,
+    totalVehicles: 0,
+    totalTransports: 0,
+    activeTransports: 0
+  });
 
   useEffect(() => {
     const loadOrgData = async () => {
@@ -45,6 +51,7 @@ export default function OrgPage() {
           .single();
         
         if (profile?.current_org) {
+          // Carica dati organizzazione
           const { data: org, error: orgError } = await supabase
             .from("orgs")
             .select("*")
@@ -56,6 +63,36 @@ export default function OrgPage() {
           } else if (org) {
             setOrgData(org);
           }
+
+          // Carica statistiche reali
+          const [membersResult, vehiclesResult, transportsResult] = await Promise.allSettled([
+            supabase
+              .from("org_members")
+              .select("user_id", { count: "exact" })
+              .eq("org_id", profile.current_org),
+            supabase
+              .from("vehicles")
+              .select("id", { count: "exact" })
+              .eq("org_id", profile.current_org),
+            supabase
+              .from("transports")
+              .select("id, status", { count: "exact" })
+              .eq("org_id", profile.current_org)
+          ]);
+
+          const membersCount = membersResult.status === "fulfilled" ? membersResult.value.count || 0 : 0;
+          const vehiclesCount = vehiclesResult.status === "fulfilled" ? vehiclesResult.value.count || 0 : 0;
+          const transportsCount = transportsResult.status === "fulfilled" ? transportsResult.value.count || 0 : 0;
+          const activeTransportsCount = transportsResult.status === "fulfilled" 
+            ? (transportsResult.value.data?.filter(t => t.status === "enroute" || t.status === "assigned").length || 0) 
+            : 0;
+
+          setStats({
+            totalMembers: membersCount,
+            totalVehicles: vehiclesCount,
+            totalTransports: transportsCount,
+            activeTransports: activeTransportsCount
+          });
         }
         
         setLoading(false);
@@ -238,7 +275,7 @@ export default function OrgPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-gray-900 mb-2">
-                {orgData.member_count || 0}
+                {stats.totalMembers}
               </div>
               <Link 
                 href="/dashboard/org/members"
@@ -290,10 +327,10 @@ export default function OrgPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-gray-900">
-                24
+                {stats.activeTransports}
               </div>
               <div className="text-sm text-green-600 font-medium">
-                +12% vs mese scorso
+                Trasporti in corso
               </div>
             </div>
           </div>
