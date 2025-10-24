@@ -3,6 +3,18 @@ import { supabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import SyncAfterCheckoutClient from "@/components/billing/SyncAfterCheckoutClient";
+import { 
+  CreditCard, 
+  CheckCircle2, 
+  AlertCircle, 
+  ArrowRight,
+  Shield,
+  Zap,
+  ExternalLink,
+  Star,
+  Crown,
+  Users
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -16,14 +28,14 @@ function goToCheckout(price: string) {
   if (!price) return "/dashboard/billing?err=missing_price";
   return `/api/billing/checkout?price=${encodeURIComponent(
     price
-  )}&return=${encodeURIComponent("/dashboard/billing/subscription")}`;
+  )}&return=${encodeURIComponent("/dashboard/billing")}`;
 }
 
 export default async function BillingPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ status?: string; err?: string; session_id?: string }>;
-}) {
+}>) {
   const sp = await searchParams;
 
   // ⬇️ deve essere atteso!
@@ -31,227 +43,325 @@ export default async function BillingPage({
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirect=/dashboard/billing");
 
-  // Recupera l'organizzazione corrente
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("current_org")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const currentOrg = profile?.current_org as string | undefined;
-  if (!currentOrg) {
-    return (
-      <main className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-2xl md:text-3xl font-semibold">Piano & licenze</h1>
-        <div className="mt-4 rounded-lg border bg-amber-50 text-amber-900 border-amber-200 px-3 py-2 text-sm">
-          Nessuna organizzazione selezionata. Vai a <a className="underline" href="/dashboard/org">Organizzazione</a> e seleziona/crea la tua azienda.
-        </div>
-      </main>
-    );
+  if (authError || !user) {
+    redirect("/login?redirect=/dashboard/billing");
   }
 
-  const { data: sub } = currentOrg
-    ? await supabase
-        .from("org_subscriptions")
-        .select("status, plan as price_id, current_period_end")
-        .eq("org_id", currentOrg)
-        .maybeSingle()
-    : { data: null };
+  // Carica il profilo utente per ottenere il piano corrente
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("current_plan, stripe_customer_id")
+    .eq("id", user.id)
+    .single();
 
-  const isActive =
-    !!sub && ["active", "trialing", "past_due"].includes(sub.status || "");
-  const currentPriceId = sub?.price_id || "";
-
-  const planNameByPrice: Record<string, string> = {
-    [PRICES.starter]: "Starter",
-    [PRICES.fleet]: "Flotta",
-    [PRICES.consortium]: "Azienda / Consorzio",
-  };
-  const currentPlanName = isActive
-    ? planNameByPrice[currentPriceId] ?? "Piano attivo"
-    : "Free";
-
-  const renewAt =
-    sub?.current_period_end &&
-    new Date(sub.current_period_end).toLocaleDateString("it-IT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-
-  const banner =
-    sp?.status === "success"
-      ? { tone: "success", text: "Pagamento completato! Il piano è stato aggiornato." }
-      : sp?.status === "cancel"
-      ? { tone: "warn", text: "Checkout annullato. Nessuna modifica effettuata." }
-      : sp?.err
-      ? {
-          tone: "error",
-          text:
-            sp.err === "missing_price"
-              ? "Manca il price ID per questo piano."
-              : `Errore: ${decodeURIComponent(sp.err)}`,
-        }
-      : null;
+  const currentPlanName = profile?.current_plan || "Nessun piano attivo";
+  const hasStripeCustomer = !!profile?.stripe_customer_id;
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-2xl md:text-3xl font-semibold">Piano & licenze</h1>
-      <p className="mt-2 text-gray-600">
-        Gestisci il tuo abbonamento. Puoi effettuare l’upgrade o aprire il Billing
-        Portal per carte, fatture e metodi di pagamento.
-      </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Fatturazione e Abbonamenti</h1>
+        <p className="text-gray-600 mt-2">
+          Gestisci il tuo abbonamento e i metodi di pagamento
+        </p>
+      </div>
 
-      <SyncAfterCheckoutClient status={sp?.status} sessionId={sp?.session_id} />
+      {/* Current Plan Status */}
+      <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-2xl p-6 border border-primary/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Shield className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Piano Attuale: {currentPlanName}
+              </h3>
+              <p className="text-gray-600">
+                {currentPlanName === "Nessun piano attivo" 
+                  ? "Seleziona un piano per iniziare" 
+                  : "Il tuo abbonamento è attivo"}
+              </p>
+            </div>
+          </div>
+          {hasStripeCustomer && (
+            <Link
+              href="/api/billing/portal"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
+            >
+              <CreditCard className="h-4 w-4" />
+              Gestisci Abbonamento
+            </Link>
+          )}
+        </div>
+      </div>
 
-      {banner && (
-        <div
-          className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
-            banner.tone === "success"
-              ? "border-green-200 bg-green-50 text-green-800"
-              : banner.tone === "warn"
-              ? "border-amber-200 bg-amber-50 text-amber-800"
-              : "border-red-200 bg-red-50 text-red-800"
-          }`}
-        >
-          {banner.text}
+      {/* Pricing Plans */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Starter Plan */}
+        <div className={`rounded-2xl border p-6 ${
+          currentPlanName === "Starter" 
+            ? 'border-primary bg-primary/5' 
+            : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+              <Users className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Starter</h3>
+              <p className="text-sm text-gray-600">Per piccole aziende</p>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <div className="text-3xl font-bold text-gray-900">€29</div>
+            <div className="text-sm text-gray-600">al mese</div>
+          </div>
+
+          <ul className="space-y-3 mb-6">
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Fino a 5 veicoli
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Fino a 10 conducenti
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Dashboard base
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Supporto email
+            </li>
+          </ul>
+
+          <Link
+            href={PRICES.starter ? goToCheckout(PRICES.starter) : "/dashboard/billing?err=missing_price"}
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+              currentPlanName === "Starter"
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-900 text-white hover:bg-gray-800'
+            }`}
+          >
+            {currentPlanName === "Starter" ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Piano Attivo
+              </>
+            ) : (
+              <>
+                Scegli Starter
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Link>
+        </div>
+
+        {/* Fleet Plan */}
+        <div className={`rounded-2xl border p-6 ${
+          currentPlanName === "Flotta" 
+            ? 'border-primary bg-primary/5' 
+            : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Star className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Flotta</h3>
+              <p className="text-sm text-gray-600">Per aziende in crescita</p>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <div className="text-3xl font-bold text-gray-900">€79</div>
+            <div className="text-sm text-gray-600">al mese</div>
+          </div>
+
+          <ul className="space-y-3 mb-6">
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Fino a 25 veicoli
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Fino a 50 conducenti
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Dashboard avanzata
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Analytics dettagliate
+            </li>
+          </ul>
+
+          <Link
+            href={PRICES.fleet ? goToCheckout(PRICES.fleet) : "/dashboard/billing?err=missing_price"}
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+              currentPlanName === "Flotta"
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-900 text-white hover:bg-gray-800'
+            }`}
+          >
+            {currentPlanName === "Flotta" ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Piano Attivo
+              </>
+            ) : (
+              <>
+                Scegli Flotta
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Link>
+        </div>
+
+        {/* Consortium Plan */}
+        <div className={`rounded-2xl border p-6 ${
+          currentPlanName === "Azienda / Consorzio" 
+            ? 'border-primary bg-primary/5' 
+            : 'border-gray-200 bg-white'
+        }`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+              <Crown className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Enterprise</h3>
+              <p className="text-sm text-gray-600">Per grandi aziende</p>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <div className="text-3xl font-bold text-gray-900">€199</div>
+            <div className="text-sm text-gray-600">al mese</div>
+          </div>
+
+          <ul className="space-y-3 mb-6">
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Veicoli illimitati
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Conducenti illimitati
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Dashboard personalizzata
+            </li>
+            <li className="flex items-center gap-2 text-sm text-gray-700">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              Supporto dedicato
+            </li>
+          </ul>
+
+          <Link
+            href={PRICES.consortium ? goToCheckout(PRICES.consortium) : "/dashboard/billing?err=missing_price"}
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+              currentPlanName === "Azienda / Consorzio"
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-900 text-white hover:bg-gray-800'
+            }`}
+          >
+            {currentPlanName === "Azienda / Consorzio" ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Piano Attivo
+              </>
+            ) : (
+              <>
+                Scegli Enterprise
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Link>
+        </div>
+      </div>
+
+      {/* Billing Portal */}
+      {hasStripeCustomer && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Gestione Abbonamento</h3>
+              <p className="text-gray-600 mt-1">
+                Accedi al portale di fatturazione per gestire il tuo abbonamento
+              </p>
+            </div>
+            <Link
+              href="/api/billing/portal"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Apri Portale Fatturazione
+            </Link>
+          </div>
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="p-6 rounded-2xl border bg-white">
-          <div className="text-sm font-medium">Stato piano</div>
-          <div className="mt-1 text-lg">{currentPlanName}</div>
-
-          {isActive ? (
-            <>
-              <div className="mt-2 text-sm">
-                <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-800 border border-green-200">
-                  {sub?.status}
-                </span>
-              </div>
-              {renewAt && (
-                <div className="mt-2 text-sm text-gray-600">
-                  Prossimo rinnovo: <span className="font-medium">{renewAt}</span>
-                </div>
-              )}
-              <a
-                href="/api/billing/portal?return=/dashboard/billing"
-                className="mt-5 inline-flex px-4 py-2 rounded-lg ring-1 ring-gray-300 text-sm"
-              >
-                Apri Billing Portal
-              </a>
-            </>
-          ) : (
-            <>
-              <ul className="mt-4 text-sm text-gray-700 space-y-1">
-                <li>• 1 mezzo</li>
-                <li>• Rapportini base</li>
-                <li>• Accesso web</li>
-              </ul>
-              <a
-                href={goToCheckout(PRICES.starter)}
-                className="mt-5 inline-flex px-4 py-2 rounded-lg bg-primary text-white text-sm"
-              >
-                Attiva Starter
-              </a>
-            </>
-          )}
-        </div>
-
-        <div className="p-6 rounded-2xl border bg-white">
-          <div className="text-sm font-medium">Piani disponibili</div>
-
-          <div className="mt-4 grid gap-3">
-            <div className="rounded-xl border p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-medium">Starter</div>
-                  <div className="text-sm text-gray-600">€ 29/mese • fino a 5 mezzi</div>
-                </div>
-                <a
-                  href={
-                    PRICES.starter
-                      ? goToCheckout(PRICES.starter)
-                      : "/dashboard/billing?err=missing_price"
-                  }
-                  className="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm"
-                >
-                  {currentPlanName === "Starter" ? "Gestisci" : "Scegli"}
-                </a>
-              </div>
-              <ul className="mt-2 text-sm text-gray-700 space-y-1">
-                <li>• Dispatch in tempo reale</li>
-                <li>• Rapportini con foto & firma</li>
-                <li>• Analytics base</li>
-              </ul>
-            </div>
-
-            <div className="rounded-xl border p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-medium">Flotta</div>
-                  <div className="text-sm text-gray-600">€ 79/mese • fino a 15 mezzi</div>
-                </div>
-                <a
-                  href={
-                    PRICES.fleet
-                      ? goToCheckout(PRICES.fleet)
-                      : "/dashboard/billing?err=missing_price"
-                  }
-                  className="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm"
-                >
-                  {currentPlanName === "Flotta" ? "Gestisci" : "Scegli"}
-                </a>
-              </div>
-              <ul className="mt-2 text-sm text-gray-700 space-y-1">
-                <li>• Tutto di Starter</li>
-                <li>• Turni & reperibilità</li>
-                <li>• Manutenzioni e scadenze</li>
-              </ul>
-            </div>
-
-            <div className="rounded-xl border p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-medium">Azienda / Consorzio</div>
-                  <div className="text-sm text-gray-600">€ 149/mese • mezzi illimitati</div>
-                </div>
-                <a
-                  href={
-                    PRICES.consortium
-                      ? goToCheckout(PRICES.consortium)
-                      : "/dashboard/billing?err=missing_price"
-                  }
-                  className="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm"
-                >
-                  {currentPlanName === "Azienda / Consorzio" ? "Gestisci" : "Scegli"}
-                </a>
-              </div>
-              <ul className="mt-2 text-sm text-gray-700 space-y-1">
-                <li>• Tutto di Flotta</li>
-                <li>• Portale clienti</li>
-                <li>• Integrazioni avanzate</li>
-              </ul>
-            </div>
+      {/* Help Section */}
+      <div className="bg-gray-50 rounded-2xl p-6">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <Zap className="h-5 w-5 text-blue-600" />
           </div>
-
-          <div className="mt-4 text-xs text-gray-500">
-            Puoi aggiornare o annullare in qualsiasi momento dal Billing Portal.
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Hai bisogno di aiuto?
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Il nostro team di supporto è qui per aiutarti con qualsiasi domanda sui piani e la fatturazione.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/dashboard/support"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200"
+              >
+                <Zap className="h-4 w-4" />
+                Contatta Supporto
+              </Link>
+              <Link
+                href="/contatti"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Contatta Vendite
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 rounded-xl border p-4 bg-white">
-        <div className="text-sm font-medium">Hai bisogno di aiuto?</div>
-        <div className="text-sm text-gray-600 mt-1">
-          Scrivici a <a className="underline" href="mailto:info@rescuemanager.eu">info@rescuemanager.eu</a>{" "}
-          o <Link href="/contatti" className="underline">prenota una chiamata</Link>.
+      {/* Sync After Checkout */}
+      {sp.status === "success" && sp.session_id && (
+        <SyncAfterCheckoutClient status={sp.status} sessionId={sp.session_id} />
+      )}
+
+      {/* Error Messages */}
+      {sp.err && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <span className="text-red-800 font-medium">Errore</span>
+          </div>
+          <p className="text-red-700 mt-1">
+            {sp.err === "missing_price" 
+              ? "Prezzo non configurato. Contatta il supporto."
+              : "Si è verificato un errore. Riprova più tardi."}
+          </p>
         </div>
-      </div>
-    </main>
+      )}
+    </div>
   );
 }
