@@ -29,29 +29,43 @@ export default function SiteHeader() {
   const handleMenuToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("=== MENU TOGGLE DEBUG ===");
     console.log("Menu toggle clicked, current state:", menuOpen);
+    console.log("Event target:", e.target);
+    console.log("Event currentTarget:", e.currentTarget);
     
     if (!menuOpen) {
       // Calcola la posizione ottimale del dropdown
       setTimeout(() => {
         const button = document.querySelector('[aria-haspopup="menu"]') as HTMLElement;
+        console.log("Button element found:", button);
         if (button) {
           const rect = button.getBoundingClientRect();
           const viewportWidth = window.innerWidth;
           const dropdownWidth = 288; // w-72 = 18rem = 288px
           
+          console.log("Button rect:", rect);
+          console.log("Viewport width:", viewportWidth);
+          console.log("Dropdown width:", dropdownWidth);
+          console.log("Right position:", rect.right + dropdownWidth);
+          
           // Se il dropdown esce a destra, posizionalo a sinistra
           if (rect.right + dropdownWidth > viewportWidth) {
+            console.log("Setting position to LEFT");
             setDropdownPosition('left');
           } else {
+            console.log("Setting position to RIGHT");
             setDropdownPosition('right');
           }
+        } else {
+          console.log("Button element NOT found!");
         }
       }, 0);
     }
     
     setMenuOpen(!menuOpen);
     console.log("Menu state after toggle:", !menuOpen);
+    console.log("=== END MENU TOGGLE DEBUG ===");
   };
 
   // scroll style
@@ -285,7 +299,14 @@ export default function SiteHeader() {
                         }}
                       />
                       
-                      {console.log("Rendering dropdown menu, position:", dropdownPosition)}
+                      {(() => {
+                        console.log("=== DROPDOWN RENDER DEBUG ===");
+                        console.log("menuOpen:", menuOpen);
+                        console.log("dropdownPosition:", dropdownPosition);
+                        console.log("email:", email);
+                        console.log("=== END DROPDOWN RENDER DEBUG ===");
+                        return null;
+                      })()}
                       <div
                         role="menu"
                         className={`absolute w-64 sm:w-72 rounded-2xl border-2 border-red-500 bg-white shadow-2xl shadow-black/20 p-2`}
@@ -332,16 +353,24 @@ export default function SiteHeader() {
                         className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                         onClick={async () => {
                           setMenuOpen(false);
+                          console.log("=== GOOGLE OAUTH LOGOUT DEBUG ===");
                           console.log("Google OAuth logout clicked - starting logout process");
                           
                           try {
                             // Dispatch logout event immediately
                             window.dispatchEvent(new CustomEvent('logout'));
+                            console.log("Logout event dispatched");
                             
                             const supabase = supabaseBrowser();
+                            console.log("Supabase client created");
                             
                             // Per Google OAuth, dobbiamo fare logout da Google
-                            const { data: { user } } = await supabase.auth.getUser();
+                            const { data: { user }, error: userError } = await supabase.auth.getUser();
+                            console.log("User data:", user);
+                            console.log("User error:", userError);
+                            console.log("User app_metadata:", user?.app_metadata);
+                            console.log("User provider:", user?.app_metadata?.provider);
+                            
                             if (user?.app_metadata?.provider === 'google') {
                               console.log("Google OAuth user detected, redirecting to Google logout");
                               
