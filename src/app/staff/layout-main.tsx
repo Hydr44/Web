@@ -7,7 +7,7 @@ import {
   LogOut
 } from "lucide-react";
 
-export default function StaffLayout({
+export default function MainStaffLayout({
   children,
 }: {
   children: React.ReactNode;
