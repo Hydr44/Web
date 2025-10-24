@@ -21,7 +21,7 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
+  const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -40,7 +40,7 @@ export default function SiteHeader() {
     });
 
     // Listener per cambiamenti di autenticazione
-    const removeListener = addAuthListener((newUser) => {
+    const removeListener = addAuthListener(async (newUser) => {
       console.log("Auth state changed:", newUser?.email);
       setUser(newUser);
       
@@ -48,6 +48,20 @@ export default function SiteHeader() {
       if (!newUser) {
         setMenuOpen(false);
         setIsLoggingOut(false);
+        setOrgs([]);
+        setCurrentOrg(null);
+      } else {
+        // Carica organizzazioni per l'utente autenticato
+        try {
+          const { supabaseBrowser } = await import("@/lib/supabase-browser");
+          const supabase = supabaseBrowser();
+          const { data: orgsData } = await supabase.from("orgs").select("id, name");
+          if (orgsData) {
+            setOrgs(orgsData);
+          }
+        } catch (error) {
+          console.error("Error loading organizations:", error);
+        }
       }
     });
 
