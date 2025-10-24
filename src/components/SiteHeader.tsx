@@ -304,6 +304,18 @@ export default function SiteHeader() {
                         console.log("menuOpen:", menuOpen);
                         console.log("dropdownPosition:", dropdownPosition);
                         console.log("email:", email);
+                        
+                        // Debug DOM dopo render
+                        setTimeout(() => {
+                          const dropdown = document.querySelector('[role="menu"]');
+                          console.log("Dropdown DOM element:", dropdown);
+                          if (dropdown) {
+                            const rect = dropdown.getBoundingClientRect();
+                            console.log("Dropdown rect:", rect);
+                            console.log("Dropdown computed style:", window.getComputedStyle(dropdown));
+                          }
+                        }, 100);
+                        
                         console.log("=== END DROPDOWN RENDER DEBUG ===");
                         return null;
                       })()}
@@ -326,7 +338,10 @@ export default function SiteHeader() {
                           height: 'auto',
                           overflow: 'visible',
                           clipPath: 'none',
-                          transform: 'none'
+                          transform: 'none',
+                          // Forza posizionamento visibile
+                          maxWidth: '288px',
+                          width: '288px'
                         }}
                       >
                       <div className="p-3 border-b border-gray-100">
@@ -361,8 +376,9 @@ export default function SiteHeader() {
                             window.dispatchEvent(new CustomEvent('logout'));
                             console.log("Logout event dispatched");
                             
+                            // Usa la stessa istanza Supabase per evitare conflitti
                             const supabase = supabaseBrowser();
-                            console.log("Supabase client created");
+                            console.log("Supabase client created (reusing existing instance)");
                             
                             // Per Google OAuth, dobbiamo fare logout da Google
                             const { data: { user }, error: userError } = await supabase.auth.getUser();
