@@ -173,29 +173,52 @@ export async function POST(
       }
 
       case 'members': {
-        const { data: members, error } = await supabaseAdmin
+        // First get org_members
+        const { data: orgMembers, error: orgMembersError } = await supabaseAdmin
           .from('org_members')
           .select(`
             user_id,
             role,
-            created_at,
-            profiles!inner (
-              id,
-              email,
-              full_name,
-              avatar_url
-            )
+            created_at
           `)
           .eq('org_id', orgId);
 
-        if (error) {
+        if (orgMembersError) {
           return NextResponse.json({
             success: false,
-            error: error.message || 'Errore recupero membri'
+            error: orgMembersError.message || 'Errore recupero membri'
           }, { status: 500 });
         }
 
-        responseData = { success: true, members: members || [] };
+        // Then get profiles for each member
+        const memberIds = orgMembers?.map(m => m.user_id) || [];
+        const { data: profiles, error: profilesError } = await supabaseAdmin
+          .from('profiles')
+          .select(`
+            id,
+            email,
+            full_name,
+            avatar_url
+          `)
+          .in('id', memberIds);
+
+        if (profilesError) {
+          return NextResponse.json({
+            success: false,
+            error: profilesError.message || 'Errore recupero profili'
+          }, { status: 500 });
+        }
+
+        // Combine the data
+        const members = orgMembers?.map(orgMember => {
+          const profile = profiles?.find(p => p.id === orgMember.user_id);
+          return {
+            ...orgMember,
+            profile: profile || null
+          };
+        }) || [];
+
+        responseData = { success: true, members };
         break;
       }
 

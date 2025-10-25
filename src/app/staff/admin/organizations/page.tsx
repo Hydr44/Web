@@ -190,42 +190,33 @@ export default function AdminOrganizationsPage() {
     // Apply filters to the organizations list
   };
 
-  const handleViewMembers = async (orgId: string) => {
-    try {
-      const response = await fetch(`/api/staff/admin/organizations/${orgId}/members`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Show members in a modal or navigate to members page
-        alert(`Membri dell'organizzazione: ${data.members.length} membri trovati`);
-      } else {
-        alert('Errore: ' + data.error);
-      }
-    } catch (error) {
-      console.error('Error loading members:', error);
-      alert('Errore di connessione');
-    }
+  const handleViewMembers = (orgId: string) => {
+    // Navigate to members page
+    window.location.href = `/staff/admin/organizations/${orgId}/members`;
   };
 
-  const handleViewAnalytics = async (orgId: string) => {
+  const handleViewAnalytics = (orgId: string) => {
+    // Navigate to analytics page
+    window.location.href = `/staff/admin/organizations/${orgId}/analytics`;
+  };
+
+  const handleViewOrganization = async (orgId: string) => {
     try {
-      const response = await fetch(`/api/staff/admin/organizations/${orgId}/analytics`, {
+      const response = await fetch(`/api/staff/admin/organizations/${orgId}/view`, {
         method: 'POST'
       });
       
       const data = await response.json();
       
       if (data.success) {
-        // Show analytics in a modal or navigate to analytics page
-        alert(`Analytics organizzazione: ${JSON.stringify(data.analytics, null, 2)}`);
+        // Show organization details in a modal or navigate to details page
+        const org = data.organization;
+        alert(`Organizzazione: ${org.name}\nEmail: ${org.email}\nTelefono: ${org.phone}\nIndirizzo: ${org.address}\nMembri: ${org.member_count}`);
       } else {
         alert('Errore: ' + data.error);
       }
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      console.error('Error loading organization:', error);
       alert('Errore di connessione');
     }
   };
@@ -534,7 +525,7 @@ export default function AdminOrganizationsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleOrgAction(org.id, 'view')}
+                          onClick={() => handleViewOrganization(org.id)}
                           className="text-gray-400 hover:text-blue-600"
                           title="Visualizza"
                         >
