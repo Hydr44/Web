@@ -12,19 +12,20 @@ import {
   AlertCircle,
   CheckCircle
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 export default function StaffLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setPageLoading(true);
     setError("");
 
     try {
@@ -41,13 +42,17 @@ export default function StaffLoginPage() {
         }
       } else {
         setError(result.error || 'Errore durante il login');
+        setPageLoading(false);
       }
     } catch (error) {
       setError('Errore durante il login');
-    } finally {
-      setLoading(false);
+      setPageLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return <LoadingPage text="Accesso in corso..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
@@ -121,20 +126,10 @@ export default function StaffLoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium"
             >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Accesso...</span>
-                </div>
-              ) : (
-                <>
-                  <Shield className="h-5 w-5" />
-                  Accedi
-                </>
-              )}
+              <Shield className="h-5 w-5" />
+              Accedi
             </button>
           </form>
 

@@ -69,6 +69,10 @@ export default function StaffLayout({
     return <LoadingPage text="Caricamento staff panel..." />;
   }
 
+  if (logoutLoading) {
+    return <LoadingPage text="Disconnessione in corso..." />;
+  }
+
   // For login page, just render children without header
   if (pathname === '/staff/login') {
     return <>{children}</>;
@@ -160,15 +164,10 @@ export default function StaffLayout({
               
               <button 
                 onClick={handleLogout}
-                disabled={logoutLoading}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
               >
-                {logoutLoading ? (
-                  <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <LogOut className="h-4 w-4" />
-                )}
-                {logoutLoading ? 'Disconnessione...' : 'Logout'}
+                <LogOut className="h-4 w-4" />
+                Logout
               </button>
             </div>
           </div>
