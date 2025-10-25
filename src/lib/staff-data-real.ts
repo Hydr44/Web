@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-admin';
+// Remove direct Supabase import - use API routes instead
 
 export interface StaffLead {
   id: string;
@@ -41,41 +41,36 @@ class StaffDataManager {
     return StaffDataManager.instance;
   }
 
-  // Get real leads from database
+  // Get real leads from database via API
   public async getLeads(): Promise<StaffLead[]> {
     try {
-      const { data: leads, error } = await supabaseAdmin
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching leads:', error);
-        return [];
+      const response = await fetch('/api/staff/leads');
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.leads || [];
       }
-
-      return leads || [];
+      
+      console.error('Error fetching leads:', result.error);
+      return [];
     } catch (error) {
       console.error('Error in getLeads:', error);
       return [];
     }
   }
 
-  // Get real users from database
+  // Get real users from database via API
   public async getUsers(): Promise<StaffUser[]> {
     try {
-      const { data: users, error } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email, full_name, is_staff, staff_role, is_admin, created_at')
-        .eq('is_staff', true)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        return [];
+      const response = await fetch('/api/staff/users');
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.users || [];
       }
-
-      return users || [];
+      
+      console.error('Error fetching users:', result.error);
+      return [];
     } catch (error) {
       console.error('Error in getUsers:', error);
       return [];

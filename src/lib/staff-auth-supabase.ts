@@ -1,4 +1,3 @@
-import { supabaseBrowser } from '@/lib/supabase-browser';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export interface StaffUser {
@@ -75,56 +74,28 @@ class StaffAuthManager {
     try {
       console.log('Staff login attempt for:', email);
       
-      // Authenticate with Supabase
-      const { data: authData, error: authError } = await supabaseBrowser.auth.signInWithPassword({
-        email,
-        password
+      // Use API route for authentication
+      const response = await fetch('/api/staff/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (authError) {
-        console.log('Supabase auth error:', authError);
-        return { success: false, error: 'Credenziali non valide' };
+      const result = await response.json();
+
+      if (!result.success) {
+        return { success: false, error: result.error || 'Errore durante il login' };
       }
 
-      if (!authData.user) {
-        return { success: false, error: 'Utente non trovato' };
+      if (result.user) {
+        this.saveSession(result.user);
+        console.log('Staff login successful:', result.user);
+        return { success: true, user: result.user };
       }
 
-      // Get user profile from database
-      const { data: profile, error: profileError } = await supabaseBrowser
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.log('Profile not found:', profileError);
-        return { success: false, error: 'Profilo utente non trovato' };
-      }
-
-      // Check if user is staff
-      if (!profile.is_staff) {
-        console.log('User is not staff:', email);
-        return { success: false, error: 'Accesso negato: utente non autorizzato' };
-      }
-
-      // Create staff user object
-      const user: StaffUser = {
-        id: profile.id,
-        email: profile.email || authData.user.email || '',
-        full_name: profile.full_name || '',
-        staff_role: profile.staff_role || 'staff',
-        is_staff: profile.is_staff,
-        is_admin: profile.is_admin || false,
-        last_login: new Date().toISOString(),
-        created_at: profile.created_at,
-        avatar_url: profile.avatar_url
-      };
-
-      this.saveSession(user);
-
-      console.log('Staff login successful:', user);
-      return { success: true, user };
+      return { success: false, error: 'Errore durante il login' };
     } catch (error: any) {
       console.error('Staff login error:', error);
       return { success: false, error: error.message || 'Errore durante il login' };
@@ -135,8 +106,13 @@ class StaffAuthManager {
     try {
       console.log('Staff logout');
       
-      // Sign out from Supabase
-      await supabaseBrowser.auth.signOut();
+      // Use API route for logout
+      await fetch('/api/staff/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       this.currentUser = null;
       this.clearSession();
