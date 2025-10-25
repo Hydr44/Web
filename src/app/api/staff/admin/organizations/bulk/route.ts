@@ -3,151 +3,238 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: Request) {
   try {
-    const { orgIds, action } = await request.json();
+    const { orgIds, action, data } = await request.json();
 
-    if (!orgIds || !Array.isArray(orgIds) || orgIds.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Lista organizzazioni richiesta' 
+    if (!orgIds || !Array.isArray(orgIds) || orgIds.length === 0 || !action) {
+      return NextResponse.json({
+        success: false,
+        error: 'Parametri richiesti: orgIds (array), action (string)'
       }, { status: 400 });
     }
 
-    if (!action) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Azione richiesta' 
-      }, { status: 400 });
-    }
+    console.log(`Bulk organization action: ${action} for ${orgIds.length} organizations`);
 
-    console.log(`Performing bulk action ${action} on ${orgIds.length} organizations`);
-
-    let result;
-    let message;
+    const results: { id: string; success: boolean; error?: string }[] = [];
 
     switch (action) {
-      case 'activate':
-        const { error: activateError } = await supabaseAdmin
-          .from('organizations')
-          .update({
-            updated_at: new Date().toISOString()
-          })
-          .in('id', orgIds);
+      case 'activate': {
+        for (const orgId of orgIds) {
+          try {
+            const { error } = await supabaseAdmin
+              .from('orgs')
+              .update({
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', orgId);
 
-        if (activateError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore attivazione organizzazioni: ${activateError.message}` 
-          }, { status: 500 });
+            if (error) {
+              results.push({ id: orgId, success: false, error: error.message });
+            } else {
+              results.push({ id: orgId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: orgId, success: false, error: err.message });
+          }
         }
-
-        message = `${orgIds.length} organizzazioni attivate con successo`;
         break;
+      }
 
-      case 'suspend':
-        const { error: suspendError } = await supabaseAdmin
-          .from('organizations')
-          .update({
-            updated_at: new Date().toISOString()
-          })
-          .in('id', orgIds);
+      case 'suspend': {
+        for (const orgId of orgIds) {
+          try {
+            const { error } = await supabaseAdmin
+              .from('orgs')
+              .update({
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', orgId);
 
-        if (suspendError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore sospensione organizzazioni: ${suspendError.message}` 
-          }, { status: 500 });
+            if (error) {
+              results.push({ id: orgId, success: false, error: error.message });
+            } else {
+              results.push({ id: orgId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: orgId, success: false, error: err.message });
+          }
         }
-
-        message = `${orgIds.length} organizzazioni sospese con successo`;
         break;
+      }
 
-      case 'delete':
-        // First remove all members from organizations
-        await supabaseAdmin
-          .from('org_members')
-          .delete()
-          .in('org_id', orgIds);
+      case 'delete': {
+        for (const orgId of orgIds) {
+          try {
+            // First, remove all members from the organization
+            const { error: membersError } = await supabaseAdmin
+              .from('org_members')
+              .delete()
+              .eq('org_id', orgId);
 
-        // Update users' current_org to null
-        await supabaseAdmin
-          .from('profiles')
-          .update({
-            current_org: null,
-            org_id: null
-          })
-          .in('current_org', orgIds);
+            if (membersError) {
+              results.push({ id: orgId, success: false, error: `Errore rimozione membri: ${membersError.message}` });
+              continue;
+            }
 
-        // Delete organizations
-        const { error: deleteError } = await supabaseAdmin
-          .from('organizations')
-          .delete()
-          .in('id', orgIds);
+            // Then delete the organization
+            const { error: orgError } = await supabaseAdmin
+              .from('orgs')
+              .delete()
+              .eq('id', orgId);
 
-        if (deleteError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore eliminazione organizzazioni: ${deleteError.message}` 
-          }, { status: 500 });
+            if (orgError) {
+              results.push({ id: orgId, success: false, error: `Errore eliminazione: ${orgError.message}` });
+            } else {
+              results.push({ id: orgId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: orgId, success: false, error: err.message });
+          }
         }
-
-        message = `${orgIds.length} organizzazioni eliminate con successo`;
         break;
+      }
 
-      case 'export':
-        // Get organization data for export
-        const { data: organizations, error: exportError } = await supabaseAdmin
-          .from('organizations')
-          .select(`
-            id,
-            name,
-            email,
-            phone,
-            address,
-            city,
-            created_at,
-            updated_at,
-            org_members (
-              user_id,
-              role,
-              profiles (
-                full_name,
-                email
-              )
-            )
-          `)
-          .in('id', orgIds);
+      case 'export': {
+        // Export organization data
+        for (const orgId of orgIds) {
+          try {
+            const { data: org, error: orgError } = await supabaseAdmin
+              .from('orgs')
+              .select('*')
+              .eq('id', orgId)
+              .single();
 
-        if (exportError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore export organizzazioni: ${exportError.message}` 
-          }, { status: 500 });
+            if (orgError) {
+              results.push({ id: orgId, success: false, error: orgError.message });
+            } else {
+              // Get members for this org
+              const { data: members } = await supabaseAdmin
+                .from('org_members')
+                .select(`
+                  role,
+                  created_at,
+                  profiles!inner (
+                    email,
+                    full_name
+                  )
+                `)
+                .eq('org_id', orgId);
+
+              results.push({ 
+                id: orgId, 
+                success: true, 
+                data: {
+                  organization: org,
+                  members: members || []
+                }
+              });
+            }
+          } catch (err: any) {
+            results.push({ id: orgId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
+
+      case 'merge': {
+        const { target_org_id } = data || {};
+        
+        if (!target_org_id) {
+          return NextResponse.json({
+            success: false,
+            error: 'ID organizzazione target richiesto per il merge'
+          }, { status: 400 });
         }
 
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Dati organizzazioni preparati per export',
-          organizations: organizations || []
-        });
+        if (orgIds.includes(target_org_id)) {
+          return NextResponse.json({
+            success: false,
+            error: 'L\'organizzazione target non può essere inclusa nelle organizzazioni da unire'
+          }, { status: 400 });
+        }
+
+        for (const orgId of orgIds) {
+          try {
+            // Move all members from source org to target org
+            const { data: members, error: membersError } = await supabaseAdmin
+              .from('org_members')
+              .select('user_id, role')
+              .eq('org_id', orgId);
+
+            if (membersError) {
+              results.push({ id: orgId, success: false, error: `Errore recupero membri: ${membersError.message}` });
+              continue;
+            }
+
+            // Add members to target org
+            for (const member of members || []) {
+              const { error: addError } = await supabaseAdmin
+                .from('org_members')
+                .upsert({
+                  org_id: target_org_id,
+                  user_id: member.user_id,
+                  role: member.role
+                });
+
+              if (addError) {
+                console.warn(`Error adding member ${member.user_id} to target org:`, addError.message);
+              }
+            }
+
+            // Remove members from source org
+            const { error: removeError } = await supabaseAdmin
+              .from('org_members')
+              .delete()
+              .eq('org_id', orgId);
+
+            if (removeError) {
+              results.push({ id: orgId, success: false, error: `Errore rimozione membri: ${removeError.message}` });
+              continue;
+            }
+
+            // Delete source organization
+            const { error: deleteError } = await supabaseAdmin
+              .from('orgs')
+              .delete()
+              .eq('id', orgId);
+
+            if (deleteError) {
+              results.push({ id: orgId, success: false, error: `Errore eliminazione: ${deleteError.message}` });
+            } else {
+              results.push({ id: orgId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: orgId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
 
       default:
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Azione bulk non supportata' 
+        return NextResponse.json({
+          success: false,
+          error: 'Azione bulk non valida'
         }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message,
-      affectedCount: orgIds.length
+    const successCount = results.filter(r => r.success).length;
+    const failureCount = results.filter(r => !r.success).length;
+
+    return NextResponse.json({
+      success: true,
+      message: `Operazione completata: ${successCount} successi, ${failureCount} errori`,
+      results,
+      summary: {
+        total: orgIds.length,
+        successful: successCount,
+        failed: failureCount
+      }
     });
 
   } catch (error: any) {
-    console.error('Bulk organizations API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
+    console.error('Bulk organization action error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server'
     }, { status: 500 });
   }
 }

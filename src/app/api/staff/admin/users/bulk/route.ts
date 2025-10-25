@@ -3,138 +3,179 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: Request) {
   try {
-    const { userIds, action } = await request.json();
+    const { userIds, action, data } = await request.json();
 
-    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Lista utenti richiesta' 
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0 || !action) {
+      return NextResponse.json({
+        success: false,
+        error: 'Parametri richiesti: userIds (array), action (string)'
       }, { status: 400 });
     }
 
-    if (!action) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Azione richiesta' 
-      }, { status: 400 });
-    }
+    console.log(`Bulk user action: ${action} for ${userIds.length} users`);
 
-    console.log(`Performing bulk action ${action} on ${userIds.length} users`);
-
-    let result;
-    let message;
+    const results: { id: string; success: boolean; error?: string }[] = [];
 
     switch (action) {
-      case 'activate':
-        const { error: activateError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            updated_at: new Date().toISOString()
-          })
-          .in('id', userIds);
-
-        if (activateError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore attivazione utenti: ${activateError.message}` 
-          }, { status: 500 });
-        }
-
-        message = `${userIds.length} utenti attivati con successo`;
-        break;
-
-      case 'suspend':
-        const { error: suspendError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            updated_at: new Date().toISOString()
-          })
-          .in('id', userIds);
-
-        if (suspendError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore sospensione utenti: ${suspendError.message}` 
-          }, { status: 500 });
-        }
-
-        message = `${userIds.length} utenti sospesi con successo`;
-        break;
-
-      case 'delete':
-        // Delete from auth.users first
+      case 'activate': {
         for (const userId of userIds) {
-          const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-          if (authError) {
-            console.error(`Error deleting auth user ${userId}:`, authError);
+          try {
+            const { error } = await supabaseAdmin
+              .from('profiles')
+              .update({
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', userId);
+
+            if (error) {
+              results.push({ id: userId, success: false, error: error.message });
+            } else {
+              results.push({ id: userId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: userId, success: false, error: err.message });
           }
         }
-
-        // Delete from profiles
-        const { error: deleteError } = await supabaseAdmin
-          .from('profiles')
-          .delete()
-          .in('id', userIds);
-
-        if (deleteError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore eliminazione utenti: ${deleteError.message}` 
-          }, { status: 500 });
-        }
-
-        message = `${userIds.length} utenti eliminati con successo`;
         break;
+      }
 
-      case 'export':
-        // Get user data for export
-        const { data: users, error: exportError } = await supabaseAdmin
-          .from('profiles')
-          .select(`
-            id,
-            email,
-            full_name,
-            created_at,
-            updated_at,
-            is_admin,
-            current_org,
-            organizations!current_org (
-              name
-            )
-          `)
-          .in('id', userIds);
+      case 'suspend': {
+        for (const userId of userIds) {
+          try {
+            const { error } = await supabaseAdmin
+              .from('profiles')
+              .update({
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', userId);
 
-        if (exportError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore export utenti: ${exportError.message}` 
-          }, { status: 500 });
+            if (error) {
+              results.push({ id: userId, success: false, error: error.message });
+            } else {
+              results.push({ id: userId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: userId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
+
+      case 'delete': {
+        for (const userId of userIds) {
+          try {
+            // Delete from auth.users
+            const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+            
+            if (authError) {
+              results.push({ id: userId, success: false, error: authError.message });
+              continue;
+            }
+
+            // Delete from profiles
+            const { error: profileError } = await supabaseAdmin
+              .from('profiles')
+              .delete()
+              .eq('id', userId);
+
+            if (profileError) {
+              results.push({ id: userId, success: false, error: profileError.message });
+            } else {
+              results.push({ id: userId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: userId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
+
+      case 'change-role': {
+        const { new_role } = data || {};
+        
+        if (!new_role || !['admin', 'user'].includes(new_role)) {
+          return NextResponse.json({
+            success: false,
+            error: 'Ruolo non valido'
+          }, { status: 400 });
         }
 
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Dati utenti preparati per export',
-          users: users || []
-        });
+        for (const userId of userIds) {
+          try {
+            const { error } = await supabaseAdmin
+              .from('profiles')
+              .update({
+                is_admin: new_role === 'admin',
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', userId);
+
+            if (error) {
+              results.push({ id: userId, success: false, error: error.message });
+            } else {
+              results.push({ id: userId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: userId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
+
+      case 'reset-passwords': {
+        const { new_password } = data || {};
+        
+        if (!new_password) {
+          return NextResponse.json({
+            success: false,
+            error: 'Nuova password richiesta'
+          }, { status: 400 });
+        }
+
+        for (const userId of userIds) {
+          try {
+            const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+              password: new_password
+            });
+
+            if (error) {
+              results.push({ id: userId, success: false, error: error.message });
+            } else {
+              results.push({ id: userId, success: true });
+            }
+          } catch (err: any) {
+            results.push({ id: userId, success: false, error: err.message });
+          }
+        }
+        break;
+      }
 
       default:
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Azione bulk non supportata' 
+        return NextResponse.json({
+          success: false,
+          error: 'Azione bulk non valida'
         }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message,
-      affectedCount: userIds.length
+    const successCount = results.filter(r => r.success).length;
+    const failureCount = results.filter(r => !r.success).length;
+
+    return NextResponse.json({
+      success: true,
+      message: `Operazione completata: ${successCount} successi, ${failureCount} errori`,
+      results,
+      summary: {
+        total: userIds.length,
+        successful: successCount,
+        failed: failureCount
+      }
     });
 
   } catch (error: any) {
-    console.error('Bulk users API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
+    console.error('Bulk user action error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server'
     }, { status: 500 });
   }
 }

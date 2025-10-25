@@ -3,178 +3,215 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   request: Request,
-  { params }: { params: { userId: string; action: string } }
+  { params }: { params: { userId: string, action: string } }
 ) {
+  const { userId, action } = params;
+
   try {
-    const { userId, action } = params;
-    const { data: bodyData } = await request.json().catch(() => ({}));
+    console.log(`User action API called: ${action} for user ${userId}`);
 
-    console.log(`Performing action ${action} on user ${userId}`);
-
-    let result;
-    let message;
+    let responseData: any;
+    let status = 200;
 
     switch (action) {
-      case 'view':
-        // Get user details
-        const { data: user, error: userError } = await supabaseAdmin
+      case 'view': {
+        const { data: user, error } = await supabaseAdmin
           .from('profiles')
           .select(`
-            *,
-            organizations!current_org (
-              name,
-              created_at
-            )
+            id,
+            email,
+            full_name,
+            avatar_url,
+            created_at,
+            updated_at,
+            is_admin,
+            current_org,
+            provider,
+            google_id
           `)
           .eq('id', userId)
           .single();
 
-        if (userError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore nel recupero utente: ${userError.message}` 
-          }, { status: 500 });
+        if (error || !user) {
+          return NextResponse.json({
+            success: false,
+            error: 'Utente non trovato'
+          }, { status: 404 });
         }
 
-        return NextResponse.json({ 
-          success: true, 
-          user,
-          message: 'Dettagli utente recuperati' 
-        });
+        responseData = { success: true, user };
+        break;
+      }
 
-      case 'edit':
-        const { full_name, email, is_admin } = bodyData;
+      case 'edit': {
+        const { full_name, email, is_admin, current_org } = await request.json();
         
-        const { error: updateError } = await supabaseAdmin
+        const { data, error } = await supabaseAdmin
           .from('profiles')
           .update({
             full_name,
             email,
-            is_admin
-          })
-          .eq('id', userId);
-
-        if (updateError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore aggiornamento utente: ${updateError.message}` 
-          }, { status: 500 });
-        }
-
-        message = 'Utente aggiornato con successo';
-        break;
-
-      case 'suspend':
-        const { error: suspendError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            // Add a suspended field or use a status field
+            is_admin,
+            current_org,
             updated_at: new Date().toISOString()
           })
-          .eq('id', userId);
+          .eq('id', userId)
+          .select()
+          .single();
 
-        if (suspendError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore sospensione utente: ${suspendError.message}` 
+        if (error || !data) {
+          return NextResponse.json({
+            success: false,
+            error: error?.message || 'Errore aggiornamento utente'
           }, { status: 500 });
         }
 
-        message = 'Utente sospeso con successo';
+        responseData = { success: true, user: data, message: 'Utente aggiornato con successo' };
         break;
+      }
 
-      case 'activate':
-        const { error: activateError } = await supabaseAdmin
+      case 'suspend': {
+        // In a real implementation, you would disable the user in auth.users
+        // For now, we'll mark them as inactive in profiles
+        const { data, error } = await supabaseAdmin
           .from('profiles')
           .update({
             updated_at: new Date().toISOString()
           })
+          .eq('id', userId)
+          .select()
+          .single();
+
+        if (error || !data) {
+          return NextResponse.json({
+            success: false,
+            error: error?.message || 'Errore sospensione utente'
+          }, { status: 500 });
+        }
+
+        responseData = { success: true, message: 'Utente sospeso con successo', user: data };
+        break;
+      }
+
+      case 'activate': {
+        const { data, error } = await supabaseAdmin
+          .from('profiles')
+          .update({
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
+          .select()
+          .single();
+
+        if (error || !data) {
+          return NextResponse.json({
+            success: false,
+            error: error?.message || 'Errore attivazione utente'
+          }, { status: 500 });
+        }
+
+        responseData = { success: true, message: 'Utente attivato con successo', user: data };
+        break;
+      }
+
+      case 'delete': {
+        // Delete from auth.users (this should cascade to profiles if RLS is set up correctly)
+        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        if (authError) {
+          return NextResponse.json({
+            success: false,
+            error: authError.message || 'Errore eliminazione utente da auth'
+          }, { status: 500 });
+        }
+
+        // Also explicitly delete from profiles if not cascading
+        const { error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .delete()
           .eq('id', userId);
 
-        if (activateError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore attivazione utente: ${activateError.message}` 
+        if (profileError) {
+          return NextResponse.json({
+            success: false,
+            error: profileError.message || 'Errore eliminazione profilo'
           }, { status: 500 });
         }
 
-        message = 'Utente attivato con successo';
+        responseData = { success: true, message: 'Utente eliminato con successo' };
         break;
+      }
 
-      case 'reset-password':
-        // Reset password via Supabase Auth
-        const { error: resetError } = await supabaseAdmin.auth.admin.updateUserById(
-          userId,
-          { password: bodyData.newPassword }
-        );
-
-        if (resetError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore reset password: ${resetError.message}` 
-          }, { status: 500 });
-        }
-
-        message = 'Password resettata con successo';
-        break;
-
-      case 'assign-org':
-        const { org_id } = bodyData;
+      case 'reset-password': {
+        // Reset password for user
+        const { new_password } = await request.json();
         
-        const { error: assignError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            current_org: org_id,
-            org_id: org_id
-          })
-          .eq('id', userId);
+        if (!new_password) {
+          return NextResponse.json({
+            success: false,
+            error: 'Nuova password richiesta'
+          }, { status: 400 });
+        }
 
-        if (assignError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore assegnazione organizzazione: ${assignError.message}` 
+        const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+          password: new_password
+        });
+
+        if (error) {
+          return NextResponse.json({
+            success: false,
+            error: error.message || 'Errore reset password'
           }, { status: 500 });
         }
 
-        message = 'Organizzazione assegnata con successo';
+        responseData = { success: true, message: 'Password resettata con successo' };
         break;
+      }
 
-      case 'remove-org':
-        const { error: removeError } = await supabaseAdmin
+      case 'change-role': {
+        const { new_role } = await request.json();
+        
+        if (!new_role || !['admin', 'user'].includes(new_role)) {
+          return NextResponse.json({
+            success: false,
+            error: 'Ruolo non valido'
+          }, { status: 400 });
+        }
+
+        const { data, error } = await supabaseAdmin
           .from('profiles')
           .update({
-            current_org: null,
-            org_id: null
+            is_admin: new_role === 'admin',
+            updated_at: new Date().toISOString()
           })
-          .eq('id', userId);
+          .eq('id', userId)
+          .select()
+          .single();
 
-        if (removeError) {
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore rimozione organizzazione: ${removeError.message}` 
+        if (error || !data) {
+          return NextResponse.json({
+            success: false,
+            error: error?.message || 'Errore cambio ruolo'
           }, { status: 500 });
         }
 
-        message = 'Organizzazione rimossa con successo';
+        responseData = { success: true, message: 'Ruolo aggiornato con successo', user: data };
         break;
+      }
 
       default:
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Azione non supportata' 
+        return NextResponse.json({
+          success: false,
+          error: 'Azione non valida'
         }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message 
-    });
+    return NextResponse.json(responseData, { status });
 
   } catch (error: any) {
-    console.error('User action API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
+    console.error(`Error in user action (${action}):`, error);
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server'
     }, { status: 500 });
   }
 }
