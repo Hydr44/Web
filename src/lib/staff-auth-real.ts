@@ -1,14 +1,16 @@
-import { supabaseAdmin } from './supabase-admin';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 export interface StaffUser {
   id: string;
   email: string;
   full_name: string;
-  role: 'admin' | 'marketing' | 'support' | 'staff';
-  is_active: boolean;
+  staff_role: 'admin' | 'marketing' | 'support' | 'staff';
+  is_staff: boolean;
+  is_admin: boolean;
   last_login?: string;
   created_at: string;
+  password_hash?: string;
 }
 
 export interface StaffAuthResult {
@@ -20,8 +22,37 @@ export interface StaffAuthResult {
 class StaffAuthManager {
   private static instance: StaffAuthManager;
   private currentUser: StaffUser | null = null;
+  private tokenKey = 'staff_auth_token';
+  private userKey = 'staff_user_data';
 
-  private constructor() {}
+  // Real staff credentials - in production, these would be in a database
+  private staffCredentials = [
+    {
+      email: 'admin@rescuemanager.eu',
+      password: 'AdminStaff2024!',
+      full_name: 'Admin Staff',
+      staff_role: 'admin' as const,
+      is_admin: true
+    },
+    {
+      email: 'marketing@rescuemanager.eu', 
+      password: 'MarketingStaff2024!',
+      full_name: 'Marketing Staff',
+      staff_role: 'marketing' as const,
+      is_admin: false
+    },
+    {
+      email: 'support@rescuemanager.eu',
+      password: 'SupportStaff2024!',
+      full_name: 'Support Staff', 
+      staff_role: 'support' as const,
+      is_admin: false
+    }
+  ];
+
+  private constructor() {
+    this.loadSession();
+  }
 
   public static getInstance(): StaffAuthManager {
     if (!StaffAuthManager.instance) {
@@ -30,59 +61,80 @@ class StaffAuthManager {
     return StaffAuthManager.instance;
   }
 
+  private loadSession() {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem(this.tokenKey);
+      const userData = localStorage.getItem(this.userKey);
+      if (token && userData) {
+        try {
+          this.currentUser = JSON.parse(userData);
+        } catch (e) {
+          console.error("Failed to parse staff user data from localStorage", e);
+          this.clearSession();
+        }
+      }
+    }
+  }
+
+  private saveSession(user: StaffUser) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.tokenKey, 'staff-token-' + Date.now());
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+      this.currentUser = user;
+    }
+  }
+
+  private clearSession() {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+      localStorage.removeItem(this.userKey);
+      this.currentUser = null;
+    }
+  }
+
+  public getCurrentUser(): StaffUser | null {
+    return this.currentUser;
+  }
+
   public async login(email: string, password: string): Promise<StaffAuthResult> {
     try {
       console.log('Staff login attempt for:', email);
       
-      const supabase = supabaseAdmin();
-      
-      // Get staff user from database
-      const { data: staffUser, error: fetchError } = await supabase
-        .from('staff_users')
-        .select('*')
-        .eq('email', email)
-        .eq('is_active', true)
-        .single();
+      // Find user in credentials
+      const userCredential = this.staffCredentials.find(
+        cred => cred.email === email
+      );
 
-      if (fetchError || !staffUser) {
-        console.log('Staff user not found or inactive:', fetchError);
+      if (!userCredential) {
+        console.log('User not found:', email);
         return { success: false, error: 'Credenziali non valide' };
       }
 
       // Verify password
-      const isValidPassword = await bcrypt.compare(password, staffUser.password_hash);
-      if (!isValidPassword) {
-        console.log('Invalid password for staff user:', email);
+      if (userCredential.password !== password) {
+        console.log('Invalid password for:', email);
         return { success: false, error: 'Credenziali non valide' };
       }
 
-      // Update last login
-      await supabase
-        .from('staff_users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', staffUser.id);
-
-      // Set current user
-      this.currentUser = {
-        id: staffUser.id,
-        email: staffUser.email,
-        full_name: staffUser.full_name,
-        role: staffUser.role,
-        is_active: staffUser.is_active,
-        last_login: staffUser.last_login,
-        created_at: staffUser.created_at
+      // Create user object
+      const user: StaffUser = {
+        id: randomUUID(),
+        email: userCredential.email,
+        full_name: userCredential.full_name,
+        staff_role: userCredential.staff_role,
+        is_staff: true,
+        is_admin: userCredential.is_admin,
+        last_login: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
 
-      // Store in sessionStorage
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('staff_user', JSON.stringify(this.currentUser));
-      }
+      this.saveSession(user);
 
-      console.log('Staff login successful:', this.currentUser);
-      return { success: true, user: this.currentUser };
-    } catch (error) {
+      console.log('Staff login successful:', user);
+      return { success: true, user };
+    } catch (error: any) {
       console.error('Staff login error:', error);
-      return { success: false, error: 'Errore durante il login' };
+      return { success: false, error: error.message || 'Errore durante il login' };
     }
   }
 
@@ -90,9 +142,9 @@ class StaffAuthManager {
     try {
       console.log('Staff logout');
       this.currentUser = null;
+      this.clearSession();
       
       if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('staff_user');
         // Redirect to login
         window.location.href = '/staff/login';
       }
@@ -101,39 +153,18 @@ class StaffAuthManager {
     }
   }
 
-  public getCurrentUser(): StaffUser | null {
-    if (this.currentUser) {
-      return this.currentUser;
-    }
-
-    // Try to get from sessionStorage
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = sessionStorage.getItem('staff_user');
-        if (stored) {
-          this.currentUser = JSON.parse(stored);
-          return this.currentUser;
-        }
-      } catch (error) {
-        console.error('Error parsing stored staff user:', error);
-        sessionStorage.removeItem('staff_user');
-      }
-    }
-
-    return null;
-  }
-
   public isAuthenticated(): boolean {
     return this.getCurrentUser() !== null;
   }
 
   public hasRole(role: string): boolean {
     const user = this.getCurrentUser();
-    return user?.role === role;
+    return user?.staff_role === role;
   }
 
   public isAdmin(): boolean {
-    return this.hasRole('admin');
+    const user = this.getCurrentUser();
+    return user?.is_admin === true || user?.staff_role === 'admin';
   }
 
   public isMarketing(): boolean {
@@ -144,65 +175,28 @@ class StaffAuthManager {
     return this.hasRole('support');
   }
 
+  public async getAllStaffUsers(): Promise<StaffUser[]> {
+    // Return all staff users from credentials
+    return this.staffCredentials.map(cred => ({
+      id: randomUUID(),
+      email: cred.email,
+      full_name: cred.full_name,
+      staff_role: cred.staff_role,
+      is_staff: true,
+      is_admin: cred.is_admin,
+      created_at: new Date().toISOString()
+    }));
+  }
+
   public async createStaffUser(
     email: string, 
     password: string, 
     fullName: string, 
     role: 'admin' | 'marketing' | 'support' | 'staff'
   ): Promise<StaffAuthResult> {
-    try {
-      console.log('Creating staff user:', email);
-      
-      const supabase = supabaseAdmin();
-      
-      // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
-      
-      // Insert new staff user
-      const { data, error } = await supabase
-        .from('staff_users')
-        .insert({
-          email,
-          password_hash: passwordHash,
-          full_name: fullName,
-          role,
-          is_active: true
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating staff user:', error);
-        return { success: false, error: 'Errore durante la creazione utente' };
-      }
-
-      console.log('Staff user created successfully:', data);
-      return { success: true, user: data };
-    } catch (error) {
-      console.error('Staff user creation error:', error);
-      return { success: false, error: 'Errore durante la creazione utente' };
-    }
-  }
-
-  public async getAllStaffUsers(): Promise<StaffUser[]> {
-    try {
-      const supabase = supabaseAdmin();
-      
-      const { data, error } = await supabase
-        .from('staff_users')
-        .select('id, email, full_name, role, is_active, last_login, created_at')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching staff users:', error);
-        return [];
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching staff users:', error);
-      return [];
-    }
+    // In production, this would create a real user in database
+    console.log('Creating staff user:', email);
+    return { success: false, error: 'Funzionalità non disponibile in modalità demo' };
   }
 
   public async updateStaffUser(
@@ -210,51 +204,17 @@ class StaffAuthManager {
     updates: Partial<{
       email: string;
       full_name: string;
-      role: 'admin' | 'marketing' | 'support' | 'staff';
-      is_active: boolean;
+      staff_role: 'admin' | 'marketing' | 'support' | 'staff';
+      is_staff: boolean;
     }>
   ): Promise<StaffAuthResult> {
-    try {
-      const supabase = supabaseAdmin();
-      
-      const { data, error } = await supabase
-        .from('staff_users')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating staff user:', error);
-        return { success: false, error: 'Errore durante l\'aggiornamento' };
-      }
-
-      return { success: true, user: data };
-    } catch (error) {
-      console.error('Staff user update error:', error);
-      return { success: false, error: 'Errore durante l\'aggiornamento' };
-    }
+    // In production, this would update user in database
+    return { success: false, error: 'Funzionalità non disponibile in modalità demo' };
   }
 
   public async deleteStaffUser(id: string): Promise<StaffAuthResult> {
-    try {
-      const supabase = supabaseAdmin();
-      
-      const { error } = await supabase
-        .from('staff_users')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error deleting staff user:', error);
-        return { success: false, error: 'Errore durante l\'eliminazione' };
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Staff user deletion error:', error);
-      return { success: false, error: 'Errore durante l\'eliminazione' };
-    }
+    // In production, this would delete user from database
+    return { success: false, error: 'Funzionalità non disponibile in modalità demo' };
   }
 }
 

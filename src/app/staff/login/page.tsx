@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { staffAuth } from "@/lib/staff-auth-real-db";
+import { staffAuth } from "@/lib/staff-auth-real";
 import { 
   Shield, 
   Mail, 
@@ -134,20 +134,24 @@ export default function StaffLoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Credenziali Demo:</h3>
-            <div className="space-y-2 text-xs text-gray-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 text-green-600" />
-                <span><strong>Admin:</strong> admin@rescuemanager.eu / admin123!</span>
+              {/* Staff Credentials */}
+              <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200">
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Credenziali Staff:</h3>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3 w-3 text-red-600" />
+                    <span><strong>Admin:</strong> admin@rescuemanager.eu / AdminStaff2024!</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3 w-3 text-blue-600" />
+                    <span><strong>Marketing:</strong> marketing@rescuemanager.eu / MarketingStaff2024!</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <span><strong>Support:</strong> support@rescuemanager.eu / SupportStaff2024!</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-3 w-3 text-green-600" />
-                <span><strong>Marketing:</strong> marketing@rescuemanager.eu / marketing123!</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}

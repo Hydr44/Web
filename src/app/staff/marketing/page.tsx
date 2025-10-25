@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-// import { supabaseAdmin } from "@/lib/supabase-admin";
+import { staffAuth } from "@/lib/staff-auth-real";
 import { 
   Target, 
   Users, 
