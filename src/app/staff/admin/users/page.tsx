@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import UserModal from "@/components/admin/UserModal";
 import AdvancedFilters from "@/components/admin/AdvancedFilters";
+import Avatar from "@/components/ui/Avatar";
 
 interface AppUser {
   id: string;
@@ -216,7 +217,10 @@ export default function AdminUsersPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-2 border-blue-200 border-t-blue-600 mx-auto"></div>
+          <div 
+            className="animate-spin rounded-full h-16 w-16 border-2 border-blue-200 border-t-blue-600 mx-auto"
+            style={{ animation: 'spin 1s linear infinite' }}
+          ></div>
           <p className="mt-4 text-gray-600">Caricamento utenti...</p>
         </div>
       </div>
@@ -387,19 +391,11 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
-                          {user.avatar_url ? (
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={user.avatar_url}
-                              alt={user.full_name}
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <Users className="h-5 w-5 text-gray-500" />
-                            </div>
-                          )}
-                        </div>
+                        <Avatar
+                          src={user.avatar_url}
+                          alt={user.full_name || ''}
+                          size="md"
+                        />
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
                             {user.full_name || 'Nome non disponibile'}
