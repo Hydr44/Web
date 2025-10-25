@@ -29,13 +29,29 @@ function DesktopOAuthContent() {
 
   // Estrai parametri OAuth
   useEffect(() => {
-    const appId = params.get('app_id');
-    const redirectUri = params.get('redirect_uri');
-    const state = params.get('state');
-    const stateId = params.get('state_id');
-
-    if (appId && redirectUri && state && stateId) {
-      setOauthInfo({ app_id: appId, redirect_uri: redirectUri, state, state_id: stateId });
+    const encodedParams = params.get('params');
+    
+    if (encodedParams) {
+      try {
+        const decodedParams = JSON.parse(Buffer.from(encodedParams, 'base64').toString());
+        console.log('Decoded OAuth params:', decodedParams);
+        
+        // Verifica scadenza
+        if (decodedParams.expires_at < Date.now()) {
+          setError("Sessione OAuth scaduta. Riprova.");
+          return;
+        }
+        
+        setOauthInfo({
+          app_id: decodedParams.app_id,
+          redirect_uri: decodedParams.redirect_uri,
+          state: decodedParams.state,
+          state_id: decodedParams.state_code
+        });
+      } catch (err) {
+        console.error('Error decoding OAuth params:', err);
+        setError("Parametri OAuth non validi. Impossibile procedere con l'autenticazione.");
+      }
     } else {
       setError("Parametri OAuth mancanti. Impossibile procedere con l'autenticazione.");
     }
@@ -80,13 +96,15 @@ function DesktopOAuthContent() {
         const supabase = supabaseBrowser();
         const { error: oauthError } = await supabase
           .from('oauth_codes')
-          .update({
+          .insert({
             code: oauthCode,
             user_id: result.user.id,
-            used: false,
-            expires_at: new Date(Date.now() + 5 * 60 * 1000) // 5 minuti
-          })
-          .eq('id', oauthInfo.state_id);
+            app_id: oauthInfo.app_id,
+            redirect_uri: oauthInfo.redirect_uri,
+            state: oauthInfo.state,
+            expires_at: new Date(Date.now() + 5 * 60 * 1000), // 5 minuti
+            used: false
+          });
 
         if (oauthError) {
           console.error('Error saving OAuth code:', oauthError);
@@ -135,13 +153,15 @@ function DesktopOAuthContent() {
         const supabase = supabaseBrowser();
         const { error: oauthError } = await supabase
           .from('oauth_codes')
-          .update({
+          .insert({
             code: oauthCode,
             user_id: result.user.id,
-            used: false,
-            expires_at: new Date(Date.now() + 5 * 60 * 1000) // 5 minuti
-          })
-          .eq('id', oauthInfo.state_id);
+            app_id: oauthInfo.app_id,
+            redirect_uri: oauthInfo.redirect_uri,
+            state: oauthInfo.state,
+            expires_at: new Date(Date.now() + 5 * 60 * 1000), // 5 minuti
+            used: false
+          });
 
         if (oauthError) {
           console.error('Error saving OAuth code:', oauthError);
