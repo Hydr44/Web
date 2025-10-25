@@ -48,6 +48,29 @@ export async function GET(request: NextRequest) {
     const supabase = await supabaseServer();
     console.log('Supabase connected');
     
+    // Test connessione Supabase
+    try {
+      const { data: testData, error: testError } = await supabase
+        .from('oauth_codes')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        return NextResponse.json(
+          { error: 'Database connection failed', details: testError.message },
+          { status: 500 }
+        );
+      }
+      console.log('Supabase connection test passed');
+    } catch (testErr) {
+      console.error('Supabase connection test error:', testErr);
+      return NextResponse.json(
+        { error: 'Database connection test failed', details: testErr.message },
+        { status: 500 }
+      );
+    }
+    
     // Crea una sessione temporanea per lo state
     const stateCode = `state_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     console.log('Creating state with code:', stateCode);
