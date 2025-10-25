@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { staffAuth } from "@/lib/staff-auth-real";
+import { staffAuth } from "@/lib/staff-auth-supabase";
 import { 
   Shield, 
   Mail, 

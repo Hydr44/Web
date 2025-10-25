@@ -1,4 +1,4 @@
-# Staff Panel Credentials
+vor# Staff Panel Credentials
 
 ## Accesso Staff Panel
 
@@ -24,22 +24,30 @@ Il pannello staff è accessibile tramite: `https://staff.rescuemanager.eu`
 - **Ruolo:** Supporto clienti
 - **Accesso:** Gestione ticket, supporto
 
-## Sicurezza
+## Sistema di Autenticazione
 
-- Le credenziali sono hardcoded per semplicità
-- In produzione, dovrebbero essere gestite tramite database
-- Le password sono complesse e sicure
-- Ogni ruolo ha accessi limitati alle funzionalità
+- **Autenticazione:** Supabase Auth (reale)
+- **Database:** Supabase PostgreSQL
+- **Sessione:** localStorage + Supabase session
+- **Sicurezza:** Password complesse e sicure
+- **RLS:** Row Level Security per accessi limitati
+
+## Setup Iniziale
+
+1. **Eseguire migrazione:** `supabase/migrations/20241223_create_staff_users_supabase.sql`
+2. **Creare utenti staff:** Chiamare `/api/staff/create-users` (POST)
+3. **Verificare accessi:** Login con credenziali sopra
 
 ## Note per lo Sviluppo
 
-- Le credenziali sono definite in `src/lib/staff-auth-real.ts`
-- Il sistema di autenticazione è completamente separato dal main app
-- Non richiede variabili d'ambiente aggiuntive
-- Funziona con localStorage per la sessione
+- Le credenziali sono create tramite API Supabase
+- Il sistema di autenticazione usa Supabase Auth
+- Dati reali dal database Supabase
+- RLS policies per sicurezza
 
 ## Deployment
 
-- Le credenziali funzionano sia in sviluppo che in produzione
-- Non è necessario configurare variabili d'ambiente aggiuntive
-- Il subdomain `staff.rescuemanager.eu` deve essere configurato su Vercel
+- Richiede configurazione Supabase
+- Utenti creati tramite API
+- Database con RLS policies
+- Subdomain `staff.rescuemanager.eu` su Vercel
