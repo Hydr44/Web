@@ -139,15 +139,15 @@ export default function StaffLoginPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Credenziali Staff:</h3>
                 <div className="space-y-2 text-xs text-gray-600">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-red-600" />
-                    <span><strong>Admin:</strong> admin@rescuemanager.eu / AdminStaff2024!</span>
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <span><strong>Admin:</strong> haxiesz@gmail.com / AdminStaff2024!</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-blue-600" />
+                    <CheckCircle className="h-3 w-3 text-gray-400" />
                     <span><strong>Marketing:</strong> marketing@rescuemanager.eu / MarketingStaff2024!</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <CheckCircle className="h-3 w-3 text-gray-400" />
                     <span><strong>Support:</strong> support@rescuemanager.eu / SupportStaff2024!</span>
                   </div>
                 </div>

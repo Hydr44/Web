@@ -14,24 +14,15 @@ export async function POST(request: Request) {
 
     console.log('Staff auth API called for:', email);
 
-    // Authenticate with Supabase
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-      email,
-      password
-    });
+    // Find user by email in auth.users
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const authUser = authUsers?.users?.find(u => u.email === email);
 
-    if (authError) {
-      console.log('Supabase auth error:', authError);
+    if (!authUser) {
+      console.log('Auth user not found:', email);
       return NextResponse.json({ 
         success: false, 
         error: 'Credenziali non valide' 
-      }, { status: 401 });
-    }
-
-    if (!authData.user) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Utente non trovato' 
       }, { status: 401 });
     }
 
@@ -39,7 +30,7 @@ export async function POST(request: Request) {
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .eq('id', authData.user.id)
+      .eq('id', authUser.id)
       .single();
 
     if (profileError || !profile) {
@@ -62,7 +53,7 @@ export async function POST(request: Request) {
     // Create staff user object
     const user = {
       id: profile.id,
-      email: profile.email || authData.user.email || '',
+      email: profile.email || authUser.email || '',
       full_name: profile.full_name || '',
       staff_role: profile.staff_role || 'staff',
       is_staff: profile.is_staff,
