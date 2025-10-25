@@ -25,7 +25,7 @@ import {
 import { StaffRole, ROLE_PERMISSIONS, PermissionManager } from "@/lib/staff-permissions";
 import StaffModal from "@/components/admin/StaffModal";
 import AdvancedFilters from "@/components/admin/AdvancedFilters";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 interface StaffUser {
   id: string;
@@ -182,7 +182,7 @@ export default function StaffManagementPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento staff..." />;
+    return <LoadingPage text="Caricamento staff..." />;
   }
 
   return (

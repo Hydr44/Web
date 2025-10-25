@@ -19,7 +19,7 @@ import {
   Calendar,
   MapPin
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 interface UserSession {
   id: string;
@@ -178,7 +178,7 @@ export default function SessionsManagementPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento sessioni..." />;
+    return <LoadingPage text="Caricamento sessioni..." />;
   }
 
   return (

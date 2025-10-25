@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 
 interface Organization {
   id: string;
@@ -78,7 +77,7 @@ export default function OrganizationDetailsPage({ params }: { params: { orgId: s
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento organizzazione..." />;
+    return <LoadingPage text="Caricamento organizzazione..." />;
   }
 
   if (!organization) {

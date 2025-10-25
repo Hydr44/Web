@@ -22,7 +22,7 @@ import {
   FileText,
   Download
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 // Using StaffLead from staff-data-real.ts
 
@@ -169,7 +169,7 @@ export default function StaffMarketingPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento lead..." />;
+    return <LoadingPage text="Caricamento lead..." />;
   }
 
   return (

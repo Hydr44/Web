@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 
 interface OrganizationAnalytics {
   member_count: number;
@@ -96,7 +95,7 @@ export default function OrganizationAnalyticsPage({ params }: { params: { orgId:
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento analytics..." />;
+    return <LoadingPage text="Caricamento analytics..." />;
   }
 
   if (!organization || !analytics) {

@@ -19,7 +19,7 @@ import {
   TrendingUp,
   Calendar
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 interface AuditLogEntry {
   id: string;
@@ -141,7 +141,7 @@ export default function AuditLogPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento audit log..." />;
+    return <LoadingPage text="Caricamento audit log..." />;
   }
 
   return (

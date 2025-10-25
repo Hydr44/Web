@@ -24,7 +24,6 @@ import UserModal from "@/components/admin/UserModal";
 import AdvancedFilters from "@/components/admin/AdvancedFilters";
 import Avatar from "@/components/ui/Avatar";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 interface AppUser {
@@ -222,7 +221,7 @@ export default function AdminUsersPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento utenti..." />;
+    return <LoadingPage text="Caricamento utenti..." />;
   }
 
   return (

@@ -20,7 +20,7 @@ import {
   Activity,
   Clock
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 export default function StaffLayout({
   children,
@@ -66,7 +66,7 @@ export default function StaffLayout({
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento staff panel..." />;
+    return <LoadingPage text="Caricamento staff panel..." />;
   }
 
   // For login page, just render children without header
@@ -164,7 +164,7 @@ export default function StaffLayout({
                 className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {logoutLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                  <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <LogOut className="h-4 w-4" />
                 )}

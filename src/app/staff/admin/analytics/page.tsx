@@ -16,7 +16,7 @@ import {
   Download,
   RefreshCw
 } from "lucide-react";
-import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 interface AnalyticsData {
   overview: {
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
   };
 
   if (loading) {
-    return <SimpleLoadingPage text="Caricamento analytics..." />;
+    return <LoadingPage text="Caricamento analytics..." />;
   }
 
   if (!analytics) {
