@@ -25,7 +25,9 @@ class StaffAuthManager {
   private tokenKey = 'staff_auth_token';
   private userKey = 'staff_user_data';
 
-  // Real staff credentials - in production, these would be in a database
+  // Real staff credentials - these are the production credentials
+  // In a real production environment, these would be stored securely in a database
+  // For now, we use hardcoded credentials for simplicity
   private staffCredentials = [
     {
       email: 'admin@rescuemanager.eu',
