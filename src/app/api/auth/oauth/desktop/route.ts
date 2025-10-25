@@ -10,13 +10,17 @@ export const runtime = "nodejs";
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log('=== OAUTH DESKTOP ENDPOINT START ===');
     const { searchParams } = new URL(request.url);
     const appId = searchParams.get('app_id');
     const redirectUri = searchParams.get('redirect_uri');
     const state = searchParams.get('state');
 
+    console.log('OAuth params:', { appId, redirectUri, state });
+
     // Validazione parametri
     if (!appId || !redirectUri || !state) {
+      console.error('Missing parameters:', { appId, redirectUri, state });
       return NextResponse.json(
         { error: 'Missing required parameters: app_id, redirect_uri, state' },
         { status: 400 }
@@ -40,13 +44,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Salva state temporaneamente per verifica
+    console.log('Connecting to Supabase...');
     const supabase = await supabaseServer();
+    console.log('Supabase connected');
     
     // Crea una sessione temporanea per lo state
+    const stateCode = `state_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    console.log('Creating state with code:', stateCode);
+    
     const { data: stateData, error: stateError } = await supabase
       .from('oauth_codes')
       .insert({
-        code: `state_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+        code: stateCode,
         user_id: null, // Sarà popolato dopo il login
         app_id: appId,
         redirect_uri: redirectUri,
@@ -59,11 +68,14 @@ export async function GET(request: NextRequest) {
 
     if (stateError) {
       console.error('Error saving state:', stateError);
+      console.error('State error details:', JSON.stringify(stateError, null, 2));
       return NextResponse.json(
-        { error: 'Failed to initialize OAuth flow' },
+        { error: 'Failed to initialize OAuth flow', details: stateError.message },
         { status: 500 }
       );
     }
+
+    console.log('State saved successfully:', stateData.id);
 
     // Redirect alla pagina di login OAuth
     const loginUrl = new URL('/auth/oauth/desktop', request.url);
