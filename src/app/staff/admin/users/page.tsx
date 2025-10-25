@@ -17,8 +17,11 @@ import {
   Shield,
   UserCheck,
   UserX,
-  Download
+  Download,
+  Plus
 } from "lucide-react";
+import UserModal from "@/components/admin/UserModal";
+import AdvancedFilters from "@/components/admin/AdvancedFilters";
 
 interface AppUser {
   id: string;
@@ -42,6 +45,10 @@ export default function AdminUsersPage() {
   const [filterOrg, setFilterOrg] = useState<string>("all");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [editingUser, setEditingUser] = useState<AppUser | null>(null);
+  const [filters, setFilters] = useState<any>({});
 
   useEffect(() => {
     loadUsers();
@@ -125,6 +132,60 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleCreateUser = () => {
+    setEditingUser(null);
+    setShowUserModal(true);
+  };
+
+  const handleEditUser = (user: AppUser) => {
+    setEditingUser(user);
+    setShowUserModal(true);
+  };
+
+  const handleSaveUser = async (userData: any) => {
+    try {
+      if (editingUser) {
+        // Edit existing user
+        const response = await fetch(`/api/staff/admin/users/${editingUser.id}/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+      } else {
+        // Create new user
+        const response = await fetch('/api/staff/admin/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+      }
+      
+      await loadUsers();
+    } catch (error: any) {
+      throw new Error(error.message || 'Errore nel salvataggio');
+    }
+  };
+
+  const handleApplyFilters = (newFilters: any) => {
+    setFilters(newFilters);
+    // Apply filters to the users list
+    // This would typically involve calling the API with filter parameters
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('it-IT', {
       year: 'numeric',
@@ -173,11 +234,18 @@ export default function AdminUsersPage() {
             </div>
             <div className="flex space-x-3">
               <button
-                onClick={() => setShowFilters(!showFilters)}
+                onClick={handleCreateUser}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuovo Utente
+              </button>
+              <button
+                onClick={() => setShowAdvancedFilters(true)}
                 className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 <Filter className="h-4 w-4 mr-2" />
-                Filtri
+                Filtri Avanzati
               </button>
               <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                 <Download className="h-4 w-4 mr-2" />
@@ -366,7 +434,7 @@ export default function AdminUsersPage() {
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleUserAction(user.id, 'edit')}
+                          onClick={() => handleEditUser(user)}
                           className="text-gray-400 hover:text-blue-600"
                           title="Modifica"
                         >
@@ -414,6 +482,22 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <UserModal
+        isOpen={showUserModal}
+        onClose={() => setShowUserModal(false)}
+        user={editingUser}
+        mode={editingUser ? 'edit' : 'create'}
+        onSave={handleSaveUser}
+      />
+
+      <AdvancedFilters
+        isOpen={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        onApply={handleApplyFilters}
+        type="users"
+      />
     </div>
   );
 }

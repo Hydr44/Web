@@ -23,6 +23,8 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { StaffRole, ROLE_PERMISSIONS, PermissionManager } from "@/lib/staff-permissions";
+import StaffModal from "@/components/admin/StaffModal";
+import AdvancedFilters from "@/components/admin/AdvancedFilters";
 
 interface StaffUser {
   id: string;
@@ -48,6 +50,10 @@ export default function StaffManagementPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [showStaffModal, setShowStaffModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<StaffUser | null>(null);
+  const [filters, setFilters] = useState<any>({});
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
 

@@ -20,6 +20,8 @@ import {
   Settings,
   BarChart3
 } from "lucide-react";
+import OrganizationModal from "@/components/admin/OrganizationModal";
+import AdvancedFilters from "@/components/admin/AdvancedFilters";
 
 interface Organization {
   id: string;
@@ -44,6 +46,10 @@ export default function AdminOrganizationsPage() {
   const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showOrganizationModal, setShowOrganizationModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
+  const [filters, setFilters] = useState<any>({});
 
   useEffect(() => {
     loadOrganizations();
@@ -131,6 +137,59 @@ export default function AdminOrganizationsPage() {
     }
   };
 
+  const handleCreateOrganization = () => {
+    setEditingOrganization(null);
+    setShowOrganizationModal(true);
+  };
+
+  const handleEditOrganization = (org: Organization) => {
+    setEditingOrganization(org);
+    setShowOrganizationModal(true);
+  };
+
+  const handleSaveOrganization = async (orgData: any) => {
+    try {
+      if (editingOrganization) {
+        // Edit existing organization
+        const response = await fetch(`/api/staff/admin/organizations/${editingOrganization.id}/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orgData)
+        });
+        
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+      } else {
+        // Create new organization
+        const response = await fetch('/api/staff/admin/organizations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orgData)
+        });
+        
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+      }
+      
+      await loadOrganizations();
+    } catch (error: any) {
+      throw new Error(error.message || 'Errore nel salvataggio');
+    }
+  };
+
+  const handleApplyFilters = (newFilters: any) => {
+    setFilters(newFilters);
+    // Apply filters to the organizations list
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('it-IT', {
       year: 'numeric',
@@ -191,18 +250,18 @@ export default function AdminOrganizationsPage() {
             </div>
             <div className="flex space-x-3">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filtri
-              </button>
-              <button
-                onClick={() => setShowCreateForm(true)}
+                onClick={handleCreateOrganization}
                 className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nuova Organizzazione
+              </button>
+              <button
+                onClick={() => setShowAdvancedFilters(true)}
+                className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filtri Avanzati
               </button>
             </div>
           </div>
@@ -442,7 +501,7 @@ export default function AdminOrganizationsPage() {
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleOrgAction(org.id, 'edit')}
+                          onClick={() => handleEditOrganization(org)}
                           className="text-gray-400 hover:text-blue-600"
                           title="Modifica"
                         >
@@ -487,6 +546,22 @@ export default function AdminOrganizationsPage() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <OrganizationModal
+        isOpen={showOrganizationModal}
+        onClose={() => setShowOrganizationModal(false)}
+        organization={editingOrganization}
+        mode={editingOrganization ? 'edit' : 'create'}
+        onSave={handleSaveOrganization}
+      />
+
+      <AdvancedFilters
+        isOpen={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        onApply={handleApplyFilters}
+        type="organizations"
+      />
     </div>
   );
 }
