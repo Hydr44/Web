@@ -25,6 +25,7 @@ import AdvancedFilters from "@/components/admin/AdvancedFilters";
 import Avatar from "@/components/ui/Avatar";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
 import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
+import LoadingButton from "@/components/ui/LoadingButton";
 
 interface AppUser {
   id: string;
@@ -52,6 +53,7 @@ export default function AdminUsersPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [editingUser, setEditingUser] = useState<AppUser | null>(null);
   const [filters, setFilters] = useState<any>({});
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -135,9 +137,13 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleCreateUser = () => {
+  const handleCreateUser = async () => {
+    setActionLoading('create');
+    // Simula un piccolo delay per mostrare il loading
+    await new Promise(resolve => setTimeout(resolve, 500));
     setEditingUser(null);
     setShowUserModal(true);
+    setActionLoading(null);
   };
 
   const handleEditUser = (user: AppUser) => {
@@ -232,13 +238,15 @@ export default function AdminUsersPage() {
               </p>
             </div>
             <div className="flex space-x-3">
-              <button
+              <LoadingButton
                 onClick={handleCreateUser}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                loading={actionLoading === 'create'}
+                loadingText="Creazione..."
+                variant="primary"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nuovo Utente
-              </button>
+              </LoadingButton>
               <button
                 onClick={() => setShowAdvancedFilters(true)}
                 className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"

@@ -20,6 +20,7 @@ import {
   Activity,
   Clock
 } from "lucide-react";
+import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 
 export default function StaffLayout({
   children,
@@ -28,6 +29,7 @@ export default function StaffLayout({
 }) {
   const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -52,19 +54,19 @@ export default function StaffLayout({
   }, [router, pathname]);
 
   const handleLogout = async () => {
-    await staffAuth.logout();
-    router.push('/staff/login');
+    setLogoutLoading(true);
+    try {
+      await staffAuth.logout();
+      router.push('/staff/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLogoutLoading(false);
+    }
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Caricamento...</p>
-        </div>
-      </div>
-    );
+    return <SimpleLoadingPage text="Caricamento staff panel..." />;
   }
 
   // For login page, just render children without header
@@ -158,10 +160,15 @@ export default function StaffLayout({
               
               <button 
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                disabled={logoutLoading}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
+                {logoutLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
+                {logoutLoading ? 'Disconnessione...' : 'Logout'}
               </button>
             </div>
           </div>

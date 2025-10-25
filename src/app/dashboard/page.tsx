@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 
 export default function DashboardPanoramica() {
   const [userEmail, setUserEmail] = useState<string>("");
@@ -122,11 +123,7 @@ export default function DashboardPanoramica() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" color="primary" text="Caricamento dashboard..." />
-      </div>
-    );
+    return <SimpleLoadingPage text="Caricamento dashboard..." />;
   }
 
   // Se l'utente non ha organizzazione, mostra messaggio

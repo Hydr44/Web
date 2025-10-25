@@ -12,6 +12,7 @@ import {
   AlertCircle,
   CheckCircle
 } from "lucide-react";
+import { SimpleLoadingPage } from "@/components/ui/SimpleLoader";
 
 export default function StaffLoginPage() {
   const [email, setEmail] = useState("");
