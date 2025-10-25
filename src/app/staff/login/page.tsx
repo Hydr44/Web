@@ -31,9 +31,9 @@ export default function StaffLoginPage() {
       
       if (result.success && result.user) {
         // Redirect based on role
-        if (result.user.role === 'admin') {
+        if (result.user.staff_role === 'admin') {
           router.push('/staff/admin');
-        } else if (result.user.role === 'marketing') {
+        } else if (result.user.staff_role === 'marketing') {
           router.push('/staff/marketing');
         } else {
           router.push('/staff');

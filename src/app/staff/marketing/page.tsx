@@ -2,17 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { staffAuth } from "@/lib/staff-auth-client";
 import { staffData, StaffLead } from "@/lib/staff-data-real";
 import { 
   Target, 
-  Users, 
   Phone, 
   Mail, 
-  Calendar,
   Search,
-  Filter,
-  MoreVertical,
   Eye,
   Edit,
   Trash2,
@@ -37,8 +32,8 @@ export default function StaffMarketingPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  // const [selectedLead, setSelectedLead] = useState<StaffLead | null>(null);
+  // const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     loadLeads();
@@ -60,7 +55,7 @@ export default function StaffMarketingPage() {
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (lead.company && lead.company.toLowerCase().includes(searchTerm.toLowerCase()));
+                        (lead.company?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = filterStatus === "all" || lead.status === filterStatus;
     const matchesType = filterType === "all" || lead.type === filterType;
     const matchesPriority = filterPriority === "all" || lead.priority === filterPriority;
@@ -105,31 +100,31 @@ export default function StaffMarketingPage() {
     }
   };
 
-  const updateLeadStatus = async (leadId: string, newStatus: string) => {
-    try {
-      // Update in database
-      const success = await staffData.updateLeadStatus(leadId, newStatus);
-      
-      if (success) {
-        // Update local state
-        setLeads(prevLeads => 
-          prevLeads.map(lead => 
-            lead.id === leadId 
-              ? { 
-                  ...lead, 
-                  status: newStatus as any,
-                  updated_at: new Date().toISOString(),
-                  ...(newStatus === 'contacted' && { contacted_at: new Date().toISOString() }),
-                  ...(newStatus === 'converted' && { converted_at: new Date().toISOString() })
-                }
-              : lead
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error updating lead:', error);
-    }
-  };
+  // const updateLeadStatus = async (leadId: string, newStatus: string) => {
+  //   try {
+  //     // Update in database
+  //     const success = await staffData.updateLeadStatus(leadId, newStatus);
+  //     
+  //     if (success) {
+  //       // Update local state
+  //       setLeads(prevLeads => 
+  //         prevLeads.map(lead => 
+  //           lead.id === leadId 
+  //             ? { 
+  //                 ...lead, 
+  //                 status: newStatus as any,
+  //                 updated_at: new Date().toISOString(),
+  //                 ...(newStatus === 'contacted' && { contacted_at: new Date().toISOString() }),
+  //                 ...(newStatus === 'converted' && { converted_at: new Date().toISOString() })
+  //               }
+  //             : lead
+  //         )
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating lead:', error);
+  //   }
+  // };
 
   const deleteLead = async (leadId: string) => {
     if (!confirm('Sei sicuro di voler eliminare questo lead?')) return;
@@ -164,12 +159,12 @@ export default function StaffMarketingPage() {
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `leads_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -380,7 +375,7 @@ export default function StaffMarketingPage() {
                 Esporta
               </button>
               <button
-                onClick={() => setShowCreateForm(true)}
+                onClick={() => {/* setShowCreateForm(true) */}}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <Plus className="h-4 w-4" />
@@ -463,13 +458,13 @@ export default function StaffMarketingPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => setSelectedLead(lead)}
+                          onClick={() => {/* setSelectedLead(lead) */}}
                           className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => setSelectedLead(lead)}
+                          onClick={() => {/* setSelectedLead(lead) */}}
                           className="p-2 text-gray-400 hover:text-green-600 transition-colors duration-200"
                         >
                           <Edit className="h-4 w-4" />
