@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { randomUUID } from 'crypto';
 
 export interface StaffUser {
   id: string;
@@ -120,7 +119,7 @@ class StaffAuthManager {
 
       // Create user object
       const user: StaffUser = {
-        id: randomUUID(),
+        id: 'staff-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
         email: userCredential.email,
         full_name: userCredential.full_name,
         staff_role: userCredential.staff_role,
@@ -180,7 +179,7 @@ class StaffAuthManager {
   public async getAllStaffUsers(): Promise<StaffUser[]> {
     // Return all staff users from credentials
     return this.staffCredentials.map(cred => ({
-      id: randomUUID(),
+      id: 'staff-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
       email: cred.email,
       full_name: cred.full_name,
       staff_role: cred.staff_role,
