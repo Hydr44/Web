@@ -46,7 +46,54 @@ export async function POST(request: Request) {
 
     console.log('Creating staff user:', email);
 
-    // Create auth user
+    // Check if profile already exists by email
+    const { data: existingProfileByEmail } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, is_staff')
+      .eq('email', email)
+      .single();
+
+    if (existingProfileByEmail) {
+      if (existingProfileByEmail.is_staff) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Utente staff già esistente con questa email' 
+        }, { status: 400 });
+      } else {
+        // Update existing profile to staff
+        const { error: updateError } = await supabaseAdmin
+          .from('profiles')
+          .update({
+            staff_role,
+            is_staff: true,
+            is_admin: is_admin || false,
+            full_name
+          })
+          .eq('id', existingProfileByEmail.id);
+
+        if (updateError) {
+          return NextResponse.json({ 
+            success: false, 
+            error: `Errore aggiornamento profilo: ${updateError.message}` 
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Profilo esistente aggiornato a staff',
+          user: {
+            id: existingProfileByEmail.id,
+            email,
+            full_name,
+            staff_role,
+            is_staff: true,
+            is_admin: is_admin || false
+          }
+        });
+      }
+    }
+
+    // Create new auth user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
