@@ -6,27 +6,24 @@ import { staffAuth, StaffUser } from "@/lib/staff-auth-client";
 import { staffData } from "@/lib/staff-data-real";
 import { 
   Users, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Shield, 
-  Mail, 
-  Phone,
-  Calendar,
-  Search,
-  Filter,
-  MoreVertical,
+  Building2,
+  BarChart3,
+  Mail,
+  Settings,
+  Shield,
   UserPlus,
-  Settings
+  Activity,
+  TrendingUp,
+  DollarSign,
+  Calendar,
+  FileText,
+  Bell,
+  Database
 } from "lucide-react";
 
 export default function StaffAdminPage() {
   const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterRole, setFilterRole] = useState<string>("all");
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<StaffUser | null>(null);
 
   useEffect(() => {
     loadStaffUsers();
