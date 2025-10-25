@@ -14,17 +14,21 @@ export async function POST(request: Request) {
 
     console.log('Staff auth API called for:', email);
 
-    // Find user by email in auth.users
-    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const authUser = authUsers?.users?.find(u => u.email === email);
+    // Verify credentials using Supabase Auth
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.signInWithPassword({
+      email,
+      password
+    });
 
-    if (!authUser) {
-      console.log('Auth user not found:', email);
+    if (authError || !authData.user) {
+      console.log('Auth failed:', authError?.message);
       return NextResponse.json({ 
         success: false, 
         error: 'Credenziali non valide' 
       }, { status: 401 });
     }
+
+    const authUser = authData.user;
 
     // Get user profile from database
     const { data: profile, error: profileError } = await supabaseAdmin
