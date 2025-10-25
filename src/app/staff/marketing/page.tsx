@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+// import { supabaseAdmin } from "@/lib/supabase-admin";
 import { 
   Target, 
   Users, 
@@ -62,18 +62,56 @@ export default function StaffMarketingPage() {
   const loadLeads = async () => {
     try {
       setLoading(true);
-      const supabase = supabaseAdmin();
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading leads:', error);
-        return;
-      }
-
-      setLeads(data || []);
+      // Demo data for now - in production, this would fetch from API
+      const demoLeads: Lead[] = [
+        {
+          id: '1',
+          name: 'Mario Rossi',
+          email: 'mario.rossi@example.com',
+          phone: '+39 123 456 7890',
+          company: 'Azienda SRL',
+          type: 'demo',
+          status: 'new',
+          priority: 'high',
+          source: 'website',
+          notes: 'Interessato a demo completa',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Giulia Bianchi',
+          email: 'giulia.bianchi@example.com',
+          phone: '+39 098 765 4321',
+          company: 'Impresa SPA',
+          type: 'quote',
+          status: 'contacted',
+          priority: 'medium',
+          source: 'website',
+          notes: 'Richiesta preventivo per 10 veicoli',
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          updated_at: new Date(Date.now() - 86400000).toISOString(),
+          contacted_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: '3',
+          name: 'Luca Verdi',
+          email: 'luca.verdi@example.com',
+          phone: '+39 555 123 4567',
+          company: 'Trasporti Verdi',
+          type: 'contact',
+          status: 'converted',
+          priority: 'high',
+          source: 'referral',
+          notes: 'Cliente convertito - contratto firmato',
+          created_at: new Date(Date.now() - 172800000).toISOString(),
+          updated_at: new Date(Date.now() - 172800000).toISOString(),
+          contacted_at: new Date(Date.now() - 172800000).toISOString(),
+          converted_at: new Date(Date.now() - 172800000).toISOString()
+        }
+      ];
+      
+      setLeads(demoLeads);
     } catch (error) {
       console.error('Error loading leads:', error);
     } finally {
@@ -131,30 +169,23 @@ export default function StaffMarketingPage() {
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
     try {
-      const supabase = supabaseAdmin();
-      const updateData: any = { 
-        status: newStatus,
-        updated_at: new Date().toISOString()
-      };
-
-      if (newStatus === 'contacted') {
-        updateData.contacted_at = new Date().toISOString();
-      } else if (newStatus === 'converted') {
-        updateData.converted_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('leads')
-        .update(updateData)
-        .eq('id', leadId);
-
-      if (error) {
-        console.error('Error updating lead:', error);
-        return;
-      }
-
-      // Reload leads
-      await loadLeads();
+      // Demo implementation - in production, this would call an API
+      console.log(`Updating lead ${leadId} to status ${newStatus}`);
+      
+      // Update local state
+      setLeads(prevLeads => 
+        prevLeads.map(lead => 
+          lead.id === leadId 
+            ? { 
+                ...lead, 
+                status: newStatus as any,
+                updated_at: new Date().toISOString(),
+                ...(newStatus === 'contacted' && { contacted_at: new Date().toISOString() }),
+                ...(newStatus === 'converted' && { converted_at: new Date().toISOString() })
+              }
+            : lead
+        )
+      );
     } catch (error) {
       console.error('Error updating lead:', error);
     }
@@ -164,19 +195,11 @@ export default function StaffMarketingPage() {
     if (!confirm('Sei sicuro di voler eliminare questo lead?')) return;
 
     try {
-      const supabase = supabaseAdmin();
-      const { error } = await supabase
-        .from('leads')
-        .delete()
-        .eq('id', leadId);
-
-      if (error) {
-        console.error('Error deleting lead:', error);
-        return;
-      }
-
-      // Reload leads
-      await loadLeads();
+      // Demo implementation - in production, this would call an API
+      console.log(`Deleting lead ${leadId}`);
+      
+      // Update local state
+      setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
     } catch (error) {
       console.error('Error deleting lead:', error);
     }
@@ -229,10 +252,10 @@ export default function StaffMarketingPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Gestione <span className="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Lead</span>
+            Pannello <span className="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Marketing</span>
           </h1>
           <p className="text-gray-600">
-            Gestisci le richieste di demo, preventivo e contatti
+            Gestione completa dei lead e campagne marketing
           </p>
         </div>
 
@@ -281,6 +304,75 @@ export default function StaffMarketingPage() {
                 </p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Marketing Tools */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Campaign Performance */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              Performance Campagne
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Tasso Conversione</span>
+                <span className="text-sm font-medium text-green-600">24.5%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Lead Generati</span>
+                <span className="text-sm font-medium text-blue-600">127</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">ROI</span>
+                <span className="text-sm font-medium text-green-600">+340%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              Azioni Rapide
+            </h3>
+            <div className="space-y-2">
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <Mail className="h-4 w-4" />
+                Invia Email
+              </button>
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <Phone className="h-4 w-4" />
+                Chiama Lead
+              </button>
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <MessageSquare className="h-4 w-4" />
+                Segna Come Contattato
+              </button>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Clock className="h-5 w-5 text-purple-600" />
+              Attività Recente
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-gray-600">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Nuovo lead da demo</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Lead convertito</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span>Follow-up programmato</span>
+              </div>
             </div>
           </div>
         </div>

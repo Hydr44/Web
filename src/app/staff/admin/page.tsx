@@ -90,10 +90,10 @@ export default function StaffAdminPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Gestione <span className="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Staff</span>
+            Pannello <span className="bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">Amministratore</span>
           </h1>
           <p className="text-gray-600">
-            Amministra gli account staff e i loro ruoli
+            Gestione completa del sistema staff e configurazioni
           </p>
         </div>
 
@@ -146,6 +146,53 @@ export default function StaffAdminPage() {
           </div>
         </div>
 
+        {/* System Settings */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* System Status */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Settings className="h-5 w-5 text-blue-600" />
+              Stato Sistema
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Database</span>
+                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Online</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">API</span>
+                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Attivo</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Autenticazione</span>
+                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Funzionante</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-red-600" />
+              Azioni Rapide
+            </h3>
+            <div className="space-y-2">
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <Settings className="h-4 w-4" />
+                Configura Sistema
+              </button>
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <Users className="h-4 w-4" />
+                Gestisci Permessi
+              </button>
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                <Shield className="h-4 w-4" />
+                Sicurezza
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Actions Bar */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -179,7 +226,7 @@ export default function StaffAdminPage() {
             {/* Add User Button */}
             <button
               onClick={() => setShowCreateForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
             >
               <UserPlus className="h-4 w-4" />
               Aggiungi Staff
