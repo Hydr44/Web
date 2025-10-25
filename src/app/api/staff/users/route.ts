@@ -47,11 +47,13 @@ export async function POST(request: Request) {
     console.log('Creating staff user:', email);
 
     // Check if profile already exists by email
-    const { data: existingProfileByEmail } = await supabaseAdmin
+    const { data: existingProfileByEmail, error: profileCheckError } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, is_staff')
+      .select('id, email, is_staff, staff_role')
       .eq('email', email)
       .single();
+
+    console.log('Profile check result:', { existingProfileByEmail, profileCheckError });
 
     if (existingProfileByEmail) {
       if (existingProfileByEmail.is_staff) {
@@ -61,6 +63,7 @@ export async function POST(request: Request) {
         }, { status: 400 });
       } else {
         // Update existing profile to staff
+        console.log('Updating existing profile to staff:', existingProfileByEmail.id);
         const { error: updateError } = await supabaseAdmin
           .from('profiles')
           .update({
@@ -72,6 +75,7 @@ export async function POST(request: Request) {
           .eq('id', existingProfileByEmail.id);
 
         if (updateError) {
+          console.error('Update error:', updateError);
           return NextResponse.json({ 
             success: false, 
             error: `Errore aggiornamento profilo: ${updateError.message}` 
@@ -93,22 +97,85 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create new auth user
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true
-    });
+    // Check if auth user already exists
+    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingAuthUser = authUsers?.users?.find(u => u.email === email);
 
-    if (authError || !authData.user) {
-      console.error('Auth creation error:', authError);
-      return NextResponse.json({ 
-        success: false, 
-        error: `Errore creazione utente: ${authError?.message || 'Unknown error'}` 
-      }, { status: 500 });
+    let authData;
+    if (existingAuthUser) {
+      console.log('Auth user already exists, using existing:', existingAuthUser.id);
+      authData = { user: existingAuthUser };
+    } else {
+      // Create new auth user
+      console.log('Creating new auth user for:', email);
+      const { data: newAuthData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true
+      });
+
+      if (authError || !newAuthData.user) {
+        console.error('Auth creation error:', authError);
+        return NextResponse.json({ 
+          success: false, 
+          error: `Errore creazione utente: ${authError?.message || 'Unknown error'}` 
+        }, { status: 500 });
+      }
+      authData = newAuthData;
     }
 
-    // Create profile
+    // Check if profile already exists for this auth user
+    const { data: existingProfileById } = await supabaseAdmin
+      .from('profiles')
+      .select('id, is_staff')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (existingProfileById) {
+      if (existingProfileById.is_staff) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Profilo staff già esistente per questo utente' 
+        }, { status: 400 });
+      } else {
+        // Update existing profile to staff
+        console.log('Updating existing profile to staff:', authData.user.id);
+        const { error: updateError } = await supabaseAdmin
+          .from('profiles')
+          .update({
+            staff_role,
+            is_staff: true,
+            is_admin: is_admin || false,
+            full_name,
+            email
+          })
+          .eq('id', authData.user.id);
+
+        if (updateError) {
+          console.error('Profile update error:', updateError);
+          return NextResponse.json({ 
+            success: false, 
+            error: `Errore aggiornamento profilo: ${updateError.message}` 
+          }, { status: 500 });
+        }
+
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Profilo esistente aggiornato a staff',
+          user: {
+            id: authData.user.id,
+            email,
+            full_name,
+            staff_role,
+            is_staff: true,
+            is_admin: is_admin || false
+          }
+        });
+      }
+    }
+
+    // Create new profile
+    console.log('Creating new profile for:', authData.user.id);
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .insert({
@@ -123,7 +190,9 @@ export async function POST(request: Request) {
 
     if (profileError) {
       // Clean up auth user if profile creation fails
-      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      if (!existingAuthUser) {
+        await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      }
       console.error('Profile creation error:', profileError);
       return NextResponse.json({ 
         success: false, 
