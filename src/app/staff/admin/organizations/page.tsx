@@ -200,25 +200,9 @@ export default function AdminOrganizationsPage() {
     window.location.href = `/staff/admin/organizations/${orgId}/analytics`;
   };
 
-  const handleViewOrganization = async (orgId: string) => {
-    try {
-      const response = await fetch(`/api/staff/admin/organizations/${orgId}/view`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Show organization details in a modal or navigate to details page
-        const org = data.organization;
-        alert(`Organizzazione: ${org.name}\nEmail: ${org.email}\nTelefono: ${org.phone}\nIndirizzo: ${org.address}\nMembri: ${org.member_count}`);
-      } else {
-        alert('Errore: ' + data.error);
-      }
-    } catch (error) {
-      console.error('Error loading organization:', error);
-      alert('Errore di connessione');
-    }
+  const handleViewOrganization = (orgId: string) => {
+    // Navigate to organization details page
+    window.location.href = `/staff/admin/organizations/${orgId}/details`;
   };
 
   const formatDate = (dateString: string) => {
@@ -262,7 +246,10 @@ export default function AdminOrganizationsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-2 border-blue-200 border-t-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Caricamento organizzazioni...</p>
+        </div>
       </div>
     );
   }

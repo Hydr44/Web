@@ -26,18 +26,27 @@ export async function GET() {
       }, { status: 500 });
     }
 
-        // Transform data to include member count and admin info using database functions
+        // Transform data to include member count and admin info using direct queries
         const transformedOrgs = await Promise.all(
           (organizations || []).map(async (org) => {
-            // Get member count using database function
-            const { data: memberCountData } = await supabaseAdmin.rpc('get_org_member_count', {
-              org_id: org.id
-            });
+            // Get member count using direct query
+            const { count: memberCount } = await supabaseAdmin
+              .from('org_members')
+              .select('*', { count: 'exact', head: true })
+              .eq('org_id', org.id);
             
-            // Get admin name using database function
-            const { data: adminNameData } = await supabaseAdmin.rpc('get_org_admin_name', {
-              org_id: org.id
-            });
+            // Get admin name using direct query
+            const { data: adminData } = await supabaseAdmin
+              .from('org_members')
+              .select(`
+                profiles!inner (
+                  full_name
+                )
+              `)
+              .eq('org_id', org.id)
+              .eq('role', 'owner')
+              .limit(1)
+              .single();
 
             return {
               id: org.id,
@@ -48,8 +57,8 @@ export async function GET() {
               city: 'N/A', // Not available in orgs table
               created_at: org.created_at,
               updated_at: org.updated_at,
-              member_count: memberCountData || 0,
-              admin_name: adminNameData || 'N/A',
+              member_count: memberCount || 0,
+              admin_name: adminData?.profiles?.full_name || 'N/A',
               status: 'active' // Default status, can be enhanced later
             };
           })

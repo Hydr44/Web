@@ -28,19 +28,37 @@ export async function GET() {
     }
 
     // Transform data to include organization name and status
-    const transformedUsers = users?.map(user => ({
-      id: user.id,
-      email: user.email,
-      full_name: user.full_name,
-      avatar_url: user.avatar_url,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-      is_admin: user.is_admin,
-      current_org: user.current_org,
-      org_name: user.current_org ? 'Organizzazione Attiva' : 'Nessuna Organizzazione',
-      last_active: user.updated_at,
-      status: 'active' // Default status, can be enhanced later
-    })) || [];
+    const transformedUsers = await Promise.all(
+      (users || []).map(async (user) => {
+        // Get organization name if user has current_org
+        let orgName = 'Nessuna Organizzazione';
+        if (user.current_org) {
+          const { data: orgData } = await supabaseAdmin
+            .from('orgs')
+            .select('name')
+            .eq('id', user.current_org)
+            .single();
+          
+          if (orgData) {
+            orgName = orgData.name;
+          }
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          full_name: user.full_name,
+          avatar_url: user.avatar_url,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
+          is_admin: user.is_admin,
+          current_org: user.current_org,
+          org_name: orgName,
+          last_active: user.updated_at,
+          status: 'active' // Default status, can be enhanced later
+        };
+      })
+    );
 
     return NextResponse.json({ 
       success: true, 

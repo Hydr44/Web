@@ -1,75 +1,53 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg";
-  color?: "primary" | "white" | "gray";
-  text?: string;
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
-export default function LoadingSpinner({ 
-  size = "md", 
-  color = "primary", 
-  text,
-  className = "" 
-}: LoadingSpinnerProps) {
-  const prefersReducedMotion = useReducedMotion();
-
+export default function LoadingSpinner({ size = "md", className = "" }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: "w-4 h-4",
-    md: "w-6 h-6", 
-    lg: "w-8 h-8"
-  };
-
-  const colorClasses = {
-    primary: "border-primary border-t-transparent",
-    white: "border-white border-t-transparent",
-    gray: "border-gray-400 border-t-transparent"
-  };
-
-  const textSizeClasses = {
-    sm: "text-xs",
-    md: "text-sm",
-    lg: "text-base"
-  };
-
-  const spinnerVariants = {
-    animate: {
-      rotate: 360,
-      transition: {
-        duration: 1,
-        repeat: Infinity,
-        ease: "linear"
-      }
-    }
-  };
-
-  const reducedMotionVariants = {
-    animate: {
-      opacity: [0.5, 1, 0.5],
-      transition: {
-        duration: 1.5,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
+    sm: "h-4 w-4",
+    md: "h-8 w-8", 
+    lg: "h-12 w-12",
+    xl: "h-16 w-16"
   };
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       <motion.div
-        className={`${sizeClasses[size]} border-2 ${colorClasses[color]} rounded-full`}
-        variants={prefersReducedMotion ? reducedMotionVariants : spinnerVariants}
-        animate="animate"
+        className={`${sizeClasses[size]} border-2 border-blue-200 border-t-blue-600 rounded-full`}
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          ease: "linear"
+        }}
       />
-      {text && (
-        <span className={`${textSizeClasses[size]} text-gray-600 font-medium`}>
-          {text}
-        </span>
-      )}
+    </div>
+  );
+}
+
+export function LoadingPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <LoadingSpinner size="xl" />
+        <p className="mt-4 text-gray-600">Caricamento...</p>
+      </div>
+    </div>
+  );
+}
+
+export function LoadingCard() {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+        <p className="ml-3 text-gray-600">Caricamento...</p>
+      </div>
     </div>
   );
 }
