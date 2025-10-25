@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle, Monitor } from "lucide-react";
 import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
@@ -9,7 +10,7 @@ import GoogleLoginButton from "@/components/GoogleLoginButton";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
-export default function DesktopOAuthPage() {
+function DesktopOAuthContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -376,5 +377,20 @@ export default function DesktopOAuthPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function DesktopOAuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento...</p>
+        </div>
+      </div>
+    }>
+      <DesktopOAuthContent />
+    </Suspense>
   );
 }
