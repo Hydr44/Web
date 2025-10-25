@@ -6,14 +6,13 @@ export async function GET() {
     console.log('Admin organizations API called');
     
     const { data: organizations, error } = await supabaseAdmin
-      .from('organizations')
+      .from('orgs')
       .select(`
         id,
         name,
         email,
         phone,
         address,
-        city,
         created_at,
         updated_at
       `)
@@ -39,7 +38,7 @@ export async function GET() {
         email: org.email,
         phone: org.phone,
         address: org.address,
-        city: org.city,
+        city: 'N/A', // Not available in orgs table
         created_at: org.created_at,
         updated_at: org.updated_at,
         member_count: memberCount,
@@ -77,13 +76,12 @@ export async function POST(request: Request) {
 
     // Create organization
     const { data: orgData, error: orgError } = await supabaseAdmin
-      .from('organizations')
+      .from('orgs')
       .insert({
         name,
         email,
         phone,
-        address,
-        city
+        address
       })
       .select()
       .single();
