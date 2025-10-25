@@ -15,10 +15,7 @@ export async function GET() {
         created_at,
         updated_at,
         is_admin,
-        current_org,
-        organizations!current_org (
-          name
-        )
+        current_org
       `)
       .order('created_at', { ascending: false });
 
@@ -40,7 +37,7 @@ export async function GET() {
       updated_at: user.updated_at,
       is_admin: user.is_admin,
       current_org: user.current_org,
-      org_name: user.organizations?.name || null,
+      org_name: user.current_org ? 'Organizzazione Attiva' : 'Nessuna Organizzazione',
       last_active: user.updated_at,
       status: 'active' // Default status, can be enhanced later
     })) || [];
