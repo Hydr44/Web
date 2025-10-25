@@ -9,7 +9,14 @@ import {
   Globe, 
   LogOut,
   User,
-  Settings
+  Settings,
+  BarChart3,
+  Users,
+  Building2,
+  Mail,
+  TrendingUp,
+  Bell,
+  FileText
 } from "lucide-react";
 
 export default function StaffLayout({
@@ -67,6 +74,45 @@ export default function StaffLayout({
     return null; // Will redirect to login
   }
 
+  const navigationItems = [
+    {
+      name: 'Dashboard',
+      href: '/staff/admin',
+      icon: BarChart3,
+      current: pathname === '/staff/admin'
+    },
+    {
+      name: 'Utenti App',
+      href: '/staff/admin/users',
+      icon: Users,
+      current: pathname.startsWith('/staff/admin/users')
+    },
+    {
+      name: 'Organizzazioni',
+      href: '/staff/admin/organizations',
+      icon: Building2,
+      current: pathname.startsWith('/staff/admin/organizations')
+    },
+    {
+      name: 'Lead Management',
+      href: '/staff/marketing',
+      icon: Mail,
+      current: pathname.startsWith('/staff/marketing')
+    },
+    {
+      name: 'Analytics',
+      href: '/staff/admin/analytics',
+      icon: TrendingUp,
+      current: pathname.startsWith('/staff/admin/analytics')
+    },
+    {
+      name: 'Staff Management',
+      href: '/staff/admin',
+      icon: Shield,
+      current: pathname === '/staff/admin' && pathname !== '/staff/admin'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -108,10 +154,34 @@ export default function StaffLayout({
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <div className="flex">
+        {/* Sidebar */}
+        <nav className="w-64 bg-white border-r border-gray-200 min-h-screen">
+          <div className="p-4">
+            <div className="space-y-1">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    item.current
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
