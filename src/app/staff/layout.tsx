@@ -16,7 +16,9 @@ import {
   Mail,
   TrendingUp,
   Bell,
-  FileText
+  FileText,
+  Activity,
+  Clock
 } from "lucide-react";
 
 export default function StaffLayout({
@@ -94,6 +96,12 @@ export default function StaffLayout({
       current: pathname.startsWith('/staff/admin/organizations')
     },
     {
+      name: 'Staff Management',
+      href: '/staff/admin/staff',
+      icon: Shield,
+      current: pathname.startsWith('/staff/admin/staff')
+    },
+    {
       name: 'Lead Management',
       href: '/staff/marketing',
       icon: Mail,
@@ -106,10 +114,16 @@ export default function StaffLayout({
       current: pathname.startsWith('/staff/admin/analytics')
     },
     {
-      name: 'Staff Management',
-      href: '/staff/admin',
-      icon: Shield,
-      current: pathname === '/staff/admin' && pathname !== '/staff/admin'
+      name: 'Audit Log',
+      href: '/staff/admin/audit',
+      icon: Activity,
+      current: pathname.startsWith('/staff/admin/audit')
+    },
+    {
+      name: 'Sessioni',
+      href: '/staff/admin/sessions',
+      icon: Clock,
+      current: pathname.startsWith('/staff/admin/sessions')
     }
   ];
 
