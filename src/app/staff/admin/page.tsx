@@ -45,6 +45,30 @@ export default function StaffAdminPage() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const response = await fetch('/api/staff/users', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: userId }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Reload users list
+        await loadStaffUsers();
+      } else {
+        alert('Errore durante l\'eliminazione: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Errore di connessione');
+    }
+  };
+
   const filteredUsers = staffUsers.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         user.full_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -304,7 +328,7 @@ export default function StaffAdminPage() {
                         <button
                           onClick={() => {
                             if (confirm('Sei sicuro di voler eliminare questo utente?')) {
-                              // Handle delete
+                              deleteUser(user.id);
                             }
                           }}
                           className="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
@@ -335,7 +359,165 @@ export default function StaffAdminPage() {
             </p>
           </div>
         )}
+
+        {/* Create User Form Modal */}
+        {showCreateForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Crea Nuovo Utente Staff
+              </h3>
+              
+              <CreateUserForm 
+                onClose={() => setShowCreateForm(false)}
+                onSuccess={() => {
+                  setShowCreateForm(false);
+                  loadStaffUsers();
+                }}
+              />
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
+  );
+}
+
+// Create User Form Component
+function CreateUserForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    full_name: '',
+    staff_role: 'staff' as 'admin' | 'marketing' | 'support' | 'staff',
+    is_admin: false
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/staff/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        onSuccess();
+      } else {
+        setError(result.error || 'Errore durante la creazione');
+      }
+    } catch (error) {
+      setError('Errore di connessione');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input
+          type="email"
+          required
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="user@rescuemanager.eu"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Password
+        </label>
+        <input
+          type="password"
+          required
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Password sicura"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Nome Completo
+        </label>
+        <input
+          type="text"
+          required
+          value={formData.full_name}
+          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Nome Cognome"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Ruolo
+        </label>
+        <select
+          value={formData.staff_role}
+          onChange={(e) => setFormData({ ...formData, staff_role: e.target.value as any })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="staff">Staff</option>
+          <option value="marketing">Marketing</option>
+          <option value="support">Support</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="is_admin"
+          checked={formData.is_admin}
+          onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="is_admin" className="ml-2 text-sm text-gray-700">
+          Privilegi Amministratore
+        </label>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+        >
+          Annulla
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+        >
+          {loading ? 'Creazione...' : 'Crea Utente'}
+        </button>
+      </div>
+    </form>
   );
 }
