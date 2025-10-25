@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { staffAuth } from "@/lib/staff-auth-real";
+import { staffData, StaffLead } from "@/lib/staff-data-real";
 import { 
   Target, 
   Users, 
@@ -27,26 +28,10 @@ import {
   Download
 } from "lucide-react";
 
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  type: 'demo' | 'quote' | 'contact';
-  status: 'new' | 'contacted' | 'converted' | 'lost';
-  priority: 'low' | 'medium' | 'high';
-  source: string;
-  notes?: string;
-  assigned_to?: string;
-  created_at: string;
-  updated_at: string;
-  contacted_at?: string;
-  converted_at?: string;
-}
+// Using StaffLead from staff-data-real.ts
 
 export default function StaffMarketingPage() {
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<StaffLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -62,56 +47,9 @@ export default function StaffMarketingPage() {
   const loadLeads = async () => {
     try {
       setLoading(true);
-      // Demo data for now - in production, this would fetch from API
-      const demoLeads: Lead[] = [
-        {
-          id: '1',
-          name: 'Mario Rossi',
-          email: 'mario.rossi@example.com',
-          phone: '+39 123 456 7890',
-          company: 'Azienda SRL',
-          type: 'demo',
-          status: 'new',
-          priority: 'high',
-          source: 'website',
-          notes: 'Interessato a demo completa',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Giulia Bianchi',
-          email: 'giulia.bianchi@example.com',
-          phone: '+39 098 765 4321',
-          company: 'Impresa SPA',
-          type: 'quote',
-          status: 'contacted',
-          priority: 'medium',
-          source: 'website',
-          notes: 'Richiesta preventivo per 10 veicoli',
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          updated_at: new Date(Date.now() - 86400000).toISOString(),
-          contacted_at: new Date(Date.now() - 86400000).toISOString()
-        },
-        {
-          id: '3',
-          name: 'Luca Verdi',
-          email: 'luca.verdi@example.com',
-          phone: '+39 555 123 4567',
-          company: 'Trasporti Verdi',
-          type: 'contact',
-          status: 'converted',
-          priority: 'high',
-          source: 'referral',
-          notes: 'Cliente convertito - contratto firmato',
-          created_at: new Date(Date.now() - 172800000).toISOString(),
-          updated_at: new Date(Date.now() - 172800000).toISOString(),
-          contacted_at: new Date(Date.now() - 172800000).toISOString(),
-          converted_at: new Date(Date.now() - 172800000).toISOString()
-        }
-      ];
-      
-      setLeads(demoLeads);
+      // Fetch real leads from database
+      const realLeads = await staffData.getLeads();
+      setLeads(realLeads);
     } catch (error) {
       console.error('Error loading leads:', error);
     } finally {
@@ -169,23 +107,25 @@ export default function StaffMarketingPage() {
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
     try {
-      // Demo implementation - in production, this would call an API
-      console.log(`Updating lead ${leadId} to status ${newStatus}`);
+      // Update in database
+      const success = await staffData.updateLeadStatus(leadId, newStatus);
       
-      // Update local state
-      setLeads(prevLeads => 
-        prevLeads.map(lead => 
-          lead.id === leadId 
-            ? { 
-                ...lead, 
-                status: newStatus as any,
-                updated_at: new Date().toISOString(),
-                ...(newStatus === 'contacted' && { contacted_at: new Date().toISOString() }),
-                ...(newStatus === 'converted' && { converted_at: new Date().toISOString() })
-              }
-            : lead
-        )
-      );
+      if (success) {
+        // Update local state
+        setLeads(prevLeads => 
+          prevLeads.map(lead => 
+            lead.id === leadId 
+              ? { 
+                  ...lead, 
+                  status: newStatus as any,
+                  updated_at: new Date().toISOString(),
+                  ...(newStatus === 'contacted' && { contacted_at: new Date().toISOString() }),
+                  ...(newStatus === 'converted' && { converted_at: new Date().toISOString() })
+                }
+              : lead
+          )
+        );
+      }
     } catch (error) {
       console.error('Error updating lead:', error);
     }
@@ -195,11 +135,13 @@ export default function StaffMarketingPage() {
     if (!confirm('Sei sicuro di voler eliminare questo lead?')) return;
 
     try {
-      // Demo implementation - in production, this would call an API
-      console.log(`Deleting lead ${leadId}`);
+      // Delete from database
+      const success = await staffData.deleteLead(leadId);
       
-      // Update local state
-      setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
+      if (success) {
+        // Update local state
+        setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
+      }
     } catch (error) {
       console.error('Error deleting lead:', error);
     }

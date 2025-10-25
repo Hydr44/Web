@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { staffAuth, StaffUser } from "@/lib/staff-auth-real";
+import { staffData } from "@/lib/staff-data-real";
 import { 
   Users, 
   Plus, 
@@ -34,7 +35,8 @@ export default function StaffAdminPage() {
   const loadStaffUsers = async () => {
     try {
       setLoading(true);
-      const users = await staffAuth.getAllStaffUsers();
+      // Fetch real staff users from database
+      const users = await staffData.getUsers();
       setStaffUsers(users);
     } catch (error) {
       console.error('Error loading staff users:', error);
