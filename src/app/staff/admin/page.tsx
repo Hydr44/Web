@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { staffAuth, StaffUser } from "@/lib/staff-auth-supabase";
+import { staffAuth, StaffUser } from "@/lib/staff-auth-client";
 import { staffData } from "@/lib/staff-data-real";
 import { 
   Users, 
