@@ -77,76 +77,58 @@ class StaffDataManager {
     }
   }
 
-  // Update lead status
+  // Update lead status via API
   public async updateLeadStatus(leadId: string, status: string): Promise<boolean> {
     try {
-      const { error } = await supabaseAdmin
-        .from('leads')
-        .update({ 
-          status,
-          updated_at: new Date().toISOString(),
-          ...(status === 'contacted' && { contacted_at: new Date().toISOString() }),
-          ...(status === 'converted' && { converted_at: new Date().toISOString() })
-        })
-        .eq('id', leadId);
+      const response = await fetch('/api/staff/leads/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ leadId, status }),
+      });
 
-      if (error) {
-        console.error('Error updating lead:', error);
-        return false;
-      }
-
-      return true;
+      const result = await response.json();
+      return result.success;
     } catch (error) {
       console.error('Error in updateLeadStatus:', error);
       return false;
     }
   }
 
-  // Delete lead
+  // Delete lead via API
   public async deleteLead(leadId: string): Promise<boolean> {
     try {
-      const { error } = await supabaseAdmin
-        .from('leads')
-        .delete()
-        .eq('id', leadId);
+      const response = await fetch('/api/staff/leads/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ leadId }),
+      });
 
-      if (error) {
-        console.error('Error deleting lead:', error);
-        return false;
-      }
-
-      return true;
+      const result = await response.json();
+      return result.success;
     } catch (error) {
       console.error('Error in deleteLead:', error);
       return false;
     }
   }
 
-  // Get analytics data
+  // Get analytics data via API
   public async getAnalytics() {
     try {
-      // Get leads count
-      const { count: leadsCount } = await supabaseAdmin
-        .from('leads')
-        .select('*', { count: 'exact', head: true });
-
-      // Get users count
-      const { count: usersCount } = await supabaseAdmin
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_staff', true);
-
-      // Get recent activity
-      const { data: recentLeads } = await supabaseAdmin
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
+      const response = await fetch('/api/staff/analytics');
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.data;
+      }
+      
       return {
-        leadsCount: leadsCount || 0,
-        usersCount: usersCount || 0,
-        recentLeads: recentLeads || []
+        leadsCount: 0,
+        usersCount: 0,
+        recentLeads: []
       };
     } catch (error) {
       console.error('Error in getAnalytics:', error);

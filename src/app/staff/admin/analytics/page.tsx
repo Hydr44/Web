@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+// Removed direct Supabase import - using API routes instead
 import { 
   BarChart3, 
   TrendingUp, 
@@ -61,31 +61,24 @@ export default function StaffAnalyticsPage() {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const supabase = supabaseAdmin();
+      
+      // Load analytics data via API
+      const response = await fetch('/api/staff/analytics');
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('Error loading analytics:', result.error);
+        return;
+      }
 
-      // Load all data in parallel
-      const [
-        leadsResult,
-        orgsResult,
-        profilesResult,
-        transportsResult,
-        vehiclesResult,
-        driversResult
-      ] = await Promise.all([
-        supabase.from('leads').select('*'),
-        supabase.from('orgs').select('id'),
-        supabase.from('profiles').select('id'),
-        supabase.from('transports').select('id'),
-        supabase.from('vehicles').select('id'),
-        supabase.from('drivers').select('id')
-      ]);
-
-      const leads = leadsResult.data || [];
-      const orgs = orgsResult.data || [];
-      const profiles = profilesResult.data || [];
-      const transports = transportsResult.data || [];
-      const vehicles = vehiclesResult.data || [];
-      const drivers = driversResult.data || [];
+      const {
+        leads,
+        orgs,
+        profiles,
+        transports,
+        vehicles,
+        drivers
+      } = result.data;
 
       // Calculate analytics
       const leadsByType = leads.reduce((acc: any, lead: any) => {
