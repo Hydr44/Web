@@ -71,8 +71,8 @@ export default function AdminUsersPage() {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        user.full_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                        (user.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || user.status === filterStatus;
     const matchesOrg = filterOrg === "all" || user.current_org === filterOrg;
     

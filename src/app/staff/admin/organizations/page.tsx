@@ -72,9 +72,9 @@ export default function AdminOrganizationsPage() {
   };
 
   const filteredOrganizations = organizations.filter(org => {
-    const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        org.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        org.city.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (org.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                        (org.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                        (org.city?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || org.status === filterStatus;
     const matchesSize = filterSize === "all" || 
                        (filterSize === "small" && org.member_count < 10) ||
@@ -188,6 +188,46 @@ export default function AdminOrganizationsPage() {
   const handleApplyFilters = (newFilters: any) => {
     setFilters(newFilters);
     // Apply filters to the organizations list
+  };
+
+  const handleViewMembers = async (orgId: string) => {
+    try {
+      const response = await fetch(`/api/staff/admin/organizations/${orgId}/members`, {
+        method: 'POST'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Show members in a modal or navigate to members page
+        alert(`Membri dell'organizzazione: ${data.members.length} membri trovati`);
+      } else {
+        alert('Errore: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error loading members:', error);
+      alert('Errore di connessione');
+    }
+  };
+
+  const handleViewAnalytics = async (orgId: string) => {
+    try {
+      const response = await fetch(`/api/staff/admin/organizations/${orgId}/analytics`, {
+        method: 'POST'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Show analytics in a modal or navigate to analytics page
+        alert(`Analytics organizzazione: ${JSON.stringify(data.analytics, null, 2)}`);
+      } else {
+        alert('Errore: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      alert('Errore di connessione');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -508,14 +548,14 @@ export default function AdminOrganizationsPage() {
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleOrgAction(org.id, 'members')}
+                          onClick={() => handleViewMembers(org.id)}
                           className="text-gray-400 hover:text-green-600"
                           title="Gestisci Membri"
                         >
                           <Users className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleOrgAction(org.id, 'analytics')}
+                          onClick={() => handleViewAnalytics(org.id)}
                           className="text-gray-400 hover:text-purple-600"
                           title="Analytics"
                         >

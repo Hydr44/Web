@@ -26,26 +26,34 @@ export async function GET() {
       }, { status: 500 });
     }
 
-    // Transform data to include member count and admin info
-    const transformedOrgs = organizations?.map(org => {
-      // For now, use mock data since we removed the org_members join
-      // In a real implementation, you would fetch member count separately
-      const memberCount = Math.floor(Math.random() * 20) + 1; // Mock member count
-      
-      return {
-        id: org.id,
-        name: org.name,
-        email: org.email,
-        phone: org.phone,
-        address: org.address,
-        city: 'N/A', // Not available in orgs table
-        created_at: org.created_at,
-        updated_at: org.updated_at,
-        member_count: memberCount,
-        admin_name: 'Admin System', // Mock admin name
-        status: 'active' // Default status, can be enhanced later
-      };
-    }) || [];
+        // Transform data to include member count and admin info using database functions
+        const transformedOrgs = await Promise.all(
+          (organizations || []).map(async (org) => {
+            // Get member count using database function
+            const { data: memberCountData } = await supabaseAdmin.rpc('get_org_member_count', {
+              org_id: org.id
+            });
+            
+            // Get admin name using database function
+            const { data: adminNameData } = await supabaseAdmin.rpc('get_org_admin_name', {
+              org_id: org.id
+            });
+
+            return {
+              id: org.id,
+              name: org.name,
+              email: org.email,
+              phone: org.phone,
+              address: org.address,
+              city: 'N/A', // Not available in orgs table
+              created_at: org.created_at,
+              updated_at: org.updated_at,
+              member_count: memberCountData || 0,
+              admin_name: adminNameData || 'N/A',
+              status: 'active' // Default status, can be enhanced later
+            };
+          })
+        );
 
     return NextResponse.json({ 
       success: true, 
