@@ -14,6 +14,7 @@ import {
   LineChart
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 interface OrganizationAnalytics {
   member_count: number;
@@ -94,17 +95,7 @@ export default function OrganizationAnalyticsPage({ params }: { params: { orgId:
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div 
-            className="animate-spin rounded-full h-16 w-16 border-2 border-blue-200 border-t-blue-600 mx-auto"
-            style={{ animation: 'spin 1s linear infinite' }}
-          ></div>
-          <p className="mt-4 text-gray-600">Caricamento analytics...</p>
-        </div>
-      </div>
-    );
+    return <LoadingPage text="Caricamento analytics..." />;
   }
 
   if (!organization || !analytics) {
