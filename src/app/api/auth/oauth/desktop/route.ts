@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 /**
  * Endpoint per avvio OAuth desktop
- * GET /api/auth/oauth/desktop?app_id=desktop_app&redirect_uri=desktop://auth/callback&state=random_state
+ * GET /api/auth/oauth/desktop?app_id=desktop_app&redirect_uri=http://localhost:3001/auth/callback&state=random_state
  */
 export async function GET(request: NextRequest) {
   try {
@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Validazione redirect_uri
-    if (!redirectUri.startsWith('desktop://')) {
+    if (!redirectUri.startsWith('desktop://') && !redirectUri.startsWith('http://localhost:')) {
       return NextResponse.json(
-        { error: 'Invalid redirect_uri. Must start with desktop://' },
+        { error: 'Invalid redirect_uri. Must start with desktop:// or http://localhost:' },
         { status: 400 }
       );
     }
