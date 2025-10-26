@@ -101,6 +101,12 @@ function DesktopOAuthContent() {
         console.log("Redirect URI:", oauthInfo.redirect_uri);
         console.log("State:", oauthInfo.state);
         
+        // Verifica autenticazione
+        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+        console.log("=== AUTHENTICATION CHECK ===");
+        console.log("Current User:", currentUser?.id);
+        console.log("Auth Error:", authError);
+        
         const { data: insertData, error: oauthError } = await supabase
           .from('oauth_codes')
           .insert({
