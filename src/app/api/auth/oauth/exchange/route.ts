@@ -15,10 +15,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== OAUTH EXCHANGE ENDPOINT START ===');
     const { code, app_id } = await request.json();
+    console.log('Exchange params:', { code, app_id });
 
     // Validazione parametri
     if (!code || !app_id) {
+      console.error('Missing parameters:', { code, app_id });
       return NextResponse.json(
         { error: 'Missing required parameters: code, app_id' },
         { status: 400 }
@@ -28,6 +31,10 @@ export async function POST(request: NextRequest) {
     const supabase = await supabaseServer();
 
     // Verifica e recupera il code OAuth
+    console.log('=== SEARCHING OAUTH CODE ===');
+    console.log('Searching for code:', code);
+    console.log('Searching for app_id:', app_id);
+    
     const { data: oauthData, error: oauthError } = await supabase
       .from('oauth_codes')
       .select('*')
@@ -37,7 +44,14 @@ export async function POST(request: NextRequest) {
       .gt('expires_at', new Date().toISOString())
       .single();
 
+    console.log('=== OAUTH CODE SEARCH RESULT ===');
+    console.log('OAuth Data:', oauthData);
+    console.log('OAuth Error:', oauthError);
+
     if (oauthError || !oauthData) {
+      console.error('=== OAUTH CODE NOT FOUND ===');
+      console.error('Error:', oauthError);
+      console.error('Data:', oauthData);
       return NextResponse.json(
         { error: 'Invalid or expired OAuth code' },
         { status: 400 }
