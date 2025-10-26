@@ -45,13 +45,19 @@ CREATE INDEX IF NOT EXISTS idx_oauth_tokens_is_active ON public.oauth_tokens(is_
 ALTER TABLE public.oauth_codes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.oauth_tokens ENABLE ROW LEVEL SECURITY;
 
--- Policy per oauth_codes: solo l'utente proprietario può accedere ai propri codici
-CREATE POLICY "Users can access their own oauth codes" ON public.oauth_codes
-  FOR ALL USING (auth.uid() = user_id);
+-- Policy per oauth_codes: permette inserimento per OAuth flow, lettura solo per utente proprietario
+CREATE POLICY "Allow oauth code insertion" ON public.oauth_codes
+  FOR INSERT WITH CHECK (true);
 
--- Policy per oauth_tokens: solo l'utente proprietario può accedere ai propri token
+CREATE POLICY "Users can access their own oauth codes" ON public.oauth_codes
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Policy per oauth_tokens: permette inserimento per OAuth flow, lettura solo per utente proprietario
+CREATE POLICY "Allow oauth token insertion" ON public.oauth_tokens
+  FOR INSERT WITH CHECK (true);
+
 CREATE POLICY "Users can access their own oauth tokens" ON public.oauth_tokens
-  FOR ALL USING (auth.uid() = user_id);
+  FOR SELECT USING (auth.uid() = user_id);
 
 -- Funzione per pulizia automatica dei codici scaduti
 CREATE OR REPLACE FUNCTION public.cleanup_expired_oauth_codes()
