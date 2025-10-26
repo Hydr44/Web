@@ -65,11 +65,18 @@ export async function POST(request: NextRequest) {
       .eq('id', oauthData.id);
 
     // Recupera dati utente
+    console.log('=== SEARCHING USER ===');
+    console.log('User ID:', oauthData.user_id);
+    
     const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', oauthData.user_id)
       .single();
+
+    console.log('=== USER SEARCH RESULT ===');
+    console.log('User Data:', userData);
+    console.log('User Error:', userError);
 
     if (userError || !userData) {
       return NextResponse.json(
