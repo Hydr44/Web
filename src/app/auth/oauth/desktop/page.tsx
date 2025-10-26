@@ -94,7 +94,14 @@ function DesktopOAuthContent() {
         
         // Salva OAuth code nel database
         const supabase = supabaseBrowser();
-        const { error: oauthError } = await supabase
+        console.log("=== SAVING OAUTH CODE ===");
+        console.log("OAuth Code:", oauthCode);
+        console.log("User ID:", result.user.id);
+        console.log("App ID:", oauthInfo.app_id);
+        console.log("Redirect URI:", oauthInfo.redirect_uri);
+        console.log("State:", oauthInfo.state);
+        
+        const { data: insertData, error: oauthError } = await supabase
           .from('oauth_codes')
           .insert({
             code: oauthCode,
@@ -104,13 +111,18 @@ function DesktopOAuthContent() {
             state: oauthInfo.state,
             expires_at: new Date(Date.now() + 5 * 60 * 1000), // 5 minuti
             used: false
-          });
+          })
+          .select();
 
         if (oauthError) {
-          console.error('Error saving OAuth code:', oauthError);
+          console.error('=== OAUTH CODE SAVE ERROR ===');
+          console.error('Error:', oauthError);
           setError("Errore durante la generazione del codice OAuth.");
           return;
         }
+        
+        console.log("=== OAUTH CODE SAVED SUCCESSFULLY ===");
+        console.log("Insert Data:", insertData);
 
         setSuccess(true);
         setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
