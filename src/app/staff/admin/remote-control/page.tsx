@@ -36,14 +36,16 @@ export default function RemoteControlPage() {
     try {
       setLoading(true);
       
-      // Load maintenance status
+      console.log('[RemoteControl] Loading maintenance status...');
       const maintRes = await fetch('/api/maintenance/status');
       const maintData = await maintRes.json();
+      console.log('[RemoteControl] Maintenance data:', maintData);
       setMaintenance(maintData);
       
-      // Load version status
+      console.log('[RemoteControl] Loading version status...');
       const versionRes = await fetch('/api/version/check');
       const versionData = await versionRes.json();
+      console.log('[RemoteControl] Version data:', versionData);
       setVersion(versionData);
       
     } catch (error) {
@@ -58,15 +60,19 @@ export default function RemoteControlPage() {
     try {
       setSaving(true);
       
+      console.log('[RemoteControl] Toggling maintenance, current state:', maintenance.is_active);
       const endpoint = maintenance.is_active 
         ? '/api/maintenance/disable'
         : '/api/maintenance/enable';
       
+      console.log('[RemoteControl] Calling endpoint:', endpoint);
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       });
+      
+      console.log('[RemoteControl] Response status:', response.status);
       
       if (!response.ok) {
         throw new Error('Failed to toggle maintenance');
