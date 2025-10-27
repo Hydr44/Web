@@ -22,6 +22,13 @@ interface HeartbeatUser {
   app_version: string;
   online: boolean;
   last_seen: string;
+  user: {
+    email: string;
+    full_name: string;
+  };
+  org: {
+    name: string;
+  };
 }
 
 export default function RemoteControlPage() {
@@ -330,9 +337,11 @@ export default function RemoteControlPage() {
                 {onlineUsers.map((user) => (
                   <div key={user.user_id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">User: {user.user_id.slice(0, 8)}...</p>
-                      <p className="text-sm text-gray-600">Org: {user.org_id.slice(0, 8)}... • v{user.app_version}</p>
-                      <p className="text-xs text-gray-500">Ultimo heartbeat: {new Date(user.last_seen).toLocaleString('it-IT')}</p>
+                      <p className="font-medium text-gray-900">{user.user.full_name}</p>
+                      <p className="text-sm text-gray-600">{user.user.email}</p>
+                      <p className="text-xs text-gray-500">
+                        {user.org.name} • v{user.app_version} • {new Date(user.last_seen).toLocaleString('it-IT')}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500"></div>
