@@ -16,7 +16,10 @@ import {
   Calendar,
   FileText,
   Bell,
-  Database
+  Database,
+  Monitor,
+  Download,
+  Power
 } from "lucide-react";
 import Link from "next/link";
 
@@ -123,6 +126,13 @@ export default function StaffAdminPage() {
             icon={<Bell className="h-8 w-8" />}
             href="/staff/admin/notifications"
             delay={0.9}
+          />
+          <AdminCard
+            title="Remote Control"
+            description="Controlla manutenzione, versioni e monitora le app desktop."
+            icon={<Monitor className="h-8 w-8" />}
+            href="/staff/admin/remote-control"
+            delay={1.0}
           />
         </div>
       </motion.div>

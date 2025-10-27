@@ -18,7 +18,8 @@ import {
   Bell,
   FileText,
   Activity,
-  Clock
+  Clock,
+  Monitor
 } from "lucide-react";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
@@ -130,6 +131,12 @@ export default function StaffLayout({
       href: '/staff/admin/sessions',
       icon: Clock,
       current: pathname.startsWith('/staff/admin/sessions')
+    },
+    {
+      name: 'Remote Control',
+      href: '/staff/admin/remote-control',
+      icon: Monitor,
+      current: pathname.startsWith('/staff/admin/remote-control')
     }
   ];
 
