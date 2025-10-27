@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     // Get app version requirements
     const { data: versionInfo, error } = await supabaseAdmin
       .from('app_versions')
-      .select('version, min_required, force_update, notes')
+      .select('version, min_required, force_update, notes, download_url')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
       current_version: currentVersion,
       min_required: versionInfo.min_required,
       latest_version: versionInfo.version,
-      notes: versionInfo.notes
+      notes: versionInfo.notes,
+      download_url: versionInfo.download_url
     });
 
   } catch (error) {

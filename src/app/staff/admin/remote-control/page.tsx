@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Power, Download, Monitor, Activity, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Power, Download, Monitor, Activity, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface MaintenanceStatus {
   is_active: boolean;
@@ -14,6 +14,13 @@ interface VersionStatus {
   min_required: string;
   force_update: boolean;
   notes: string | null;
+}
+
+interface NewVersion {
+  version: string;
+  download_url: string;
+  force_update: boolean;
+  notes: string;
 }
 
 interface HeartbeatUser {
@@ -43,6 +50,12 @@ export default function RemoteControlPage() {
   const [message, setMessage] = useState("");
   const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<HeartbeatUser[]>([]);
+  const [newVersion, setNewVersion] = useState<NewVersion>({
+    version: '',
+    download_url: '',
+    force_update: false,
+    notes: ''
+  });
 
   useEffect(() => {
     loadStatus();
@@ -146,6 +159,46 @@ export default function RemoteControlPage() {
     } catch (error) {
       console.error('Error setting version enforcement:', error);
       setNotification({ type: 'error', text: 'Errore nell\'aggiornamento versione' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishNewVersion = async () => {
+    try {
+      setSaving(true);
+      
+      console.log('[RemoteControl] Publishing new version:', newVersion);
+      
+      const response = await fetch('/api/version/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newVersion)
+      });
+      
+      console.log('[RemoteControl] Publish response:', response.status);
+      
+      if (!response.ok) {
+        throw new Error('Failed to publish version');
+      }
+      
+      await loadStatus();
+      setNotification({ 
+        type: 'success', 
+        text: `Versione ${newVersion.version} pubblicata con successo!` 
+      });
+      
+      // Reset form
+      setNewVersion({
+        version: '',
+        download_url: '',
+        force_update: false,
+        notes: ''
+      });
+      
+    } catch (error) {
+      console.error('Error publishing version:', error);
+      setNotification({ type: 'error', text: 'Errore nella pubblicazione versione' });
     } finally {
       setSaving(false);
     }
@@ -289,6 +342,75 @@ export default function RemoteControlPage() {
               </div>
             </div>
           )}
+
+          {/* Pubblica Nuova Versione */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pubblica Nuova Versione</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="version-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  Numero Versione
+                </label>
+                <input
+                  id="version-input"
+                  type="text"
+                  value={newVersion.version}
+                  onChange={(e) => setNewVersion({ ...newVersion, version: e.target.value })}
+                  placeholder="es: 0.2.0"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="download-url-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  URL Download
+                </label>
+                <input
+                  id="download-url-input"
+                  type="url"
+                  value={newVersion.download_url}
+                  onChange={(e) => setNewVersion({ ...newVersion, download_url: e.target.value })}
+                  placeholder="https://github.com/user/repo/releases/download/v0.2.0/app.dmg"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="notes-textarea" className="block text-sm font-medium text-gray-700 mb-2">
+                  Note di Aggiornamento
+                </label>
+                <textarea
+                  id="notes-textarea"
+                  value={newVersion.notes}
+                  onChange={(e) => setNewVersion({ ...newVersion, notes: e.target.value })}
+                  placeholder="Bug fix, nuove funzionalità..."
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  rows={2}
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={newVersion.force_update}
+                  onChange={(e) => setNewVersion({ ...newVersion, force_update: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <label className="text-sm text-gray-700">
+                  Aggiornamento obbligatorio (blocca app fino all'update)
+                </label>
+              </div>
+
+              <button
+                onClick={publishNewVersion}
+                disabled={saving || !newVersion.version || !newVersion.download_url}
+                className="btn btn-primary w-full"
+              >
+                {saving ? 'Pubblicazione...' : 'Pubblica Versione'}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Monitoring */}
