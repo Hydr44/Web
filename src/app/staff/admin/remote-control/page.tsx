@@ -56,6 +56,7 @@ export default function RemoteControlPage() {
     force_update: false,
     notes: ''
   });
+  const [versionHistory, setVersionHistory] = useState<VersionStatus[]>([]);
 
   useEffect(() => {
     loadStatus();
@@ -76,6 +77,18 @@ export default function RemoteControlPage() {
       const versionData = await versionRes.json();
       console.log('[RemoteControl] Version data:', versionData);
       setVersion(versionData);
+
+      // Load version history
+      try {
+        const historyRes = await fetch('/api/version/history');
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          console.log('[RemoteControl] Version history:', historyData);
+          setVersionHistory(historyData.versions || []);
+        }
+      } catch (err) {
+        console.error('[RemoteControl] Error loading version history:', err);
+      }
       
       // Load online users
       try {
@@ -473,10 +486,36 @@ export default function RemoteControlPage() {
                 ))}
               </div>
             )}
+            </div>
           </div>
+
+          {/* Cronologia Versioni */}
+          {versionHistory.length > 0 && (
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Cronologia Versioni</h3>
+              <div className="space-y-2">
+                {versionHistory.map((v, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{v.version}</p>
+                      {v.notes && (
+                        <p className="text-xs text-gray-600 mt-1">{v.notes}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {v.force_update && (
+                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                          Obbligatorio
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
