@@ -9,6 +9,24 @@ export const runtime = "nodejs";
  */
 export async function POST(request: NextRequest) {
   try {
+    // Recupera l'ID del record esistente
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from('maintenance_mode')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error('Error fetching maintenance record:', fetchError);
+      return NextResponse.json({ error: 'Failed to fetch maintenance record' }, { status: 500 });
+    }
+
+    if (!existing) {
+      // Nessun record esistente, quindi è già disattivato
+      return NextResponse.json({ success: true });
+    }
+
+    // Update existing record
     const { error } = await supabaseAdmin
       .from('maintenance_mode')
       .update({
@@ -16,10 +34,10 @@ export async function POST(request: NextRequest) {
         message: null,
         started_at: null
       })
-      .eq('id', (await supabaseAdmin.from('maintenance_mode').select('id').maybeSingle()).data?.id);
+      .eq('id', existing.id);
 
     if (error) {
-      console.error('Error disabling maintenance:', error);
+      console.error('Error updating maintenance:', error);
       return NextResponse.json({ error: 'Failed to disable maintenance' }, { status: 500 });
     }
 
