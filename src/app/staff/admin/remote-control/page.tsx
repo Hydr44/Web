@@ -16,6 +16,14 @@ interface VersionStatus {
   notes: string | null;
 }
 
+interface HeartbeatUser {
+  user_id: string;
+  org_id: string;
+  app_version: string;
+  online: boolean;
+  last_seen: string;
+}
+
 export default function RemoteControlPage() {
   const [maintenance, setMaintenance] = useState<MaintenanceStatus>({
     is_active: false,
@@ -27,6 +35,7 @@ export default function RemoteControlPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<HeartbeatUser[]>([]);
 
   useEffect(() => {
     loadStatus();
@@ -47,6 +56,18 @@ export default function RemoteControlPage() {
       const versionData = await versionRes.json();
       console.log('[RemoteControl] Version data:', versionData);
       setVersion(versionData);
+      
+      // Load online users
+      try {
+        const usersRes = await fetch('/api/monitoring/users');
+        if (usersRes.ok) {
+          const usersData = await usersRes.json();
+          console.log('[RemoteControl] Online users:', usersData);
+          setOnlineUsers(usersData.users || []);
+        }
+      } catch (err) {
+        console.error('[RemoteControl] Error loading users:', err);
+      }
       
     } catch (error) {
       console.error('Error loading status:', error);
@@ -279,12 +300,48 @@ export default function RemoteControlPage() {
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-6 text-center">
-            <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">Monitoraggio attivo</p>
-            <p className="text-sm text-gray-500">
-              Le app desktop inviano heartbeat ogni 30 secondi
-            </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${onlineUsers.length > 0 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <span className="text-sm text-gray-600">
+                  {onlineUsers.length} utenti online
+                </span>
+              </div>
+              <button
+                onClick={() => loadStatus()}
+                disabled={loading}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Aggiorna
+              </button>
+            </div>
+
+            {onlineUsers.length === 0 ? (
+              <div className="bg-gray-50 rounded-lg p-6 text-center">
+                <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-2">Nessun utente online</p>
+                <p className="text-sm text-gray-500">
+                  Le app desktop inviano heartbeat ogni 30 secondi
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {onlineUsers.map((user) => (
+                  <div key={user.user_id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">User: {user.user_id.slice(0, 8)}...</p>
+                      <p className="text-sm text-gray-600">Org: {user.org_id.slice(0, 8)}... • v{user.app_version}</p>
+                      <p className="text-xs text-gray-500">Ultimo heartbeat: {new Date(user.last_seen).toLocaleString('it-IT')}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm text-green-600">Online</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
