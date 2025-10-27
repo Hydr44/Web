@@ -52,17 +52,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not authorized for this org' }, { status: 403 });
     }
 
-    // Upsert heartbeat
+    // Delete vecchio heartbeat e inserisci nuovo (user_id non è PK)
+    const { error: deleteError } = await supabaseAdmin
+      .from('app_heartbeats')
+      .delete()
+      .eq('user_id', decoded.user_id);
+
+    if (deleteError) {
+      console.error('Heartbeat delete error:', deleteError);
+    }
+
+    // Insert nuovo heartbeat
     const { error } = await supabaseAdmin
       .from('app_heartbeats')
-      .upsert({
+      .insert({
         user_id: decoded.user_id,
         org_id: org_id,
         app_version: app_version || 'unknown',
         online: true,
         last_seen: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
       });
 
     if (error) {
