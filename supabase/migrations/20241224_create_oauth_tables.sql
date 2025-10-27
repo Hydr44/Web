@@ -45,19 +45,28 @@ CREATE INDEX IF NOT EXISTS idx_oauth_tokens_is_active ON public.oauth_tokens(is_
 ALTER TABLE public.oauth_codes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.oauth_tokens ENABLE ROW LEVEL SECURITY;
 
--- Policy per oauth_codes: permette inserimento per OAuth flow, lettura solo per utente proprietario
+-- Policy per oauth_codes: permette INSERT/SELECT per tutti (necessario per flow OAuth)
+-- L'endpoint /api/auth/oauth/exchange gira come service role e bypassa RLS
+DROP POLICY IF EXISTS "Allow oauth code insertion" ON public.oauth_codes;
 CREATE POLICY "Allow oauth code insertion" ON public.oauth_codes
-  FOR INSERT WITH CHECK (true);
+  FOR INSERT 
+  WITH CHECK (true);
 
-CREATE POLICY "Users can access their own oauth codes" ON public.oauth_codes
-  FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Allow oauth code selection" ON public.oauth_codes;
+CREATE POLICY "Allow oauth code selection" ON public.oauth_codes
+  FOR SELECT
+  USING (true);
 
--- Policy per oauth_tokens: permette inserimento per OAuth flow, lettura solo per utente proprietario
+-- Policy per oauth_tokens: permette INSERT/SELECT per tutti (necessario per flow OAuth)
+DROP POLICY IF EXISTS "Allow oauth token insertion" ON public.oauth_tokens;
 CREATE POLICY "Allow oauth token insertion" ON public.oauth_tokens
-  FOR INSERT WITH CHECK (true);
+  FOR INSERT
+  WITH CHECK (true);
 
-CREATE POLICY "Users can access their own oauth tokens" ON public.oauth_tokens
-  FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Allow oauth token selection" ON public.oauth_tokens;
+CREATE POLICY "Allow oauth token selection" ON public.oauth_tokens
+  FOR SELECT
+  USING (true);
 
 -- Funzione per pulizia automatica dei codici scaduti
 CREATE OR REPLACE FUNCTION public.cleanup_expired_oauth_codes()

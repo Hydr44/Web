@@ -1,6 +1,6 @@
 // src/app/api/auth/oauth/exchange/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import jwt from 'jsonwebtoken';
 
 export const runtime = "nodejs";
@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await supabaseServer();
+    // Usa supabaseAdmin per bypassare RLS
+    const supabase = supabaseAdmin;
 
     // Verifica e recupera il code OAuth
     console.log('=== SEARCHING OAUTH CODE ===');
