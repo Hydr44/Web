@@ -60,42 +60,62 @@ export function getServerKeyPath(): string | null {
 
 /**
  * Carica certificato SDI client
+ * Nota: Usa gli stessi certificati per test e produzione
  */
 export function loadSDIClientCert(environment: SDIEnvironment): string {
-  // Prima prova da filesystem
+  // PRIMA prova da variabile d'ambiente (Vercel Secrets) - più sicuro
+  // Usa SDI_TEST_CLIENT_CERT per test, altrimenti SDI_CLIENT_CERT (condiviso)
+  const envVar = process.env.SDI_TEST_CLIENT_CERT || process.env.SDI_CLIENT_CERT;
+  if (envVar && envVar.trim().length > 0) {
+    console.log(`[SDI] Certificato SDI client caricato da variabile d'ambiente`);
+    return envVar.trim();
+  }
+  
+  // Poi prova da filesystem (solo per sviluppo locale)
   const certPath = getSDIClientCertPath(environment);
   if (fs.existsSync(certPath)) {
+    console.log(`[SDI] Certificato SDI client caricato da filesystem:`, certPath);
     return fs.readFileSync(certPath, 'utf8');
   }
   
-  // Se non trovato, prova da variabile d'ambiente (Vercel Secrets)
-  const envVar = environment === 'test' ? 'SDI_TEST_CLIENT_CERT' : 'SDI_PROD_CLIENT_CERT';
-  const envCert = process.env[envVar];
-  if (envCert) {
-    return envCert;
+  // Se non trovato, il certificato SDI è opzionale per test
+  // Possiamo continuare senza verifica completa del certificato SDI in test
+  if (environment === 'test') {
+    console.warn(`[SDI TEST] Certificato SDI client non trovato - continuo senza verifica completa`);
+    return ''; // Restituisce stringa vuota per test
   }
   
-  throw new Error(`Certificato SDI client non trovato: ${certPath}. Configura ${envVar} in Vercel Secrets.`);
+  throw new Error(`Certificato SDI client non trovato. Configura SDI_CLIENT_CERT o SDI_TEST_CLIENT_CERT in Vercel Secrets.`);
 }
 
 /**
  * Carica certificato SDI server
+ * Nota: Usa gli stessi certificati per test e produzione
  */
 export function loadSDIServerCert(environment: SDIEnvironment): string {
-  // Prima prova da filesystem
+  // PRIMA prova da variabile d'ambiente (Vercel Secrets) - più sicuro
+  // Usa SDI_TEST_SERVER_CERT per test, altrimenti SDI_SERVER_CERT (condiviso)
+  const envVar = process.env.SDI_TEST_SERVER_CERT || process.env.SDI_SERVER_CERT;
+  if (envVar && envVar.trim().length > 0) {
+    console.log(`[SDI] Certificato SDI server caricato da variabile d'ambiente`);
+    return envVar.trim();
+  }
+  
+  // Poi prova da filesystem (solo per sviluppo locale)
   const certPath = getSDIServerCertPath(environment);
   if (fs.existsSync(certPath)) {
+    console.log(`[SDI] Certificato SDI server caricato da filesystem:`, certPath);
     return fs.readFileSync(certPath, 'utf8');
   }
   
-  // Se non trovato, prova da variabile d'ambiente (Vercel Secrets)
-  const envVar = environment === 'test' ? 'SDI_TEST_SERVER_CERT' : 'SDI_PROD_SERVER_CERT';
-  const envCert = process.env[envVar];
-  if (envCert) {
-    return envCert;
+  // Se non trovato, il certificato SDI server è opzionale per test
+  // Possiamo continuare senza verifica completa del certificato SDI in test
+  if (environment === 'test') {
+    console.warn(`[SDI TEST] Certificato SDI server non trovato - continuo senza verifica completa`);
+    return ''; // Restituisce stringa vuota per test
   }
   
-  throw new Error(`Certificato SDI server non trovato: ${certPath}. Configura ${envVar} in Vercel Secrets.`);
+  throw new Error(`Certificato SDI server non trovato. Configura SDI_SERVER_CERT o SDI_TEST_SERVER_CERT in Vercel Secrets.`);
 }
 
 /**
