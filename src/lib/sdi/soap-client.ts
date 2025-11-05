@@ -200,7 +200,6 @@ export async function sendInvoiceToSDI(
             wsdl_options: testWsdlOptions,
             forceSoap12Headers: false,
             disableCache: true,
-            request: { rejectUnauthorized: false },
           });
           
           // Riprova la chiamata
