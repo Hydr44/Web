@@ -152,7 +152,9 @@ Content-ID: <${attachmentId}>\r
             
             res.on('end', () => {
               try {
-                console.log(`[SDI ${environment.toUpperCase()}] Risposta HTTP ${description}: ${res.statusCode}`);
+                console.log(`[SDI ${environment.toUpperCase()}] Risposta HTTP ${description}: ${res.statusCode} ${res.statusMessage}`);
+                console.log(`[SDI ${environment.toUpperCase()}] Headers risposta:`, JSON.stringify(res.headers, null, 2));
+                console.log(`[SDI ${environment.toUpperCase()}] Body risposta (primi 1000 caratteri):`, responseData.substring(0, 1000));
                 
                 if (res.statusCode === 200) {
                   // Parse risposta SOAP
@@ -175,8 +177,9 @@ Content-ID: <${attachmentId}>\r
                 }
                 
                 // Se non è 200, questo endpoint non ha funzionato
-                console.log(`[SDI ${environment.toUpperCase()}] ❌ ${description} fallito: ${res.statusCode}`);
-                console.log(`[SDI ${environment.toUpperCase()}] Risposta: ${responseData.substring(0, 200)}`);
+                console.log(`[SDI ${environment.toUpperCase()}] ❌ ${description} fallito: ${res.statusCode} ${res.statusMessage}`);
+                console.log(`[SDI ${environment.toUpperCase()}] Risposta completa:`, responseData);
+                console.log(`[SDI ${environment.toUpperCase()}] Endpoint provato: ${endpointUrl}`);
                 resolve(null); // Prova il prossimo endpoint
               } catch (parseError: any) {
                 console.error(`[SDI ${environment.toUpperCase()}] Errore parsing risposta ${description}:`, parseError);
