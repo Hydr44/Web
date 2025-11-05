@@ -29,8 +29,15 @@ export async function sendInvoiceToSDI(
   try {
     // WSDL URL
     // NOTA: Il WSDL SDI richiede autenticazione tramite certificati
-    // Per ora, usiamo un WSDL "hardcoded" basato sulla documentazione SDI
-    // In alternativa, potremmo scaricare il WSDL con certificati client
+    // Secondo il manuale di implementazione, l'endpoint SOAP potrebbe essere:
+    // 1. Lo stesso URL del WSDL (ma senza .wsdl per le chiamate SOAP)
+    // 2. Contenuto nel WSDL stesso (tag <soap:address location="..."/>)
+    // 3. Fornito dal portale SDI dopo la registrazione
+    //
+    // ATTENZIONE: Se tutti gli endpoint restituiscono 404, potrebbe essere necessario:
+    // - Registrare gli endpoint sul portale SDI prima di poter inviare fatture
+    // - Ottenere l'URL corretto dal portale dopo la registrazione
+    // - Verificare che l'ambiente test sia accessibile
     const wsdlUrl = environment === 'test'
       ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl'
       : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl';
