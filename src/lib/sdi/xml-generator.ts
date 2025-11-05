@@ -71,6 +71,9 @@ export interface FatturaPAData {
     aliquotaIVA: number;
     imponibileImporto: number;
     imposta: number;
+    natura?: string;
+    esigibilitaIVA?: string;
+    riferimentoNormativo?: string;
   }>;
   
   // Dati pagamento
@@ -110,7 +113,7 @@ export function generateFatturaPAXML(data: FatturaPAData): string {
     cessionarioCommittente,
     tipoDocumento,
     divisa,
-    data,
+    data: dataFattura,
     numero,
     importoTotaleDocumento,
     dettaglioLinee,
@@ -119,23 +122,29 @@ export function generateFatturaPAXML(data: FatturaPAData): string {
   } = data;
 
   // Genera dettaglio linee
-  const lineeXML = dettaglioLinee.map((linea) => `
+  const lineeXML = dettaglioLinee.map((linea: any) => `
     <DettaglioLinee>
       <NumeroLinea>${linea.numeroLinea}</NumeroLinea>
+      ${linea.tipoCessionePrestazione ? `<TipoCessionePrestazione>${escapeXml(linea.tipoCessionePrestazione)}</TipoCessionePrestazione>` : ''}
       <Descrizione>${escapeXml(linea.descrizione)}</Descrizione>
       ${linea.quantita != null ? `<Quantita>${linea.quantita.toFixed(2)}</Quantita>` : ''}
       ${linea.unitaMisura ? `<UnitaMisura>${escapeXml(linea.unitaMisura)}</UnitaMisura>` : ''}
       <PrezzoUnitario>${linea.prezzoUnitario.toFixed(2)}</PrezzoUnitario>
       <PrezzoTotale>${linea.prezzoTotale.toFixed(2)}</PrezzoTotale>
       <AliquotaIVA>${linea.aliquotaIVA.toFixed(2)}</AliquotaIVA>
+      ${linea.natura ? `<Natura>${escapeXml(linea.natura)}</Natura>` : ''}
+      ${linea.esigibilitaIVA ? `<EsigibilitaIVA>${escapeXml(linea.esigibilitaIVA)}</EsigibilitaIVA>` : ''}
     </DettaglioLinee>`).join('');
 
   // Genera dati riepilogo
-  const riepilogoXML = datiRiepilogo.map((riepilogo) => `
+  const riepilogoXML = datiRiepilogo.map((riepilogo: any) => `
       <DatiRiepilogo>
         <AliquotaIVA>${riepilogo.aliquotaIVA.toFixed(2)}</AliquotaIVA>
+        ${riepilogo.natura ? `<Natura>${escapeXml(riepilogo.natura)}</Natura>` : ''}
+        ${riepilogo.esigibilitaIVA ? `<EsigibilitaIVA>${escapeXml(riepilogo.esigibilitaIVA)}</EsigibilitaIVA>` : ''}
         <ImponibileImporto>${riepilogo.imponibileImporto.toFixed(2)}</ImponibileImporto>
         <Imposta>${riepilogo.imposta.toFixed(2)}</Imposta>
+        ${riepilogo.riferimentoNormativo ? `<RiferimentoNormativo>${escapeXml(riepilogo.riferimentoNormativo)}</RiferimentoNormativo>` : ''}
       </DatiRiepilogo>`).join('');
 
   // Genera dati pagamento
@@ -150,7 +159,7 @@ export function generateFatturaPAXML(data: FatturaPAData): string {
     </DatiPagamento>` : '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<p:FatturaElettronica versione="FPR12" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd">
+<p:FatturaElettronica versione="${escapeXml(formatoTrasmissione)}" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/documenti/fatturapa/v1.4/Schema_VFPR12_v1.2.3.xsd">
   <FatturaElettronicaHeader>
     <DatiTrasmissione>
       <IdTrasmittente>
@@ -208,7 +217,7 @@ export function generateFatturaPAXML(data: FatturaPAData): string {
       <DatiGeneraliDocumento>
         <TipoDocumento>${escapeXml(tipoDocumento)}</TipoDocumento>
         <Divisa>${escapeXml(divisa)}</Divisa>
-        <Data>${escapeXml(data)}</Data>
+        <Data>${escapeXml(dataFattura)}</Data>
         <Numero>${escapeXml(numero)}</Numero>
         <ImportoTotaleDocumento>${importoTotaleDocumento.toFixed(2)}</ImportoTotaleDocumento>
       </DatiGeneraliDocumento>
@@ -253,11 +262,18 @@ export function invoiceToFatturaPAData(invoice: any, orgSettings?: any): Fattura
     }
   });
 
-  const datiRiepilogo = Array.from(aliquoteMap.entries()).map(([aliquota, dati]) => ({
-    aliquotaIVA: aliquota,
-    imponibileImporto: dati.imponibile,
-    imposta: dati.imposta,
-  }));
+  const datiRiepilogo = Array.from(aliquoteMap.entries()).map(([aliquota, dati]) => {
+    // Trova natura e esigibilità dalla prima linea con questa aliquota
+    const firstItem = items.find((item: any) => Number(item.vat_perc || 22) === aliquota);
+    return {
+      aliquotaIVA: aliquota,
+      imponibileImporto: dati.imponibile,
+      imposta: dati.imposta,
+      natura: firstItem?.natura || sdi.riepilogo_iva?.[0]?.natura || undefined,
+      esigibilitaIVA: firstItem?.esigibilita || sdi.riepilogo_iva?.[0]?.esigibilita || undefined,
+      riferimentoNormativo: sdi.riepilogo_iva?.[0]?.riferimento_normativo || undefined,
+    };
+  });
 
   return {
     idTrasmittente: {
@@ -312,6 +328,9 @@ export function invoiceToFatturaPAData(invoice: any, orgSettings?: any): Fattura
       prezzoUnitario: Number(item.price || 0),
       prezzoTotale: Number(item.qty || 0) * Number(item.price || 0),
       aliquotaIVA: Number(item.vat_perc || 22),
+      natura: item.natura || sdi.dettaglio_linee?.[index]?.natura || undefined,
+      esigibilitaIVA: item.esigibilita || sdi.dettaglio_linee?.[index]?.esigibilita || undefined,
+      tipoCessionePrestazione: item.tipo_cessione || sdi.dettaglio_linee?.[index]?.tipo_cessione || undefined,
     })),
     datiRiepilogo,
     datiPagamento: sdi.pagamento ? {
