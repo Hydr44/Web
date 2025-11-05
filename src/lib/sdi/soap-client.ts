@@ -91,10 +91,17 @@ export async function sendInvoiceToSDI(
     console.log(`[SDI ${environment.toUpperCase()}] Invio fattura: ${signedFileName}`);
 
     // Crea SOAP client con supporto MTOM
-    const wsdlOptions: any = {
-      // Per TEST, disabilita verifica rigorosa certificati
-      rejectUnauthorized: certConfig.rejectUnauthorized !== false,
-    };
+    // Per TEST, disabilita completamente la verifica SSL
+    const wsdlOptions: any = {};
+    
+    if (environment === 'test') {
+      // In test, disabilita completamente la verifica SSL
+      wsdlOptions.rejectUnauthorized = false;
+      console.warn(`[SDI TEST] Verifica certificati SSL disabilitata per test`);
+    } else {
+      // In produzione, usa la configurazione normale
+      wsdlOptions.rejectUnauthorized = certConfig.rejectUnauthorized !== false;
+    }
     
     if (certConfig.cert) {
       wsdlOptions.cert = certConfig.cert;
@@ -106,10 +113,11 @@ export async function sendInvoiceToSDI(
       wsdlOptions.ca = certConfig.ca;
     }
     
-    // Per TEST, disabilita completamente la verifica se necessario
-    if (environment === 'test' && !certConfig.rejectUnauthorized) {
-      wsdlOptions.rejectUnauthorized = false;
-      console.warn(`[SDI TEST] Verifica certificati SSL disabilitata per test`);
+    // Configurazione HTTPS agent per gestire meglio SSL in test
+    if (environment === 'test') {
+      // Disabilita completamente la verifica SSL per test
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      console.warn(`[SDI TEST] NODE_TLS_REJECT_UNAUTHORIZED impostato a 0 per test`);
     }
     
     const soapClient = await soap.createClientAsync(wsdlUrl, {
@@ -117,6 +125,10 @@ export async function sendInvoiceToSDI(
       // Abilita MTOM per invio file binari
       forceSoap12Headers: false,
       disableCache: true,
+      // Per test, disabilita verifica anche a livello di request
+      request: environment === 'test' ? {
+        rejectUnauthorized: false,
+      } : undefined,
     });
 
     // Codifica file .p7m in base64 per trasmissione
@@ -126,45 +138,88 @@ export async function sendInvoiceToSDI(
     // Il metodo può variare in base al WSDL, verifica il nome corretto
     let result: any;
     
-    // Prova diversi nomi di metodo in ordine di priorità
-    if (soapClient.RiceviFile) {
-      result = await soapClient.RiceviFileAsync({
-        fileName: signedFileName,
-        file: p7mBase64, // SDI può accettare base64 o MTOM
-      });
-    } else if (soapClient.RiceviFileRequest) {
-      // Metodo alternativo con struttura più complessa (MTOM)
-      result = await soapClient.RiceviFileRequestAsync({
-        fileName: signedFileName,
-        file: {
-          _: p7mBase64,
-          '$attributes': {
-            'href': `cid:${signedFileName.replace(/\./g, '-')}`,
-          },
-        },
-      });
-    } else if (soapClient.TrasmettiFattura) {
-      // Metodo alternativo (vecchio formato)
-      result = await soapClient.TrasmettiFatturaAsync({
-        nomeFile: signedFileName,
-        fileFattura: p7mBase64,
-      });
-    } else {
-      // Fallback: cerca metodo generico
-      const methods = Object.keys(soapClient).filter(k => 
-        (k.includes('Ricevi') || k.includes('Trasmetti')) && 
-        !k.includes('Async') && 
-        typeof soapClient[k] === 'function'
-      );
-      if (methods.length > 0) {
-        const method = methods[0];
-        console.log(`[SDI ${environment.toUpperCase()}] Usando metodo: ${method}`);
-        result = await soapClient[method + 'Async']({
+    try {
+      // Prova diversi nomi di metodo in ordine di priorità
+      if (soapClient.RiceviFile) {
+        result = await soapClient.RiceviFileAsync({
           fileName: signedFileName,
-          file: p7mBase64,
+          file: p7mBase64, // SDI può accettare base64 o MTOM
+        });
+      } else if (soapClient.RiceviFileRequest) {
+        // Metodo alternativo con struttura più complessa (MTOM)
+        result = await soapClient.RiceviFileRequestAsync({
+          fileName: signedFileName,
+          file: {
+            _: p7mBase64,
+            '$attributes': {
+              'href': `cid:${signedFileName.replace(/\./g, '-')}`,
+            },
+          },
+        });
+      } else if (soapClient.TrasmettiFattura) {
+        // Metodo alternativo (vecchio formato)
+        result = await soapClient.TrasmettiFatturaAsync({
+          nomeFile: signedFileName,
+          fileFattura: p7mBase64,
         });
       } else {
-        throw new Error('Metodo SOAP non trovato nel WSDL. Verifica il nome del metodo.');
+        // Fallback: cerca metodo generico
+        const methods = Object.keys(soapClient).filter(k => 
+          (k.includes('Ricevi') || k.includes('Trasmetti')) && 
+          !k.includes('Async') && 
+          typeof soapClient[k] === 'function'
+        );
+        if (methods.length > 0) {
+          const method = methods[0];
+          console.log(`[SDI ${environment.toUpperCase()}] Usando metodo: ${method}`);
+          result = await soapClient[method + 'Async']({
+            fileName: signedFileName,
+            file: p7mBase64,
+          });
+        } else {
+          throw new Error('Metodo SOAP non trovato nel WSDL. Verifica il nome del metodo.');
+        }
+      }
+    } catch (soapError: any) {
+      // Se l'errore è relativo a certificati SSL in test, prova senza verifica
+      if (environment === 'test' && (
+        soapError.message?.includes('self-signed certificate') ||
+        soapError.message?.includes('certificate') ||
+        soapError.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE'
+      )) {
+        console.warn(`[SDI TEST] Errore SSL, riprovo con verifica completamente disabilitata`);
+        // Disabilita verifica SSL a livello globale per questa chiamata
+        const originalReject = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        try {
+          // Ricrea client SOAP senza verifica
+          const testWsdlOptions = { ...wsdlOptions, rejectUnauthorized: false };
+          const testSoapClient = await soap.createClientAsync(wsdlUrl, {
+            wsdl_options: testWsdlOptions,
+            forceSoap12Headers: false,
+            disableCache: true,
+            request: { rejectUnauthorized: false },
+          });
+          
+          // Riprova la chiamata
+          if (testSoapClient.RiceviFile) {
+            result = await testSoapClient.RiceviFileAsync({
+              fileName: signedFileName,
+              file: p7mBase64,
+            });
+          } else {
+            throw soapError; // Se non ha il metodo, rilancia l'errore originale
+          }
+        } finally {
+          // Ripristina valore originale
+          if (originalReject !== undefined) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = originalReject;
+          } else {
+            delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+          }
+        }
+      } else {
+        throw soapError;
       }
     }
 
