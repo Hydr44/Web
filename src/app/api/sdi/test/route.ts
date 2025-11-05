@@ -17,11 +17,13 @@ export async function GET(request: NextRequest) {
     endpoints: {
       // Endpoint di TEST (ambiente SDI test)
       test: {
+        trasmissione: `${baseUrl}/api/sdi/test/trasmissione`,
         ricezione_fatture: `${baseUrl}/api/sdi/test/ricezione-fatture`,
         ricezione_notifiche: `${baseUrl}/api/sdi/test/ricezione-notifiche`,
       },
       // Endpoint di PRODUZIONE (ambiente SDI produzione)
       production: {
+        trasmissione: `${baseUrl}/api/sdi/trasmissione`,
         ricezione_fatture: `${baseUrl}/api/sdi/ricezione-fatture`,
         ricezione_notifiche: `${baseUrl}/api/sdi/ricezione-notifiche`,
       },
