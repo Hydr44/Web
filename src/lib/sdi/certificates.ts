@@ -62,42 +62,95 @@ export function getServerKeyPath(): string | null {
  * Carica certificato SDI client
  */
 export function loadSDIClientCert(environment: SDIEnvironment): string {
+  // Prima prova da filesystem
   const certPath = getSDIClientCertPath(environment);
-  if (!fs.existsSync(certPath)) {
-    throw new Error(`Certificato SDI client non trovato: ${certPath}`);
+  if (fs.existsSync(certPath)) {
+    return fs.readFileSync(certPath, 'utf8');
   }
-  return fs.readFileSync(certPath, 'utf8');
+  
+  // Se non trovato, prova da variabile d'ambiente (Vercel Secrets)
+  const envVar = environment === 'test' ? 'SDI_TEST_CLIENT_CERT' : 'SDI_PROD_CLIENT_CERT';
+  const envCert = process.env[envVar];
+  if (envCert) {
+    return envCert;
+  }
+  
+  throw new Error(`Certificato SDI client non trovato: ${certPath}. Configura ${envVar} in Vercel Secrets.`);
 }
 
 /**
  * Carica certificato SDI server
  */
 export function loadSDIServerCert(environment: SDIEnvironment): string {
+  // Prima prova da filesystem
   const certPath = getSDIServerCertPath(environment);
-  if (!fs.existsSync(certPath)) {
-    throw new Error(`Certificato SDI server non trovato: ${certPath}`);
+  if (fs.existsSync(certPath)) {
+    return fs.readFileSync(certPath, 'utf8');
   }
-  return fs.readFileSync(certPath, 'utf8');
+  
+  // Se non trovato, prova da variabile d'ambiente (Vercel Secrets)
+  const envVar = environment === 'test' ? 'SDI_TEST_SERVER_CERT' : 'SDI_PROD_SERVER_CERT';
+  const envCert = process.env[envVar];
+  if (envCert) {
+    return envCert;
+  }
+  
+  throw new Error(`Certificato SDI server non trovato: ${certPath}. Configura ${envVar} in Vercel Secrets.`);
 }
 
 /**
  * Carica certificato client nostro
  */
 export function loadClientCert(): string {
-  const certPath = getClientCertPath();
-  if (!fs.existsSync(certPath)) {
-    throw new Error(`Certificato client non trovato: ${certPath}`);
+  // PRIMA prova da variabile d'ambiente (Vercel Secrets) - più sicuro
+  const envCert = process.env.SDI_CLIENT_CERT;
+  if (envCert && envCert.trim().length > 0) {
+    console.log('[SDI] Certificato client caricato da variabile d\'ambiente SDI_CLIENT_CERT');
+    return envCert.trim();
   }
-  return fs.readFileSync(certPath, 'utf8');
+  
+  // Poi prova da filesystem (solo per sviluppo locale)
+  const certPath = getClientCertPath();
+  if (fs.existsSync(certPath)) {
+    console.log('[SDI] Certificato client caricato da filesystem:', certPath);
+    return fs.readFileSync(certPath, 'utf8');
+  }
+  
+  // Se non trovato, prova a convertire da DER se esiste
+  const derPath = certPath.replace(/\.cer$/, '.cer');
+  if (fs.existsSync(derPath)) {
+    try {
+      const { execSync } = require('child_process');
+      const pemCert = execSync(`openssl x509 -inform DER -in "${derPath}" -outform PEM`, { encoding: 'utf8' });
+      console.log('[SDI] Certificato client convertito da DER a PEM');
+      return pemCert;
+    } catch (error) {
+      // Ignora errori di conversione
+    }
+  }
+  
+  throw new Error(`Certificato client non trovato. Configura SDI_CLIENT_CERT in Vercel Secrets o salva il file in: ${certPath}`);
 }
 
 /**
  * Carica chiave privata client (se disponibile)
  */
 export function loadClientKey(): string | null {
+  // PRIMA prova da variabile d'ambiente (Vercel Secrets) - più sicuro
+  const envKey = process.env.SDI_CLIENT_KEY;
+  if (envKey && envKey.trim().length > 0) {
+    console.log('[SDI] Chiave privata caricata da variabile d\'ambiente SDI_CLIENT_KEY');
+    return envKey.trim();
+  }
+  
+  // Poi prova da filesystem (solo per sviluppo locale)
   const keyPath = getClientKeyPath();
-  if (!keyPath) return null;
-  return fs.readFileSync(keyPath, 'utf8');
+  if (keyPath && fs.existsSync(keyPath)) {
+    console.log('[SDI] Chiave privata caricata da filesystem:', keyPath);
+    return fs.readFileSync(keyPath, 'utf8');
+  }
+  
+  return null;
 }
 
 /**
