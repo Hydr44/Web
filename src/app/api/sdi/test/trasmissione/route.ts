@@ -105,10 +105,48 @@ export async function POST(request: NextRequest) {
     const invoiceNumber = invoice?.number || '00001';
     const fileName = generateSDIFileName(vatNumber, invoiceNumber);
 
+    // IMPORTANTE: Per l'ambiente TEST SDI, potrebbe essere necessario:
+    // 1. Registrare gli endpoint sul portale SDI (https://www.fatturapa.gov.it/)
+    // 2. Ottenere accesso all'ambiente test
+    // 3. Configurare i certificati correttamente
+    // 
+    // Se tutti gli endpoint restituiscono 404, potrebbe significare:
+    // - Gli endpoint non sono ancora registrati sul portale SDI
+    // - L'URL dell'endpoint è errato
+    // - Serve autenticazione/registrazione prima di poter inviare fatture
+    
+    console.log('[SDI TEST] ⚠️ ATTENZIONE: Prima di inviare fatture al SDI TEST, devi:');
+    console.log('[SDI TEST] 1. Registrare gli endpoint sul portale SDI: https://www.fatturapa.gov.it/');
+    console.log('[SDI TEST] 2. Configurare i certificati client in Vercel Secrets');
+    console.log('[SDI TEST] 3. Verificare che l\'ambiente test sia accessibile');
+    
     // Invia fattura al SDI TEST tramite web service SOAP
     const sdiResponse = await sendInvoiceToSDI(invoiceXml, fileName, 'test');
 
     if (!sdiResponse.success) {
+      // Se tutti gli endpoint restituiscono 404, fornisci istruzioni chiare
+      const is404Error = sdiResponse.error?.includes('404') || sdiResponse.error?.includes('Not Found');
+      
+      if (is404Error) {
+        return createSDIResponse(
+          {
+            success: false,
+            error: sdiResponse.error || 'Errore invio al SDI',
+            message: `⚠️ ERRORE 404: Gli endpoint SDI non sono stati trovati.\n\n` +
+                     `Questo potrebbe significare:\n` +
+                     `1. Gli endpoint non sono ancora registrati sul portale SDI\n` +
+                     `2. L'URL dell'endpoint è errato\n` +
+                     `3. Serve registrazione sul portale SDI prima di poter inviare fatture\n\n` +
+                     `Prossimi passi:\n` +
+                     `- Vai su https://www.fatturapa.gov.it/\n` +
+                     `- Registra gli endpoint nella sezione "Test di interoperabilità"\n` +
+                     `- Verifica i certificati in Vercel Secrets\n\n` +
+                     `Dettagli tecnici: ${sdiResponse.message || 'Nessun dettaglio disponibile'}`,
+          },
+          500
+        );
+      }
+      
       return createSDIResponse(
         {
           success: false,
