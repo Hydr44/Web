@@ -255,8 +255,13 @@ export async function sendInvoiceToSDIWithoutWSDL(
       
       // Raccogli informazioni sull'errore per debug
       if (result && !result.success) {
+        // Estrai status code dall'errore se presente (es. "HTTP 404: Not Found")
+        const statusMatch = result.error?.match(/HTTP (\d+)/);
+        const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : undefined;
+        
         errors.push({
           endpoint,
+          statusCode,
           error: result.error || 'Errore sconosciuto',
           response: result.message || 'Nessuna risposta',
         });
