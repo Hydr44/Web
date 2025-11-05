@@ -106,6 +106,11 @@ Content-ID: <${attachmentId}>\r
     
     const soapAction = 'http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0/RiceviFile';
     
+    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP MTOM: ${signedFileName}`);
+    console.log(`[SDI ${environment.toUpperCase()}] Dimensione file .p7m: ${p7mBuffer.length} bytes`);
+    console.log(`[SDI ${environment.toUpperCase()}] Dimensione multipart: ${multipartBody.length} bytes`);
+    console.log(`[SDI ${environment.toUpperCase()}] Boundary: ${boundary}`);
+    
     // Funzione helper per provare una richiesta SOAP con MTOM
     const trySOAPRequest = (
       endpointUrl: string,
