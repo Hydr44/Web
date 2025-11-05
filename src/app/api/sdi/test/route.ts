@@ -14,28 +14,26 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     success: true,
     message: 'Endpoint SDI test attivo',
-    endpoints: {
-      // Endpoint di TEST (ambiente SDI test)
-      test: {
-        trasmissione: `${baseUrl}/api/sdi/test/trasmissione`,
-        ricezione_fatture: `${baseUrl}/api/sdi/test/ricezione-fatture`,
-        ricezione_notifiche: `${baseUrl}/api/sdi/test/ricezione-notifiche`,
-      },
-      // Endpoint di PRODUZIONE (ambiente SDI produzione)
-      production: {
-        trasmissione: `${baseUrl}/api/sdi/trasmissione`,
-        ricezione_fatture: `${baseUrl}/api/sdi/ricezione-fatture`,
-        ricezione_notifiche: `${baseUrl}/api/sdi/ricezione-notifiche`,
-      },
+         endpoints: {
+             // Endpoint di TEST (ambiente SDI test)
+             test: {
+               trasmissione: `${baseUrl}/api/sdi/test/trasmissione`,
+               ricezione: `${baseUrl}/api/sdi/test/ricezione`,
+             },
+             // Endpoint di PRODUZIONE (ambiente SDI produzione)
+             production: {
+               trasmissione: `${baseUrl}/api/sdi/trasmissione`,
+               ricezione: `${baseUrl}/api/sdi/ricezione`,
+             },
       info: `${baseUrl}/api/sdi/test`,
     },
-    instructions: {
-      registrazione_sdi_test: 'Registra gli endpoint TEST sul portale SDI test (https://www.fatture.gov.it/)',
-      registrazione_sdi_produzione: 'Registra gli endpoint PRODUZIONE sul portale SDI produzione (https://www.fatture.gov.it/)',
-      ambiente_test: 'Usa prima l\'ambiente di test SDI per verificare',
-      formato: 'SDI invierà XML fatture/notifiche via POST a questi endpoint',
-      note: 'Gli endpoint di TEST e PRODUZIONE sono separati e devono essere registrati separatamente sul portale SDI',
-    },
+           instructions: {
+             registrazione_sdi_test: 'Registra gli endpoint TEST sul portale SDI test (https://www.fatture.gov.it/):\n  - Trasmissione: /api/sdi/test/trasmissione\n  - Ricezione: /api/sdi/test/ricezione (gestisce sia fatture che notifiche)',
+             registrazione_sdi_produzione: 'Registra gli endpoint PRODUZIONE sul portale SDI produzione (https://www.fatture.gov.it/):\n  - Trasmissione: /api/sdi/trasmissione\n  - Ricezione: /api/sdi/ricezione (gestisce sia fatture che notifiche)',
+             ambiente_test: 'Usa prima l\'ambiente di test SDI per verificare',
+             formato: 'SDI invierà XML fatture/notifiche via POST all\'endpoint di ricezione',
+             note: 'L\'endpoint di ricezione gestisce automaticamente sia fatture che notifiche. Gli endpoint di TEST e PRODUZIONE sono separati e devono essere registrati separatamente sul portale SDI',
+           },
     environment: {
       node_env: process.env.NODE_ENV,
       supabase_configured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,

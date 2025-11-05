@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createSDIResponse } from '../../_utils';
+import { sendInvoiceToSDI, generateSDIFileName } from '@/lib/sdi/soap-client';
+import { generateFatturaPAXML, invoiceToFatturaPAData } from '@/lib/sdi/xml-generator';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,9 +80,16 @@ export async function POST(request: NextRequest) {
 
       // Se XML non è fornito, genera XML da fattura
       if (!invoiceXml && invoice) {
-        // TODO: Genera XML FatturaPA da invoice
-        // Per ora usa XML esistente se presente
-        invoiceXml = invoice.meta?.sdi_xml || '';
+        // Recupera impostazioni organizzazione per dati cedente
+        const { data: orgSettings } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', invoice.org_id)
+          .single();
+
+        // Genera XML FatturaPA
+        const fatturaPAData = invoiceToFatturaPAData(invoice, orgSettings);
+        invoiceXml = generateFatturaPAXML(fatturaPAData);
       }
     }
 
@@ -91,27 +100,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Invia fattura al SDI TEST tramite web service SOAP
-    // Per ora simuliamo l'invio
-    // In produzione, qui andrà la chiamata SOAP al SDI TEST:
-    // - Endpoint SDI TEST: https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl
-    // - Metodo: TrasmettiFattura
-    // - Autenticazione: Certificato digitale o username/password (test)
+    // Genera nome file conforme SDI
+    const vatNumber = invoice?.meta?.sdi?.cedente_prestatore?.id_fiscale_iva?.id_codice || '02166430856';
+    const invoiceNumber = invoice?.number || '00001';
+    const fileName = generateSDIFileName(vatNumber, invoiceNumber);
 
-    const sdiResponse = {
-      success: true,
-      message: 'Fattura inviata al SDI (TEST)',
-      identificativo_sdi: `SDI-TEST-${Date.now()}`,
-      invoice_id: invoice_id || null,
-    };
+    // Invia fattura al SDI TEST tramite web service SOAP
+    const sdiResponse = await sendInvoiceToSDI(invoiceXml, fileName, 'test');
+
+    if (!sdiResponse.success) {
+      return createSDIResponse(
+        {
+          success: false,
+          error: sdiResponse.error || 'Errore invio al SDI',
+          message: sdiResponse.message,
+        },
+        500
+      );
+    }
 
     // Aggiorna stato fattura
-    if (invoice_id) {
+    if (invoice_id && sdiResponse.identificativoSDI) {
       await supabase
         .from('invoices')
         .update({
           sdi_status: 'sent',
-          provider_ext_id: sdiResponse.identificativo_sdi,
+          provider_ext_id: sdiResponse.identificativoSDI,
           meta: {
             sdi_sent: true,
             sdi_sent_at: new Date().toISOString(),
@@ -127,7 +141,7 @@ export async function POST(request: NextRequest) {
         invoice_id,
         event_type: 'TrasmissioneFattura_TEST',
         payload: {
-          identificativo_sdi: sdiResponse.identificativo_sdi,
+          identificativo_sdi: sdiResponse.identificativoSDI,
           xml_length: invoiceXml.length,
           sent_at: new Date().toISOString(),
           environment: 'TEST',
@@ -137,14 +151,14 @@ export async function POST(request: NextRequest) {
 
     console.log('[SDI TEST] Fattura trasmessa:', {
       invoice_id,
-      identificativo_sdi: sdiResponse.identificativo_sdi,
+      identificativo_sdi: sdiResponse.identificativoSDI,
     });
 
     return createSDIResponse({
       success: true,
-      message: sdiResponse.message,
-      invoice_id: sdiResponse.invoice_id,
-      identificativo_sdi: sdiResponse.identificativo_sdi,
+      message: sdiResponse.message || 'Fattura inviata al SDI (TEST)',
+      invoice_id: invoice_id || null,
+      identificativo_sdi: sdiResponse.identificativoSDI,
     });
 
   } catch (error: any) {

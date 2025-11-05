@@ -4,45 +4,62 @@ Questi endpoint permettono di ricevere fatture elettroniche e notifiche dal Sist
 
 ## Endpoint Disponibili
 
-### 1. `/api/sdi/ricezione-fatture` (POST)
-Riceve fatture elettroniche inviate dal SDI quando altri soggetti emettono fatture verso la tua partita IVA.
+### 1. `/api/sdi/trasmissione` (POST)
+Invia fatture elettroniche al SDI (ambiente PRODUZIONE).
 
 **Formato richiesta:**
-- Content-Type: `application/xml` o `text/xml`
-- Body: XML fattura elettronica (formato FatturaPA)
+- Content-Type: `application/json`
+- Body: `{ "invoice_id": "uuid-fattura", "xml": "..." }` (xml opzionale)
 
 **Risposta:**
 ```json
 {
   "success": true,
-  "message": "Fattura ricevuta e salvata con successo",
+  "message": "Fattura inviata al SDI",
+  "identificativo_sdi": "SDI-123456",
   "invoice_id": "uuid-fattura"
 }
 ```
 
-### 2. `/api/sdi/ricezione-notifiche` (POST)
-Riceve notifiche di esito dal SDI per fatture emesse:
+### 2. `/api/sdi/test/trasmissione` (POST)
+Invia fatture elettroniche al SDI (ambiente TEST).
+
+**Formato richiesta:**
+- Content-Type: `application/json`
+- Body: `{ "invoice_id": "uuid-fattura", "xml": "..." }` (xml opzionale)
+
+### 3. `/api/sdi/ricezione` (POST)
+**Endpoint unificato** che riceve sia fatture elettroniche che notifiche dal SDI (ambiente PRODUZIONE).
+
+Il sistema riconosce automaticamente se il XML ricevuto è una fattura o una notifica.
+
+**Fatture ricevute:**
+- Content-Type: `application/xml` o `text/xml`
+- Body: XML fattura elettronica (formato FatturaPA)
+
+**Notifiche ricevute:**
 - **RicevutaConsegna (RC)**: Fattura consegnata con successo
 - **NotificaMancataConsegna (MC)**: Errore consegna
 - **NotificaScarto (NS)**: Fattura scartata
 - **NotificaEsito (NE)**: Esito committente (accettazione/rifiuto)
 - **NotificaDecorrenzaTermini (DT)**: Accettazione tacita
 
-**Formato richiesta:**
-- Content-Type: `application/xml` o `text/xml`
-- Body: XML notifica SDI
-
 **Risposta:**
 ```json
 {
   "success": true,
-  "message": "Notifica processata",
+  "message": "Fattura/Notifica ricevuta e processata",
   "invoice_id": "uuid-fattura",
-  "notification_id": "identificativo-sdi"
+  "notification_id": "identificativo-sdi" // Solo per notifiche
 }
 ```
 
-### 3. `/api/sdi/test` (GET)
+### 4. `/api/sdi/test/ricezione` (POST)
+**Endpoint unificato** che riceve sia fatture elettroniche che notifiche dal SDI (ambiente TEST).
+
+Funziona esattamente come `/api/sdi/ricezione` ma per l'ambiente di test.
+
+### 5. `/api/sdi/test` (GET)
 Endpoint di test per verificare la configurazione SDI e ottenere gli URL degli endpoint.
 
 **Risposta:**
@@ -65,8 +82,9 @@ Per registrare questi endpoint sul portale SDI:
 1. Accedi a: https://www.fatture.gov.it/
 2. Vai su "Area Riservata" → "Configurazione Endpoint"
 3. Inserisci gli endpoint:
-   - **Ricezione Fatture**: `https://rescuemanager.eu/api/sdi/ricezione-fatture`
-   - **Ricezione Notifiche**: `https://rescuemanager.eu/api/sdi/ricezione-notifiche`
+   - **Ricezione (Fatture e Notifiche)**: `https://rescuemanager.eu/api/sdi/ricezione`
+   
+   **Nota**: L'endpoint di ricezione gestisce automaticamente sia fatture che notifiche. Sul portale SDI, registra lo stesso URL per entrambi i tipi di ricezione.
 
 ## Ambiente di Test
 
