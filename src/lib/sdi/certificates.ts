@@ -237,13 +237,32 @@ export function getSOAPClientConfig(environment: SDIEnvironment): SOAPCertConfig
   const cert = loadClientCert();
   const key = loadClientKey();
   const ca = loadCACerts(environment);
-  const serverCert = loadSDIServerCert(environment);
+  
+  // Certificato SDI server è opzionale, specialmente per test
+  let serverCert: string;
+  try {
+    serverCert = loadSDIServerCert(environment);
+  } catch (error) {
+    // Se non trovato e siamo in test, continua senza
+    if (environment === 'test') {
+      console.warn(`[SDI TEST] Certificato SDI server non disponibile - continuo senza`);
+      serverCert = '';
+    } else {
+      throw error;
+    }
+  }
+
+  // Costruisci array CA, includendo serverCert solo se disponibile
+  const caCerts = [...ca];
+  if (serverCert && serverCert.trim().length > 0) {
+    caCerts.push(serverCert);
+  }
 
   return {
     cert,
     key: key || undefined,
-    ca: [...ca, serverCert],
-    rejectUnauthorized: true,
+    ca: caCerts.length > 0 ? caCerts : undefined,
+    rejectUnauthorized: environment === 'production', // Solo produzione richiede verifica completa
   };
 }
 
