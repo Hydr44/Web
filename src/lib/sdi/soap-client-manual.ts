@@ -32,22 +32,59 @@ export async function sendInvoiceToSDIWithoutWSDL(
     // Genera nome file firmato
     const signedFileName = fileName.replace('.xml', '.xml.p7m');
     
-    // Codifica file .p7m in base64
-    const p7mBase64 = p7mBuffer.toString('base64');
+    // IMPORTANTE: SDI richiede formato MTOM (Multipart/Related), NON base64 nel body SOAP!
+    // Secondo documentazione: 03_invio_SOAP_esempio.md
+    // Il file .p7m deve essere inviato come allegato MTOM separato
     
-    // Costruisci SOAP envelope secondo documentazione SDI
-    // IMPORTANTE: Per TRASMISSIONE fatture, il metodo è RiceviFileRequest (SDICoop)
-    // Namespace: http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0
-    const soapBody = `<?xml version="1.0" encoding="UTF-8"?>
+    // Genera boundary univoco per multipart
+    const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const startId = `rootpart@soapui.org`;
+    const attachmentId = `allegato-p7m@rescuemanager`;
+    
+    // Costruisci SOAP envelope con riferimento MTOM (xop:Include)
+    const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0">
   <soapenv:Header/>
   <soapenv:Body>
     <sdicoop:RiceviFileRequest>
       <sdicoop:fileName>${signedFileName}</sdicoop:fileName>
-      <sdicoop:file>${p7mBase64}</sdicoop:file>
+      <sdicoop:file>
+        <xop:Include xmlns:xop="http://www.w3.org/2004/08/xop/include" href="cid:${attachmentId}"/>
+      </sdicoop:file>
     </sdicoop:RiceviFileRequest>
   </soapenv:Body>
 </soapenv:Envelope>`;
+    
+    // Costruisci corpo multipart/related
+    // Parte 1: SOAP envelope
+    const part1 = `--${boundary}\r
+Content-Type: text/xml; charset=utf-8\r
+Content-Transfer-Encoding: 8bit\r
+Content-ID: <${startId}>\r
+\r
+${soapEnvelope}\r
+`;
+    
+    // Parte 2: Allegato file .p7m (binario)
+    const part2 = `--${boundary}\r
+Content-Type: application/octet-stream\r
+Content-Transfer-Encoding: binary\r
+Content-ID: <${attachmentId}>\r
+\r
+`;
+    
+    // Parte finale: chiusura boundary
+    const partEnd = `\r
+--${boundary}--\r
+`;
+    
+    // Costruisci corpo completo multipart
+    const multipartBody = Buffer.concat([
+      Buffer.from(part1, 'utf8'),
+      Buffer.from(part2, 'utf8'),
+      p7mBuffer, // File binario .p7m
+      Buffer.from(partEnd, 'utf8'),
+    ]);
     
     // URL SDI endpoint SOAP
     // NOTA: L'endpoint potrebbe essere diverso dal WSDL
@@ -69,7 +106,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
     
     const soapAction = 'http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0/RiceviFile';
     
-    // Funzione helper per provare una richiesta SOAP
+    // Funzione helper per provare una richiesta SOAP con MTOM
     const trySOAPRequest = (
       endpointUrl: string,
       description: string
@@ -85,9 +122,10 @@ export async function sendInvoiceToSDIWithoutWSDL(
             path: url.pathname,
             method: 'POST',
             headers: {
-              'Content-Type': 'text/xml; charset=utf-8',
+              'Content-Type': `multipart/related; type="text/xml"; start="<${startId}>"; boundary="${boundary}"`,
+              'MIME-Version': '1.0',
               'SOAPAction': soapAction,
-              'Content-Length': Buffer.byteLength(soapBody),
+              'Content-Length': multipartBody.length,
             },
             // Certificati per autenticazione (se disponibili)
             cert: certConfig.cert,
@@ -153,8 +191,8 @@ export async function sendInvoiceToSDIWithoutWSDL(
             resolve(null); // Prova il prossimo endpoint
           });
           
-          // Invia richiesta
-          req.write(soapBody);
+          // Invia richiesta multipart
+          req.write(multipartBody);
           req.end();
         } catch (error: any) {
           console.error(`[SDI ${environment.toUpperCase()}] Errore preparazione richiesta ${description}:`, error.message);
