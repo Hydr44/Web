@@ -56,33 +56,24 @@ export async function sendInvoiceToSDIWithoutWSDL(
 </soapenv:Envelope>`;
     
     // Costruisci corpo multipart/related
+    // IMPORTANTE: Il formato deve essere esattamente come nella documentazione SDI
+    // Ogni parte deve terminare con \r\n, non solo \r
+    
     // Parte 1: SOAP envelope
-    const part1 = `--${boundary}\r
-Content-Type: text/xml; charset=utf-8\r
-Content-Transfer-Encoding: 8bit\r
-Content-ID: <${startId}>\r
-\r
-${soapEnvelope}\r
-`;
+    const part1 = `--${boundary}\r\nContent-Type: text/xml; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
     
     // Parte 2: Allegato file .p7m (binario)
-    const part2 = `--${boundary}\r
-Content-Type: application/octet-stream\r
-Content-Transfer-Encoding: binary\r
-Content-ID: <${attachmentId}>\r
-\r
-`;
+    const part2Header = `--${boundary}\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <${attachmentId}>\r\n\r\n`;
     
     // Parte finale: chiusura boundary
-    const partEnd = `\r
---${boundary}--\r
-`;
+    const partEnd = `\r\n--${boundary}--\r\n`;
     
     // Costruisci corpo completo multipart
+    // IMPORTANTE: Il file binario deve essere concatenato direttamente senza conversione
     const multipartBody = Buffer.concat([
       Buffer.from(part1, 'utf8'),
-      Buffer.from(part2, 'utf8'),
-      p7mBuffer, // File binario .p7m
+      Buffer.from(part2Header, 'utf8'),
+      p7mBuffer, // File binario .p7m (raw bytes)
       Buffer.from(partEnd, 'utf8'),
     ]);
     
