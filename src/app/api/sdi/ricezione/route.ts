@@ -2,11 +2,13 @@
 // Endpoint: POST /api/sdi/ricezione
 //
 // Questo endpoint riceve sia fatture elettroniche che notifiche dal SDI di produzione
+// IMPORTANTE: Il SDI invia richieste SOAP con MTOM, quindi dobbiamo gestire multipart/related
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createSDIResponse, parseSDIXML, parseSDINotification } from '../_utils';
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
+import { extractFileFromSOAPMTOM, createSOAPResponse, isSOAPRequest } from '@/lib/sdi/soap-reception';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,6 +27,17 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Log dettagliato per debug
+    const contentType = request.headers.get('content-type') || '';
+    const userAgent = request.headers.get('user-agent') || '';
+    const forwardedFor = request.headers.get('x-forwarded-for') || '';
+    
+    console.log('[SDI] ========== RICEZIONE RICHIESTA ==========');
+    console.log('[SDI] Content-Type:', contentType);
+    console.log('[SDI] User-Agent:', userAgent);
+    console.log('[SDI] X-Forwarded-For:', forwardedFor);
+    console.log('[SDI] URL:', request.url);
+    
     // Verifica che la richiesta provenga da SDI (produzione)
     // NOTA: In produzione, configurare verifica completa (IP whitelist, certificati)
     if (!verifySDIRequest(request, 'production')) {
@@ -37,20 +50,34 @@ export async function POST(request: NextRequest) {
       // );
     }
 
-    // Ricevi XML dal SDI
-    const contentType = request.headers.get('content-type') || '';
-    
+    // Estrai XML/file dalla richiesta SOAP
     let xml: string;
-    if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
+    let fileName = 'fattura.xml';
+    
+    if (isSOAPRequest(request)) {
+      console.log('[SDI] Rilevata richiesta SOAP con MTOM');
+      try {
+        const extracted = await extractFileFromSOAPMTOM(request);
+        xml = extracted.xml;
+        fileName = extracted.fileName;
+        console.log('[SDI] File estratto:', fileName);
+        console.log('[SDI] Dimensione file:', extracted.fileContent.length, 'bytes');
+      } catch (extractError: any) {
+        console.error('[SDI] Errore estrazione file SOAP:', extractError);
+        // Fallback: prova a leggere come testo normale
+        xml = await request.text();
+      }
+    } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
       xml = await request.text();
     } else if (contentType.includes('application/json')) {
       const body = await request.json();
       xml = body.xml || body.content || '';
     } else {
+      // Ultimo tentativo: leggi come testo
       xml = await request.text();
     }
 
-    console.log('[SDI] Ricezione XML:', xml.substring(0, 200));
+    console.log('[SDI] XML ricevuto (primi 500 caratteri):', xml.substring(0, 500));
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
