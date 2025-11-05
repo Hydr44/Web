@@ -120,16 +120,18 @@ export async function sendInvoiceToSDI(
       console.warn(`[SDI TEST] NODE_TLS_REJECT_UNAUTHORIZED impostato a 0 per test`);
     }
     
-    const soapClient = await soap.createClientAsync(wsdlUrl, {
+    // Configurazione client SOAP
+    const soapOptions: any = {
       wsdl_options: wsdlOptions,
       // Abilita MTOM per invio file binari
       forceSoap12Headers: false,
       disableCache: true,
-      // Per test, disabilita verifica anche a livello di request
-      request: environment === 'test' ? {
-        rejectUnauthorized: false,
-      } : undefined,
-    });
+    };
+    
+    // La libreria soap non supporta direttamente l'opzione 'request'
+    // Usiamo wsdl_options per configurare SSL
+    
+    const soapClient = await soap.createClientAsync(wsdlUrl, soapOptions);
 
     // Codifica file .p7m in base64 per trasmissione
     const p7mBase64 = p7mBuffer.toString('base64');
