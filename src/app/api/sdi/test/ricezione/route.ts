@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic';
 
 // Gestisce richieste OPTIONS per CORS
 export async function OPTIONS() {
+  console.log('[SDI TEST] ⚠️ OPTIONS chiamato');
   return new NextResponse(null, {
     status: 200,
     headers: {
@@ -25,18 +26,45 @@ export async function OPTIONS() {
   });
 }
 
+// Aggiungi GET per test di raggiungibilità
+export async function GET(request: NextRequest) {
+  console.log('[SDI TEST] ⚠️ GET chiamato - endpoint raggiungibile');
+  return NextResponse.json({
+    success: true,
+    message: 'Endpoint SDI ricezione raggiungibile',
+    endpoint: '/api/sdi/test/ricezione',
+    method: 'POST',
+    timestamp: new Date().toISOString(),
+  });
+}
+
 export async function POST(request: NextRequest) {
+  // FORZA LOG IMMEDIATO all'inizio della funzione per verificare che sia chiamata
+  console.log('========================================');
+  console.log('[SDI TEST] ⚠️⚠️⚠️ POST RICEZIONE CHIAMATO ⚠️⚠️⚠️');
+  console.log('[SDI TEST] Timestamp:', new Date().toISOString());
+  console.log('[SDI TEST] URL:', request.url);
+  console.log('[SDI TEST] Method:', request.method);
+  console.log('========================================');
+  
   try {
     // Log dettagliato per debug
     const contentType = request.headers.get('content-type') || '';
     const userAgent = request.headers.get('user-agent') || '';
     const forwardedFor = request.headers.get('x-forwarded-for') || '';
+    const realIp = request.headers.get('x-real-ip') || '';
+    const allHeaders: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      allHeaders[key] = value;
+    });
     
     console.log('[SDI TEST] ========== RICEZIONE RICHIESTA ==========');
     console.log('[SDI TEST] Content-Type:', contentType);
     console.log('[SDI TEST] User-Agent:', userAgent);
     console.log('[SDI TEST] X-Forwarded-For:', forwardedFor);
+    console.log('[SDI TEST] X-Real-IP:', realIp);
     console.log('[SDI TEST] URL:', request.url);
+    console.log('[SDI TEST] Tutti gli header:', JSON.stringify(allHeaders, null, 2));
     
     // Verifica che la richiesta provenga da SDI (test)
     // NOTA: In produzione, configurare verifica completa (IP whitelist, certificati)
