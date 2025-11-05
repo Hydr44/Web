@@ -4,6 +4,7 @@
 import soap from 'soap';
 import { SDIEnvironment, getSOAPClientConfig } from './certificates';
 import { signFatturaPAXML, generateSignedFileName } from './xml-signer';
+import { sendInvoiceToSDIWithoutWSDL } from './soap-client-manual';
 
 export interface SDITransmissionResult {
   success: boolean;
@@ -27,6 +28,9 @@ export async function sendInvoiceToSDI(
 ): Promise<SDITransmissionResult> {
   try {
     // WSDL URL
+    // NOTA: Il WSDL SDI richiede autenticazione tramite certificati
+    // Per ora, usiamo un WSDL "hardcoded" basato sulla documentazione SDI
+    // In alternativa, potremmo scaricare il WSDL con certificati client
     const wsdlUrl = environment === 'test'
       ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl'
       : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl';
@@ -55,6 +59,11 @@ export async function sendInvoiceToSDI(
         throw new Error(`Certificati SDI non disponibili: ${certError.message}. Configura i certificati in Vercel Secrets.`);
       }
     }
+    
+    // IMPORTANTE: Il WSDL SDI richiede autenticazione tramite certificati client
+    // Passiamo i certificati anche nel download del WSDL
+    // Nota: La libreria soap potrebbe non supportare certificati nel download WSDL
+    // Potremmo dover scaricare il WSDL manualmente con certificati o usare un WSDL locale
 
     // Firma XML con CAdES-BES (genera .xml.p7m)
     let p7mBuffer: Buffer;
@@ -121,17 +130,38 @@ export async function sendInvoiceToSDI(
     }
     
     // Configurazione client SOAP
+    // IMPORTANTE: Il WSDL SDI richiede autenticazione tramite certificati
+    // Passiamo i certificati anche nel download del WSDL tramite wsdl_options
     const soapOptions: any = {
-      wsdl_options: wsdlOptions,
+      wsdl_options: {
+        ...wsdlOptions,
+        // Passiamo certificati anche per scaricare il WSDL
+        cert: certConfig.cert,
+        key: certConfig.key,
+        ca: certConfig.ca,
+        rejectUnauthorized: certConfig.rejectUnauthorized !== false,
+      },
       // Abilita MTOM per invio file binari
       forceSoap12Headers: false,
       disableCache: true,
     };
     
-    // La libreria soap non supporta direttamente l'opzione 'request'
-    // Usiamo wsdl_options per configurare SSL
+    // La libreria soap usa wsdl_options per configurare anche il download del WSDL
+    // Se i certificati sono configurati, verranno usati anche per scaricare il WSDL
     
-    const soapClient = await soap.createClientAsync(wsdlUrl, soapOptions);
+    let soapClient: any;
+    try {
+      soapClient = await soap.createClientAsync(wsdlUrl, soapOptions);
+    } catch (wsdlError: any) {
+      // Se il download del WSDL fallisce per 403, proviamo a costruire manualmente la richiesta SOAP
+      if (wsdlError.message?.includes('403') || wsdlError.message?.includes('Forbidden')) {
+        console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ WSDL non accessibile (403), costruisco richiesta SOAP manualmente`);
+        // Costruiamo manualmente la richiesta SOAP senza WSDL
+        // Usiamo la struttura documentata nel manuale SDI
+        return await sendInvoiceToSDIWithoutWSDL(xml, fileName, p7mBuffer, environment, certConfig);
+      }
+      throw wsdlError;
+    }
 
     // Codifica file .p7m in base64 per trasmissione
     const p7mBase64 = p7mBuffer.toString('base64');
