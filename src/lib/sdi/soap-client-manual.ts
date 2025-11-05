@@ -3,6 +3,7 @@
 // Costruisce manualmente la richiesta SOAP secondo la documentazione SDI
 
 import https from 'https';
+import { URL } from 'url';
 import { SDIEnvironment } from './certificates';
 
 export interface SDITransmissionResult {
@@ -28,13 +29,11 @@ export async function sendInvoiceToSDIWithoutWSDL(
   certConfig: any
 ): Promise<SDITransmissionResult> {
   try {
-    // URL SDI endpoint
-    const sdiUrl = environment === 'test'
-      ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl'
-      : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl';
-    
-    // Rimuovi .wsdl e aggiungi il path del servizio
-    const serviceUrl = sdiUrl.replace('.wsdl', '');
+    // URL SDI endpoint (senza .wsdl)
+    // Secondo documentazione SDI, l'endpoint è lo stesso del WSDL ma senza estensione
+    const baseUrl = environment === 'test'
+      ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0'
+      : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0';
     
     // Genera nome file firmato
     const signedFileName = fileName.replace('.xml', '.xml.p7m');
@@ -44,6 +43,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
     
     // Costruisci SOAP envelope secondo documentazione SDI
     // Namespace: http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0
+    // Metodo: RiceviFileRequest (secondo manuale implementazione)
     const soapBody = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0">
   <soapenv:Header/>
@@ -55,15 +55,114 @@ export async function sendInvoiceToSDIWithoutWSDL(
   </soapenv:Body>
 </soapenv:Envelope>`;
     
-    // Per ora, restituiamo un errore indicando che il WSDL non è accessibile
-    // In futuro, possiamo implementare la chiamata HTTPS diretta con certificati
-    console.error(`[SDI ${environment.toUpperCase()}] ⚠️ WSDL non accessibile, richiesta SOAP manuale non ancora implementata`);
+    // Parse URL
+    const url = new URL(baseUrl);
     
-    return {
-      success: false,
-      error: 'WSDL non accessibile. Il WSDL SDI richiede autenticazione tramite certificati. Configura i certificati client in Vercel Secrets.',
-      message: 'Impossibile scaricare WSDL SDI senza certificati client',
+    // Opzioni HTTPS
+    const httpsOptions: https.RequestOptions = {
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        'SOAPAction': 'http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0/RiceviFile',
+        'Content-Length': Buffer.byteLength(soapBody),
+      },
+      // Certificati per autenticazione (se disponibili)
+      cert: certConfig.cert,
+      key: certConfig.key,
+      ca: certConfig.ca && certConfig.ca.length > 0 ? certConfig.ca : undefined,
+      rejectUnauthorized: certConfig.rejectUnauthorized !== false,
     };
+    
+    // In test, disabilita verifica SSL se necessario
+    if (environment === 'test') {
+      httpsOptions.rejectUnauthorized = false;
+      console.warn(`[SDI TEST] Verifica SSL disabilitata per richiesta manuale SOAP`);
+    }
+    
+    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP manuale: ${signedFileName}`);
+    console.log(`[SDI ${environment.toUpperCase()}] Endpoint: ${baseUrl}`);
+    
+    // Esegui richiesta HTTPS
+    return new Promise<SDITransmissionResult>((resolve, reject) => {
+      const req = https.request(httpsOptions, (res) => {
+        let responseData = '';
+        
+        res.on('data', (chunk) => {
+          responseData += chunk.toString();
+        });
+        
+        res.on('end', () => {
+          try {
+            console.log(`[SDI ${environment.toUpperCase()}] Risposta HTTP: ${res.statusCode}`);
+            console.log(`[SDI ${environment.toUpperCase()}] Risposta body:`, responseData.substring(0, 500));
+            
+            if (res.statusCode !== 200) {
+              return resolve({
+                success: false,
+                error: `Errore SDI: ${res.statusCode} - ${res.statusMessage}`,
+                message: `Risposta SDI non valida: ${res.statusCode}`,
+              });
+            }
+            
+            // Parse risposta SOAP
+            // Cerca IdentificativoSdI nella risposta XML
+            const identificativoMatch = responseData.match(/<.*?IdentificativoSdI[^>]*>([^<]+)<\/.*?IdentificativoSdI[^>]*>/i);
+            const esitoMatch = responseData.match(/<.*?Esito[^>]*>([^<]+)<\/.*?Esito[^>]*>/i);
+            const messageMatch = responseData.match(/<.*?Message[^>]*>([^<]+)<\/.*?Message[^>]*>/i);
+            
+            const identificativoSDI = identificativoMatch ? identificativoMatch[1].trim() : null;
+            const esito = esitoMatch ? esitoMatch[1].trim() : null;
+            const message = messageMatch ? messageMatch[1].trim() : null;
+            
+            if (esito === 'OK' || esito === 'Ok') {
+              console.log(`[SDI ${environment.toUpperCase()}] Fattura inviata con successo: ${identificativoSDI || 'PENDING'}`);
+              return resolve({
+                success: true,
+                identificativoSDI: identificativoSDI || 'PENDING',
+                message: message || 'Fattura presa in carico dal SDI',
+              });
+            } else if (identificativoSDI) {
+              console.log(`[SDI ${environment.toUpperCase()}] Fattura inviata: ${identificativoSDI}`);
+              return resolve({
+                success: true,
+                identificativoSDI,
+                message: message || 'Fattura inviata al SDI',
+              });
+            } else {
+              console.error(`[SDI ${environment.toUpperCase()}] Risposta SDI non valida:`, responseData);
+              return resolve({
+                success: false,
+                error: 'Risposta SDI non valida',
+                message: message || 'Identificativo SDI non presente nella risposta',
+              });
+            }
+          } catch (parseError: any) {
+            console.error(`[SDI ${environment.toUpperCase()}] Errore parsing risposta:`, parseError);
+            return resolve({
+              success: false,
+              error: `Errore parsing risposta SDI: ${parseError.message}`,
+              message: 'Impossibile parsare la risposta SDI',
+            });
+          }
+        });
+      });
+      
+      req.on('error', (error) => {
+        console.error(`[SDI ${environment.toUpperCase()}] Errore richiesta HTTPS:`, error);
+        resolve({
+          success: false,
+          error: `Errore richiesta HTTPS: ${error.message}`,
+          message: 'Impossibile connettersi al SDI',
+        });
+      });
+      
+      // Invia richiesta
+      req.write(soapBody);
+      req.end();
+    });
   } catch (error: any) {
     console.error(`[SDI ${environment.toUpperCase()}] Errore invio manuale:`, error);
     return {
