@@ -1,8 +1,7 @@
 {
   "functions": {
     "src/app/api/sdi/**/*.ts": {
-      "maxDuration": 30,
-      "runtime": "nodejs20.x"
+      "maxDuration": 30
     }
   }
 }
