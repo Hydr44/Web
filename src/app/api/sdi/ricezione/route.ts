@@ -10,9 +10,11 @@ import { createSDIResponse, parseSDIXML, parseSDINotification } from '../_utils'
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, createSOAPResponse, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
+import { extractSOAPOperation, createMatchingSOAPResponse } from '@/lib/sdi/soap-parser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30; // Vercel max duration 30s
 
 // Gestisce richieste OPTIONS per CORS
 export async function OPTIONS() {
@@ -38,6 +40,7 @@ export async function POST(request: NextRequest) {
     const sslClientVerify = request.headers.get('x-ssl-client-verify') || '';
     const sslClientDN = request.headers.get('x-ssl-client-dn') || '';
     
+    // Logga raw headers
     const allHeaders: Record<string, string> = {};
     request.headers.forEach((value, key) => {
       allHeaders[key] = value;
@@ -51,6 +54,8 @@ export async function POST(request: NextRequest) {
     console.log('[SDI] X-SSL-Client-Verify:', sslClientVerify);
     console.log('[SDI] X-SSL-Client-DN:', sslClientDN);
     console.log('[SDI] URL:', request.url);
+    console.log('[SDI] ========== RAW HEADERS ==========');
+    console.log(JSON.stringify(allHeaders, null, 2));
     
     // Logga se mTLS non è verificato
     if (sslClientVerify && sslClientVerify !== 'SUCCESS') {
@@ -74,6 +79,7 @@ export async function POST(request: NextRequest) {
     let fileName = 'fattura.xml';
     let fileContent: Buffer | null = null;
     let soapEnvelope: string | undefined;
+    let rawSoapRequest: string = '';
     
     if (isSOAPRequest(request)) {
       console.log('[SDI] Rilevata richiesta SOAP con MTOM');
@@ -82,7 +88,8 @@ export async function POST(request: NextRequest) {
         xml = extracted.xml;
         fileName = extracted.fileName;
         fileContent = extracted.fileContent;
-        soapEnvelope = extracted.soapEnvelope;
+        soapEnvelope = extracted.soapEnvelope || '';
+        rawSoapRequest = soapEnvelope;
         console.log('[SDI] File estratto:', fileName);
         console.log('[SDI] Dimensione file:', extracted.fileContent.length, 'bytes');
       } catch (extractError: any) {
@@ -90,25 +97,49 @@ export async function POST(request: NextRequest) {
         // Fallback: prova a leggere come testo normale
         xml = await request.text();
         soapEnvelope = xml;
+        rawSoapRequest = xml;
         fileContent = Buffer.from(xml, 'utf8');
       }
-    } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
+    } else if (contentType.includes('application/xml') || contentType.includes('text/xml') || contentType.includes('application/soap+xml')) {
       xml = await request.text();
       soapEnvelope = xml;
+      rawSoapRequest = xml;
       fileContent = Buffer.from(xml, 'utf8');
     } else if (contentType.includes('application/json')) {
       const body = await request.json();
       xml = body.xml || body.content || '';
       soapEnvelope = xml;
+      rawSoapRequest = xml;
       fileContent = Buffer.from(xml, 'utf8');
     } else {
       // Ultimo tentativo: leggi come testo
       xml = await request.text();
       soapEnvelope = xml;
+      rawSoapRequest = xml;
       fileContent = Buffer.from(xml, 'utf8');
     }
 
-    console.log('[SDI] XML ricevuto (primi 500 caratteri):', xml.substring(0, 500));
+    // Logga primi 4KB del SOAP envelope
+    const soapPreview = rawSoapRequest.substring(0, 4096);
+    console.log('[SDI] ========== SOAP ENVELOPE (primi 4KB) ==========');
+    console.log(soapPreview);
+    console.log('[SDI] ==============================================');
+    
+    // Estrai QName dell'operazione SOAP
+    let soapOperation: { localName: string; namespaceURI: string; prefix: string; qname: string } | null = null;
+    if (soapEnvelope) {
+      soapOperation = extractSOAPOperation(soapEnvelope);
+      if (soapOperation) {
+        console.log('[SDI] ========== SOAP OPERATION ==========');
+        console.log('[SDI] LocalName:', soapOperation.localName);
+        console.log('[SDI] NamespaceURI:', soapOperation.namespaceURI);
+        console.log('[SDI] Prefix:', soapOperation.prefix);
+        console.log('[SDI] QName:', soapOperation.qname);
+        console.log('[SDI] =====================================');
+      } else {
+        console.warn('[SDI] ⚠️ Operazione SOAP non estratta');
+      }
+    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

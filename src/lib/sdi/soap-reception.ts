@@ -106,7 +106,8 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
 }
 
 /**
- * Genera risposta SOAP per il SDI
+ * Genera risposta SOAP per il SDI (legacy - usa createMatchingSOAPResponse invece)
+ * @deprecated Usa createMatchingSOAPResponse per risposte che matchano l'input
  */
 export function createSOAPResponse(
   esito: 'OK' | 'KO',
