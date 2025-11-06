@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
   },
   // Compressione
   compress: true,
+  // Body size limit per MTOM (SOAP con allegati)
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb',
+    },
+    responseLimit: '20mb',
+  },
   // Ottimizzazioni bundle
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],

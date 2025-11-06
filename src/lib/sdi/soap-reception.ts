@@ -9,6 +9,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
   fileName: string;
   fileContent: Buffer;
   xml: string;
+  soapEnvelope?: string;
 }> {
   const contentType = request.headers.get('content-type') || '';
   
@@ -19,6 +20,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
       fileName: 'fattura.xml',
       fileContent: Buffer.from(xml, 'utf8'),
       xml,
+      soapEnvelope: xml,
     };
   }
 
@@ -39,6 +41,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
   let fileName = 'fattura.xml';
   let fileContent: Buffer | null = null;
   let xml = '';
+  let soapEnvelope = '';
   
   for (const part of parts) {
     // Skip empty parts
@@ -53,6 +56,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
     // Verifica se è la parte SOAP (XML)
     if (headersRaw.includes('Content-Type: text/xml') || headersRaw.includes('Content-Type: application/xml')) {
       // Questa è la parte SOAP envelope
+      soapEnvelope = body;
       xml = body;
       
       // Estrai fileName dal SOAP body se presente
@@ -88,6 +92,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
       fileName,
       fileContent,
       xml: fileContent.toString('utf8'), // Prova a decodificare come UTF-8
+      soapEnvelope: soapEnvelope || xml,
     };
   }
   
@@ -96,6 +101,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
     fileName,
     fileContent: Buffer.from(xml, 'utf8'),
     xml,
+    soapEnvelope: soapEnvelope || xml,
   };
 }
 
@@ -129,6 +135,6 @@ export function isSOAPRequest(request: NextRequest): boolean {
   const contentType = request.headers.get('content-type') || '';
   return contentType.includes('multipart/related') || 
          contentType.includes('text/xml') ||
-         contentType.includes('application/xml');
+         contentType.includes('application/xml') ||
+         contentType.includes('application/soap+xml');
 }
-

@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createSDIResponse, parseSDIXML, parseSDINotification } from '../_utils';
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, createSOAPResponse, isSOAPRequest } from '@/lib/sdi/soap-reception';
+import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -31,12 +32,30 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get('content-type') || '';
     const userAgent = request.headers.get('user-agent') || '';
     const forwardedFor = request.headers.get('x-forwarded-for') || '';
+    const realIp = request.headers.get('x-real-ip') || '';
+    
+    // Header SSL da Nginx (mTLS)
+    const sslClientVerify = request.headers.get('x-ssl-client-verify') || '';
+    const sslClientDN = request.headers.get('x-ssl-client-dn') || '';
+    
+    const allHeaders: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      allHeaders[key] = value;
+    });
     
     console.log('[SDI] ========== RICEZIONE RICHIESTA ==========');
     console.log('[SDI] Content-Type:', contentType);
     console.log('[SDI] User-Agent:', userAgent);
     console.log('[SDI] X-Forwarded-For:', forwardedFor);
+    console.log('[SDI] X-Real-IP:', realIp);
+    console.log('[SDI] X-SSL-Client-Verify:', sslClientVerify);
+    console.log('[SDI] X-SSL-Client-DN:', sslClientDN);
     console.log('[SDI] URL:', request.url);
+    
+    // Logga se mTLS non è verificato
+    if (sslClientVerify && sslClientVerify !== 'SUCCESS') {
+      console.warn('[SDI] ⚠️ mTLS non verificato:', sslClientVerify);
+    }
     
     // Verifica che la richiesta provenga da SDI (produzione)
     // NOTA: In produzione, configurare verifica completa (IP whitelist, certificati)
@@ -53,6 +72,8 @@ export async function POST(request: NextRequest) {
     // Estrai XML/file dalla richiesta SOAP
     let xml: string;
     let fileName = 'fattura.xml';
+    let fileContent: Buffer | null = null;
+    let soapEnvelope: string | undefined;
     
     if (isSOAPRequest(request)) {
       console.log('[SDI] Rilevata richiesta SOAP con MTOM');
@@ -60,21 +81,31 @@ export async function POST(request: NextRequest) {
         const extracted = await extractFileFromSOAPMTOM(request);
         xml = extracted.xml;
         fileName = extracted.fileName;
+        fileContent = extracted.fileContent;
+        soapEnvelope = extracted.soapEnvelope;
         console.log('[SDI] File estratto:', fileName);
         console.log('[SDI] Dimensione file:', extracted.fileContent.length, 'bytes');
       } catch (extractError: any) {
         console.error('[SDI] Errore estrazione file SOAP:', extractError);
         // Fallback: prova a leggere come testo normale
         xml = await request.text();
+        soapEnvelope = xml;
+        fileContent = Buffer.from(xml, 'utf8');
       }
     } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
       xml = await request.text();
+      soapEnvelope = xml;
+      fileContent = Buffer.from(xml, 'utf8');
     } else if (contentType.includes('application/json')) {
       const body = await request.json();
       xml = body.xml || body.content || '';
+      soapEnvelope = xml;
+      fileContent = Buffer.from(xml, 'utf8');
     } else {
       // Ultimo tentativo: leggi come testo
       xml = await request.text();
+      soapEnvelope = xml;
+      fileContent = Buffer.from(xml, 'utf8');
     }
 
     console.log('[SDI] XML ricevuto (primi 500 caratteri):', xml.substring(0, 500));
@@ -94,7 +125,31 @@ export async function POST(request: NextRequest) {
       // Gestione fattura ricevuta
       const parsedFattura = parseSDIXML(xml);
 
-      // Esempio di salvataggio nel database
+      // Salva file su Supabase Storage
+      let fileUrl = '';
+      let filePath = '';
+      let soapUrl = '';
+      let soapPath = '';
+      
+      try {
+        if (fileContent) {
+          const fileResult = await saveSDIFile(fileName, fileContent, 'PRODUCTION');
+          fileUrl = fileResult.url;
+          filePath = fileResult.path;
+          console.log('[SDI] File salvato su storage:', fileUrl);
+        }
+        if (soapEnvelope) {
+          const soapResult = await saveSOAPEnvelope(soapEnvelope, fileName, 'PRODUCTION');
+          soapUrl = soapResult.url;
+          soapPath = soapResult.path;
+          console.log('[SDI] SOAP envelope salvato su storage:', soapUrl);
+        }
+      } catch (storageError: any) {
+        console.error('[SDI] Errore salvataggio su storage:', storageError);
+        // Continua comunque
+      }
+
+      // Salvataggio nel database
       const { data, error } = await supabase.from('invoices').insert({
         type: 'received',
         sdi_status: 'received',
@@ -105,24 +160,55 @@ export async function POST(request: NextRequest) {
           sdi_xml: xml,
           sdi_parsed: parsedFattura,
           sdi_environment: 'PRODUCTION',
+          file_url: fileUrl,
+          file_path: filePath,
+          soap_url: soapUrl,
+          soap_path: soapPath,
         },
       }).select('id').single();
 
       if (error) {
         console.error('[SDI] Errore salvataggio fattura:', error);
-        return createSDIResponse({ success: false, error: 'Errore salvataggio fattura' }, 500);
+        // Rispondi comunque con SOAP OK
+        const soapResponse = createSOAPResponse('KO', `Errore salvataggio fattura: ${error.message}`);
+        return new NextResponse(soapResponse, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+          },
+        });
       }
 
-      console.log('[SDI] Fattura ricevuta e salvata:', data.id);
+      console.log('[SDI] ✅ Fattura ricevuta e salvata:', data.id);
       
-      // Registra evento
+      // Registra evento completo
       await supabase.from('sdi_events').insert({
         invoice_id: data.id,
         event_type: 'FatturaRicevuta',
-        payload: { xml_length: xml.length, sdi_environment: 'PRODUCTION' },
+        payload: { 
+          xml_length: xml.length, 
+          sdi_environment: 'PRODUCTION',
+          fileName,
+          contentType,
+          file_url: fileUrl,
+          file_path: filePath,
+          soap_url: soapUrl,
+          soap_path: soapPath,
+          headers: allHeaders,
+          ssl_client_verify: sslClientVerify,
+          ssl_client_dn: sslClientDN,
+          raw_soap: soapEnvelope?.substring(0, 1000),
+        },
       });
       
-      return createSDIResponse({ success: true, message: 'Fattura ricevuta e salvata con successo', invoice_id: data.id });
+      // IMPORTANTE: Rispondi sempre con SOAP XML per il SDI
+      const soapResponse = createSOAPResponse('OK', 'Fattura ricevuta e salvata con successo');
+      return new NextResponse(soapResponse, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+      });
     } else if (isNotifica) {
       // Gestione notifica ricevuta
       const parsedNotification = parseSDINotification(xml);
@@ -140,9 +226,24 @@ export async function POST(request: NextRequest) {
         // Registra comunque l'evento anche se la fattura non è trovata
         await supabase.from('sdi_events').insert({
           event_type: tipoNotifica || 'UNKNOWN_NOTIFICATION',
-          payload: { xml, parsed: parsedNotification, sdi_environment: 'PRODUCTION' },
+          payload: { 
+            xml, 
+            parsed: parsedNotification, 
+            sdi_environment: 'PRODUCTION',
+            headers: allHeaders,
+            ssl_client_verify: sslClientVerify,
+            ssl_client_dn: sslClientDN,
+            raw_soap: soapEnvelope?.substring(0, 1000),
+          },
         });
-        return createSDIResponse({ success: false, error: 'Fattura non trovata per notifica' }, 404);
+        // Rispondi comunque con SOAP OK (non bloccare il SDI)
+        const soapResponse = createSOAPResponse('OK', `Notifica ricevuta (fattura non trovata)`, identificativoSDI || idSDI);
+        return new NextResponse(soapResponse, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+          },
+        });
       }
 
       let newStatus = invoice.sdi_status;
@@ -179,11 +280,47 @@ export async function POST(request: NextRequest) {
           break;
       }
 
-      // Registra evento
+      // Salva notifica su storage (opzionale)
+      let fileUrl = '';
+      let filePath = '';
+      let soapUrl = '';
+      let soapPath = '';
+      
+      try {
+        if (fileContent) {
+          const fileResult = await saveSDIFile(`notifica-${tipoNotifica}-${fileName}`, fileContent, 'PRODUCTION');
+          fileUrl = fileResult.url;
+          filePath = fileResult.path;
+        }
+        if (soapEnvelope) {
+          const soapResult = await saveSOAPEnvelope(soapEnvelope, `notifica-${tipoNotifica}-${fileName}`, 'PRODUCTION');
+          soapUrl = soapResult.url;
+          soapPath = soapResult.path;
+        }
+      } catch (storageError: any) {
+        console.error('[SDI] Errore salvataggio notifica su storage:', storageError);
+        // Continua comunque
+      }
+
+      // Registra evento completo
       await supabase.from('sdi_events').insert({
         invoice_id: invoice.id,
         event_type: tipoNotifica || 'UNKNOWN_NOTIFICATION',
-        payload: { xml, parsed: parsedNotification, sdi_environment: 'PRODUCTION' },
+        payload: { 
+          xml, 
+          parsed: parsedNotification, 
+          sdi_environment: 'PRODUCTION',
+          fileName,
+          contentType,
+          file_url: fileUrl,
+          file_path: filePath,
+          soap_url: soapUrl,
+          soap_path: soapPath,
+          headers: allHeaders,
+          ssl_client_verify: sslClientVerify,
+          ssl_client_dn: sslClientDN,
+          raw_soap: soapEnvelope?.substring(0, 1000),
+        },
       });
 
       // Aggiorna stato fattura
@@ -196,25 +333,60 @@ export async function POST(request: NextRequest) {
             sdi_notification: parsedNotification,
             sdi_environment: 'PRODUCTION',
             updated_at: new Date().toISOString(),
+            notification_file_url: fileUrl,
+            notification_soap_url: soapUrl,
           },
         })
         .eq('id', invoice.id);
 
       if (updateError) {
         console.error('[SDI] Errore aggiornamento stato fattura:', updateError);
-        return createSDIResponse({ success: false, error: 'Errore aggiornamento stato fattura' }, 500);
+        // Rispondi comunque con SOAP OK
+        const soapResponse = createSOAPResponse('KO', `Errore aggiornamento stato fattura: ${updateError.message}`, identificativoSDI || idSDI);
+        return new NextResponse(soapResponse, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+          },
+        });
       }
 
-      console.log('[SDI] Stato fattura aggiornato:', { invoice_id: invoice.id, newStatus, statusMessage });
-      return createSDIResponse({ success: true, message: statusMessage, invoice_id: invoice.id, notification_id: identificativoSDI || idSDI });
+      console.log('[SDI] ✅ Stato fattura aggiornato:', { invoice_id: invoice.id, newStatus, statusMessage });
+      
+      // IMPORTANTE: Rispondi sempre con SOAP XML per il SDI
+      const soapResponse = createSOAPResponse('OK', statusMessage, identificativoSDI || idSDI);
+      return new NextResponse(soapResponse, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+      });
     } else {
       // XML non riconosciuto
-      console.warn('[SDI] XML non riconosciuto come fattura o notifica:', xml.substring(0, 200));
-      return createSDIResponse({ success: false, error: 'XML non riconosciuto come fattura o notifica' }, 400);
+      console.warn('[SDI] ⚠️ XML non riconosciuto come fattura o notifica');
+      console.warn('[SDI] XML ricevuto (primi 500 caratteri):', xml.substring(0, 500));
+      
+      // Rispondi con SOAP anche per errori
+      const soapResponse = createSOAPResponse('KO', 'XML non riconosciuto come fattura o notifica');
+      return new NextResponse(soapResponse, {
+        status: 200, // SDI si aspetta 200 anche per errori (l'errore è nel SOAP)
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+        },
+      });
     }
   } catch (error: any) {
-    console.error('[SDI] Errore ricezione:', error);
-    return createSDIResponse({ success: false, error: error.message }, 500);
+    console.error('[SDI] ❌ Errore ricezione:', error);
+    console.error('[SDI] Stack:', error.stack);
+    
+    // Rispondi con SOAP anche per errori critici
+    const soapResponse = createSOAPResponse('KO', `Errore interno: ${error.message}`);
+    return new NextResponse(soapResponse, {
+      status: 200, // SDI si aspetta 200 anche per errori
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+      },
+    });
   }
 }
 
