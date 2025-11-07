@@ -1,6 +1,7 @@
 // Utility functions for SDI endpoints
 
 import { NextResponse } from 'next/server';
+import type { PostgrestError } from '@supabase/supabase-js';
 
 export interface SDIResponse {
   success: boolean;
@@ -162,5 +163,16 @@ export function resolveNotificationStatus(
     statusMessage,
     normalizedType,
   };
+}
+
+export function logSupabaseError(context: string, error: PostgrestError | null) {
+  if (error) {
+    console.error(`[Supabase Error] ${context}:`, {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    });
+  }
 }
 
