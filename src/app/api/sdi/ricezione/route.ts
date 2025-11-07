@@ -7,6 +7,7 @@ import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
 import { extractSOAPOperation, SOAPOperation } from '@/lib/sdi/soap-parser';
+import { extractXMLFromP7M } from '@/lib/sdi/xml-signer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
   let fileName = 'sdi-payload.xml';
   let fileContent: Buffer | null = null;
   let soapOperation: SOAPOperation | null = null;
+  let fileSdIMetadata: Record<string, any> | null = null;
 
   try {
     if (isSoapEnvelope) {
@@ -116,13 +118,54 @@ export async function POST(request: NextRequest) {
       } else {
         console.log('[SDI PROD] Operazione SOAP non rilevata');
       }
+
+      if (soapEnvelope && /<fileSdIConMetadati/i.test(soapEnvelope)) {
+        fileSdIMetadata = {
+          source: 'fileSdIConMetadati',
+        };
+        const identificativoMatch = soapEnvelope.match(/<IdentificativoSdI>([^<]+)<\/IdentificativoSdI>/i);
+        const nomeFileMatch = soapEnvelope.match(/<NomeFile>([^<]+)<\/NomeFile>/i);
+        const fileBase64Match = soapEnvelope.match(/<File>([\s\S]*?)<\/File>/i);
+
+        if (identificativoMatch) {
+          fileSdIMetadata.identificativoSdI = identificativoMatch[1].trim();
+        }
+        if (nomeFileMatch) {
+          fileSdIMetadata.nomeFile = nomeFileMatch[1].trim();
+          fileName = nomeFileMatch[1].trim() || fileName;
+        }
+
+        if (fileBase64Match) {
+          const base64Content = fileBase64Match[1].replace(/\s+/g, '');
+          try {
+            const p7mCandidate = Buffer.from(base64Content, 'base64');
+            fileSdIMetadata.fileSize = p7mCandidate.length;
+            fileContent = p7mCandidate;
+            try {
+              const extractedXml = extractXMLFromP7M(p7mCandidate);
+              if (extractedXml && extractedXml.trim().length > 0) {
+                xml = extractedXml;
+                fileSdIMetadata.extractedXmlLength = extractedXml.length;
+              } else {
+                fileSdIMetadata.extractedXmlEmpty = true;
+              }
+            } catch (extractionError: any) {
+              fileSdIMetadata.extractionError = extractionError?.message || 'Unknown extraction error';
+            }
+          } catch (decodeError: any) {
+            fileSdIMetadata.decodeError = decodeError?.message || 'Unknown decode error';
+          }
+        } else {
+          fileSdIMetadata.missingFileNode = true;
+        }
+      }
     } else {
       xml = await request.text();
       console.log('[SDI PROD] XML (prima di 2KB):', xml.substring(0, 2048));
     }
 
-    const isFattura = xml.includes('<FatturaElettronica') || xml.includes('<p:FatturaElettronica');
-    const isNotifica = xml.includes('<Notifica') ||
+    let isFattura = xml.includes('<FatturaElettronica') || xml.includes('<p:FatturaElettronica');
+    let isNotifica = xml.includes('<Notifica') ||
       xml.includes('<RicevutaConsegna') ||
       xml.includes('<NotificaMancataConsegna') ||
       xml.includes('<NotificaScarto') ||
@@ -170,6 +213,7 @@ export async function POST(request: NextRequest) {
               soap_url: soapUrl,
               soap_path: soapPath,
               soap_operation: soapOperation,
+              file_sdi_metadata: fileSdIMetadata,
             },
           })
           .select('id')
@@ -188,6 +232,7 @@ export async function POST(request: NextRequest) {
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
               soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+              file_sdi_metadata: fileSdIMetadata,
             },
           });
         } else {
@@ -210,6 +255,7 @@ export async function POST(request: NextRequest) {
               soap_operation: soapOperation,
               soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
               identificativoSdI: fattura.identificativoSdI || fattura.idSDI || '',
+              file_sdi_metadata: fileSdIMetadata,
             },
           });
         }
@@ -320,6 +366,7 @@ export async function POST(request: NextRequest) {
             raw_soap_request: soapEnvelope.substring(0, 4096),
             soap_operation: soapOperation,
             soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+            file_sdi_metadata: fileSdIMetadata,
           },
         });
       }
