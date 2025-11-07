@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createSDIResponse } from '../../_utils';
+import { createSDIResponse, logSupabaseError } from '../../_utils';
 import { sendInvoiceToSDI, generateSDIFileName } from '@/lib/sdi/soap-client';
 import { generateFatturaPAXML, invoiceToFatturaPAData } from '@/lib/sdi/xml-generator';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
@@ -150,7 +150,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (!sdiResponse.success) {
-      await supabase.from('sdi_events').insert({
+      console.warn('[SDI TEST] Trasmissione SDI fallita, registrazione evento in Supabase', {
+        endpoint: sdiResponse.endpoint,
+        httpStatus: sdiResponse.httpStatus,
+      });
+      const { data: failedEvent, error: insertFailedError } = await supabase
+        .from('sdi_events')
+        .insert({
         provider_id: 'sdi_test',
         invoice_id: invoice_id || null,
         event_type: 'TrasmissioneFattura_TEST_Fallita',
@@ -171,7 +177,13 @@ export async function POST(request: NextRequest) {
           boundary: sdiResponse.boundary || null,
           debug: sdiResponse.debug || null,
         },
-      });
+        })
+        .select('id')
+        .single();
+      if (failedEvent) {
+        console.log('[SDI TEST] Evento TrasmissioneFattura_TEST_Fallita creato con id:', failedEvent.id);
+      }
+      logSupabaseError('insert event TrasmissioneFattura_TEST_Fallita', insertFailedError);
 
       return createSDIResponse(
         {
@@ -215,7 +227,9 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', invoice_id);
 
-      await supabase.from('sdi_events').insert({
+      const { data: successEvent, error: insertSuccessError } = await supabase
+        .from('sdi_events')
+        .insert({
         provider_id: 'sdi_test',
         invoice_id,
         event_type: 'TrasmissioneFattura_TEST',
@@ -234,7 +248,13 @@ export async function POST(request: NextRequest) {
           boundary: sdiResponse.boundary || null,
           debug: sdiResponse.debug || null,
         },
-      });
+        })
+        .select('id')
+        .single();
+      if (successEvent) {
+        console.log('[SDI TEST] Evento TrasmissioneFattura_TEST creato con id:', successEvent.id);
+      }
+      logSupabaseError('insert event TrasmissioneFattura_TEST', insertSuccessError);
     }
 
     console.log('[SDI TEST] Fattura trasmessa:', {
@@ -251,6 +271,31 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('[SDI TEST] Errore trasmissione fattura:', error);
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const { data: exceptionEvent, error: exceptionInsertError } = await supabase
+          .from('sdi_events')
+          .insert({
+            provider_id: 'sdi_test',
+            event_type: 'TrasmissioneFattura_TEST_Exception',
+            payload: {
+              error: error.message,
+              stack: error.stack,
+            },
+          })
+          .select('id')
+          .single();
+        if (exceptionEvent) {
+          console.log('[SDI TEST] Evento TrasmissioneFattura_TEST_Exception creato con id:', exceptionEvent.id);
+        }
+        logSupabaseError('insert event TrasmissioneFattura_TEST_Exception', exceptionInsertError);
+      }
+    } catch (logError) {
+      console.error('[SDI TEST] Impossibile registrare evento di eccezione:', logError);
+    }
     return createSDIResponse(
       {
         success: false,
