@@ -5,12 +5,21 @@
 import https from 'https';
 import { URL } from 'url';
 import { SDIEnvironment } from './certificates';
+import { Buffer } from 'buffer';
 
 export interface SDITransmissionResult {
   success: boolean;
   identificativoSDI?: string;
   error?: string;
   message?: string;
+  signedFileName?: string;
+  signedBuffer?: Buffer;
+  soapEnvelope?: string;
+  soapResponse?: string;
+  endpoint?: string;
+  httpStatus?: number;
+  boundary?: string;
+  debug?: any;
 }
 
 /**
@@ -173,6 +182,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                       success: true,
                       identificativoSDI: identificativoSDI || 'PENDING',
                       message: message || 'Fattura presa in carico dal SDI',
+                      endpoint: endpointUrl,
+                      httpStatus: statusCode,
+                      soapResponse: responseData,
                     });
                   } else {
                     // Status 200 ma risposta non valida
@@ -182,6 +194,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                       success: false,
                       error: `Risposta SDI non valida (HTTP 200 ma senza identificativo)`,
                       message: `Endpoint risponde ma formato risposta non riconosciuto`,
+                      endpoint: endpointUrl,
+                      httpStatus: statusCode,
+                      soapResponse: responseData,
                     });
                   }
                 }
@@ -196,10 +211,20 @@ export async function sendInvoiceToSDIWithoutWSDL(
                   success: false,
                   error: `HTTP ${statusCode}: ${statusMessage}`,
                   message: responseData.substring(0, 500) || 'Nessuna risposta dal server',
+                  endpoint: endpointUrl,
+                  httpStatus: statusCode,
+                  soapResponse: responseData,
                 }); // Prova il prossimo endpoint
               } catch (parseError: any) {
                 console.error(`[SDI ${environment.toUpperCase()}] Errore parsing risposta ${description}:`, parseError);
-                resolve(null); // Prova il prossimo endpoint
+                resolve({
+                  success: false,
+                  error: `Errore parsing risposta: ${parseError.message}`,
+                  message: responseData.substring(0, 500) || 'Risposta non leggibile',
+                  endpoint: endpointUrl,
+                  httpStatus: res.statusCode || undefined,
+                  soapResponse: responseData,
+                }); // Prova il prossimo endpoint
               }
             });
           });
@@ -212,6 +237,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
               success: false,
               error: `Errore connessione: ${error.message}`,
               message: `Impossibile connettersi all'endpoint ${endpointUrl}`,
+              endpoint: endpointUrl,
             }); // Prova il prossimo endpoint
           });
 
@@ -223,6 +249,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
               success: false,
               error: 'Timeout: nessuna risposta dopo 30 secondi',
               message: `L'endpoint ${endpointUrl} non ha risposto entro il timeout`,
+              endpoint: endpointUrl,
             }); // Prova il prossimo endpoint
           });
 
@@ -231,16 +258,17 @@ export async function sendInvoiceToSDIWithoutWSDL(
           req.end();
         } catch (error: any) {
           console.error(`[SDI ${environment.toUpperCase()}] Errore preparazione richiesta ${description}:`, error.message);
-          resolve(null); // Prova il prossimo endpoint
+          resolve({
+            success: false,
+            error: `Errore preparazione richiesta: ${error.message}`,
+            message: 'Impossibile preparare la richiesta SOAP',
+            endpoint: endpointUrl,
+          }); // Prova il prossimo endpoint
         }
       });
     };
 
-    // Prova ogni endpoint in sequenza
-    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP manuale: ${signedFileName}`);
-    console.log(`[SDI ${environment.toUpperCase()}] Provo ${endpointVariants.length} endpoint possibili...`);
-
-    const errors: Array<{ endpoint: string; statusCode?: number; error?: string; response?: string }> = [];
+    const errors: Array<{ endpoint: string; statusCode?: number; httpStatus?: number; error?: string; response?: string }> = [];
 
     for (let i = 0; i < endpointVariants.length; i++) {
       const endpoint = endpointVariants[i];
@@ -249,19 +277,23 @@ export async function sendInvoiceToSDIWithoutWSDL(
       const result = await trySOAPRequest(endpoint, description);
 
       if (result && result.success) {
-        // Successo! Restituisci il risultato
-        return result;
+        return {
+          ...result,
+          signedFileName,
+          signedBuffer: p7mBuffer,
+          soapEnvelope,
+          boundary,
+        };
       }
 
-      // Raccogli informazioni sull'errore per debug
       if (result && !result.success) {
-        // Estrai status code dall'errore se presente (es. "HTTP 404: Not Found")
         const statusMatch = result.error?.match(/HTTP (\d+)/);
-        const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : undefined;
+        const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : result.httpStatus;
 
         errors.push({
-          endpoint,
+          endpoint: result.endpoint || endpoint,
           statusCode,
+          httpStatus: result.httpStatus,
           error: result.error || 'Errore sconosciuto',
           response: result.message || 'Nessuna risposta',
         });
@@ -272,17 +304,15 @@ export async function sendInvoiceToSDIWithoutWSDL(
         });
       }
 
-      // Se non è l'ultimo endpoint, aspetta un po' prima di provare il prossimo
       if (i < endpointVariants.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
 
-    // Tutti gli endpoint hanno fallito - restituisci dettagli per debug
     console.error(`[SDI ${environment.toUpperCase()}] ❌ Tutti gli endpoint hanno fallito`);
     console.error(`[SDI ${environment.toUpperCase()}] Dettagli errori:`, JSON.stringify(errors, null, 2));
 
-    const errorSummary = errors.map((e, idx) => 
+    const errorSummary = errors.map((e, idx) =>
       `${idx + 1}. ${e.endpoint}: ${e.statusCode ? `HTTP ${e.statusCode}` : 'N/A'} - ${e.error || 'Nessun dettaglio'}`
     ).join('\n');
 
@@ -290,6 +320,11 @@ export async function sendInvoiceToSDIWithoutWSDL(
       success: false,
       error: `Tutti gli endpoint SDI hanno fallito. Dettagli:\n${errorSummary}\n\nVerifica URL, certificati e configurazione. Controlla i log di Vercel per dettagli completi.`,
       message: `Impossibile inviare fattura al SDI. ${endpointVariants.length} endpoint provati, tutti falliti.`,
+      signedFileName,
+      signedBuffer: p7mBuffer,
+      soapEnvelope,
+      boundary,
+      debug: errors,
     };
 
   } catch (error: any) {
@@ -297,6 +332,11 @@ export async function sendInvoiceToSDIWithoutWSDL(
     return {
       success: false,
       error: error.message || 'Errore invio manuale al SDI',
+      signedFileName,
+      signedBuffer: p7mBuffer,
+      soapEnvelope,
+      boundary,
+      debug: error,
     };
   }
 }

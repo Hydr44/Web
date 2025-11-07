@@ -1,6 +1,7 @@
 // SOAP Client per trasmissione fatture al SDI
 // Supporta invio con MTOM (Multipart/Related) per file .xml.p7m
 
+import { Buffer } from 'buffer';
 import soap from 'soap';
 import { SDIEnvironment, getSOAPClientConfig } from './certificates';
 import { signFatturaPAXML, generateSignedFileName } from './xml-signer';
@@ -11,6 +12,14 @@ export interface SDITransmissionResult {
   identificativoSDI?: string;
   error?: string;
   message?: string;
+  signedFileName?: string;
+  signedBuffer?: Buffer;
+  soapEnvelope?: string;
+  soapResponse?: string;
+  endpoint?: string;
+  httpStatus?: number;
+  boundary?: string;
+  debug?: any;
 }
 
 /**
@@ -105,6 +114,25 @@ export async function sendInvoiceToSDI(
     }
 
     console.log(`[SDI ${environment.toUpperCase()}] Invio fattura: ${signedFileName}`);
+
+    let manualAttempt: SDITransmissionResult | null = null;
+    try {
+      manualAttempt = await sendInvoiceToSDIWithoutWSDL(xml, fileName, p7mBuffer, environment, certConfig);
+      if (manualAttempt.success) {
+        return manualAttempt;
+      }
+      console.warn(`[SDI ${environment.toUpperCase()}] Invio manuale MTOM fallito: ${manualAttempt.error}`);
+    } catch (manualError: any) {
+      console.error(`[SDI ${environment.toUpperCase()}] Errore invio manuale MTOM:`, manualError);
+      manualAttempt = {
+        success: false,
+        error: manualError.message || 'Errore invio manuale',
+        message: manualError.message,
+        signedFileName,
+        signedBuffer: p7mBuffer,
+        debug: manualError,
+      };
+    }
 
     // Crea SOAP client con supporto MTOM
     // Per TEST, disabilita completamente la verifica SSL
@@ -276,6 +304,11 @@ export async function sendInvoiceToSDI(
         success: true,
         identificativoSDI: String(identificativoSDI),
         message: 'Fattura inviata al SDI con successo',
+        signedFileName,
+        signedBuffer: p7mBuffer,
+        soapEnvelope: manualAttempt?.soapEnvelope,
+        boundary: manualAttempt?.boundary,
+        debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
       };
     } else {
       // Verifica anche Esito OK
@@ -286,6 +319,11 @@ export async function sendInvoiceToSDI(
           success: true,
           identificativoSDI: response?.IdentificativoSdI || 'PENDING',
           message: 'Fattura presa in carico dal SDI',
+          signedFileName,
+          signedBuffer: p7mBuffer,
+          soapEnvelope: manualAttempt?.soapEnvelope,
+          boundary: manualAttempt?.boundary,
+          debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
         };
       }
 
@@ -294,6 +332,12 @@ export async function sendInvoiceToSDI(
         success: false,
         error: 'Risposta SDI non valida',
         message: response?.Message || response?.message || 'Identificativo SDI non presente nella risposta',
+        signedFileName,
+        signedBuffer: p7mBuffer,
+        soapEnvelope: manualAttempt?.soapEnvelope,
+        soapResponse: manualAttempt?.soapResponse,
+        boundary: manualAttempt?.boundary,
+        debug: manualAttempt,
       };
     }
   } catch (error: any) {
@@ -316,6 +360,15 @@ export async function sendInvoiceToSDI(
       success: false,
       error: errorMessage,
       message: `Errore durante l'invio al SDI: ${errorMessage}`,
+      signedFileName,
+      signedBuffer: p7mBuffer,
+      soapEnvelope: manualAttempt?.soapEnvelope,
+      soapResponse: manualAttempt?.soapResponse,
+      boundary: manualAttempt?.boundary,
+      debug: {
+        manualAttempt,
+        error,
+      },
     };
   }
 }

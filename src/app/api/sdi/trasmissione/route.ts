@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createSDIResponse } from '../_utils';
 import { sendInvoiceToSDI, generateSDIFileName } from '@/lib/sdi/soap-client';
 import { generateFatturaPAXML, invoiceToFatturaPAData } from '@/lib/sdi/xml-generator';
+import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -108,7 +109,54 @@ export async function POST(request: NextRequest) {
     // Invia fattura al SDI tramite web service SOAP
     const sdiResponse = await sendInvoiceToSDI(invoiceXml, fileName, 'production');
 
+    const environmentLabel = 'PRODUCTION';
+    const defaultSignedFileName = fileName.endsWith('.xml') ? fileName.replace(/\.xml$/, '.xml.p7m') : `${fileName}.xml.p7m`;
+    const signedFileName = sdiResponse.signedFileName || defaultSignedFileName;
+    const signedFileBase = signedFileName.replace(/\.xml\.p7m$/, '').replace(/\.p7m$/, '');
+
+    let signedFileInfo: { url: string; path: string } | null = null;
+    let soapRequestInfo: { url: string; path: string } | null = null;
+    let soapResponseInfo: { url: string; path: string } | null = null;
+
+    try {
+      if (sdiResponse.signedBuffer) {
+        signedFileInfo = await saveSDIFile(signedFileName, sdiResponse.signedBuffer, environmentLabel);
+      }
+      if (sdiResponse.soapEnvelope) {
+        const requestName = `${signedFileBase}-request.xml`;
+        soapRequestInfo = await saveSOAPEnvelope(sdiResponse.soapEnvelope, requestName, environmentLabel);
+      }
+      if (sdiResponse.soapResponse) {
+        const responseName = `${signedFileBase}-response.xml`;
+        soapResponseInfo = await saveSOAPEnvelope(sdiResponse.soapResponse, responseName, environmentLabel);
+      }
+    } catch (artifactError) {
+      console.error('[SDI] Errore salvataggio artefatti trasmissione:', artifactError);
+    }
+
     if (!sdiResponse.success) {
+      await supabase.from('sdi_events').insert({
+        invoice_id: invoice_id || null,
+        event_type: 'TrasmissioneFattura_Fallita',
+        payload: {
+          identificativo_sdi: sdiResponse.identificativoSDI || null,
+          xml_length: invoiceXml.length,
+          sent_at: new Date().toISOString(),
+          environment: environmentLabel,
+          error: sdiResponse.error,
+          message: sdiResponse.message,
+          soap_endpoint: sdiResponse.endpoint || null,
+          soap_http_status: sdiResponse.httpStatus || null,
+          soap_request_preview: sdiResponse.soapEnvelope?.substring(0, 4096) || null,
+          soap_response_preview: sdiResponse.soapResponse?.substring(0, 4096) || null,
+          soap_request_url: soapRequestInfo?.url || null,
+          soap_response_url: soapResponseInfo?.url || null,
+          signed_file_url: signedFileInfo?.url || null,
+          boundary: sdiResponse.boundary || null,
+          debug: sdiResponse.debug || null,
+        },
+      });
+
       return createSDIResponse(
         {
           success: false,
@@ -119,32 +167,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Aggiorna stato fattura
     if (invoice_id && sdiResponse.identificativoSDI) {
+      const sentAt = new Date().toISOString();
+      const existingMeta = (invoice as any)?.meta || {};
+
       await supabase
         .from('invoices')
         .update({
           sdi_status: 'sent',
           provider_ext_id: sdiResponse.identificativoSDI,
           meta: {
+            ...existingMeta,
             sdi_sent: true,
-            sdi_sent_at: new Date().toISOString(),
+            sdi_sent_at: sentAt,
             sdi_xml: invoiceXml,
-            sdi_environment: 'PRODUCTION',
-            updated_at: new Date().toISOString(),
+            sdi_environment: environmentLabel,
+            updated_at: sentAt,
+            sdi_transmission: {
+              identificativo_sdi: sdiResponse.identificativoSDI,
+              signed_file_name: signedFileName,
+              signed_file_url: signedFileInfo?.url || null,
+              signed_file_path: signedFileInfo?.path || null,
+              soap_endpoint: sdiResponse.endpoint || null,
+              soap_http_status: sdiResponse.httpStatus || null,
+              soap_request_url: soapRequestInfo?.url || null,
+              soap_response_url: soapResponseInfo?.url || null,
+              boundary: sdiResponse.boundary || null,
+            },
           },
         })
         .eq('id', invoice_id);
 
-      // Registra evento SDI
       await supabase.from('sdi_events').insert({
         invoice_id,
         event_type: 'TrasmissioneFattura',
         payload: {
           identificativo_sdi: sdiResponse.identificativoSDI,
           xml_length: invoiceXml.length,
-          sent_at: new Date().toISOString(),
-          environment: 'PRODUCTION',
+          sent_at: sentAt,
+          environment: environmentLabel,
+          soap_endpoint: sdiResponse.endpoint || null,
+          soap_http_status: sdiResponse.httpStatus || null,
+          soap_request_preview: sdiResponse.soapEnvelope?.substring(0, 4096) || null,
+          soap_response_preview: sdiResponse.soapResponse?.substring(0, 4096) || null,
+          soap_request_url: soapRequestInfo?.url || null,
+          soap_response_url: soapResponseInfo?.url || null,
+          signed_file_url: signedFileInfo?.url || null,
+          boundary: sdiResponse.boundary || null,
+          debug: sdiResponse.debug || null,
         },
       });
     }
