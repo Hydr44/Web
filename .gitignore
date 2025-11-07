@@ -7,3 +7,9 @@ certificati/**/*.pfx
 
 # Mantieni solo README
 !certificati/README.md
+
+# Node modules
+node_modules/
+
+# Build output
+.next/

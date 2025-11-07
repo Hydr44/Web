@@ -8,8 +8,9 @@ Libreria per l'integrazione con il Sistema di Interscambio (SDI) per la fatturaz
 src/lib/sdi/
 ├── certificates.ts              # Gestione certificati SDI
 ├── certificate-verification.ts # Verifica certificati per ricezione
-├── xml-generator.ts             # Generazione XML FatturaPA 1.2.2
-├── soap-client.ts               # Client SOAP per trasmissione
+├── xml-generator.ts             # Generazione XML FatturaPA 1.2.3
+├── xml-signer.ts                # Firma digitale CAdES-BES (.xml.p7m)
+├── soap-client.ts               # Client SOAP per trasmissione (MTOM)
 └── README.md                    # Questa documentazione
 ```
 
@@ -26,18 +27,26 @@ Funzioni per caricare e gestire certificati SDI:
 
 ### **2. Generazione XML (`xml-generator.ts`)**
 
-Generazione XML FatturaPA 1.2.2 conforme:
+Generazione XML FatturaPA 1.2.3 conforme:
 - `generateFatturaPAXML()` - Genera XML FatturaPA da dati strutturati
 - `invoiceToFatturaPAData()` - Converte fattura database → formato FatturaPA
 - `escapeXml()` - Sanitizza testo per XML
 
-### **3. SOAP Client (`soap-client.ts`)**
+### **3. Firma Digitale (`xml-signer.ts`)** 🔐
 
-Client SOAP per trasmissione fatture:
-- `sendInvoiceToSDI()` - Invia fattura al SDI tramite web service SOAP
+Firma digitale CAdES-BES per generare file `.xml.p7m`:
+- `signFatturaPAXML()` - Firma XML con CAdES-BES e genera `.xml.p7m`
+- `verifySignedXML()` - Verifica firma digitale di un file `.xml.p7m`
+- `extractXMLFromP7M()` - Estrae XML da file `.xml.p7m`
+- `generateSignedFileName()` - Genera nome file `.xml.p7m` conforme SDI
+
+### **4. SOAP Client (`soap-client.ts`)** 📡
+
+Client SOAP per trasmissione fatture con supporto MTOM:
+- `sendInvoiceToSDI()` - Invia fattura al SDI (firma automaticamente con CAdES-BES)
 - `generateSDIFileName()` - Genera nome file conforme SDI
 
-### **4. Verifica Certificati (`certificate-verification.ts`)**
+### **5. Verifica Certificati (`certificate-verification.ts`)**
 
 Verifica richieste SDI:
 - `verifySDIRequest()` - Verifica che richiesta provenga da SDI
@@ -58,12 +67,27 @@ const xml = generateFatturaPAXML(fatturaPAData);
 // Genera nome file
 const fileName = generateSDIFileName('02166430856', invoice.number);
 
-// Invia al SDI
+// Invia al SDI (firma automaticamente con CAdES-BES → .xml.p7m)
 const result = await sendInvoiceToSDI(xml, fileName, 'production');
 
 if (result.success) {
   console.log('Fattura inviata:', result.identificativoSDI);
 }
+```
+
+### **Firma Digitale Manuale**
+
+```typescript
+import { signFatturaPAXML, generateSignedFileName } from '@/lib/sdi/xml-signer';
+
+// Firma XML con CAdES-BES
+const p7mBuffer = await signFatturaPAXML(xmlString);
+
+// Genera nome file firmato
+const signedFileName = generateSignedFileName('02166430856', '00001');
+
+// Salva file .p7m (opzionale)
+fs.writeFileSync(signedFileName, p7mBuffer);
 ```
 
 ### **Ricezione Fattura**
