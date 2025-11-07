@@ -15,6 +15,14 @@ import { extractSOAPOperation, createMatchingSOAPResponse, SOAPOperation, getSOA
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30; // Vercel max duration 30s
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb',
+    },
+    responseLimit: '20mb',
+  },
+};
 
 // Gestisce richieste OPTIONS per CORS
 export async function OPTIONS() {
