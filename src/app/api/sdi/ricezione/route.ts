@@ -220,8 +220,9 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (error) {
-          console.error('[SDI PROD] Errore salvataggio fattura:', error);
+          logSupabaseError('insert invoice', error);
           await supabase.from('sdi_events').insert({
+            provider_id: 'sdi',
             event_type: 'ErroreSalvataggioFattura',
             payload: {
               error: error.message,
@@ -236,7 +237,8 @@ export async function POST(request: NextRequest) {
             },
           });
         } else {
-          await supabase.from('sdi_events').insert({
+          const { error: insertEventError } = await supabase.from('sdi_events').insert({
+            provider_id: 'sdi',
             invoice_id: data.id,
             event_type: 'FatturaRicevuta',
             payload: {
@@ -258,6 +260,7 @@ export async function POST(request: NextRequest) {
               file_sdi_metadata: fileSdIMetadata,
             },
           });
+          logSupabaseError('insert event FatturaRicevuta', insertEventError);
         }
       } else if (isNotifica) {
         const notifica = parseSDINotification(xml);
@@ -313,6 +316,7 @@ export async function POST(request: NextRequest) {
 
         try {
           await supabase.from('sdi_messages').insert({
+            provider_id: 'sdi',
             environment,
             invoice_id: invoiceId,
             sdi_identifier: identificativoSDI || idSDI || null,
@@ -332,6 +336,7 @@ export async function POST(request: NextRequest) {
         }
 
         await supabase.from('sdi_events').insert({
+          provider_id: 'sdi',
           event_type: tipoNotifica || 'NOTIFICA_SOAP',
           payload: {
             xml,
@@ -356,6 +361,7 @@ export async function POST(request: NextRequest) {
       } else {
         console.warn('[SDI PROD] XML SOAP non riconosciuto come fattura/notifica');
         await supabase.from('sdi_events').insert({
+          provider_id: 'sdi',
           event_type: 'XML_SOAP_NON_RICONOSCIUTO',
           payload: {
             xml_preview: xml.substring(0, 1000),
@@ -430,26 +436,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    try {
-      await supabase.from('sdi_messages').insert({
-        environment,
-        invoice_id: invoiceId,
-        sdi_identifier: identificativoSDI || idSDI || null,
-        message_type: resolution.normalizedType,
-        status: resolution.status || null,
-        status_message: resolution.statusMessage,
-        payload: {
-          xml,
-          parsed: notifica,
-          headers: allHeaders,
-          resolution,
-        },
-      });
-    } catch (messageError) {
-      console.error('[SDI PROD] Errore salvataggio sdi_messages (XML semplice):', messageError);
-    }
+    const { error: messageSimpleError } = await supabase.from('sdi_messages').insert({
+      provider_id: 'sdi',
+      environment,
+      invoice_id: invoiceId,
+      sdi_identifier: identificativoSDI || idSDI || null,
+      message_type: resolution.normalizedType,
+      status: resolution.status || null,
+      status_message: resolution.statusMessage,
+      payload: {
+        xml,
+        parsed: notifica,
+        headers: allHeaders,
+        resolution,
+      },
+    });
+    logSupabaseError('insert sdi_messages XML semplice', messageSimpleError);
 
-    await supabase.from('sdi_events').insert({
+    const { error: eventError } = await supabase.from('sdi_events').insert({
+      provider_id: 'sdi',
       event_type: tipoNotifica || 'XML_NOTIFICATION_RECEIVED',
       payload: {
         xml,
@@ -461,6 +466,7 @@ export async function POST(request: NextRequest) {
         notification_resolution: resolution,
       },
     });
+    logSupabaseError('insert event XML_NOTIFICATION_RECEIVED', eventError);
 
     return new NextResponse(XML_OK_RESPONSE, {
       status: 200,
@@ -477,5 +483,15 @@ export async function POST(request: NextRequest) {
       },
     });
   }
+}
+
+function logSupabaseError(context: string, error: any) {
+  if (!error) return;
+  console.error(`[SDI PROD] Errore Supabase (${context}):`, {
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code,
+  });
 }
  

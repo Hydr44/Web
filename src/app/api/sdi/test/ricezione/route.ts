@@ -33,6 +33,16 @@ const XML_OK_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?><Esito>OK</Esito>
 const SOAP_CONTENT_TYPE = 'application/soap+xml; charset=utf-8';
 const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
 
+function logSupabaseError(context: string, error: any) {
+  if (!error) return;
+  console.error(`[SDI TEST] Errore Supabase (${context}):`, {
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code,
+  });
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
@@ -222,8 +232,10 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (error) {
-          console.error('[SDI TEST] Errore salvataggio fattura:', error);
+          logSupabaseError('insert invoice', error);
           await supabase.from('sdi_events').insert({
+            provider_id: 'sdi_test',
+            invoice_id: data.id || null,
             event_type: 'ErroreSalvataggioFattura',
             payload: {
               error: error.message,
@@ -238,7 +250,8 @@ export async function POST(request: NextRequest) {
             },
           });
         } else {
-          await supabase.from('sdi_events').insert({
+          const { error: insertEventError } = await supabase.from('sdi_events').insert({
+            provider_id: 'sdi_test',
             invoice_id: data.id,
             event_type: 'FatturaRicevuta',
             payload: {
@@ -260,6 +273,7 @@ export async function POST(request: NextRequest) {
               file_sdi_metadata: fileSdIMetadata,
             },
           });
+          logSupabaseError('insert event FatturaRicevuta', insertEventError);
         }
       } else if (isNotifica) {
         const notifica = parseSDINotification(xml);
@@ -315,6 +329,7 @@ export async function POST(request: NextRequest) {
 
         try {
           await supabase.from('sdi_messages').insert({
+            provider_id: 'sdi_test',
             environment,
             invoice_id: invoiceId,
             sdi_identifier: identificativoSDI || idSDI || null,
@@ -333,12 +348,14 @@ export async function POST(request: NextRequest) {
           console.error('[SDI TEST] Errore salvataggio sdi_messages:', messageError);
         }
 
-        await supabase.from('sdi_events').insert({
-          event_type: tipoNotifica || 'NOTIFICA_SOAP',
+        const { error: eventNotificaError } = await supabase.from('sdi_events').insert({
+          provider_id: 'sdi_test',
+          invoice_id: invoice.id,
+          event_type: tipoNotifica || 'UNKNOWN_NOTIFICATION',
           payload: {
             xml,
             parsed: notifica,
-            sdi_environment: environment,
+            sdi_environment: 'TEST',
             fileName,
             contentType,
             file_url: fileUrl,
@@ -349,28 +366,38 @@ export async function POST(request: NextRequest) {
             ssl_client_verify: sslClientVerify,
             ssl_client_dn: sslClientDN,
             raw_soap_request: soapEnvelope.substring(0, 4096),
-            soap_operation: soapOperation,
+            soap_operation_qname: soapOperation ? soapOperation.qname : null,
+            soap_operation_localname: soapOperation ? soapOperation.localName : null,
+            soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
             soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
             identificativoSdI: identificativoSDI || idSDI || '',
-            notification_resolution: resolution,
+            file_sdi_metadata: fileSdIMetadata,
           },
         });
+        logSupabaseError('insert event notifica con fattura', eventNotificaError);
+
       } else {
         console.warn('[SDI TEST] XML SOAP non riconosciuto come fattura/notifica');
-        await supabase.from('sdi_events').insert({
+        const rawSoapRequest = soapEnvelope.substring(0, 4096);
+        const soapOperation = extractSOAPOperation(soapEnvelope);
+        const { error: eventUnknownError } = await supabase.from('sdi_events').insert({
+          provider_id: 'sdi_test',
           event_type: 'XML_SOAP_NON_RICONOSCIUTO',
           payload: {
-            xml_preview: xml.substring(0, 1000),
-            sdi_environment: environment,
+            xml,
+            sdi_environment: 'TEST',
             headers: allHeaders,
             ssl_client_verify: sslClientVerify,
             ssl_client_dn: sslClientDN,
-            raw_soap_request: soapEnvelope.substring(0, 4096),
-            soap_operation: soapOperation,
+            raw_soap_request: rawSoapRequest,
+            soap_operation_qname: soapOperation ? soapOperation.qname : null,
+            soap_operation_localname: soapOperation ? soapOperation.localName : null,
+            soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
             soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
             file_sdi_metadata: fileSdIMetadata,
           },
         });
+        logSupabaseError('insert event XML_NON_RICONOSCIUTO', eventUnknownError);
       }
 
       return new NextResponse(SOAP_OK_RESPONSE, {
@@ -433,26 +460,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    try {
-      await supabase.from('sdi_messages').insert({
-        environment: 'TEST',
-        invoice_id: invoiceId,
-        sdi_identifier: identificativoSDI || idSDI || null,
-        message_type: resolution.normalizedType,
-        status: resolution.status || null,
-        status_message: resolution.statusMessage,
-        payload: {
-          xml,
-          parsed: notifica,
-          headers: allHeaders,
-          resolution,
-        },
-      });
-    } catch (messageError) {
-      console.error('[SDI TEST] Errore salvataggio sdi_messages (XML semplice):', messageError);
-    }
+    const { error: messageSimpleError } = await supabase.from('sdi_messages').insert({
+      provider_id: 'sdi_test',
+      environment: 'TEST',
+      invoice_id: invoiceId,
+      sdi_identifier: identificativoSDI || idSDI || null,
+      message_type: resolution.normalizedType,
+      status: resolution.status || null,
+      status_message: resolution.statusMessage,
+      payload: {
+        xml,
+        parsed: notifica,
+        headers: allHeaders,
+        resolution,
+      },
+    });
+    logSupabaseError('insert sdi_messages XML semplice', messageSimpleError);
 
-    await supabase.from('sdi_events').insert({
+    const { error: eventError } = await supabase.from('sdi_events').insert({
+      provider_id: 'sdi_test',
       event_type: tipoNotifica || 'XML_NOTIFICATION_RECEIVED',
       payload: {
         xml,
@@ -464,6 +490,7 @@ export async function POST(request: NextRequest) {
         notification_resolution: resolution,
       },
     });
+    logSupabaseError('insert event XML_NOTIFICATION_RECEIVED', eventError);
 
     return new NextResponse(XML_OK_RESPONSE, {
       status: 200,
