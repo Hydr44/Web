@@ -151,6 +151,7 @@ export async function POST(request: NextRequest) {
 
     if (!sdiResponse.success) {
       await supabase.from('sdi_events').insert({
+        provider_id: 'sdi_test',
         invoice_id: invoice_id || null,
         event_type: 'TrasmissioneFattura_TEST_Fallita',
         payload: {
@@ -215,6 +216,7 @@ export async function POST(request: NextRequest) {
         .eq('id', invoice_id);
 
       await supabase.from('sdi_events').insert({
+        provider_id: 'sdi_test',
         invoice_id,
         event_type: 'TrasmissioneFattura_TEST',
         payload: {
