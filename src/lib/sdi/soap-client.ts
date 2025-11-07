@@ -48,8 +48,8 @@ export async function sendInvoiceToSDI(
     // - Ottenere l'URL corretto dal portale dopo la registrazione
     // - Verificare che l'ambiente test sia accessibile
     const wsdlUrl = environment === 'test'
-      ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl'
-      : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl';
+      ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc?wsdl'
+      : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc?wsdl';
 
     // Configurazione certificati
     let certConfig: any;

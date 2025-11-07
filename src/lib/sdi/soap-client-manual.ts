@@ -90,18 +90,18 @@ export async function sendInvoiceToSDIWithoutWSDL(
     // NOTA: L'endpoint potrebbe essere diverso dal WSDL
     // Prova diverse varianti basate sulla documentazione SDI
     const endpointVariants = [
-      // Opzione 1: Endpoint standard SDI2WS (senza .wsdl)
+      // Endpoint SOAP 1.2 (MTOM) documentato nel manuale SDICoop
       environment === 'test'
-        ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0'
-        : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0',
-      // Opzione 2: Endpoint con path base (senza nome file)
+        ? 'https://testservizi.fatturapa.it/ricevi_file'
+        : 'https://servizi.fatturapa.it/ricevi_file',
+      // Endpoint SOAP 1.1 (WS-Security) - path Service.svc/MTOM
       environment === 'test'
-        ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0'
-        : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0',
-      // Opzione 3: Endpoint con .wsdl (potrebbe funzionare anche per SOAP)
+        ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc/MTOM'
+        : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc/MTOM',
+      // Endpoint SOAP 1.1 base Service.svc
       environment === 'test'
-        ? 'https://testservizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl'
-        : 'https://servizi.fatturapa.it/SdI2WS_Fatturazione_2.0/SdI2WS_Fatturazione_2.0.wsdl',
+        ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc'
+        : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc',
     ];
 
     const soapAction = 'http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0/RiceviFile';
