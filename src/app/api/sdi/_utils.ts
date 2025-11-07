@@ -25,14 +25,30 @@ export function createSDIResponse(
   });
 }
 
-export function parseSDIXML(xml: string): {
+export interface SDIParsedInvoice {
   tipoDocumento?: string;
   numero?: string;
   data?: string;
   partitaIva?: string;
   codiceDestinatario?: string;
   [key: string]: any;
-} {
+}
+
+export interface SDINotificationData {
+  tipoNotifica?: string;
+  idSDI?: string;
+  identificativoSDI?: string;
+  esito?: string;
+  [key: string]: any;
+}
+
+export interface SDINotificationResolution {
+  status?: string;
+  statusMessage: string;
+  normalizedType: string;
+}
+
+export function parseSDIXML(xml: string): SDIParsedInvoice {
   try {
     // Simple XML parsing for test purposes
     // In production, use a proper XML parser like xml2js or fast-xml-parser
@@ -57,13 +73,7 @@ export function parseSDIXML(xml: string): {
   }
 }
 
-export function parseSDINotification(xml: string): {
-  tipoNotifica?: string;
-  idSDI?: string;
-  identificativoSDI?: string;
-  esito?: string;
-  [key: string]: any;
-} {
+export function parseSDINotification(xml: string): SDINotificationData {
   try {
     // Parse SDI notification XML
     const tipoNotificaMatch = xml.match(/<TipoNotifica>([^<]+)<\/TipoNotifica>/i);
@@ -82,5 +92,75 @@ export function parseSDINotification(xml: string): {
     console.error('Errore parsing notifica SDI:', error);
     return { raw: xml };
   }
+}
+
+function normalizeNotificationType(rawType: string): string {
+  return rawType.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+}
+
+export function resolveNotificationStatus(
+  notification: SDINotificationData,
+  fallbackType?: string
+): SDINotificationResolution {
+  const rawType = (notification.tipoNotifica || fallbackType || '').trim();
+  const normalizedType = rawType ? normalizeNotificationType(rawType) : 'UNKNOWN';
+  const esito = (notification.esito || '').trim().toUpperCase();
+
+  let status: string | undefined;
+  let statusMessage = '';
+
+  switch (normalizedType) {
+    case 'RICEVUTACONSEGNA':
+    case 'RC':
+      status = 'delivered';
+      statusMessage = 'Fattura consegnata dal SDI';
+      break;
+    case 'NOTIFICAMANCATACONSEGNA':
+    case 'MANCATACONSEGNA':
+    case 'MC':
+      status = 'delivery_failed';
+      statusMessage = 'Mancata consegna: recapito disponibile sul portale SDI';
+      break;
+    case 'NOTIFICASCARTO':
+    case 'SCARTO':
+    case 'NS':
+      status = 'rejected';
+      statusMessage = 'Fattura scartata dal SDI';
+      break;
+    case 'NOTIFICADECORRENZATERMINI':
+    case 'DECORRENZATERMINI':
+    case 'DT':
+      status = 'delivered_by_terms';
+      statusMessage = 'Decorrenza termini: fattura accettata per silenzio-assenso';
+      break;
+    case 'NOTIFICAESITO':
+    case 'ESITOCOMMITTENTE':
+    case 'NE':
+    case 'EC':
+      status = esito === 'ES01' || esito === 'EC01' ? 'accepted' : 'rejected';
+      statusMessage = status === 'accepted'
+        ? 'Esito committente: accettata'
+        : `Esito committente: ${esito || 'rifiutata'}`;
+      break;
+    case 'ARCHIVIAZIONE':
+    case 'ARCHIVIATA':
+      status = 'archived';
+      statusMessage = 'Ciclo SDI archiviato';
+      break;
+    case 'UNKNOWN':
+      statusMessage = 'Notifica SDI ricevuta';
+      break;
+    default:
+      statusMessage = rawType
+        ? `Notifica SDI ricevuta (${rawType})`
+        : 'Notifica SDI ricevuta';
+      break;
+  }
+
+  return {
+    status,
+    statusMessage,
+    normalizedType,
+  };
 }
 

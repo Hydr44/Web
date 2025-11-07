@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { parseSDIXML, parseSDINotification } from '../_utils';
+import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '../_utils';
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
@@ -216,6 +216,8 @@ export async function POST(request: NextRequest) {
       } else if (isNotifica) {
         const notifica = parseSDINotification(xml);
         const { identificativoSDI, idSDI, tipoNotifica } = notifica;
+        const resolution = resolveNotificationStatus(notifica, soapOperation?.localName);
+        const nowIso = new Date().toISOString();
 
         const { data: invoice } = await supabase
           .from('invoices')
@@ -223,21 +225,64 @@ export async function POST(request: NextRequest) {
           .or(`provider_ext_id.eq.${identificativoSDI},number.eq.${idSDI}`)
           .maybeSingle();
 
+        let invoiceId: string | null = null;
         if (invoice) {
+          invoiceId = invoice.id;
           const invoiceMeta = (invoice as any).meta || {};
-          await supabase
+          const statusHistory = Array.isArray(invoiceMeta.sdi_status_history)
+            ? [...invoiceMeta.sdi_status_history]
+            : [];
+          statusHistory.push({
+            timestamp: nowIso,
+            status: resolution.status || invoice.sdi_status,
+            message: resolution.statusMessage,
+            tipoNotifica: resolution.normalizedType,
+          });
+
+          const updatePayload: Record<string, any> = {
+            meta: {
+              ...invoiceMeta,
+              sdi_notification: notifica,
+              sdi_environment: environment,
+              notification_file_url: fileUrl,
+              notification_soap_url: soapUrl,
+              updated_at: nowIso,
+              sdi_status_history: statusHistory,
+            },
+          };
+
+          if (resolution.status) {
+            updatePayload.sdi_status = resolution.status;
+          }
+
+          const { error: updateError } = await supabase
             .from('invoices')
-            .update({
-              meta: {
-                ...invoiceMeta,
-                sdi_notification: notifica,
-                sdi_environment: environment,
-                notification_file_url: fileUrl,
-                notification_soap_url: soapUrl,
-                updated_at: new Date().toISOString(),
-              },
-            })
+            .update(updatePayload)
             .eq('id', invoice.id);
+
+          if (updateError) {
+            console.error('[SDI PROD] Errore aggiornamento stato fattura:', updateError);
+          }
+        }
+
+        try {
+          await supabase.from('sdi_messages').insert({
+            environment,
+            invoice_id: invoiceId,
+            sdi_identifier: identificativoSDI || idSDI || null,
+            message_type: resolution.normalizedType,
+            status: resolution.status || null,
+            status_message: resolution.statusMessage,
+            payload: {
+              xml,
+              parsed: notifica,
+              headers: allHeaders,
+              soap_operation: soapOperation,
+              resolution,
+            },
+          });
+        } catch (messageError) {
+          console.error('[SDI PROD] Errore salvataggio sdi_messages:', messageError);
         }
 
         await supabase.from('sdi_events').insert({
@@ -259,6 +304,7 @@ export async function POST(request: NextRequest) {
             soap_operation: soapOperation,
             soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
             identificativoSdI: identificativoSDI || idSDI || '',
+            notification_resolution: resolution,
           },
         });
       } else {
@@ -288,6 +334,73 @@ export async function POST(request: NextRequest) {
 
     const notifica = parseSDINotification(xml);
     const { identificativoSDI, idSDI, tipoNotifica } = notifica;
+    const resolution = resolveNotificationStatus(notifica);
+    const nowIso = new Date().toISOString();
+
+    let invoiceId: string | null = null;
+    if (identificativoSDI || idSDI) {
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('id, sdi_status, meta')
+        .or(`provider_ext_id.eq.${identificativoSDI},number.eq.${idSDI}`)
+        .maybeSingle();
+
+      if (invoice) {
+        invoiceId = invoice.id;
+        const invoiceMeta = (invoice as any).meta || {};
+        const statusHistory = Array.isArray(invoiceMeta.sdi_status_history)
+          ? [...invoiceMeta.sdi_status_history]
+          : [];
+        statusHistory.push({
+          timestamp: nowIso,
+          status: resolution.status || invoice.sdi_status,
+          message: resolution.statusMessage,
+          tipoNotifica: resolution.normalizedType,
+        });
+
+        const updatePayload: Record<string, any> = {
+          meta: {
+            ...invoiceMeta,
+            sdi_notification: notifica,
+            sdi_environment: environment,
+            updated_at: nowIso,
+            sdi_status_history: statusHistory,
+          },
+        };
+
+        if (resolution.status) {
+          updatePayload.sdi_status = resolution.status;
+        }
+
+        const { error: updateError } = await supabase
+          .from('invoices')
+          .update(updatePayload)
+          .eq('id', invoice.id);
+
+        if (updateError) {
+          console.error('[SDI PROD] Errore aggiornamento fattura (XML semplice):', updateError);
+        }
+      }
+    }
+
+    try {
+      await supabase.from('sdi_messages').insert({
+        environment,
+        invoice_id: invoiceId,
+        sdi_identifier: identificativoSDI || idSDI || null,
+        message_type: resolution.normalizedType,
+        status: resolution.status || null,
+        status_message: resolution.statusMessage,
+        payload: {
+          xml,
+          parsed: notifica,
+          headers: allHeaders,
+          resolution,
+        },
+      });
+    } catch (messageError) {
+      console.error('[SDI PROD] Errore salvataggio sdi_messages (XML semplice):', messageError);
+    }
 
     await supabase.from('sdi_events').insert({
       event_type: tipoNotifica || 'XML_NOTIFICATION_RECEIVED',
@@ -298,31 +411,9 @@ export async function POST(request: NextRequest) {
         headers: allHeaders,
         ssl_client_verify: sslClientVerify,
         ssl_client_dn: sslClientDN,
+        notification_resolution: resolution,
       },
     });
-
-    if (identificativoSDI || idSDI) {
-      const { data: invoice } = await supabase
-        .from('invoices')
-        .select('id, meta')
-        .or(`provider_ext_id.eq.${identificativoSDI},number.eq.${idSDI}`)
-        .maybeSingle();
-
-      if (invoice) {
-        const invoiceMeta = (invoice as any).meta || {};
-        await supabase
-          .from('invoices')
-          .update({
-            meta: {
-              ...invoiceMeta,
-              sdi_notification: notifica,
-              sdi_environment: environment,
-              updated_at: new Date().toISOString(),
-            },
-          })
-          .eq('id', invoice.id);
-      }
-    }
 
     return new NextResponse(XML_OK_RESPONSE, {
       status: 200,
