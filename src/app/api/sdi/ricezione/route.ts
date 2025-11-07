@@ -6,11 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createSDIResponse, parseSDIXML, parseSDINotification } from '../_utils';
+import { parseSDIXML, parseSDINotification } from '../_utils';
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, createSOAPResponse, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
-import { extractSOAPOperation, createMatchingSOAPResponse } from '@/lib/sdi/soap-parser';
+import { extractSOAPOperation, createMatchingSOAPResponse, SOAPOperation, getSOAPContentType } from '@/lib/sdi/soap-parser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     console.log('[SDI] ==============================================');
     
     // Estrai QName dell'operazione SOAP
-    let soapOperation: { localName: string; namespaceURI: string; prefix: string; qname: string } | null = null;
+    let soapOperation: SOAPOperation | null = null;
     if (soapEnvelope) {
       soapOperation = extractSOAPOperation(soapEnvelope);
       if (soapOperation) {
@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
         console.log('[SDI] NamespaceURI:', soapOperation.namespaceURI);
         console.log('[SDI] Prefix:', soapOperation.prefix);
         console.log('[SDI] QName:', soapOperation.qname);
+        console.log('[SDI] SOAP NamespaceURI:', soapOperation.soapNamespaceURI);
         console.log('[SDI] =====================================');
       } else {
         console.warn('[SDI] ⚠️ Operazione SOAP non estratta');
@@ -145,6 +146,8 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    let responseContentType = getSOAPContentType(soapOperation?.soapNamespaceURI);
 
     // Determina se è una fattura o una notifica
     const isFattura = xml.includes('<FatturaElettronica') || xml.includes('<p:FatturaElettronica');
@@ -203,13 +206,14 @@ export async function POST(request: NextRequest) {
         // Genera risposta SOAP che matcha l'operazione in ingresso
         let soapResponse: string;
         if (soapOperation) {
-          soapResponse = createMatchingSOAPResponse(
-            soapOperation,
-            'KO',
-            `Errore salvataggio fattura: ${error.message}`
-          );
+          const matching = createMatchingSOAPResponse(soapOperation, 'KO');
+          soapResponse = matching.xml;
+          responseContentType = matching.contentType;
+          console.log('[SDI] Risposta SOAP generata (errore salvataggio fattura):', soapResponse);
         } else {
           soapResponse = createSOAPResponse('KO', `Errore salvataggio fattura: ${error.message}`);
+          responseContentType = getSOAPContentType();
+          console.log('[SDI] Risposta SOAP generata (fallback errore salvataggio):', soapResponse);
         }
         
         // Registra evento anche per errore
@@ -232,7 +236,7 @@ export async function POST(request: NextRequest) {
         return new NextResponse(soapResponse, {
           status: 200,
           headers: {
-            'Content-Type': 'application/soap+xml; charset=utf-8',
+            'Content-Type': responseContentType,
           },
         });
       }
@@ -242,14 +246,14 @@ export async function POST(request: NextRequest) {
       // Genera risposta SOAP che matcha l'operazione in ingresso
       let soapResponse: string;
       if (soapOperation) {
-        soapResponse = createMatchingSOAPResponse(
-          soapOperation,
-          'OK',
-          'Fattura ricevuta e salvata con successo',
-          parsedFattura.identificativoSdI || parsedFattura.idSDI
-        );
+        const matching = createMatchingSOAPResponse(soapOperation, 'OK');
+        soapResponse = matching.xml;
+        responseContentType = matching.contentType;
+        console.log('[SDI] Risposta SOAP generata (fattura ricevuta):', soapResponse);
       } else {
         soapResponse = createSOAPResponse('OK', 'Fattura ricevuta e salvata con successo');
+        responseContentType = getSOAPContentType();
+        console.log('[SDI] Risposta SOAP generata (fallback fattura ricevuta):', soapResponse);
       }
       
       // Estrai identificativoSdI se presente
@@ -284,7 +288,7 @@ export async function POST(request: NextRequest) {
       return new NextResponse(soapResponse, {
         status: 200,
         headers: {
-          'Content-Type': 'application/soap+xml; charset=utf-8',
+          'Content-Type': responseContentType,
         },
       });
     } else if (isNotifica) {
@@ -317,14 +321,14 @@ export async function POST(request: NextRequest) {
         // Genera risposta SOAP che matcha l'operazione in ingresso
         let soapResponse: string;
         if (soapOperation) {
-          soapResponse = createMatchingSOAPResponse(
-            soapOperation,
-            'OK',
-            `Notifica ricevuta (fattura non trovata)`,
-            identificativoSDI || idSDI
-          );
+          const matching = createMatchingSOAPResponse(soapOperation, 'OK');
+          soapResponse = matching.xml;
+          responseContentType = matching.contentType;
+          console.log('[SDI] Risposta SOAP generata (notifica senza fattura):', soapResponse);
         } else {
           soapResponse = createSOAPResponse('OK', `Notifica ricevuta (fattura non trovata)`, identificativoSDI || idSDI);
+          responseContentType = getSOAPContentType();
+          console.log('[SDI] Risposta SOAP generata (fallback notifica senza fattura):', soapResponse);
         }
         
         // Registra anche qui con tutti i campi
@@ -349,7 +353,7 @@ export async function POST(request: NextRequest) {
         return new NextResponse(soapResponse, {
           status: 200,
           headers: {
-            'Content-Type': 'application/soap+xml; charset=utf-8',
+            'Content-Type': responseContentType,
           },
         });
       }
@@ -433,14 +437,14 @@ export async function POST(request: NextRequest) {
         // Genera risposta SOAP che matcha l'operazione in ingresso
         let soapResponse: string;
         if (soapOperation) {
-          soapResponse = createMatchingSOAPResponse(
-            soapOperation,
-            'KO',
-            `Errore aggiornamento stato fattura: ${updateError.message}`,
-            identificativoSDI || idSDI
-          );
+          const matching = createMatchingSOAPResponse(soapOperation, 'KO');
+          soapResponse = matching.xml;
+          responseContentType = matching.contentType;
+          console.log('[SDI] Risposta SOAP generata (errore aggiornamento stato):', soapResponse);
         } else {
           soapResponse = createSOAPResponse('KO', `Errore aggiornamento stato fattura: ${updateError.message}`, identificativoSDI || idSDI);
+          responseContentType = getSOAPContentType();
+          console.log('[SDI] Risposta SOAP generata (fallback errore aggiornamento):', soapResponse);
         }
         
         // Registra evento anche per errore
@@ -465,7 +469,7 @@ export async function POST(request: NextRequest) {
         return new NextResponse(soapResponse, {
           status: 200,
           headers: {
-            'Content-Type': 'application/soap+xml; charset=utf-8',
+            'Content-Type': responseContentType,
           },
         });
       }
@@ -475,14 +479,14 @@ export async function POST(request: NextRequest) {
       // Genera risposta SOAP che matcha l'operazione in ingresso
       let soapResponse: string;
       if (soapOperation) {
-        soapResponse = createMatchingSOAPResponse(
-          soapOperation,
-          'OK',
-          statusMessage,
-          identificativoSDI || idSDI
-        );
+        const matching = createMatchingSOAPResponse(soapOperation, 'OK');
+        soapResponse = matching.xml;
+        responseContentType = matching.contentType;
+        console.log('[SDI] Risposta SOAP generata (notifica):', soapResponse);
       } else {
         soapResponse = createSOAPResponse('OK', statusMessage, identificativoSDI || idSDI);
+        responseContentType = getSOAPContentType();
+        console.log('[SDI] Risposta SOAP generata (fallback notifica):', soapResponse);
       }
       
       // Registra evento completo con tutti i campi richiesti
@@ -515,7 +519,7 @@ export async function POST(request: NextRequest) {
       return new NextResponse(soapResponse, {
         status: 200,
         headers: {
-          'Content-Type': 'application/soap+xml; charset=utf-8',
+          'Content-Type': responseContentType,
         },
       });
     } else {
@@ -526,13 +530,14 @@ export async function POST(request: NextRequest) {
       // Genera risposta SOAP che matcha l'operazione in ingresso (se disponibile)
       let soapResponse: string;
       if (soapOperation) {
-        soapResponse = createMatchingSOAPResponse(
-          soapOperation,
-          'KO',
-          'XML non riconosciuto come fattura o notifica'
-        );
+        const matching = createMatchingSOAPResponse(soapOperation, 'KO');
+        soapResponse = matching.xml;
+        responseContentType = matching.contentType;
+        console.log('[SDI] Risposta SOAP generata (XML non riconosciuto):', soapResponse);
       } else {
         soapResponse = createSOAPResponse('KO', 'XML non riconosciuto come fattura o notifica');
+        responseContentType = getSOAPContentType();
+        console.log('[SDI] Risposta SOAP generata (fallback XML non riconosciuto):', soapResponse);
       }
       
       // Registra evento anche per XML non riconosciuto
@@ -555,7 +560,7 @@ export async function POST(request: NextRequest) {
       return new NextResponse(soapResponse, {
         status: 200, // SDI si aspetta 200 anche per errori (l'errore è nel SOAP)
         headers: {
-          'Content-Type': 'application/soap+xml; charset=utf-8',
+          'Content-Type': responseContentType,
         },
       });
     }

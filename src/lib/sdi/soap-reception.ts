@@ -106,8 +106,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
 }
 
 /**
- * Genera risposta SOAP per il SDI (legacy - usa createMatchingSOAPResponse invece)
- * @deprecated Usa createMatchingSOAPResponse per risposte che matchano l'input
+ * Genera risposta SOAP 1.2 generica per SDI
  */
 export function createSOAPResponse(
   esito: 'OK' | 'KO',
@@ -115,16 +114,16 @@ export function createSOAPResponse(
   identificativoSdI?: string
 ): string {
   const soapResponse = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0">
-  <soapenv:Header/>
-  <soapenv:Body>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0">
+  <soap:Header/>
+  <soap:Body>
     <sdicoop:RiceviFileResponse>
       <sdicoop:Esito>${esito}</sdicoop:Esito>
       ${identificativoSdI ? `<sdicoop:IdentificativoSdI>${identificativoSdI}</sdicoop:IdentificativoSdI>` : ''}
-      <sdicoop:Message>${message}</sdicoop:Message>
+      ${message ? `<sdicoop:Message>${message}</sdicoop:Message>` : ''}
     </sdicoop:RiceviFileResponse>
-  </soapenv:Body>
-</soapenv:Envelope>`;
+  </soap:Body>
+</soap:Envelope>`;
   
   return soapResponse;
 }
