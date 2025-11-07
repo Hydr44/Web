@@ -380,7 +380,10 @@ export async function POST(request: NextRequest) {
         console.warn('[SDI TEST] XML SOAP non riconosciuto come fattura/notifica');
         const rawSoapRequest = soapEnvelope.substring(0, 4096);
         const soapOperation = extractSOAPOperation(soapEnvelope);
-        const { error: eventUnknownError } = await supabase.from('sdi_events').insert({
+        console.log('[SDI TEST] Inserimento evento XML_SOAP_NON_RICONOSCIUTO in corso');
+        const { data: eventUnknownData, error: eventUnknownError } = await supabase
+          .from('sdi_events')
+          .insert({
           provider_id: 'sdi_test',
           event_type: 'XML_SOAP_NON_RICONOSCIUTO',
           payload: {
@@ -396,7 +399,12 @@ export async function POST(request: NextRequest) {
             soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
             file_sdi_metadata: fileSdIMetadata,
           },
-        });
+          })
+          .select('id')
+          .single();
+        if (eventUnknownData) {
+          console.log('[SDI TEST] Evento XML_SOAP_NON_RICONOSCIUTO creato con id:', eventUnknownData.id);
+        }
         logSupabaseError('insert event XML_NON_RICONOSCIUTO', eventUnknownError);
       }
 
