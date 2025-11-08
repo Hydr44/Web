@@ -21,13 +21,12 @@ export const config = {
 const XML_OK_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?><Esito>OK</Esito>';
 const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
 
-const SOAP_1_2_NAMESPACE = 'http://www.w3.org/2003/05/soap-envelope';
 const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
-const SOAP_OK_CONTENT_TYPE = 'application/soap+xml; charset=utf-8';
+const SOAP_OK_CONTENT_TYPE = 'text/xml; charset=utf-8';
 
 function buildSOAPOkResponse() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="${SOAP_1_2_NAMESPACE}">
+<soap:Envelope xmlns:soap="${SOAP_1_1_NAMESPACE}">
   <soap:Body>
     <EsitoCommittente xmlns="http://www.fatturapa.gov.it/sdi/messaggi/v1.0">
       <Esito>OK</Esito>
@@ -41,8 +40,7 @@ function buildSOAPOkResponse() {
 function detectSoapNamespace(operation: SOAPOperation | null, envelope: string) {
   if (operation?.soapNamespaceURI) return operation.soapNamespaceURI;
   if (envelope.includes(SOAP_1_1_NAMESPACE)) return SOAP_1_1_NAMESPACE;
-  if (envelope.includes(SOAP_1_2_NAMESPACE)) return SOAP_1_2_NAMESPACE;
-  return SOAP_1_2_NAMESPACE;
+  return SOAP_1_1_NAMESPACE;
 }
 
 function logSupabaseError(context: string, error: any) {
@@ -170,7 +168,7 @@ export async function POST(request: NextRequest) {
       const detectedNamespace = detectSoapNamespace(soapOperation, soapEnvelope);
       soapResponse = buildSOAPOkResponse();
       console.log('[SDI TEST] SOAP namespace rilevato:', detectedNamespace);
-      console.log('[SDI TEST] SOAP namespace risposta forzato:', SOAP_1_2_NAMESPACE, 'Content-Type:', soapResponse.contentType);
+      console.log('[SDI TEST] SOAP namespace risposta forzato:', SOAP_1_1_NAMESPACE, 'Content-Type:', soapResponse.contentType);
     } else {
       xml = await request.text();
       xml = sanitizeSOAPEnvelope(xml);
