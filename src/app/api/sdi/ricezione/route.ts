@@ -1,5 +1,6 @@
 // API SDI PRODUZIONE – ricezione fatture e notifiche (allineata al manuale SDI)
 
+import { Buffer } from 'buffer';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '../_utils';
@@ -384,10 +385,16 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      return new NextResponse(soapResponse.xml, {
+      const responseBody = soapResponse.xml.replace(/\s{2,}/g, ' ').trim();
+      const responseLength = Buffer.byteLength(responseBody, 'utf8');
+      console.log('[SDI PROD] SOAP response (len):', responseLength, responseBody);
+
+      return new NextResponse(responseBody, {
         status: 200,
         headers: {
           'Content-Type': soapResponse.contentType,
+          'Content-Length': responseLength.toString(),
+          'SOAPAction': '""',
         },
       });
     }
