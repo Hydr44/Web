@@ -2,6 +2,8 @@
 // Supporta invio con MTOM (Multipart/Related) per file .xml.p7m
 
 import { Buffer } from 'buffer';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import soap from 'soap';
 import { SDIEnvironment, getSOAPClientConfig } from './certificates';
 import { signFatturaPAXML, generateSignedFileName } from './xml-signer';
@@ -42,20 +44,11 @@ export async function sendInvoiceToSDI(
   let manualAttempt: SDITransmissionResult | null = null;
 
   try {
-    // WSDL URL
-    // NOTA: Il WSDL SDI richiede autenticazione tramite certificati
-    // Secondo il manuale di implementazione, l'endpoint SOAP potrebbe essere:
-    // 1. Lo stesso URL del WSDL (ma senza .wsdl per le chiamate SOAP)
-    // 2. Contenuto nel WSDL stesso (tag <soap:address location="..."/>)
-    // 3. Fornito dal portale SDI dopo la registrazione
-    //
-    // ATTENZIONE: Se tutti gli endpoint restituiscono 404, potrebbe essere necessario:
-    // - Registrare gli endpoint sul portale SDI prima di poter inviare fatture
-    // - Ottenere l'URL corretto dal portale dopo la registrazione
-    // - Verificare che l'ambiente test sia accessibile
-    const wsdlUrl = environment === 'test'
-      ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc?wsdl'
-      : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc?wsdl';
+    const wsdlFilePath = join(process.cwd(), 'src/lib/sdi/wsdl/SdIRiceviFile_v1.0.wsdl');
+    const wsdlDefinition = readFileSync(wsdlFilePath, 'utf8');
+    const wsdlEndpoint = environment === 'test'
+      ? 'https://testservizi.fatturapa.it/ricevi_file'
+      : 'https://servizi.fatturapa.it/ricevi_file';
 
     // Configurazione certificati
     let certConfig: any;
@@ -165,88 +158,47 @@ export async function sendInvoiceToSDI(
       console.warn(`[SDI TEST] NODE_TLS_REJECT_UNAUTHORIZED impostato a 0 per test`);
     }
     
-    // Configurazione client SOAP
-    // IMPORTANTE: Il WSDL SDI richiede autenticazione tramite certificati
-    // Passiamo i certificati anche nel download del WSDL tramite wsdl_options
     const soapOptions: any = {
+      wsdl_headers: {},
       wsdl_options: {
         ...wsdlOptions,
-        // Passiamo certificati anche per scaricare il WSDL
         cert: certConfig.cert,
         key: certConfig.key,
-        ca: certConfig.ca,
-        rejectUnauthorized: certConfig.rejectUnauthorized !== false,
+        ca: certConfig.ca && certConfig.ca.length > 0 ? certConfig.ca : undefined,
+        rejectUnauthorized: wsdlOptions.rejectUnauthorized,
       },
-      // Abilita MTOM per invio file binari
-      forceSoap12Headers: false,
       disableCache: true,
     };
-    
-    // La libreria soap usa wsdl_options per configurare anche il download del WSDL
-    // Se i certificati sono configurati, verranno usati anche per scaricare il WSDL
-    
+
     let soapClient: any;
     try {
-      soapClient = await soap.createClientAsync(wsdlUrl, soapOptions);
+      soapClient = await soap.createClientAsync(wsdlDefinition, soapOptions);
+      soapClient.setEndpoint(wsdlEndpoint);
     } catch (wsdlError: any) {
-      // Se il download del WSDL fallisce per 403, proviamo a costruire manualmente la richiesta SOAP
-      if (wsdlError.message?.includes('403') || wsdlError.message?.includes('Forbidden')) {
-        console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ WSDL non accessibile (403), costruisco richiesta SOAP manualmente`);
-        // Costruiamo manualmente la richiesta SOAP senza WSDL
-        // Usiamo la struttura documentata nel manuale SDI
-        return await sendInvoiceToSDIWithoutWSDL(xml, fileName, p7mBuffer, environment, certConfig);
-      }
+      console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ Errore utilizzo WSDL locale, passo al client manuale`, wsdlError);
       throw wsdlError;
     }
 
-    // Codifica file .p7m in base64 per trasmissione
     const p7mBase64 = p7mBuffer.toString('base64');
 
-    // Chiama metodo RiceviFile (SDICoop Web Service)
-    // Il metodo può variare in base al WSDL, verifica il nome corretto
     let result: any;
     
     try {
-      // Prova diversi nomi di metodo in ordine di priorità
-      if (soapClient.RiceviFile) {
-        result = await soapClient.RiceviFileAsync({
-          fileName: signedFileName,
-          file: p7mBase64, // SDI può accettare base64 o MTOM
-        });
-      } else if (soapClient.RiceviFileRequest) {
-        // Metodo alternativo con struttura più complessa (MTOM)
-        result = await soapClient.RiceviFileRequestAsync({
-          fileName: signedFileName,
-          file: {
-            _: p7mBase64,
-            '$attributes': {
-              'href': `cid:${signedFileName.replace(/\./g, '-')}`,
-            },
-          },
-        });
-      } else if (soapClient.TrasmettiFattura) {
-        // Metodo alternativo (vecchio formato)
-        result = await soapClient.TrasmettiFatturaAsync({
-          nomeFile: signedFileName,
-          fileFattura: p7mBase64,
-        });
+      if (!soapClient?.SdIRiceviFileService?.SdIRiceviFilePort?.RiceviFile && !soapClient.RiceviFile) {
+        throw new Error('Metodo RiceviFile non disponibile nel client SOAP.');
+      }
+
+      const payload = {
+        parametersIn: {
+          NomeFile: signedFileName,
+          File: p7mBase64,
+        },
+      };
+
+      if (soapClient.RiceviFileAsync) {
+        result = await soapClient.RiceviFileAsync(payload);
       } else {
-        // Fallback: cerca metodo generico
-        const methods = Object.keys(soapClient).filter(k => 
-          (k.includes('Ricevi') || k.includes('Trasmetti')) && 
-          !k.includes('Async') && 
-          typeof soapClient[k] === 'function'
-        );
-        if (methods.length > 0) {
-          const method = methods[0];
-          console.log(`[SDI ${environment.toUpperCase()}] Usando metodo: ${method}`);
-          result = await soapClient[method + 'Async']({
-            fileName: signedFileName,
-            file: p7mBase64,
-          });
-        } else {
-          throw new Error('Metodo SOAP non trovato nel WSDL. Verifica il nome del metodo.');
-        }
+        result = await soapClient.SdIRiceviFileService.SdIRiceviFilePort.RiceviFileAsync(payload);
       }
     } catch (soapError: any) {
       // Se l'errore è relativo a certificati SSL in test, prova senza verifica
@@ -261,18 +213,19 @@ export async function sendInvoiceToSDI(
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         try {
           // Ricrea client SOAP senza verifica
-          const testWsdlOptions = { ...wsdlOptions, rejectUnauthorized: false };
-          const testSoapClient = await soap.createClientAsync(wsdlUrl, {
-            wsdl_options: testWsdlOptions,
-            forceSoap12Headers: false,
+          const testSoapClient = await soap.createClientAsync(wsdlDefinition, {
+            wsdl_options: { ...soapOptions.wsdl_options, rejectUnauthorized: false },
             disableCache: true,
           });
+          testSoapClient.setEndpoint(wsdlEndpoint);
           
           // Riprova la chiamata
           if (testSoapClient.RiceviFile) {
             result = await testSoapClient.RiceviFileAsync({
-              fileName: signedFileName,
-              file: p7mBase64,
+              parametersIn: {
+                NomeFile: signedFileName,
+                File: p7mBase64,
+              },
             });
           } else {
             throw soapError; // Se non ha il metodo, rilancia l'errore originale
@@ -291,13 +244,13 @@ export async function sendInvoiceToSDI(
     }
 
     // Parse risposta
-    const response = result[0] || result;
+    const responseWrapper = result[0] || result;
+    const responseData = responseWrapper?.parametersOut || responseWrapper;
     const identificativoSDI = 
-      response?.IdentificativoSdI || 
-      response?.identificativoSDI || 
-      response?.IdentificativoSDI ||
-      response?.IdentificativoSdI ||
-      response?.Esito?.IdentificativoSdI;
+      responseData?.IdentificativoSdI || 
+      responseData?.identificativoSDI;
+    const dataOraRicezione = responseData?.DataOraRicezione || responseData?.dataOraRicezione || manualAttempt?.dataOraRicezione || null;
+    const errore = responseData?.Errore;
 
     if (identificativoSDI) {
       console.log(`[SDI ${environment.toUpperCase()}] Fattura inviata con successo: ${identificativoSDI}`);
@@ -307,32 +260,33 @@ export async function sendInvoiceToSDI(
         message: 'Fattura inviata al SDI con successo',
         signedFileName,
         signedBuffer: p7mBuffer,
-          soapEnvelope: manualAttempt?.soapEnvelope,
-          debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
-          dataOraRicezione: manualAttempt?.dataOraRicezione,
+        soapEnvelope: manualAttempt?.soapEnvelope,
+        debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+        dataOraRicezione: dataOraRicezione ? String(dataOraRicezione) : manualAttempt?.dataOraRicezione,
+        soapResponse: manualAttempt?.soapResponse,
       };
     } else {
-      // Verifica anche Esito OK
-      const esito = response?.Esito || response?.esito;
-      if (esito === 'OK' || esito === 'Ok') {
+      if (!errore) {
         console.log(`[SDI ${environment.toUpperCase()}] Fattura presa in carico (Esito: OK)`);
         return {
           success: true,
-          identificativoSDI: response?.IdentificativoSdI || 'PENDING',
+          identificativoSDI: responseData?.IdentificativoSdI || 'PENDING',
           message: 'Fattura presa in carico dal SDI',
           signedFileName,
           signedBuffer: p7mBuffer,
-            soapEnvelope: manualAttempt?.soapEnvelope,
-            debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
-            dataOraRicezione: manualAttempt?.dataOraRicezione,
+          soapEnvelope: manualAttempt?.soapEnvelope,
+          debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+          dataOraRicezione: dataOraRicezione ? String(dataOraRicezione) : manualAttempt?.dataOraRicezione,
+          soapResponse: manualAttempt?.soapResponse,
         };
       }
 
-      console.error(`[SDI ${environment.toUpperCase()}] Risposta SDI:`, JSON.stringify(response, null, 2));
+      const erroreDescrizione = typeof errore === 'string' ? errore : JSON.stringify(errore);
+      console.error(`[SDI ${environment.toUpperCase()}] Risposta SDI:`, JSON.stringify(responseData, null, 2));
       return {
         success: false,
-        error: 'Risposta SDI non valida',
-        message: response?.Message || response?.message || 'Identificativo SDI non presente nella risposta',
+        error: erroreDescrizione || 'Risposta SDI non valida',
+        message: erroreDescrizione || 'Identificativo SDI non presente nella risposta',
         signedFileName,
         signedBuffer: p7mBuffer,
         soapEnvelope: manualAttempt?.soapEnvelope,
