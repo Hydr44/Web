@@ -6,7 +6,7 @@ import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '..
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, extractFileSdIConMetadati, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
-import { extractSOAPOperation, getSOAPContentType, sanitizeSOAPEnvelope, SOAPOperation } from '@/lib/sdi/soap-parser';
+import { extractSOAPOperation, sanitizeSOAPEnvelope, SOAPOperation } from '@/lib/sdi/soap-parser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,12 +23,11 @@ const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
 
 const SOAP_1_2_NAMESPACE = 'http://www.w3.org/2003/05/soap-envelope';
 const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
+const SOAP_OK_CONTENT_TYPE = 'application/soap+xml; charset=utf-8';
 
-function buildSOAPOkResponse(soapNamespace?: string) {
-  const namespace = soapNamespace === SOAP_1_1_NAMESPACE ? SOAP_1_1_NAMESPACE : SOAP_1_2_NAMESPACE;
-  const contentType = getSOAPContentType(namespace);
+function buildSOAPOkResponse() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="${namespace}">
+<soap:Envelope xmlns:soap="${SOAP_1_2_NAMESPACE}">
   <soap:Body>
     <EsitoCommittente xmlns="http://www.fatturapa.gov.it/sdi/messaggi/v1.0">
       <Esito>OK</Esito>
@@ -36,7 +35,7 @@ function buildSOAPOkResponse(soapNamespace?: string) {
   </soap:Body>
 </soap:Envelope>`;
 
-  return { xml, contentType, namespace };
+  return { xml, contentType: SOAP_OK_CONTENT_TYPE };
 }
 
 function detectSoapNamespace(operation: SOAPOperation | null, envelope: string) {
@@ -159,8 +158,9 @@ export async function POST(request: NextRequest) {
       }
 
       const detectedNamespace = detectSoapNamespace(soapOperation, soapEnvelope);
-      soapResponse = buildSOAPOkResponse(detectedNamespace);
-      console.log('[SDI PROD] SOAP namespace risposta:', detectedNamespace, 'Content-Type:', soapResponse.contentType);
+      soapResponse = buildSOAPOkResponse();
+      console.log('[SDI PROD] SOAP namespace rilevato:', detectedNamespace);
+      console.log('[SDI PROD] SOAP namespace risposta forzato:', SOAP_1_2_NAMESPACE, 'Content-Type:', soapResponse.contentType);
     } else {
       xml = await request.text();
       xml = sanitizeSOAPEnvelope(xml);
