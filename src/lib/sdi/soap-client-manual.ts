@@ -47,8 +47,8 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
     // Genera boundary univoco per multipart
     const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const startId = `rootpart@soapui.org`;
-    const attachmentId = `allegato-p7m@rescuemanager`;
+    const startId = `rootpart-${Date.now()}@rescuemanager`;
+    const attachmentId = `allegato-${Date.now()}@rescuemanager`;
 
     // Costruisci SOAP envelope con riferimento MTOM (xop:Include)
     const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
@@ -69,7 +69,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
     // Ogni parte deve terminare con \r\n, non solo \r
 
     // Parte 1: SOAP envelope
-    const part1 = `--${boundary}\r\nContent-Type: text/xml; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
+    const part1 = `--${boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type="text/xml"\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
 
     // Parte 2: Allegato file .p7m (binario)
     const part2Header = `--${boundary}\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <${attachmentId}>\r\n\r\n`;
@@ -121,15 +121,18 @@ export async function sendInvoiceToSDIWithoutWSDL(
           const url = new URL(endpointUrl);
 
           // Opzioni HTTPS
+          const isSoap12Endpoint = endpointUrl.includes('/ricevi_file');
+          const contentTypeHeader = isSoap12Endpoint
+            ? `multipart/related; type="application/xop+xml"; start="<${startId}>"; start-info="text/xml"; boundary="${boundary}"`
+            : `multipart/related; type="text/xml"; start="<${startId}>"; boundary="${boundary}"`;
           const httpsOptions: https.RequestOptions = {
             hostname: url.hostname,
             port: url.port || 443,
             path: url.pathname,
             method: 'POST',
             headers: {
-              'Content-Type': `multipart/related; type="text/xml"; start="<${startId}>"; boundary="${boundary}"`,
+              'Content-Type': contentTypeHeader,
               'MIME-Version': '1.0',
-              'SOAPAction': soapAction,
               'Content-Length': multipartBody.length,
             },
             // Certificati per autenticazione (se disponibili)
@@ -141,7 +144,13 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
           console.log(`[SDI ${environment.toUpperCase()}] Tentativo ${description}:`);
           console.log(`[SDI ${environment.toUpperCase()}] Endpoint: ${endpointUrl}`);
-          console.log(`[SDI ${environment.toUpperCase()}] SOAPAction: ${soapAction}`);
+          if (!isSoap12Endpoint) {
+            httpsOptions.headers = {
+              ...httpsOptions.headers,
+              'SOAPAction': soapAction,
+            };
+          }
+          console.log(`[SDI ${environment.toUpperCase()}] SOAPAction: ${isSoap12Endpoint ? '(omesso per SOAP 1.2)' : soapAction}`);
 
           const req = https.request(httpsOptions, (res) => {
             let responseData = '';

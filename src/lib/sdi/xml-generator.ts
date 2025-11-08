@@ -239,6 +239,23 @@ export function invoiceToFatturaPAData(invoice: any, orgSettings?: any): Fattura
   const sdi = invoice.meta?.sdi || {};
   const org = orgSettings || {};
 
+  const customerAddressRaw = invoice.customer_address;
+  const sdiCessionarioAddress = sdi.cessionario?.address;
+  const customerAddress =
+    customerAddressRaw && typeof customerAddressRaw === 'object'
+      ? customerAddressRaw
+      : sdiCessionarioAddress && typeof sdiCessionarioAddress === 'object'
+        ? sdiCessionarioAddress
+        : null;
+  const customerStreet =
+    typeof customerAddressRaw === 'string' && customerAddressRaw
+      ? customerAddressRaw
+      : customerAddress?.street || 'Via';
+  const customerZip = invoice.customer_zip || customerAddress?.zip || '00000';
+  const customerCity = invoice.customer_city || customerAddress?.city || 'Comune';
+  const customerProvince = invoice.customer_province || customerAddress?.province || 'XX';
+  const customerCountry = invoice.customer_country || customerAddress?.country || 'IT';
+
   // Calcola totali
   const imponibile = items.reduce((sum: number, item: any) => 
     sum + (Number(item.qty || 0) * Number(item.price || 0)), 0);
@@ -308,11 +325,11 @@ export function invoiceToFatturaPAData(invoice: any, orgSettings?: any): Fattura
       codiceFiscale: invoice.customer_tax_code,
       denominazione: invoice.customer_name || 'Cliente',
       sede: {
-        indirizzo: invoice.customer_address || 'Via',
-        cap: invoice.customer_zip || '00000',
-        comune: invoice.customer_city || 'Comune',
-        provincia: invoice.customer_province || 'XX',
-        nazione: 'IT',
+        indirizzo: customerStreet,
+        cap: customerZip,
+        comune: customerCity,
+        provincia: customerProvince,
+        nazione: customerCountry,
       },
     },
     tipoDocumento: sdi.documento?.tipo_documento || 'TD01',
