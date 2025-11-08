@@ -6,7 +6,7 @@ import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '..
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, extractFileSdIConMetadati, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
-import { extractSOAPOperation, SOAPOperation } from '@/lib/sdi/soap-parser';
+import { extractSOAPOperation, getSOAPContentType, SOAPOperation } from '@/lib/sdi/soap-parser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,8 +18,17 @@ export const config = {
   },
 };
 
-const SOAP_OK_RESPONSE = `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+const XML_OK_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?><Esito>OK</Esito>';
+const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
+
+const SOAP_1_2_NAMESPACE = 'http://www.w3.org/2003/05/soap-envelope';
+const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
+
+function buildSOAPOkResponse(soapNamespace?: string) {
+  const namespace = soapNamespace === SOAP_1_1_NAMESPACE ? SOAP_1_1_NAMESPACE : SOAP_1_2_NAMESPACE;
+  const contentType = getSOAPContentType(namespace);
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="${namespace}">
   <soap:Body>
     <EsitoCommittente xmlns="http://www.fatturapa.gov.it/sdi/messaggi/v1.0">
       <Esito>OK</Esito>
@@ -27,10 +36,15 @@ const SOAP_OK_RESPONSE = `<?xml version="1.0" encoding="UTF-8"?>
   </soap:Body>
 </soap:Envelope>`;
 
-const XML_OK_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?><Esito>OK</Esito>';
+  return { xml, contentType, namespace };
+}
 
-const SOAP_CONTENT_TYPE = 'application/soap+xml; charset=utf-8';
-const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
+function detectSoapNamespace(operation: SOAPOperation | null, envelope: string) {
+  if (operation?.soapNamespaceURI) return operation.soapNamespaceURI;
+  if (envelope.includes(SOAP_1_1_NAMESPACE)) return SOAP_1_1_NAMESPACE;
+  if (envelope.includes(SOAP_1_2_NAMESPACE)) return SOAP_1_2_NAMESPACE;
+  return SOAP_1_2_NAMESPACE;
+}
 
 function logSupabaseError(context: string, error: any) {
   if (!error) return;
@@ -100,6 +114,7 @@ export async function POST(request: NextRequest) {
   let fileContent: Buffer | null = null;
   let soapOperation: SOAPOperation | null = null;
   let fileSdIMetadata: Record<string, any> | null = null;
+  let soapResponse = buildSOAPOkResponse();
 
   try {
     if (isSoapEnvelope) {
@@ -146,6 +161,10 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+
+      const detectedNamespace = detectSoapNamespace(soapOperation, soapEnvelope);
+      soapResponse = buildSOAPOkResponse(detectedNamespace);
+      console.log('[SDI TEST] SOAP namespace risposta:', detectedNamespace, 'Content-Type:', soapResponse.contentType);
     } else {
       xml = await request.text();
       console.log('[SDI TEST] XML (prima di 2KB):', xml.substring(0, 2048));
@@ -223,7 +242,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+              soap_response_returned: soapResponse.xml.substring(0, 4096),
               file_sdi_metadata: fileSdIMetadata,
             },
           });
@@ -246,7 +265,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+              soap_response_returned: soapResponse.xml.substring(0, 4096),
               identificativoSdI: fattura.identificativoSdI || fattura.idSDI || '',
               file_sdi_metadata: fileSdIMetadata,
             },
@@ -347,7 +366,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+            soap_response_returned: soapResponse.xml.substring(0, 4096),
             identificativoSdI: identificativoSDI || idSDI || '',
             file_sdi_metadata: fileSdIMetadata,
           },
@@ -374,7 +393,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: SOAP_OK_RESPONSE.substring(0, 4096),
+            soap_response_returned: soapResponse.xml.substring(0, 4096),
             file_sdi_metadata: fileSdIMetadata,
           },
           })
@@ -386,10 +405,10 @@ export async function POST(request: NextRequest) {
         logSupabaseError('insert event XML_NON_RICONOSCIUTO', eventUnknownError);
       }
 
-      return new NextResponse(SOAP_OK_RESPONSE, {
+      return new NextResponse(soapResponse.xml, {
         status: 200,
         headers: {
-          'Content-Type': SOAP_CONTENT_TYPE,
+          'Content-Type': soapResponse.contentType,
         },
       });
     }
@@ -486,10 +505,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[SDI TEST] Errore gestione richiesta:', error);
-    return new NextResponse(SOAP_OK_RESPONSE, {
+    return new NextResponse(soapResponse.xml, {
       status: 200,
       headers: {
-        'Content-Type': SOAP_CONTENT_TYPE,
+        'Content-Type': soapResponse.contentType,
       },
     });
   }
