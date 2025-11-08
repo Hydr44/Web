@@ -3,8 +3,41 @@
 
 import * as forge from 'node-forge';
 import * as fs from 'fs';
-import * as path from 'path';
 import { loadClientCert, loadClientKey } from './certificates';
+
+type ForgeByteBuffer = forge.util.ByteBuffer;
+
+function isForgeByteBuffer(value: unknown): value is ForgeByteBuffer {
+  return typeof value === 'object' && value !== null && typeof (value as ForgeByteBuffer).getBytes === 'function';
+}
+
+function extractBytesFromAsn1Node(node: unknown): string {
+  if (!node) {
+    return '';
+  }
+
+  if (typeof node === 'string') {
+    return node;
+  }
+
+  if (
+    typeof node === 'object' &&
+    node !== null &&
+    'value' in (node as Record<string, unknown>)
+  ) {
+    const value = (node as { value: unknown }).value;
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(extractBytesFromAsn1Node).join('');
+    }
+  }
+
+  return '';
+}
 
 /**
  * Opzioni per la firma digitale
@@ -55,13 +88,13 @@ export async function signFatturaPAXML(
     // Prova a caricare chiave in diversi formati
     try {
       privateKey = forge.pki.privateKeyFromPem(keyPem);
-    } catch (error) {
+    } catch {
       // Se è una chiave protetta con password, prova a decriptarla
       if (options.password) {
         try {
           // Prova formato PKCS#8 encrypted
           privateKey = forge.pki.decryptRsaPrivateKey(keyPem, options.password);
-        } catch (e) {
+        } catch {
           throw new Error('Impossibile decriptare la chiave privata. Verifica la password.');
         }
       } else {
@@ -105,9 +138,10 @@ export async function signFatturaPAXML(
 
     // Converti stringa binaria in Buffer
     return Buffer.from(derBuffer, 'binary');
-  } catch (error: any) {
+  } catch (error) {
     console.error('[SDI Signer] Errore firma XML:', error);
-    throw new Error(`Errore durante la firma dell'XML: ${error.message}`);
+    const message = error instanceof Error ? error.message : 'Errore sconosciuto';
+    throw new Error(`Errore durante la firma dell'XML: ${message}`);
   }
 }
 
@@ -126,12 +160,10 @@ export function generateSignedFileName(vatNumber: string, invoiceNumber: string)
 /**
  * Verifica firma digitale di un file .xml.p7m
  * @param p7mBuffer Buffer del file .xml.p7m
- * @param sdiCertPath Percorso certificato SDI per verifica (opzionale)
  * @returns XML estratto e verifica firma
  */
 export async function verifySignedXML(
-  p7mBuffer: Buffer,
-  sdiCertPath?: string
+  p7mBuffer: Buffer
 ): Promise<{ xml: string; verified: boolean; signer?: forge.pki.Certificate }> {
   try {
     // Parse messaggio PKCS#7
@@ -142,7 +174,22 @@ export async function verifySignedXML(
     const verified = p7.verify();
 
     // Estrai contenuto XML
-    const xmlContent = p7.content?.toString('utf8') || '';
+    let xmlContent = '';
+    if (p7.content) {
+      if (isForgeByteBuffer(p7.content)) {
+        xmlContent = Buffer.from(p7.content.getBytes(), 'binary').toString('utf8');
+      } else if (typeof p7.content === 'string') {
+        xmlContent = p7.content;
+      }
+    }
+
+    if (!xmlContent) {
+      const rawCapture = (p7 as { rawCapture?: { content?: unknown } }).rawCapture;
+      const extracted = extractBytesFromAsn1Node(rawCapture?.content);
+      if (extracted) {
+        xmlContent = Buffer.from(extracted, 'binary').toString('utf8');
+      }
+    }
 
     // Estrai certificato del firmatario (se disponibile)
     const signerCert = p7.certificates?.[0];
@@ -152,7 +199,7 @@ export async function verifySignedXML(
       verified,
       signer: signerCert,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('[SDI Signer] Errore verifica firma:', error);
     return {
       xml: '',
@@ -168,12 +215,38 @@ export async function verifySignedXML(
  */
 export function extractXMLFromP7M(p7mBuffer: Buffer): string {
   try {
-    const asn1 = forge.asn1.fromDer(p7mBuffer.toString('binary'));
+    const binary = p7mBuffer.toString('binary');
+    const asn1 = forge.asn1.fromDer(binary);
     const p7 = forge.pkcs7.messageFromAsn1(asn1);
-    return p7.content?.toString('utf8') || '';
-  } catch (error: any) {
+
+    let contentBytes = '';
+
+    if (p7.content) {
+      if (isForgeByteBuffer(p7.content)) {
+        contentBytes = p7.content.getBytes();
+      } else if (typeof p7.content === 'string') {
+        contentBytes = p7.content;
+      }
+    }
+
+    if (!contentBytes) {
+      const rawCapture = (p7 as { rawCapture?: { content?: unknown } }).rawCapture;
+      const extracted = extractBytesFromAsn1Node(rawCapture?.content);
+      if (extracted) {
+        contentBytes = extracted;
+      }
+    }
+
+    if (!contentBytes) {
+      return '';
+    }
+
+    const xml = Buffer.from(contentBytes, 'binary').toString('utf8');
+    return xml;
+  } catch (error) {
     console.error('[SDI Signer] Errore estrazione XML:', error);
-    throw new Error(`Impossibile estrarre XML da file .p7m: ${error.message}`);
+    const message = error instanceof Error ? error.message : 'Errore sconosciuto';
+    throw new Error(`Impossibile estrarre XML da file .p7m: ${message}`);
   }
 }
 
