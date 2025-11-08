@@ -15,11 +15,28 @@ const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
 const SOAP_1_2_CONTENT_TYPE = 'application/soap+xml; charset=utf-8';
 const SOAP_1_1_CONTENT_TYPE = 'text/xml; charset=utf-8';
 
+export function sanitizeSOAPEnvelope(rawEnvelope: string): string {
+  if (!rawEnvelope) {
+    return '';
+  }
+
+  let sanitized = rawEnvelope.replace(/^\uFEFF/, '');
+  sanitized = sanitized.replace(/^[\u0000-\u001F]+/, '');
+
+  const firstTagIndex = sanitized.indexOf('<');
+  if (firstTagIndex > 0) {
+    sanitized = sanitized.slice(firstTagIndex);
+  }
+
+  return sanitized.trimStart();
+}
+
 /**
  * Estrae l'operazione SOAP (primo elemento del Body) con namespace e prefix
  */
 export function extractSOAPOperation(soapEnvelope: string): SOAPOperation | null {
   try {
+    const sanitizedEnvelope = sanitizeSOAPEnvelope(soapEnvelope);
     const parser = new DOMParser({
       errorHandler: {
         warning: () => undefined,
@@ -27,7 +44,7 @@ export function extractSOAPOperation(soapEnvelope: string): SOAPOperation | null
       },
     });
 
-    const document = parser.parseFromString(soapEnvelope, 'text/xml');
+    const document = parser.parseFromString(sanitizedEnvelope, 'text/xml');
     const envelope = document.documentElement;
 
     if (!envelope) {

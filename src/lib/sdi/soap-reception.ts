@@ -3,6 +3,7 @@
 import { NextRequest } from 'next/server';
 import { DOMParser } from '@xmldom/xmldom';
 import { extractXMLFromP7M } from './xml-signer';
+import { sanitizeSOAPEnvelope } from './soap-parser';
 
 export interface FileSdIConMetadatiResult {
   fileName: string;
@@ -66,8 +67,8 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
     // Verifica se è la parte SOAP (XML)
     if (headersRaw.includes('Content-Type: text/xml') || headersRaw.includes('Content-Type: application/xml')) {
       // Questa è la parte SOAP envelope
-      soapEnvelope = body;
-      xml = body;
+      soapEnvelope = sanitizeSOAPEnvelope(body);
+      xml = soapEnvelope;
       
       // Estrai fileName dal SOAP body se presente
       const fileNameMatch = body.match(/<sdicoop:fileName>([^<]+)<\/sdicoop:fileName>/i) ||
@@ -163,6 +164,7 @@ function getFirstElementText(node: Element, localName: string): string | null {
 
 export function extractFileSdIConMetadati(soapEnvelope: string): FileSdIConMetadatiResult | null {
   try {
+    const sanitizedEnvelope = sanitizeSOAPEnvelope(soapEnvelope);
     const parser = new DOMParser({
       errorHandler: {
         warning: () => undefined,
@@ -170,7 +172,7 @@ export function extractFileSdIConMetadati(soapEnvelope: string): FileSdIConMetad
       },
     });
 
-    const document = parser.parseFromString(soapEnvelope, 'text/xml');
+    const document = parser.parseFromString(sanitizedEnvelope, 'text/xml');
     const operationNode = document.getElementsByTagNameNS?.('*', 'fileSdIConMetadati')?.[0]
       || document.getElementsByTagName('fileSdIConMetadati')?.[0];
 

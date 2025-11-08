@@ -6,7 +6,7 @@ import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '..
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, extractFileSdIConMetadati, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
-import { extractSOAPOperation, getSOAPContentType, SOAPOperation } from '@/lib/sdi/soap-parser';
+import { extractSOAPOperation, getSOAPContentType, sanitizeSOAPEnvelope, SOAPOperation } from '@/lib/sdi/soap-parser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -126,12 +126,18 @@ export async function POST(request: NextRequest) {
         fileName = extracted.fileName;
         fileContent = extracted.fileContent;
         console.log('[SDI TEST] File estratto:', fileName, 'size:', fileContent ? fileContent.length : 0, 'bytes');
+        soapEnvelope = sanitizeSOAPEnvelope(soapEnvelope);
+        xml = sanitizeSOAPEnvelope(xml);
       } catch (extractError) {
         console.error('[SDI TEST] Errore estrazione MTOM:', extractError);
         xml = await request.text();
-        soapEnvelope = xml;
-        fileContent = Buffer.from(xml, 'utf8');
+        soapEnvelope = sanitizeSOAPEnvelope(xml);
+        xml = soapEnvelope;
+        fileContent = Buffer.from(soapEnvelope, 'utf8');
       }
+
+      soapEnvelope = sanitizeSOAPEnvelope(soapEnvelope);
+      xml = sanitizeSOAPEnvelope(xml);
 
       const soapPreview = soapEnvelope.substring(0, 4096);
       console.log('[SDI TEST] SOAP preview (4KB):', soapPreview);
@@ -150,7 +156,7 @@ export async function POST(request: NextRequest) {
           fileName = fileSdIExtraction.fileName || fileName;
           fileContent = fileSdIExtraction.fileContent || fileContent;
           if (fileSdIExtraction.xml && fileSdIExtraction.xml.trim()) {
-            xml = fileSdIExtraction.xml;
+            xml = sanitizeSOAPEnvelope(fileSdIExtraction.xml);
           }
           fileSdIMetadata = {
             ...(fileSdIMetadata || {}),
@@ -167,6 +173,7 @@ export async function POST(request: NextRequest) {
       console.log('[SDI TEST] SOAP namespace risposta:', detectedNamespace, 'Content-Type:', soapResponse.contentType);
     } else {
       xml = await request.text();
+      xml = sanitizeSOAPEnvelope(xml);
       console.log('[SDI TEST] XML (prima di 2KB):', xml.substring(0, 2048));
     }
 
