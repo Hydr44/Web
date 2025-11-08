@@ -188,7 +188,6 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabase
           .from('invoices')
           .insert({
-            type: 'received',
             sdi_status: 'received',
             number: fattura.numero || 'N/A',
             date: fattura.data || new Date().toISOString().split('T')[0],
