@@ -333,6 +333,8 @@ export async function POST(request: NextRequest) {
               headers: allHeaders,
               soap_operation: soapOperation,
               resolution,
+              message_id: notifica.messageId || null,
+              pec_message_id: notifica.pecMessageId || null,
             },
           });
         } catch (messageError) {
@@ -360,6 +362,8 @@ export async function POST(request: NextRequest) {
             soap_response_returned: soapResponse.xml.substring(0, 4096),
             identificativoSdI: identificativoSDI || idSDI || '',
             notification_resolution: resolution,
+            message_id: notifica.messageId || null,
+            pec_message_id: notifica.pecMessageId || null,
           },
         });
       } else {
@@ -453,6 +457,8 @@ export async function POST(request: NextRequest) {
         parsed: notifica,
         headers: allHeaders,
         resolution,
+        message_id: notifica.messageId || null,
+        pec_message_id: notifica.pecMessageId || null,
       },
     });
     logSupabaseError('insert sdi_messages XML semplice', messageSimpleError);
@@ -468,6 +474,8 @@ export async function POST(request: NextRequest) {
         ssl_client_verify: sslClientVerify,
         ssl_client_dn: sslClientDN,
         notification_resolution: resolution,
+        message_id: notifica.messageId || null,
+        pec_message_id: notifica.pecMessageId || null,
       },
     });
     logSupabaseError('insert event XML_NOTIFICATION_RECEIVED', eventError);

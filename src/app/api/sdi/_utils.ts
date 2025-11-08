@@ -40,6 +40,8 @@ export interface SDINotificationData {
   idSDI?: string;
   identificativoSDI?: string;
   esito?: string;
+  messageId?: string;
+  pecMessageId?: string;
   [key: string]: any;
 }
 
@@ -81,12 +83,16 @@ export function parseSDINotification(xml: string): SDINotificationData {
     const idSDIMatch = xml.match(/<IdSDI>([^<]+)<\/IdSDI>/i);
     const identificativoSDIMatch = xml.match(/<IdentificativoSDI>([^<]+)<\/IdentificativoSDI>/i);
     const esitoMatch = xml.match(/<Esito>([^<]+)<\/Esito>/i);
+    const messageIdMatch = xml.match(/<MessageId>([^<]+)<\/MessageId>/i);
+    const pecMessageIdMatch = xml.match(/<PecMessageId>([^<]+)<\/PecMessageId>/i);
     
     return {
       tipoNotifica: tipoNotificaMatch?.[1],
       idSDI: idSDIMatch?.[1],
       identificativoSDI: identificativoSDIMatch?.[1],
       esito: esitoMatch?.[1],
+      messageId: messageIdMatch?.[1],
+      pecMessageId: pecMessageIdMatch?.[1],
       raw: xml,
     };
   } catch (error) {

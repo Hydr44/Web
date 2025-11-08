@@ -52,24 +52,24 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
     // Costruisci SOAP envelope con riferimento MTOM (xop:Include)
     const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0" xmlns:xop="http://www.w3.org/2004/08/xop/include">
-  <soap:Header/>
-  <soap:Body>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0" xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soapenv:Header/>
+  <soapenv:Body>
     <sdicoop:RiceviFileRequest>
       <sdicoop:fileName>${signedFileName}</sdicoop:fileName>
       <sdicoop:file>
         <xop:Include href="cid:${attachmentId}"/>
       </sdicoop:file>
     </sdicoop:RiceviFileRequest>
-  </soap:Body>
-</soap:Envelope>`;
+  </soapenv:Body>
+</soapenv:Envelope>`;
 
     // Costruisci corpo multipart/related
     // IMPORTANTE: Il formato deve essere esattamente come nella documentazione SDI
     // Ogni parte deve terminare con \r\n, non solo \r
 
     // Parte 1: SOAP envelope
-    const part1 = `--${boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type="application/soap+xml"\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
+    const part1 = `--${boundary}\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
 
     // Parte 2: Allegato file .p7m (binario)
     const part2Header = `--${boundary}\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <${attachmentId}>\r\n\r\n`;
@@ -121,10 +121,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
           const url = new URL(endpointUrl);
 
           // Opzioni HTTPS
-          const isSoap12Endpoint = endpointUrl.includes('/ricevi_file');
-          const contentTypeHeader = isSoap12Endpoint
-            ? `multipart/related; type="application/xop+xml"; start="<${startId}>"; start-info="application/soap+xml"; boundary="${boundary}"`
-            : `multipart/related; type="text/xml"; start="<${startId}>"; boundary="${boundary}"`;
+          const contentTypeHeader = `multipart/related; type="text/xml"; start="<${startId}>"; start-info="text/xml"; boundary="${boundary}"`;
           const httpsOptions: https.RequestOptions = {
             hostname: url.hostname,
             port: url.port || 443,
@@ -144,13 +141,11 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
           console.log(`[SDI ${environment.toUpperCase()}] Tentativo ${description}:`);
           console.log(`[SDI ${environment.toUpperCase()}] Endpoint: ${endpointUrl}`);
-          if (!isSoap12Endpoint) {
-            httpsOptions.headers = {
-              ...httpsOptions.headers,
-              'SOAPAction': soapAction,
-            };
-          }
-          console.log(`[SDI ${environment.toUpperCase()}] SOAPAction: ${isSoap12Endpoint ? '(omesso per SOAP 1.2)' : soapAction}`);
+          httpsOptions.headers = {
+            ...httpsOptions.headers,
+            'SOAPAction': soapAction,
+          };
+          console.log(`[SDI ${environment.toUpperCase()}] SOAPAction: ${soapAction}`);
 
           const req = https.request(httpsOptions, (res) => {
             let responseData = '';
