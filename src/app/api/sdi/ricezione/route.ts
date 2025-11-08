@@ -4,10 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '../_utils';
 import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
-import { extractFileFromSOAPMTOM, isSOAPRequest } from '@/lib/sdi/soap-reception';
+import { extractFileFromSOAPMTOM, extractFileSdIConMetadati, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
 import { extractSOAPOperation, SOAPOperation } from '@/lib/sdi/soap-parser';
-import { extractXMLFromP7M } from '@/lib/sdi/xml-signer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -119,44 +118,22 @@ export async function POST(request: NextRequest) {
         console.log('[SDI PROD] Operazione SOAP non rilevata');
       }
 
-      if (soapEnvelope && /<fileSdIConMetadati/i.test(soapEnvelope)) {
-        fileSdIMetadata = {
-          source: 'fileSdIConMetadati',
-        };
-        const identificativoMatch = soapEnvelope.match(/<IdentificativoSdI>([^<]+)<\/IdentificativoSdI>/i);
-        const nomeFileMatch = soapEnvelope.match(/<NomeFile>([^<]+)<\/NomeFile>/i);
-        const fileBase64Match = soapEnvelope.match(/<File>([\s\S]*?)<\/File>/i);
-
-        if (identificativoMatch) {
-          fileSdIMetadata.identificativoSdI = identificativoMatch[1].trim();
-        }
-        if (nomeFileMatch) {
-          fileSdIMetadata.nomeFile = nomeFileMatch[1].trim();
-          fileName = nomeFileMatch[1].trim() || fileName;
-        }
-
-        if (fileBase64Match) {
-          const base64Content = fileBase64Match[1].replace(/\s+/g, '');
-          try {
-            const p7mCandidate = Buffer.from(base64Content, 'base64');
-            fileSdIMetadata.fileSize = p7mCandidate.length;
-            fileContent = p7mCandidate;
-            try {
-              const extractedXml = extractXMLFromP7M(p7mCandidate);
-              if (extractedXml && extractedXml.trim().length > 0) {
-                xml = extractedXml;
-                fileSdIMetadata.extractedXmlLength = extractedXml.length;
-              } else {
-                fileSdIMetadata.extractedXmlEmpty = true;
-              }
-            } catch (extractionError: any) {
-              fileSdIMetadata.extractionError = extractionError?.message || 'Unknown extraction error';
-            }
-          } catch (decodeError: any) {
-            fileSdIMetadata.decodeError = decodeError?.message || 'Unknown decode error';
+      if (soapEnvelope) {
+        const fileSdIExtraction = extractFileSdIConMetadati(soapEnvelope);
+        if (fileSdIExtraction) {
+          console.log('[SDI PROD] Riconosciuto payload fileSdIConMetadati');
+          fileName = fileSdIExtraction.fileName || fileName;
+          fileContent = fileSdIExtraction.fileContent || fileContent;
+          if (fileSdIExtraction.xml && fileSdIExtraction.xml.trim()) {
+            xml = fileSdIExtraction.xml;
           }
-        } else {
-          fileSdIMetadata.missingFileNode = true;
+          fileSdIMetadata = {
+            ...(fileSdIMetadata || {}),
+            ...fileSdIExtraction.metadata,
+          };
+          if (fileSdIExtraction.metadataXml) {
+            fileSdIMetadata.metadataXml = fileSdIExtraction.metadataXml;
+          }
         }
       }
     } else {

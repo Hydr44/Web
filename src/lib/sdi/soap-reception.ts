@@ -1,6 +1,16 @@
 // Utility per gestire ricezione SOAP con MTOM dal SDI
 
 import { NextRequest } from 'next/server';
+import { DOMParser } from '@xmldom/xmldom';
+import { extractXMLFromP7M } from './xml-signer';
+
+export interface FileSdIConMetadatiResult {
+  fileName: string;
+  fileContent: Buffer;
+  xml: string;
+  metadataXml?: string;
+  metadata: Record<string, any>;
+}
 
 /**
  * Estrae il file XML (.xml o .xml.p7m) da una richiesta SOAP multipart/related
@@ -137,4 +147,127 @@ export function isSOAPRequest(request: NextRequest): boolean {
          contentType.includes('text/xml') ||
          contentType.includes('application/xml') ||
          contentType.includes('application/soap+xml');
+}
+
+function getFirstElementText(node: Element, localName: string): string | null {
+  const byNS = node.getElementsByTagNameNS?.('*', localName);
+  if (byNS && byNS.length > 0) {
+    return byNS[0].textContent?.trim() || null;
+  }
+  const byName = node.getElementsByTagName(localName);
+  if (byName && byName.length > 0) {
+    return byName[0].textContent?.trim() || null;
+  }
+  return null;
+}
+
+export function extractFileSdIConMetadati(soapEnvelope: string): FileSdIConMetadatiResult | null {
+  try {
+    const parser = new DOMParser({
+      errorHandler: {
+        warning: () => undefined,
+        error: (msg: string) => console.error('[SOAP Reception] DOM error:', msg),
+      },
+    });
+
+    const document = parser.parseFromString(soapEnvelope, 'text/xml');
+    const operationNode = document.getElementsByTagNameNS?.('*', 'fileSdIConMetadati')?.[0]
+      || document.getElementsByTagName('fileSdIConMetadati')?.[0];
+
+    if (!operationNode) {
+      return null;
+    }
+
+    const metadata: Record<string, any> = {
+      source: 'fileSdIConMetadati',
+    };
+
+    const identificativoSdI = getFirstElementText(operationNode, 'IdentificativoSdI');
+    if (identificativoSdI) {
+      metadata.identificativoSdI = identificativoSdI;
+    }
+
+    const nomeFile = getFirstElementText(operationNode, 'NomeFile');
+    const fileBase64 = getFirstElementText(operationNode, 'File');
+    const nomeFileMetadati = getFirstElementText(operationNode, 'NomeFileMetadati');
+    const metadatiBase64 = getFirstElementText(operationNode, 'Metadati');
+
+    if (!fileBase64) {
+      metadata.missingFileNode = true;
+      return {
+        fileName: nomeFile || 'sdi-file.p7m',
+        fileContent: Buffer.from(''),
+        xml: '',
+        metadata,
+      };
+    }
+
+    const fileBuffer = Buffer.from(fileBase64.replace(/\s+/g, ''), 'base64');
+    metadata.fileSize = fileBuffer.length;
+
+    let xml = '';
+    if (fileBuffer.length > 0) {
+      const isP7M = (nomeFile || '').toLowerCase().endsWith('.p7m');
+      try {
+        xml = isP7M ? extractXMLFromP7M(fileBuffer) : fileBuffer.toString('utf8');
+        metadata.extractedXmlLength = xml.length;
+        metadata.fileType = isP7M ? 'pkcs7' : 'xml';
+        if (!xml.trim()) {
+          metadata.extractedXmlEmpty = true;
+        }
+      } catch (error: any) {
+        metadata.extractionError = error?.message || 'Unknown extraction error';
+      }
+    }
+
+    let metadataXml: string | undefined;
+    if (metadatiBase64) {
+      try {
+        const decodedMetadata = Buffer.from(metadatiBase64.replace(/\s+/g, ''), 'base64').toString('utf8');
+        metadataXml = decodedMetadata;
+        metadata.metadataXmlLength = decodedMetadata.length;
+
+        try {
+          const metaDoc = parser.parseFromString(decodedMetadata, 'text/xml');
+          const root = metaDoc?.documentElement;
+          if (root) {
+            const parsed: Record<string, string> = {};
+            const children = Array.from(root.childNodes || []).filter((child) => child.nodeType === 1) as Element[];
+            for (const child of children) {
+              const key = child.localName || child.nodeName;
+              const value = child.textContent?.trim() || '';
+              if (key) {
+                parsed[key] = value;
+              }
+            }
+            if (Object.keys(parsed).length > 0) {
+              metadata.metadataParsed = parsed;
+            }
+          }
+        } catch (metaParseError: any) {
+          metadata.metadataParseError = metaParseError?.message || 'Unknown metadata parse error';
+        }
+      } catch (decodeMetaError: any) {
+        metadata.metadataDecodeError = decodeMetaError?.message || 'Unknown metadata decode error';
+      }
+    }
+
+    if (nomeFile) {
+      metadata.nomeFile = nomeFile;
+    }
+    if (nomeFileMetadati) {
+      metadata.nomeFileMetadati = nomeFileMetadati;
+    }
+
+    return {
+      fileName: nomeFile || 'sdi-file.p7m',
+      fileContent: fileBuffer,
+      xml,
+      metadataXml,
+      metadata,
+    };
+  } catch (error: any) {
+    console.error('[SOAP Reception] Errore estrazione fileSdIConMetadati:', error);
+    return null;
+  }
 }
