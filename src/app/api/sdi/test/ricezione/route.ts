@@ -22,15 +22,16 @@ const XML_OK_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?><Esito>OK</Esito>
 const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
 
 const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
+const SDI_RICEZIONE_NAMESPACE = 'http://www.fatturapa.gov.it/sdi/ws/ricezione/v1.0';
 const SOAP_OK_CONTENT_TYPE = 'text/xml; charset=utf-8';
 
 function buildSOAPOkResponse() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="${SOAP_1_1_NAMESPACE}">
   <soap:Body>
-    <EsitoCommittente xmlns="http://www.fatturapa.gov.it/sdi/messaggi/v1.0">
-      <Esito>OK</Esito>
-    </EsitoCommittente>
+    <rispostaRiceviFatture xmlns="${SDI_RICEZIONE_NAMESPACE}">
+      <Esito>ER01</Esito>
+    </rispostaRiceviFatture>
   </soap:Body>
 </soap:Envelope>`;
 
