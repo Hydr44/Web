@@ -18,8 +18,8 @@ export interface SDITransmissionResult {
   soapResponse?: string;
   endpoint?: string;
   httpStatus?: number;
-  boundary?: string;
   debug?: any;
+  dataOraRicezione?: string;
 }
 
 /**
@@ -35,6 +35,12 @@ export async function sendInvoiceToSDI(
   environment: SDIEnvironment = 'production',
   options: { skipSign?: boolean } = {}
 ): Promise<SDITransmissionResult> {
+  let p7mBuffer: Buffer = Buffer.from(xml, 'utf8');
+  let signedFileName: string = fileName.endsWith('.xml')
+    ? fileName.replace(/\.xml$/i, '.xml.p7m')
+    : `${fileName}.p7m`;
+  let manualAttempt: SDITransmissionResult | null = null;
+
   try {
     // WSDL URL
     // NOTA: Il WSDL SDI richiede autenticazione tramite certificati
@@ -82,15 +88,7 @@ export async function sendInvoiceToSDI(
     // Potremmo dover scaricare il WSDL manualmente con certificati o usare un WSDL locale
 
     // Firma XML con CAdES-BES (genera .xml.p7m)
-    let p7mBuffer: Buffer;
-    let signedFileName: string;
-
-    if (options.skipSign) {
-      // In test, possiamo saltare la firma se necessario (non consigliato)
-      console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ Firma digitale saltata (solo per test)`);
-      p7mBuffer = Buffer.from(xml, 'utf8');
-      signedFileName = fileName.replace('.xml', '.xml.p7m');
-    } else {
+    if (!options.skipSign) {
       try {
         p7mBuffer = await signFatturaPAXML(xml);
         // Genera nome file firmato
@@ -106,24 +104,27 @@ export async function sendInvoiceToSDI(
         if (environment === 'test') {
           console.warn(`[SDI TEST] Tentativo invio senza firma (solo per test)`);
           p7mBuffer = Buffer.from(xml, 'utf8');
-          signedFileName = fileName.replace('.xml', '.xml.p7m');
+          signedFileName = fileName.endsWith('.xml')
+            ? fileName.replace(/\.xml$/i, '.xml.p7m')
+            : `${fileName}.p7m`;
         } else {
           throw new Error(`Impossibile firmare l'XML: ${signError.message}`);
         }
       }
+    } else {
+      console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ Firma digitale saltata (solo per test)`);
     }
 
     console.log(`[SDI ${environment.toUpperCase()}] Invio fattura: ${signedFileName}`);
 
-    let manualAttempt: SDITransmissionResult | null = null;
     try {
       manualAttempt = await sendInvoiceToSDIWithoutWSDL(xml, fileName, p7mBuffer, environment, certConfig);
       if (manualAttempt.success) {
         return manualAttempt;
       }
-      console.warn(`[SDI ${environment.toUpperCase()}] Invio manuale MTOM fallito: ${manualAttempt.error}`);
+      console.warn(`[SDI ${environment.toUpperCase()}] Invio manuale SOAP fallito: ${manualAttempt.error}`);
     } catch (manualError: any) {
-      console.error(`[SDI ${environment.toUpperCase()}] Errore invio manuale MTOM:`, manualError);
+      console.error(`[SDI ${environment.toUpperCase()}] Errore invio manuale SOAP:`, manualError);
       manualAttempt = {
         success: false,
         error: manualError.message || 'Errore invio manuale',
@@ -306,9 +307,9 @@ export async function sendInvoiceToSDI(
         message: 'Fattura inviata al SDI con successo',
         signedFileName,
         signedBuffer: p7mBuffer,
-        soapEnvelope: manualAttempt?.soapEnvelope,
-        boundary: manualAttempt?.boundary,
-        debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+          soapEnvelope: manualAttempt?.soapEnvelope,
+          debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+          dataOraRicezione: manualAttempt?.dataOraRicezione,
       };
     } else {
       // Verifica anche Esito OK
@@ -321,9 +322,9 @@ export async function sendInvoiceToSDI(
           message: 'Fattura presa in carico dal SDI',
           signedFileName,
           signedBuffer: p7mBuffer,
-          soapEnvelope: manualAttempt?.soapEnvelope,
-          boundary: manualAttempt?.boundary,
-          debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+            soapEnvelope: manualAttempt?.soapEnvelope,
+            debug: manualAttempt && !manualAttempt.success ? manualAttempt : undefined,
+            dataOraRicezione: manualAttempt?.dataOraRicezione,
         };
       }
 
@@ -336,7 +337,6 @@ export async function sendInvoiceToSDI(
         signedBuffer: p7mBuffer,
         soapEnvelope: manualAttempt?.soapEnvelope,
         soapResponse: manualAttempt?.soapResponse,
-        boundary: manualAttempt?.boundary,
         debug: manualAttempt,
       };
     }
@@ -364,7 +364,6 @@ export async function sendInvoiceToSDI(
       signedBuffer: p7mBuffer,
       soapEnvelope: manualAttempt?.soapEnvelope,
       soapResponse: manualAttempt?.soapResponse,
-      boundary: manualAttempt?.boundary,
       debug: {
         manualAttempt,
         error,

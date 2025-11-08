@@ -18,8 +18,8 @@ export interface SDITransmissionResult {
   soapResponse?: string;
   endpoint?: string;
   httpStatus?: number;
-  boundary?: string;
   debug?: any;
+  dataOraRicezione?: string;
 }
 
 /**
@@ -38,78 +38,41 @@ export async function sendInvoiceToSDIWithoutWSDL(
   certConfig: any
 ): Promise<SDITransmissionResult> {
   try {
-    // Genera nome file firmato
     const signedFileName = fileName.replace('.xml', '.xml.p7m');
+    const fileBase64 = p7mBuffer.toString('base64');
 
-    // IMPORTANTE: SDI richiede formato MTOM (Multipart/Related), NON base64 nel body SOAP!
-    // Secondo documentazione: 03_invio_SOAP_esempio.md
-    // Il file .p7m deve essere inviato come allegato MTOM separato
+    const SOAP_SERVICE_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0';
+    const SOAP_TYPES_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0/types';
 
-    // Genera boundary univoco per multipart
-    const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const startId = `rootpart-${Date.now()}@rescuemanager`;
-    const attachmentId = `allegato-${Date.now()}@rescuemanager`;
-
-    // Costruisci SOAP envelope con riferimento MTOM (xop:Include)
     const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sdicoop="http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0" xmlns:xop="http://www.w3.org/2004/08/xop/include">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="${SOAP_SERVICE_NS}" xmlns:types="${SOAP_TYPES_NS}">
   <soapenv:Header/>
   <soapenv:Body>
-    <sdicoop:RiceviFileRequest>
-      <sdicoop:fileName>${signedFileName}</sdicoop:fileName>
-      <sdicoop:file>
-        <xop:Include href="cid:${attachmentId}"/>
-      </sdicoop:file>
-    </sdicoop:RiceviFileRequest>
+    <types:fileSdIAccoglienza>
+      <types:NomeFile>${signedFileName}</types:NomeFile>
+      <types:File>${fileBase64}</types:File>
+    </types:fileSdIAccoglienza>
   </soapenv:Body>
 </soapenv:Envelope>`;
 
-    // Costruisci corpo multipart/related
-    // IMPORTANTE: Il formato deve essere esattamente come nella documentazione SDI
-    // Ogni parte deve terminare con \r\n, non solo \r
+    const soapBuffer = Buffer.from(soapEnvelope, 'utf8');
 
-    // Parte 1: SOAP envelope
-    const part1 = `--${boundary}\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\nContent-ID: <${startId}>\r\n\r\n${soapEnvelope}\r\n`;
-
-    // Parte 2: Allegato file .p7m (binario)
-    const part2Header = `--${boundary}\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <${attachmentId}>\r\n\r\n`;
-
-    // Parte finale: chiusura boundary
-    const partEnd = `\r\n--${boundary}--\r\n`;
-
-    // Costruisci corpo completo multipart
-    // IMPORTANTE: Il file binario deve essere concatenato direttamente senza conversione
-    const multipartBody = Buffer.concat([
-      Buffer.from(part1, 'utf8'),
-      Buffer.from(part2Header, 'utf8'),
-      p7mBuffer, // File binario .p7m (raw bytes)
-      Buffer.from(partEnd, 'utf8'),
-    ]);
-
-    // URL SDI endpoint SOAP
-    // NOTA: L'endpoint potrebbe essere diverso dal WSDL
-    // Prova diverse varianti basate sulla documentazione SDI
-    const endpointVariants = [
-      // Endpoint SOAP 1.2 (MTOM) documentato nel manuale SDICoop
+    const endpointVariants =
       environment === 'test'
-        ? 'https://testservizi.fatturapa.it/ricevi_file'
-        : 'https://servizi.fatturapa.it/ricevi_file',
-      // Endpoint SOAP 1.1 (WS-Security) - path Service.svc/MTOM
-      environment === 'test'
-        ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc/MTOM'
-        : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc/MTOM',
-      // Endpoint SOAP 1.1 base Service.svc
-      environment === 'test'
-        ? 'https://testservizi.fatturapa.it/SdI2RiceviFile/Service.svc'
-        : 'https://servizi.fatturapa.it/SdI2RiceviFile/Service.svc',
-    ];
+        ? [
+            'https://testservizi.fatturapa.it/ricevi_file',
+            'https://testservizi.fatturapa.it/SdIRiceviFile/Service.svc',
+          ]
+        : [
+            'https://servizi.fatturapa.it/ricevi_file',
+            'https://servizi.fatturapa.it/SdIRiceviFile/Service.svc',
+          ];
 
-    const soapAction = 'http://www.fatturapa.gov.it/sdi/ws/ricevi_file/v1.0/RiceviFile';
+    const soapAction = 'http://www.fatturapa.it/SdIRiceviFile/RiceviFile';
 
-    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP MTOM: ${signedFileName}`);
+    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP base64: ${signedFileName}`);
     console.log(`[SDI ${environment.toUpperCase()}] Dimensione file .p7m: ${p7mBuffer.length} bytes`);
-    console.log(`[SDI ${environment.toUpperCase()}] Dimensione multipart: ${multipartBody.length} bytes`);
-    console.log(`[SDI ${environment.toUpperCase()}] Boundary: ${boundary}`);
+    console.log(`[SDI ${environment.toUpperCase()}] Dimensione SOAP: ${soapBuffer.length} bytes`);
 
     // Funzione helper per provare una richiesta SOAP con MTOM
     const trySOAPRequest = (
@@ -120,31 +83,36 @@ export async function sendInvoiceToSDIWithoutWSDL(
         try {
           const url = new URL(endpointUrl);
 
-          // Opzioni HTTPS
-          const contentTypeHeader = `multipart/related; type="text/xml"; start="<${startId}>"; start-info="text/xml"; boundary="${boundary}"`;
+          if (url.protocol !== 'https:') {
+            console.warn(`[SDI ${environment.toUpperCase()}] Protocollo non supportato per l'endpoint ${endpointUrl}`);
+            return resolve({
+              success: false,
+              error: 'Protocollo non supportato (solo HTTPS)',
+              message: 'Endpoint non HTTPS',
+              endpoint: endpointUrl,
+            });
+          }
+
           const httpsOptions: https.RequestOptions = {
             hostname: url.hostname,
-            port: url.port || 443,
-            path: url.pathname,
+            port: url.port ? Number(url.port) : 443,
+            path: `${url.pathname}${url.search}`,
             method: 'POST',
             headers: {
-              'Content-Type': contentTypeHeader,
-              'MIME-Version': '1.0',
-              'Content-Length': multipartBody.length,
+              'Content-Type': 'text/xml; charset=utf-8',
+              'Content-Length': soapBuffer.length,
+              'SOAPAction': soapAction,
+              Connection: 'close',
             },
-            // Certificati per autenticazione (se disponibili)
             cert: certConfig.cert,
             key: certConfig.key,
             ca: certConfig.ca && certConfig.ca.length > 0 ? certConfig.ca : undefined,
-            rejectUnauthorized: environment === 'test' ? false : (certConfig.rejectUnauthorized !== false),
+            rejectUnauthorized:
+              environment === 'test' ? certConfig.rejectUnauthorized === true ? true : false : certConfig.rejectUnauthorized !== false,
           };
 
           console.log(`[SDI ${environment.toUpperCase()}] Tentativo ${description}:`);
           console.log(`[SDI ${environment.toUpperCase()}] Endpoint: ${endpointUrl}`);
-          httpsOptions.headers = {
-            ...httpsOptions.headers,
-            'SOAPAction': soapAction,
-          };
           console.log(`[SDI ${environment.toUpperCase()}] SOAPAction: ${soapAction}`);
 
           const req = https.request(httpsOptions, (res) => {
@@ -166,43 +134,55 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
                 if (statusCode === 200) {
                   // Parse risposta SOAP
-                  const identificativoMatch = responseData.match(/<.*?IdentificativoSdI[^>]*>([^<]+)<\/.*?IdentificativoSdI[^>]*>/i);
-                  const esitoMatch = responseData.match(/<.*?Esito[^>]*>([^<]+)<\/.*?Esito[^>]*>/i);
-                  const messageMatch = responseData.match(/<.*?Message[^>]*>([^<]+)<\/.*?Message[^>]*>/i);
+                  const identificativoMatch = responseData.match(/<[^>]*IdentificativoSdI[^>]*>([^<]+)</i);
+                  const erroreMatch = responseData.match(/<[^>]*Errore[^>]*>([^<]+)</i);
+                  const dataRicezioneMatch = responseData.match(/<[^>]*DataOraRicezione[^>]*>([^<]+)</i);
 
                   const identificativoSDI = identificativoMatch ? identificativoMatch[1].trim() : null;
-                  const esito = esitoMatch ? esitoMatch[1].trim() : null;
-                  const message = messageMatch ? messageMatch[1].trim() : null;
+                  const errore = erroreMatch ? erroreMatch[1].trim() : null;
+                  const dataOraRicezione = dataRicezioneMatch ? dataRicezioneMatch[1].trim() : null;
 
                   console.log(`[SDI ${environment.toUpperCase()}] Parsing risposta:`, {
                     identificativoSDI,
-                    esito,
-                    message,
+                    errore,
+                    dataOraRicezione,
                   });
 
-                  if (esito === 'OK' || esito === 'Ok' || identificativoSDI) {
-                    console.log(`[SDI ${environment.toUpperCase()}] ✅ Successo ${description}: ${identificativoSDI || 'PENDING'}`);
+                  if (identificativoSDI && !errore) {
+                    console.log(`[SDI ${environment.toUpperCase()}] ✅ Successo ${description}: ${identificativoSDI}`);
                     return resolve({
                       success: true,
-                      identificativoSDI: identificativoSDI || 'PENDING',
-                      message: message || 'Fattura presa in carico dal SDI',
+                      identificativoSDI,
+                      message: 'Fattura presa in carico dal SDI',
                       endpoint: endpointUrl,
                       httpStatus: statusCode,
                       soapResponse: responseData,
+                      dataOraRicezione,
                     });
-                  } else {
-                    // Status 200 ma risposta non valida
-                    console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ ${description} risposta 200 ma non valida`);
-                    console.warn(`[SDI ${environment.toUpperCase()}] Risposta completa:`, responseData);
+                  }
+
+                  if (errore) {
+                    console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ ${description} risposta con errore ${errore}`);
                     return resolve({
                       success: false,
-                      error: `Risposta SDI non valida (HTTP 200 ma senza identificativo)`,
-                      message: `Endpoint risponde ma formato risposta non riconosciuto`,
+                      error: `Errore SDI ${errore}`,
+                      message: `Risposta con errore ${errore}`,
                       endpoint: endpointUrl,
                       httpStatus: statusCode,
                       soapResponse: responseData,
                     });
                   }
+
+                  console.warn(`[SDI ${environment.toUpperCase()}] ⚠️ ${description} risposta 200 ma non valida`);
+                  console.warn(`[SDI ${environment.toUpperCase()}] Risposta completa:`, responseData);
+                  return resolve({
+                    success: false,
+                    error: `Risposta SDI non valida (HTTP 200 ma senza identificativo)`,
+                    message: `Endpoint risponde ma formato risposta non riconosciuto`,
+                    endpoint: endpointUrl,
+                    httpStatus: statusCode,
+                    soapResponse: responseData,
+                  });
                 }
 
                 // Se non è 200, questo endpoint non ha funzionato
@@ -258,7 +238,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
           });
 
           // Invia richiesta multipart
-          req.write(multipartBody);
+          req.write(soapBuffer);
           req.end();
         } catch (error: any) {
           console.error(`[SDI ${environment.toUpperCase()}] Errore preparazione richiesta ${description}:`, error.message);
@@ -286,7 +266,6 @@ export async function sendInvoiceToSDIWithoutWSDL(
           signedFileName,
           signedBuffer: p7mBuffer,
           soapEnvelope,
-          boundary,
         };
       }
 
@@ -327,7 +306,6 @@ export async function sendInvoiceToSDIWithoutWSDL(
       signedFileName,
       signedBuffer: p7mBuffer,
       soapEnvelope,
-      boundary,
       debug: errors,
     };
 
@@ -339,7 +317,6 @@ export async function sendInvoiceToSDIWithoutWSDL(
       signedFileName,
       signedBuffer: p7mBuffer,
       soapEnvelope,
-      boundary,
       debug: error,
     };
   }
