@@ -177,6 +177,7 @@ export async function POST(request: NextRequest) {
           .from('invoices')
           .insert({
             org_id: '1ea3be12-a439-46ac-94d9-eaff1bb346c2',
+            provider_id: 'sdi_prod',
             sdi_status: 'received',
             number: fattura.numero || 'N/A',
             date: fattura.data || new Date().toISOString().split('T')[0],
