@@ -69,6 +69,13 @@ export async function POST(request: NextRequest) {
           soapResponse: result.soapResponse?.substring(0, 4096),
           error: result.error,
           message: result.message,
+          attempts: result.attempts?.map((attempt) => ({
+            endpoint: attempt.endpoint,
+            error: attempt.error,
+            message: attempt.message,
+            httpStatus: attempt.httpStatus,
+            soapResponsePreview: attempt.soapResponse?.substring(0, 512) ?? null,
+          })),
         },
       });
     } catch (eventError) {

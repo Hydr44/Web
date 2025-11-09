@@ -11,6 +11,14 @@ export interface NotificaEsitoRequest {
   certConfig: SOAPCertConfig;
 }
 
+export interface NotificaEsitoAttempt {
+  endpoint: string;
+  error?: string | null;
+  message?: string | null;
+  httpStatus?: number | null;
+  soapResponse?: string | null;
+}
+
 export interface NotificaEsitoResult {
   success: boolean;
   esito?: string;
@@ -21,6 +29,7 @@ export interface NotificaEsitoResult {
   endpoint?: string;
   error?: string;
   message?: string;
+  attempts?: NotificaEsitoAttempt[];
 }
 
 /**
@@ -55,6 +64,8 @@ export async function sendNotificaEsitoToSDI({
     environment === 'test'
       ? ['https://testservizi.fatturapa.it/ricevi_notifica']
       : ['https://servizi.fatturapa.it/ricevi_notifica'];
+
+  const failures: NotificaEsitoAttempt[] = [];
 
   const tryEndpoint = (endpointUrl: string): Promise<NotificaEsitoResult> => {
     return new Promise((resolve) => {
@@ -183,12 +194,20 @@ export async function sendNotificaEsitoToSDI({
     if (result.success) {
       return result;
     }
+    failures.push({
+      endpoint: endpoint,
+      error: result.error ?? null,
+      message: result.message ?? null,
+      httpStatus: result.httpStatus ?? null,
+      soapResponse: result.soapResponse ?? null,
+    });
   }
 
   return {
     success: false,
     error: 'Tutti gli endpoint SdI hanno fallito',
     message: 'Verifica certificati, endpoint e payload NotificaEsito.',
+    attempts: failures,
   };
 }
 
