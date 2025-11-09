@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
   let soapOperation: SOAPOperation | null = null;
   let fileSdIMetadata: Record<string, any> | null = null;
   let soapResponse = buildSOAPOkResponse();
+  let notificaDecorrenzaTermini = false;
 
   try {
     if (isSoapEnvelope) {
@@ -144,6 +145,9 @@ export async function POST(request: NextRequest) {
       soapOperation = extractSOAPOperation(soapEnvelope);
       if (soapOperation) {
         console.log('[SDI TEST] Operazione SOAP:', soapOperation);
+        if (soapOperation.localName === 'NotificaDecorrenzaTermini') {
+          notificaDecorrenzaTermini = true;
+        }
       } else {
         console.log('[SDI TEST] Operazione SOAP non rilevata');
       }
@@ -251,7 +255,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: soapResponse.xml.substring(0, 4096),
+              soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
               file_sdi_metadata: fileSdIMetadata,
             },
           });
@@ -274,7 +278,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: soapResponse.xml.substring(0, 4096),
+              soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
               identificativoSdI: fattura.identificativoSdI || fattura.idSDI || '',
               file_sdi_metadata: fileSdIMetadata,
             },
@@ -377,7 +381,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: soapResponse.xml.substring(0, 4096),
+            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
             identificativoSdI: identificativoSDI || idSDI || '',
             file_sdi_metadata: fileSdIMetadata,
             message_id: notifica.messageId || null,
@@ -406,7 +410,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: soapResponse.xml.substring(0, 4096),
+            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
             file_sdi_metadata: fileSdIMetadata,
           },
           })
@@ -416,6 +420,16 @@ export async function POST(request: NextRequest) {
           console.log('[SDI TEST] Evento XML_SOAP_NON_RICONOSCIUTO creato con id:', eventUnknownData.id);
         }
         logSupabaseError('insert event XML_NON_RICONOSCIUTO', eventUnknownError);
+      }
+
+      if (notificaDecorrenzaTermini) {
+        console.log('[SDI TEST] Operazione NotificaDecorrenzaTermini - rispondo con HTTP 200 senza body');
+        return new NextResponse('', {
+          status: 200,
+          headers: {
+            'Content-Length': '0',
+          },
+        });
       }
 
       const responseBody = soapResponse.xml.replace(/\s{2,}/g, ' ').trim();
