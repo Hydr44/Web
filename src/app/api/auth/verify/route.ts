@@ -8,17 +8,21 @@ export const runtime = "nodejs";
 // JWT Secret per desktop app (dovrebbe essere in env)
 const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
 
-const ALLOWED_METHODS = 'GET,OPTIONS';
-const ALLOWED_HEADERS = '*';
-
 function createCorsHeaders(origin: string | null) {
-  const allowOrigin = origin ?? '*';
-  return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Access-Control-Allow-Methods': ALLOWED_METHODS,
-    'Access-Control-Allow-Headers': ALLOWED_HEADERS,
-    'Access-Control-Allow-Credentials': 'true',
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+    'Access-Control-Allow-Headers': '*',
   };
+
+  if (origin) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin';
+  } else {
+    headers['Access-Control-Allow-Origin'] = '*';
+  }
+
+  return headers;
 }
 
 function corsJson(
