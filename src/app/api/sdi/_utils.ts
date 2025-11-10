@@ -15,14 +15,19 @@ export interface SDIResponse {
 export function createSDIResponse(
   data: SDIResponse,
   status: number = 200,
-  origin?: string | null
+  origin?: string | null,
+  allowHeaders?: string | null
 ): NextResponse {
   const allowOrigin = origin ?? '*';
+  const allowedHeaders =
+    allowHeaders && allowHeaders.trim().length > 0
+      ? allowHeaders
+      : 'Content-Type, Authorization, apikey, Prefer, X-Client-Info, X-Requested-With';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': allowedHeaders,
   };
 
   if (origin) {

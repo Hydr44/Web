@@ -18,15 +18,17 @@ export const dynamic = 'force-dynamic';
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin');
   const allowOrigin = origin ?? '*';
+  const requestedHeaders = request.headers.get('access-control-request-headers');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': requestedHeaders || 'Content-Type, Authorization, apikey, Prefer, X-Client-Info, X-Requested-With',
+    'Access-Control-Max-Age': '86400',
   };
 
   if (origin) {
     headers['Access-Control-Allow-Credentials'] = 'true';
-    headers['Vary'] = 'Origin';
+    headers['Vary'] = 'Origin, Access-Control-Request-Headers';
   }
 
   return new NextResponse(null, {
