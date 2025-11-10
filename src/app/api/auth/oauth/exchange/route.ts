@@ -8,6 +8,49 @@ export const runtime = "nodejs";
 // JWT Secret per desktop app (dovrebbe essere in env)
 const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
 
+const DEFAULT_ALLOW_HEADERS = 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
+
+function withCORS(
+  data: any,
+  status: number,
+  request: NextRequest,
+  allowHeaders: string = DEFAULT_ALLOW_HEADERS
+) {
+  const origin = request.headers.get('origin');
+  const allowOrigin = origin ?? '*';
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': allowHeaders,
+  };
+
+  if (origin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin';
+  }
+
+  return NextResponse.json(data, { status, headers });
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const allowOrigin = origin ?? '*';
+  const requestedHeaders = request.headers.get('access-control-request-headers');
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': requestedHeaders && requestedHeaders.trim().length > 0
+      ? requestedHeaders
+      : DEFAULT_ALLOW_HEADERS,
+    'Access-Control-Max-Age': '86400',
+  };
+  if (origin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin, Access-Control-Request-Headers';
+  }
+  return new NextResponse(null, { status: 200, headers });
+}
+
 /**
  * Endpoint per scambio code OAuth per access token
  * POST /api/auth/oauth/exchange
@@ -22,9 +65,10 @@ export async function POST(request: NextRequest) {
     // Validazione parametri
     if (!code || !app_id) {
       console.error('Missing parameters:', { code, app_id });
-      return NextResponse.json(
+      return withCORS(
         { error: 'Missing required parameters: code, app_id' },
-        { status: 400 }
+        400,
+        request
       );
     }
 
@@ -53,9 +97,10 @@ export async function POST(request: NextRequest) {
       console.error('=== OAUTH CODE NOT FOUND ===');
       console.error('Error:', oauthError);
       console.error('Data:', oauthData);
-      return NextResponse.json(
+      return withCORS(
         { error: 'Invalid or expired OAuth code' },
-        { status: 400 }
+        400,
+        request
       );
     }
 
@@ -80,9 +125,10 @@ export async function POST(request: NextRequest) {
     console.log('User Error:', userError);
 
     if (userError || !userData) {
-      return NextResponse.json(
+      return withCORS(
         { error: 'User not found' },
-        { status: 404 }
+        404,
+        request
       );
     }
 
@@ -125,14 +171,15 @@ export async function POST(request: NextRequest) {
 
     if (tokenError) {
       console.error('Error saving tokens:', tokenError);
-      return NextResponse.json(
+      return withCORS(
         { error: 'Failed to save tokens' },
-        { status: 500 }
+        500,
+        request
       );
     }
 
     // Risposta con token
-    return NextResponse.json({
+    return withCORS({
       success: true,
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -144,13 +191,14 @@ export async function POST(request: NextRequest) {
         full_name: userData.full_name,
         avatar_url: userData.avatar_url
       }
-    });
+    }, 200, request);
 
   } catch (error) {
     console.error('OAuth exchange error:', error);
-    return NextResponse.json(
+    return withCORS(
       { error: 'Internal server error' },
-      { status: 500 }
+      500,
+      request
     );
   }
 }
