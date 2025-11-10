@@ -126,6 +126,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('[SDI TEST] invoiceXml ready?', {
+      hasInvoice: !!invoice,
+      invoiceXmlType: typeof invoiceXml,
+      invoiceXmlLength: invoiceXml?.length,
+    });
+
     // Genera nome file conforme SDI
     const vatNumber = invoice?.meta?.sdi?.cedente_prestatore?.id_fiscale_iva?.id_codice || '02166430856';
     const invoiceNumber = invoice?.number || '00001';
