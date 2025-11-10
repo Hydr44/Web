@@ -1,6 +1,6 @@
 // API SDI PRODUZIONE – ricezione fatture e notifiche (allineata al manuale SDI)
 
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { parseSDIXML, parseSDINotification, resolveNotificationStatus } from '../_utils';
@@ -8,6 +8,9 @@ import { verifySDIRequest } from '@/lib/sdi/certificate-verification';
 import { extractFileFromSOAPMTOM, extractFileSdIConMetadati, isSOAPRequest } from '@/lib/sdi/soap-reception';
 import { saveSDIFile, saveSOAPEnvelope } from '@/lib/sdi/storage';
 import { extractSOAPOperation, sanitizeSOAPEnvelope, SOAPOperation } from '@/lib/sdi/soap-parser';
+import { buildEsitoCommittenteXML, SDIEsitoCode } from '@/lib/sdi/esito-committente';
+import { getSOAPClientConfig } from '@/lib/sdi/certificates';
+import { sendNotificaEsitoToSDI } from '@/lib/sdi/soap-notifica-esito';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,6 +28,90 @@ const XML_CONTENT_TYPE = 'application/xml; charset=utf-8';
 const SOAP_1_1_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
 const SDI_RICEZIONE_NAMESPACE = 'http://www.fatturapa.gov.it/sdi/ws/ricezione/v1.0';
 const SOAP_OK_CONTENT_TYPE = 'text/xml; charset=utf-8';
+
+function isAutoEsitoEnabled(environment: 'test' | 'production'): boolean {
+  const envVar =
+    environment === 'test'
+      ? process.env.SDI_AUTO_ESITO_TEST
+      : process.env.SDI_AUTO_ESITO_PROD;
+
+  if (envVar === undefined) {
+    return environment === 'test';
+  }
+
+  return envVar.trim().toLowerCase() === 'true';
+}
+
+async function sendAutomaticEsitoCommittente(params: {
+  supabase: any;
+  identificativoSdI?: string | null;
+  fatturaNumero?: string | null;
+  fatturaData?: string | null;
+  nomeFileFattura?: string | null;
+  providerId: 'sdi_test' | 'sdi_prod';
+  environment: 'test' | 'production';
+}) {
+  const {
+    supabase,
+    identificativoSdI,
+    fatturaNumero,
+    fatturaData,
+    nomeFileFattura,
+    providerId,
+    environment,
+  } = params;
+
+  if (!identificativoSdI || !isAutoEsitoEnabled(environment)) {
+    return;
+  }
+
+  try {
+    const esitoCodeEnv = (process.env.SDI_AUTO_ESITO_CODE || '').trim().toUpperCase();
+    const esitoCode: SDIEsitoCode = esitoCodeEnv === 'EC02' ? 'EC02' : 'EC01';
+    const descrizione =
+      process.env.SDI_AUTO_ESITO_DESCRIZIONE ||
+      (esitoCode === 'EC01' ? 'Accettazione automatica' : 'Rifiuto automatico');
+
+    const esito = buildEsitoCommittenteXML({
+      identificativoSdI,
+      numeroFattura: fatturaNumero || undefined,
+      dataFattura: fatturaData || undefined,
+      nomeFileFattura: nomeFileFattura || undefined,
+      esito: esitoCode,
+      descrizione,
+    });
+
+    const certConfig = getSOAPClientConfig(environment);
+    const result = await sendNotificaEsitoToSDI({
+      identificativoSdI,
+      nomeFile: esito.nomeFile,
+      fileBase64: Buffer.from(esito.xml, 'utf8').toString('base64'),
+      environment,
+      certConfig,
+    });
+
+    await supabase.from('sdi_events').insert({
+      provider_id: providerId,
+      event_type: 'NotificaEsitoAuto',
+      payload: {
+        identificativoSdI,
+        nomeFileEsito: esito.nomeFile,
+        esito: esito.esito,
+        messageIdCommittente: esito.messageIdCommittente,
+        success: result.success,
+        error: result.error,
+        message: result.message,
+        endpoint: result.endpoint,
+        httpStatus: result.httpStatus,
+        soapResponse: result.soapResponse?.substring(0, 4096),
+        attempts: result.attempts,
+        xml: esito.xml,
+      },
+    });
+  } catch (error) {
+    console.error('[SDI PROD] Errore invio automatico EsitoCommittente:', error);
+  }
+}
 
 function buildSOAPOkResponse() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -230,7 +317,7 @@ export async function POST(request: NextRequest) {
         if (error) {
           logSupabaseError('insert invoice', error);
           await supabase.from('sdi_events').insert({
-            provider_id: 'sdi',
+            provider_id: 'sdi_prod',
             event_type: 'ErroreSalvataggioFattura',
             payload: {
               error: error.message,
@@ -246,7 +333,7 @@ export async function POST(request: NextRequest) {
           });
         } else {
           const { error: insertEventError } = await supabase.from('sdi_events').insert({
-            provider_id: 'sdi',
+            provider_id: 'sdi_prod',
             invoice_id: data.id,
             event_type: 'FatturaRicevuta',
             payload: {
@@ -269,6 +356,20 @@ export async function POST(request: NextRequest) {
             },
           });
           logSupabaseError('insert event FatturaRicevuta', insertEventError);
+
+          void sendAutomaticEsitoCommittente({
+            supabase,
+            identificativoSdI:
+              (fileSdIMetadata?.identificativoSdI as string | undefined) ||
+              fattura.identificativoSDI ||
+              fattura.idSDI ||
+              null,
+            fatturaNumero: fattura.numero,
+            fatturaData: fattura.data,
+            nomeFileFattura: (fileSdIMetadata?.nomeFile as string | undefined) || fileName,
+            providerId: 'sdi_prod',
+            environment: 'production',
+          });
         }
       } else if (isNotifica) {
         const notifica = parseSDINotification(xml);
