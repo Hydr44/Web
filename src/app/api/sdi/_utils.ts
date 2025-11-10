@@ -22,7 +22,7 @@ export function createSDIResponse(
   const allowedHeaders =
     allowHeaders && allowHeaders.trim().length > 0
       ? allowHeaders
-      : 'Content-Type, Authorization, apikey, Prefer, X-Client-Info, X-Requested-With';
+      : 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowOrigin,

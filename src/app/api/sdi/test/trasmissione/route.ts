@@ -19,10 +19,21 @@ export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin');
   const allowOrigin = origin ?? '*';
   const requestedHeaders = request.headers.get('access-control-request-headers');
+  const defaultAllowedHeaders = 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
+  const combinedHeaders = requestedHeaders
+    ? Array.from(
+        new Set(
+          `${requestedHeaders}, ${defaultAllowedHeaders}`
+            .split(',')
+            .map(header => header.trim())
+            .filter(Boolean)
+        )
+      ).join(', ')
+    : defaultAllowedHeaders;
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': requestedHeaders || 'Content-Type, Authorization, apikey, Prefer, X-Client-Info, X-Requested-With',
+    'Access-Control-Allow-Headers': combinedHeaders,
     'Access-Control-Max-Age': '86400',
   };
 
@@ -40,6 +51,7 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const origin = request.headers.get('origin');
+    const corsAllowedHeaders = 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
     // Ricevi richiesta di trasmissione fattura (test)
     const body = await request.json();
     const { invoice_id, xml } = body;
@@ -48,7 +60,8 @@ export async function POST(request: NextRequest) {
       return createSDIResponse(
         { success: false, error: 'invoice_id o xml richiesto' },
         400,
-        origin
+        origin,
+        corsAllowedHeaders
       );
     }
 
@@ -67,7 +80,8 @@ export async function POST(request: NextRequest) {
       return createSDIResponse(
         { success: false, error: 'Configurazione server errata' },
         500,
-        origin
+        origin,
+        corsAllowedHeaders
       );
     }
 
@@ -88,7 +102,8 @@ export async function POST(request: NextRequest) {
         return createSDIResponse(
           { success: false, error: 'Fattura non trovata' },
           404,
-          origin
+          origin,
+          corsAllowedHeaders
         );
       }
 
@@ -113,7 +128,8 @@ export async function POST(request: NextRequest) {
       return createSDIResponse(
         { success: false, error: 'XML fattura mancante o vuoto' },
         400,
-        origin
+        origin,
+        corsAllowedHeaders
       );
     }
 
@@ -209,7 +225,8 @@ export async function POST(request: NextRequest) {
           message: sdiResponse.message,
         },
         500,
-        origin
+        origin,
+        corsAllowedHeaders
       );
     }
 
@@ -290,7 +307,7 @@ export async function POST(request: NextRequest) {
       responsePayload.identificativo_sdi = sdiResponse.identificativoSDI;
     }
 
-    return createSDIResponse(responsePayload, 200, origin);
+    return createSDIResponse(responsePayload, 200, origin, corsAllowedHeaders);
 
   } catch (error: any) {
     console.error('[SDI TEST] Errore trasmissione fattura:', error);
@@ -325,7 +342,8 @@ export async function POST(request: NextRequest) {
         error: error.message || 'Errore trasmissione fattura',
       },
       500,
-      request.headers.get('origin')
+      request.headers.get('origin'),
+      'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With'
     );
   }
 }
