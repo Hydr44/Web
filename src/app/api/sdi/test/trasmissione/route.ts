@@ -33,8 +33,8 @@ export async function OPTIONS(request: NextRequest) {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': combinedHeaders,
-    'Access-Control-Max-Age': '86400',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Max-Age': '0',
   };
 
   if (origin) {
