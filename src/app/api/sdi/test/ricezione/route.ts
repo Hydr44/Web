@@ -482,7 +482,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+            soap_response_returned: '',
             identificativoSdI: identificativoSDI || idSDI || '',
             file_sdi_metadata: fileSdIMetadata,
             message_id: notifica.messageId || null,
@@ -511,7 +511,7 @@ export async function POST(request: NextRequest) {
             soap_operation_qname: soapOperation ? soapOperation.qname : null,
             soap_operation_localname: soapOperation ? soapOperation.localName : null,
             soap_operation_namespace: soapOperation ? soapOperation.namespaceURI : null,
-            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+            soap_response_returned: '',
             file_sdi_metadata: fileSdIMetadata,
           },
           })
@@ -525,24 +525,12 @@ export async function POST(request: NextRequest) {
 
       if (notificaDecorrenzaTermini) {
         console.log('[SDI TEST] Operazione NotificaDecorrenzaTermini - rispondo con HTTP 200 senza body');
-        return new NextResponse('', {
-          status: 200,
-          headers: {
-            'Content-Length': '0',
-          },
-        });
       }
 
-      const responseBody = soapResponse.xml.replace(/\s{2,}/g, ' ').trim();
-      const responseLength = Buffer.byteLength(responseBody, 'utf8');
-      console.log('[SDI TEST] SOAP response (len):', responseLength, responseBody);
-
-      return new NextResponse(responseBody, {
+      return new NextResponse('', {
         status: 200,
         headers: {
-          'Content-Type': soapResponse.contentType,
-          'Content-Length': responseLength.toString(),
-          'SOAPAction': '""',
+          'Content-Length': '0',
         },
       });
     }

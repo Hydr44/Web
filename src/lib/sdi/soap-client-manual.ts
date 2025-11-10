@@ -20,6 +20,9 @@ export interface SDITransmissionResult {
   httpStatus?: number;
   debug?: any;
   dataOraRicezione?: string;
+  boundary?: string;
+  rootContentId?: string;
+  attachmentContentId?: string;
 }
 
 /**
@@ -39,23 +42,53 @@ export async function sendInvoiceToSDIWithoutWSDL(
 ): Promise<SDITransmissionResult> {
   try {
     const signedFileName = fileName.replace('.xml', '.xml.p7m');
-    const fileBase64 = p7mBuffer.toString('base64');
 
     const SOAP_SERVICE_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0';
     const SOAP_TYPES_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0/types';
 
+    const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const rootContentId = `<rootpart.${Date.now()}@rescuemanager>`;
+    const attachmentContentId = `<attachment.${Date.now()}@rescuemanager>`;
+
     const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="${SOAP_SERVICE_NS}" xmlns:types="${SOAP_TYPES_NS}">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="${SOAP_SERVICE_NS}" xmlns:types="${SOAP_TYPES_NS}" xmlns:xop="http://www.w3.org/2004/08/xop/include">
   <soapenv:Header/>
   <soapenv:Body>
     <types:fileSdIAccoglienza>
       <types:NomeFile>${signedFileName}</types:NomeFile>
-      <types:File>${fileBase64}</types:File>
+      <types:File>
+        <xop:Include href="cid:${attachmentContentId.slice(1, -1)}"/>
+      </types:File>
     </types:fileSdIAccoglienza>
   </soapenv:Body>
 </soapenv:Envelope>`;
 
     const soapBuffer = Buffer.from(soapEnvelope, 'utf8');
+    const multipartHeaderPart = Buffer.from(
+      `--${boundary}\r\n` +
+        'Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"\r\n' +
+        'Content-Transfer-Encoding: binary\r\n' +
+        `Content-ID: ${rootContentId}\r\n` +
+        '\r\n',
+      'utf8'
+    );
+    const multipartAttachmentHeader = Buffer.from(
+      `--${boundary}\r\n` +
+        'Content-Type: application/octet-stream\r\n' +
+        'Content-Transfer-Encoding: binary\r\n' +
+        `Content-ID: ${attachmentContentId}\r\n` +
+        '\r\n',
+      'utf8'
+    );
+    const multipartClosing = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
+    const multipartBuffer = Buffer.concat([
+      multipartHeaderPart,
+      soapBuffer,
+      Buffer.from('\r\n', 'utf8'),
+      multipartAttachmentHeader,
+      p7mBuffer,
+      multipartClosing,
+    ]);
 
     const endpointVariants =
       environment === 'test'
@@ -70,9 +103,10 @@ export async function sendInvoiceToSDIWithoutWSDL(
 
     const soapAction = 'http://www.fatturapa.it/SdIRiceviFile/RiceviFile';
 
-    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP base64: ${signedFileName}`);
+    console.log(`[SDI ${environment.toUpperCase()}] Invio fattura via SOAP MTOM: ${signedFileName}`);
     console.log(`[SDI ${environment.toUpperCase()}] Dimensione file .p7m: ${p7mBuffer.length} bytes`);
     console.log(`[SDI ${environment.toUpperCase()}] Dimensione SOAP: ${soapBuffer.length} bytes`);
+    console.log(`[SDI ${environment.toUpperCase()}] Dimensione multipart: ${multipartBuffer.length} bytes`);
 
     // Funzione helper per provare una richiesta SOAP con MTOM
     const trySOAPRequest = (
@@ -93,14 +127,17 @@ export async function sendInvoiceToSDIWithoutWSDL(
             });
           }
 
+          const contentTypeHeader =
+            `multipart/related; type="application/xop+xml"; start="${rootContentId}"; start-info="text/xml"; boundary="${boundary}"`;
+
           const httpsOptions: https.RequestOptions = {
             hostname: url.hostname,
             port: url.port ? Number(url.port) : 443,
             path: `${url.pathname}${url.search}`,
             method: 'POST',
             headers: {
-              'Content-Type': 'text/xml; charset=utf-8',
-              'Content-Length': soapBuffer.length,
+              'Content-Type': contentTypeHeader,
+              'Content-Length': multipartBuffer.length,
               'SOAPAction': soapAction,
               Connection: 'close',
             },
@@ -158,6 +195,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                       httpStatus: statusCode,
                       soapResponse: responseData,
                       dataOraRicezione,
+                      boundary,
+                      rootContentId,
+                      attachmentContentId,
                     });
                   }
 
@@ -170,6 +210,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                       endpoint: endpointUrl,
                       httpStatus: statusCode,
                       soapResponse: responseData,
+                      boundary,
+                      rootContentId,
+                      attachmentContentId,
                     });
                   }
 
@@ -182,6 +225,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                     endpoint: endpointUrl,
                     httpStatus: statusCode,
                     soapResponse: responseData,
+                    boundary,
+                    rootContentId,
+                    attachmentContentId,
                   });
                 }
 
@@ -198,6 +244,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                   endpoint: endpointUrl,
                   httpStatus: statusCode,
                   soapResponse: responseData,
+                  boundary,
+                  rootContentId,
+                  attachmentContentId,
                 }); // Prova il prossimo endpoint
               } catch (parseError: any) {
                 console.error(`[SDI ${environment.toUpperCase()}] Errore parsing risposta ${description}:`, parseError);
@@ -208,6 +257,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
                   endpoint: endpointUrl,
                   httpStatus: res.statusCode || undefined,
                   soapResponse: responseData,
+                  boundary,
+                  rootContentId,
+                  attachmentContentId,
                 }); // Prova il prossimo endpoint
               }
             });
@@ -222,6 +274,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
               error: `Errore connessione: ${error.message}`,
               message: `Impossibile connettersi all'endpoint ${endpointUrl}`,
               endpoint: endpointUrl,
+              boundary,
+              rootContentId,
+              attachmentContentId,
             }); // Prova il prossimo endpoint
           });
 
@@ -234,11 +289,14 @@ export async function sendInvoiceToSDIWithoutWSDL(
               error: 'Timeout: nessuna risposta dopo 30 secondi',
               message: `L'endpoint ${endpointUrl} non ha risposto entro il timeout`,
               endpoint: endpointUrl,
+              boundary,
+              rootContentId,
+              attachmentContentId,
             }); // Prova il prossimo endpoint
           });
 
           // Invia richiesta multipart
-          req.write(soapBuffer);
+          req.write(multipartBuffer);
           req.end();
         } catch (error: any) {
           console.error(`[SDI ${environment.toUpperCase()}] Errore preparazione richiesta ${description}:`, error.message);
@@ -247,6 +305,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
             error: `Errore preparazione richiesta: ${error.message}`,
             message: 'Impossibile preparare la richiesta SOAP',
             endpoint: endpointUrl,
+            boundary,
+            rootContentId,
+            attachmentContentId,
           }); // Prova il prossimo endpoint
         }
       });
@@ -266,6 +327,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
           signedFileName,
           signedBuffer: p7mBuffer,
           soapEnvelope,
+          boundary,
+          rootContentId,
+          attachmentContentId,
         };
       }
 
@@ -307,6 +371,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
       signedBuffer: p7mBuffer,
       soapEnvelope,
       debug: errors,
+      boundary,
+      rootContentId,
+      attachmentContentId,
     };
 
   } catch (error: any) {
@@ -318,6 +385,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
       signedBuffer: p7mBuffer,
       soapEnvelope,
       debug: error,
+      boundary,
+      rootContentId,
+      attachmentContentId,
     };
   }
 }

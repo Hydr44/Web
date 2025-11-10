@@ -19,6 +19,9 @@ export interface SDITransmissionResult {
   httpStatus?: number;
   debug?: any;
   dataOraRicezione?: string;
+  boundary?: string;
+  rootContentId?: string;
+  attachmentContentId?: string;
 }
 
 /**

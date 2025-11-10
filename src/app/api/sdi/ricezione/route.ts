@@ -464,7 +464,7 @@ export async function POST(request: NextRequest) {
             ssl_client_dn: sslClientDN,
             raw_soap_request: soapEnvelope.substring(0, 4096),
             soap_operation: soapOperation,
-            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+            soap_response_returned: '',
             identificativoSdI: identificativoSDI || idSDI || '',
             notification_resolution: resolution,
             message_id: notifica.messageId || null,
@@ -484,7 +484,7 @@ export async function POST(request: NextRequest) {
             ssl_client_dn: sslClientDN,
             raw_soap_request: soapEnvelope.substring(0, 4096),
             soap_operation: soapOperation,
-            soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+            soap_response_returned: '',
             file_sdi_metadata: fileSdIMetadata,
           },
         });
@@ -492,24 +492,12 @@ export async function POST(request: NextRequest) {
 
       if (notificaDecorrenzaTermini) {
         console.log('[SDI PROD] Operazione NotificaDecorrenzaTermini - rispondo con HTTP 200 senza body');
-        return new NextResponse('', {
-          status: 200,
-          headers: {
-            'Content-Length': '0',
-          },
-        });
       }
 
-      const responseBody = soapResponse.xml.replace(/\s{2,}/g, ' ').trim();
-      const responseLength = Buffer.byteLength(responseBody, 'utf8');
-      console.log('[SDI PROD] SOAP response (len):', responseLength, responseBody);
-
-      return new NextResponse(responseBody, {
+      return new NextResponse('', {
         status: 200,
         headers: {
-          'Content-Type': soapResponse.contentType,
-          'Content-Length': responseLength.toString(),
-          'SOAPAction': '""',
+          'Content-Length': '0',
         },
       });
     }
