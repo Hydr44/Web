@@ -15,19 +15,29 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // Gestisce richieste OPTIONS per CORS
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const allowOrigin = origin ?? '*';
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  if (origin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin';
+  }
+
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers,
   });
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const origin = request.headers.get('origin');
     // Ricevi richiesta di trasmissione fattura
     const body = await request.json();
     const { invoice_id, xml } = body;
@@ -35,7 +45,8 @@ export async function POST(request: NextRequest) {
     if (!invoice_id && !xml) {
       return createSDIResponse(
         { success: false, error: 'invoice_id o xml richiesto' },
-        400
+        400,
+        origin
       );
     }
 
@@ -53,7 +64,8 @@ export async function POST(request: NextRequest) {
       console.error('[SDI] Credenziali Supabase mancanti');
       return createSDIResponse(
         { success: false, error: 'Configurazione server errata' },
-        500
+        500,
+        origin
       );
     }
 
@@ -73,7 +85,8 @@ export async function POST(request: NextRequest) {
       if (invoiceError || !invoiceData) {
         return createSDIResponse(
           { success: false, error: 'Fattura non trovata' },
-          404
+          404,
+          origin
         );
       }
 
@@ -97,7 +110,8 @@ export async function POST(request: NextRequest) {
     if (!invoiceXml || invoiceXml.trim().length === 0) {
       return createSDIResponse(
         { success: false, error: 'XML fattura mancante o vuoto' },
-        400
+        400,
+        origin
       );
     }
 
@@ -108,6 +122,7 @@ export async function POST(request: NextRequest) {
 
     // Invia fattura al SDI tramite web service SOAP
     const sdiResponse = await sendInvoiceToSDI(invoiceXml, fileName, 'production');
+    const boundary = (sdiResponse as any)?.boundary ?? null;
 
     const environmentLabel = 'PRODUCTION';
     const defaultSignedFileName = fileName.endsWith('.xml') ? fileName.replace(/\.xml$/, '.xml.p7m') : `${fileName}.xml.p7m`;
@@ -159,7 +174,7 @@ export async function POST(request: NextRequest) {
           soap_request_url: soapRequestInfo?.url || null,
           soap_response_url: soapResponseInfo?.url || null,
           signed_file_url: signedFileInfo?.url || null,
-          boundary: sdiResponse.boundary || null,
+          boundary,
           debug: sdiResponse.debug || null,
         },
         })
@@ -176,13 +191,14 @@ export async function POST(request: NextRequest) {
           error: sdiResponse.error || 'Errore invio al SDI',
           message: sdiResponse.message,
         },
-        500
+        500,
+        origin
       );
     }
 
     if (invoice_id && sdiResponse.identificativoSDI) {
       const sentAt = new Date().toISOString();
-      const existingMeta = (invoice as any)?.meta || {};
+      const existingMeta = invoice?.meta || {};
 
       await supabase
         .from('invoices')
@@ -205,7 +221,7 @@ export async function POST(request: NextRequest) {
               soap_http_status: sdiResponse.httpStatus || null,
               soap_request_url: soapRequestInfo?.url || null,
               soap_response_url: soapResponseInfo?.url || null,
-              boundary: sdiResponse.boundary || null,
+              boundary,
             },
           },
         })
@@ -229,7 +245,7 @@ export async function POST(request: NextRequest) {
           soap_request_url: soapRequestInfo?.url || null,
           soap_response_url: soapResponseInfo?.url || null,
           signed_file_url: signedFileInfo?.url || null,
-          boundary: sdiResponse.boundary || null,
+          boundary,
           debug: sdiResponse.debug || null,
         },
         })
@@ -246,12 +262,17 @@ export async function POST(request: NextRequest) {
       identificativo_sdi: sdiResponse.identificativoSDI,
     });
 
-    return createSDIResponse({
+    const responsePayload = {
       success: true,
       message: sdiResponse.message || 'Fattura inviata al SDI (PRODUZIONE)',
       invoice_id: invoice_id || null,
-      identificativo_sdi: sdiResponse.identificativoSDI,
-    });
+    } as any;
+
+    if (sdiResponse.identificativoSDI) {
+      responsePayload.identificativo_sdi = sdiResponse.identificativoSDI;
+    }
+
+    return createSDIResponse(responsePayload, 200, origin);
 
   } catch (error: any) {
     console.error('[SDI] Errore trasmissione fattura:', error);
@@ -285,7 +306,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: error.message || 'Errore trasmissione fattura',
       },
-      500
+      500,
+      request.headers.get('origin')
     );
   }
 }

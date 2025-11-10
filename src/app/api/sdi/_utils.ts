@@ -9,20 +9,30 @@ export interface SDIResponse {
   error?: string;
   invoice_id?: string;
   notification_id?: string;
+  identificativo_sdi?: string;
 }
 
 export function createSDIResponse(
   data: SDIResponse,
-  status: number = 200
+  status: number = 200,
+  origin?: string | null
 ): NextResponse {
+  const allowOrigin = origin ?? '*';
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  if (origin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin';
+  }
+
   return NextResponse.json(data, {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers,
   });
 }
 
