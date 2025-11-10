@@ -74,9 +74,10 @@ export async function sendInvoiceToSDIWithoutWSDL(
     );
     const multipartAttachmentHeader = Buffer.from(
       `--${boundary}\r\n` +
-        'Content-Type: application/octet-stream\r\n' +
+        `Content-Type: application/pkcs7-mime; name="${signedFileName}"\r\n` +
         'Content-Transfer-Encoding: binary\r\n' +
         `Content-ID: ${attachmentContentId}\r\n` +
+        `Content-Disposition: attachment; filename="${signedFileName}"\r\n` +
         '\r\n',
       'utf8'
     );
@@ -138,7 +139,9 @@ export async function sendInvoiceToSDIWithoutWSDL(
             headers: {
               'Content-Type': contentTypeHeader,
               'Content-Length': multipartBuffer.length,
-              'SOAPAction': soapAction,
+              'SOAPAction': `"${soapAction}"`,
+              'Accept': 'application/soap+xml, multipart/related, text/*',
+              'MIME-Version': '1.0',
               Connection: 'close',
             },
             cert: certConfig.cert,
