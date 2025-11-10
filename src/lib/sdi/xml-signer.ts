@@ -61,6 +61,18 @@ export async function signFatturaPAXML(
   options: SignOptions = {}
 ): Promise<Buffer> {
   try {
+    const xmlType = typeof xmlString;
+    const xmlLength = xmlType === 'string' ? xmlString.length : 0;
+    const xmlPreview =
+      xmlType === 'string'
+        ? xmlString.slice(0, 120).replace(/\s+/g, ' ')
+        : '';
+    console.log('[SDI Signer] signFatturaPAXML input', {
+      xmlType,
+      xmlLength,
+      xmlPreview,
+    });
+
     // Carica certificato e chiave privata
     let certPem: string;
     let keyPem: string;
