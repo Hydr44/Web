@@ -20,20 +20,13 @@ export async function OPTIONS(request: NextRequest) {
   const allowOrigin = origin ?? '*';
   const requestedHeaders = request.headers.get('access-control-request-headers');
   const defaultAllowedHeaders = 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
-  const combinedHeaders = requestedHeaders
-    ? Array.from(
-        new Set(
-          `${requestedHeaders}, ${defaultAllowedHeaders}`
-            .split(',')
-            .map(header => header.trim())
-            .filter(Boolean)
-        )
-      ).join(', ')
+  const allowHeaders = requestedHeaders && requestedHeaders.trim().length > 0
+    ? requestedHeaders
     : defaultAllowedHeaders;
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Headers': allowHeaders,
     'Access-Control-Max-Age': '0',
   };
 

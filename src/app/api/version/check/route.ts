@@ -7,6 +7,26 @@ export const runtime = "nodejs";
  * GET /api/version/check?current=X.Y.Z
  * Verifica se l'app deve essere aggiornata
  */
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const allowOrigin = origin ?? '*';
+  const requestedHeaders = request.headers.get('access-control-request-headers') || '*';
+
+  const headers: Record<string, string> = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': requestedHeaders || '*',
+    'Access-Control-Max-Age': '86400',
+  };
+
+  if (origin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers['Vary'] = 'Origin, Access-Control-Request-Headers';
+  }
+
+  return new NextResponse(null, { status: 200, headers });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -33,21 +53,44 @@ export async function GET(request: NextRequest) {
     // Simple version compare
     const isUpdateRequired = compareVersions(currentVersion, versionInfo.min_required) < 0;
 
-    return NextResponse.json({
-      update_required: isUpdateRequired,
-      force_update: versionInfo.force_update,
-      current_version: currentVersion,
-      min_required: versionInfo.min_required,
-      latest_version: versionInfo.version,
-      notes: versionInfo.notes,
-      download_url: versionInfo.download_url
-    });
+    const origin = request.headers.get('origin');
+    const allowOrigin = origin ?? '*';
+
+    return NextResponse.json(
+      {
+        update_required: isUpdateRequired,
+        force_update: versionInfo.force_update,
+        current_version: currentVersion,
+        min_required: versionInfo.min_required,
+        latest_version: versionInfo.version,
+        notes: versionInfo.notes,
+        download_url: versionInfo.download_url,
+      },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': allowOrigin,
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+          ...(origin ? { 'Access-Control-Allow-Credentials': 'true', Vary: 'Origin' } : {}),
+        },
+      },
+    );
 
   } catch (error) {
     console.error('Version check error:', error);
+    const origin = request.headers.get('origin');
+    const allowOrigin = origin ?? '*';
     return NextResponse.json(
       { update_required: false, force_update: false },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': allowOrigin,
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+          ...(origin ? { 'Access-Control-Allow-Credentials': 'true', Vary: 'Origin' } : {}),
+        },
+      },
     );
   }
 }
