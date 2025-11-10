@@ -117,6 +117,8 @@ export async function signFatturaPAXML(
     // Crea messaggio PKCS#7 (CAdES-BES)
     const p7 = forge.pkcs7.createSignedData();
     p7.content = forge.util.createBuffer(xmlString, 'utf8');
+    const contentBytes = p7.content.bytes();
+    console.log('[SDI Signer] contentBytes length', contentBytes.length);
 
     // Aggiungi certificato
     p7.addCertificate(cert);
@@ -133,7 +135,7 @@ export async function signFatturaPAXML(
         },
         {
           type: forge.pki.oids.messageDigest,
-          value: forge.md.sha256.create().update(p7.content.getBytes()).digest().getBytes(),
+          value: forge.md.sha256.create().update(contentBytes).digest().getBytes(),
         },
         {
           type: forge.pki.oids.signingTime,
