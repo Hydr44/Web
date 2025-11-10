@@ -231,6 +231,20 @@ export function generateFatturaPAXML(data: FatturaPAData): string {
 </p:FatturaElettronica>`;
 }
 
+function normalizeProgressivoInvio(value: string | null | undefined): string {
+  const fallback = '00001';
+  if (!value) return fallback;
+  const cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  return cleaned.slice(0, 10) || fallback;
+}
+
+function normalizeCodiceDestinatario(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  const cleaned = value.toUpperCase().trim();
+  if (cleaned.length === 0) return undefined;
+  return cleaned.slice(0, 7);
+}
+
 /**
  * Converte dati fattura da database a formato FatturaPA
  */
@@ -292,14 +306,24 @@ export function invoiceToFatturaPAData(invoice: any, orgSettings?: any): Fattura
     };
   });
 
+  const progressivoInvioRaw =
+    sdi.trasmissione?.progressivo_invio ||
+    invoice.meta?.progressivo_invio ||
+    invoice.number ||
+    `00001`;
+
+  const codiceDestinatarioRaw =
+    sdi.trasmissione?.codice_destinatario ||
+    invoice.customer_sdi_code;
+
   return {
     idTrasmittente: {
       idPaese: 'IT',
       idCodice: sdi.cedente_prestatore?.id_fiscale_iva?.id_codice || org.vat_number || '02166430856',
     },
-    progressivoInvio: invoice.number || `00001`,
+    progressivoInvio: normalizeProgressivoInvio(progressivoInvioRaw),
     formatoTrasmissione: 'FPR12',
-    codiceDestinatario: sdi.trasmissione?.codice_destinatario || invoice.customer_sdi_code,
+    codiceDestinatario: normalizeCodiceDestinatario(codiceDestinatarioRaw),
     pecDestinatario: sdi.trasmissione?.pec_destinatario || invoice.customer_pec,
     cedentePrestatore: {
       idFiscaleIVA: {
