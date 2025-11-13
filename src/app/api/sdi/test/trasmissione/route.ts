@@ -155,6 +155,8 @@ export async function POST(request: NextRequest) {
     // Invia fattura al SDI TEST tramite web service SOAP
     const sdiResponse = await sendInvoiceToSDI(invoiceXml, fileName, 'test');
     const boundary = (sdiResponse as any)?.boundary ?? null;
+    const rootContentId = (sdiResponse as any)?.rootContentId ?? null;
+    const attachmentContentId = (sdiResponse as any)?.attachmentContentId ?? null;
 
     const environmentLabel = 'TEST';
     const defaultSignedFileName = fileName.endsWith('.xml') ? fileName.replace(/\.xml$/, '.xml.p7m') : `${fileName}.xml.p7m`;
@@ -201,12 +203,15 @@ export async function POST(request: NextRequest) {
           message: sdiResponse.message,
           soap_endpoint: sdiResponse.endpoint || null,
           soap_http_status: sdiResponse.httpStatus || null,
+          data_ora_ricezione: sdiResponse.dataOraRicezione || null,
           soap_request_preview: sdiResponse.soapEnvelope?.substring(0, 4096) || null,
           soap_response_preview: sdiResponse.soapResponse?.substring(0, 4096) || null,
           soap_request_url: soapRequestInfo?.url || null,
           soap_response_url: soapResponseInfo?.url || null,
           signed_file_url: signedFileInfo?.url || null,
           boundary,
+          root_content_id: rootContentId,
+          attachment_content_id: attachmentContentId,
           debug: sdiResponse.debug || null,
         },
         })
@@ -253,9 +258,12 @@ export async function POST(request: NextRequest) {
               signed_file_path: signedFileInfo?.path || null,
               soap_endpoint: sdiResponse.endpoint || null,
               soap_http_status: sdiResponse.httpStatus || null,
+              data_ora_ricezione: sdiResponse.dataOraRicezione || null,
               soap_request_url: soapRequestInfo?.url || null,
               soap_response_url: soapResponseInfo?.url || null,
               boundary,
+              root_content_id: rootContentId,
+              attachment_content_id: attachmentContentId,
             },
           },
         })
@@ -274,12 +282,15 @@ export async function POST(request: NextRequest) {
           environment: environmentLabel,
           soap_endpoint: sdiResponse.endpoint || null,
           soap_http_status: sdiResponse.httpStatus || null,
+          data_ora_ricezione: sdiResponse.dataOraRicezione || null,
           soap_request_preview: sdiResponse.soapEnvelope?.substring(0, 4096) || null,
           soap_response_preview: sdiResponse.soapResponse?.substring(0, 4096) || null,
           soap_request_url: soapRequestInfo?.url || null,
           soap_response_url: soapResponseInfo?.url || null,
           signed_file_url: signedFileInfo?.url || null,
           boundary,
+          root_content_id: rootContentId,
+          attachment_content_id: attachmentContentId,
           debug: sdiResponse.debug || null,
         },
         })

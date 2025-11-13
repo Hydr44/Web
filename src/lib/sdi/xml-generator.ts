@@ -235,7 +235,14 @@ function normalizeProgressivoInvio(value: string | null | undefined): string {
   const fallback = '00001';
   if (!value) return fallback;
   const cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  return cleaned.slice(0, 10) || fallback;
+  if (!cleaned) return fallback;
+  if (cleaned.length <= 10) return cleaned;
+
+  // Mantieni prefisso identificativo e suffisso numerico per preservare unicità
+  const prefix = cleaned.slice(0, 4);
+  const suffix = cleaned.slice(-6);
+  const combined = `${prefix}${suffix}`.slice(0, 10);
+  return combined || cleaned.slice(-10);
 }
 
 function normalizeCodiceDestinatario(value: string | null | undefined): string | undefined {

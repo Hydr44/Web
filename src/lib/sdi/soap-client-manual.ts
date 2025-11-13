@@ -43,6 +43,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
   try {
     const signedFileName = fileName.replace('.xml', '.xml.p7m');
 
+    const SOAP_ENVELOPE_NS = 'http://www.w3.org/2003/05/soap-envelope';
     const SOAP_SERVICE_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0';
     const SOAP_TYPES_NS = 'http://www.fatturapa.gov.it/sdi/ws/trasmissione/v1.0/types';
 
@@ -51,22 +52,22 @@ export async function sendInvoiceToSDIWithoutWSDL(
     const attachmentContentId = `<attachment.${Date.now()}@rescuemanager>`;
 
     const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="${SOAP_SERVICE_NS}" xmlns:types="${SOAP_TYPES_NS}" xmlns:xop="http://www.w3.org/2004/08/xop/include">
-  <soapenv:Header/>
-  <soapenv:Body>
+<soap12:Envelope xmlns:soap12="${SOAP_ENVELOPE_NS}" xmlns:tns="${SOAP_SERVICE_NS}" xmlns:types="${SOAP_TYPES_NS}" xmlns:xop="http://www.w3.org/2004/08/xop/include">
+  <soap12:Header/>
+  <soap12:Body>
     <types:fileSdIAccoglienza>
       <types:NomeFile>${signedFileName}</types:NomeFile>
       <types:File>
         <xop:Include href="cid:${attachmentContentId.slice(1, -1)}"/>
       </types:File>
     </types:fileSdIAccoglienza>
-  </soapenv:Body>
-</soapenv:Envelope>`;
+  </soap12:Body>
+</soap12:Envelope>`;
 
     const soapBuffer = Buffer.from(soapEnvelope, 'utf8');
     const multipartHeaderPart = Buffer.from(
       `--${boundary}\r\n` +
-        'Content-Type: application/xop+xml; charset=UTF-8; type="text/xml"\r\n' +
+        'Content-Type: application/xop+xml; charset=UTF-8; type="application/soap+xml"; action="http://www.fatturapa.it/SdIRiceviFile/RiceviFile"\r\n' +
         'Content-Transfer-Encoding: binary\r\n' +
         `Content-ID: ${rootContentId}\r\n` +
         '\r\n',
@@ -129,7 +130,7 @@ export async function sendInvoiceToSDIWithoutWSDL(
           }
 
           const contentTypeHeader =
-            `multipart/related; type="application/xop+xml"; start="${rootContentId}"; start-info="text/xml"; boundary="${boundary}"`;
+            `multipart/related; type="application/xop+xml"; start="${rootContentId}"; start-info="application/soap+xml"; action="${soapAction}"; boundary="${boundary}"`;
 
           const httpsOptions: https.RequestOptions = {
             hostname: url.hostname,
@@ -139,7 +140,6 @@ export async function sendInvoiceToSDIWithoutWSDL(
             headers: {
               'Content-Type': contentTypeHeader,
               'Content-Length': multipartBuffer.length,
-              'SOAPAction': `"${soapAction}"`,
               'Accept': 'application/soap+xml, multipart/related, text/*',
               'MIME-Version': '1.0',
               Connection: 'close',

@@ -201,6 +201,7 @@ export async function POST(request: NextRequest) {
   let soapOperation: SOAPOperation | null = null;
   let fileSdIMetadata: Record<string, any> | null = null;
   let soapResponse = buildSOAPOkResponse();
+  let shouldReturnSoapResponse = false;
   let notificaDecorrenzaTermini = false;
 
   try {
@@ -301,6 +302,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (isFattura) {
+        shouldReturnSoapResponse = true;
         const fattura = parseSDIXML(xml);
         const { data, error } = await supabase
           .from('invoices')
@@ -342,7 +344,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+              soap_response_returned: shouldReturnSoapResponse ? soapResponse.xml.substring(0, 4096) : '',
               file_sdi_metadata: fileSdIMetadata,
             },
           });
@@ -365,7 +367,7 @@ export async function POST(request: NextRequest) {
               ssl_client_dn: sslClientDN,
               raw_soap_request: soapEnvelope.substring(0, 4096),
               soap_operation: soapOperation,
-              soap_response_returned: notificaDecorrenzaTermini ? '' : soapResponse.xml.substring(0, 4096),
+              soap_response_returned: shouldReturnSoapResponse ? soapResponse.xml.substring(0, 4096) : '',
               identificativoSdI: fattura.identificativoSdI || fattura.idSDI || '',
               file_sdi_metadata: fileSdIMetadata,
             },
@@ -527,6 +529,15 @@ export async function POST(request: NextRequest) {
         console.log('[SDI TEST] Operazione NotificaDecorrenzaTermini - rispondo con HTTP 200 senza body');
       }
 
+      if (shouldReturnSoapResponse) {
+        return new NextResponse(soapResponse.xml, {
+          status: 200,
+          headers: {
+            'Content-Type': soapResponse.contentType,
+          },
+        });
+      }
+
       return new NextResponse('', {
         status: 200,
         headers: {
@@ -631,12 +642,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[SDI TEST] Errore gestione richiesta:', error);
-    return new NextResponse(soapResponse.xml, {
-      status: 200,
-      headers: {
-        'Content-Type': soapResponse.contentType,
-      },
-    });
+    return shouldReturnSoapResponse
+      ? new NextResponse(soapResponse.xml, {
+          status: 200,
+          headers: {
+            'Content-Type': soapResponse.contentType,
+          },
+        })
+      : new NextResponse('', {
+          status: 200,
+          headers: {
+            'Content-Length': '0',
+          },
+        });
   }
 }
  
