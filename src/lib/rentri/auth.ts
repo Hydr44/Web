@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { createSign, randomUUID } from 'crypto';
+import { createPrivateKey, randomUUID, sign as signData } from 'crypto';
 import { readFileSync } from 'fs';
 
 const env = {
@@ -12,17 +12,6 @@ const env = {
   issuer: process.env.RENTRI_JWT_ISSUER,
   ttlSeconds: Number.parseInt(process.env.RENTRI_JWT_TTL_SECONDS ?? '', 10) || 55, // short-lived token
 };
-
-const resolvedSecrets = {
-  privateKey: resolveSecret(env.privateKey, env.privateKeyFile),
-  certificate: resolveSecret(env.certificate, env.certificateFile),
-};
-
-if (!resolvedSecrets.privateKey || !resolvedSecrets.certificate || !env.issuer) {
-  console.warn(
-    '[RENTRI AUTH] Variabili mancanti. Impostare RENTRI_JWT_PRIVATE_KEY, RENTRI_JWT_CERT e RENTRI_JWT_ISSUER.',
-  );
-}
 
 interface CachedToken {
   value: string;
@@ -48,8 +37,26 @@ const toBase64Url = (input: string | Buffer) => Buffer.from(input).toString('bas
 
 const normalizeMultilineEnv = (value: string) => value.replace(/\\n/g, '\n').trim();
 
+const resolvedSecrets = {
+  privateKey: resolveSecret(env.privateKey, env.privateKeyFile),
+  certificate: resolveSecret(env.certificate, env.certificateFile),
+};
+
+const normalizedPrivateKey = resolvedSecrets.privateKey
+  ? normalizeMultilineEnv(resolvedSecrets.privateKey)
+  : undefined;
+
+const privateKeyObject = normalizedPrivateKey ? createPrivateKey(normalizedPrivateKey) : undefined;
+const keyConfig = privateKeyObject ? getKeyConfig(privateKeyObject.asymmetricKeyType) : null;
+
+if (!privateKeyObject || !resolvedSecrets.certificate || !env.issuer || !keyConfig) {
+  console.warn(
+    '[RENTRI AUTH] Variabili mancanti. Impostare RENTRI_JWT_PRIVATE_KEY, RENTRI_JWT_CERT e RENTRI_JWT_ISSUER.',
+  );
+}
+
 function ensureConfig() {
-  if (!resolvedSecrets.privateKey || !resolvedSecrets.certificate || !env.issuer) {
+  if (!privateKeyObject || !resolvedSecrets.certificate || !env.issuer || !keyConfig) {
     throw new Error(
       'Configurazione RENTRI JWT mancante. Definire RENTRI_JWT_PRIVATE_KEY, RENTRI_JWT_CERT e RENTRI_JWT_ISSUER.',
     );
@@ -70,7 +77,7 @@ function buildJwtToken(): { token: string; expiresAt: number } {
   };
 
   const header = {
-    alg: 'RS256',
+    alg: keyConfig.jwtAlg,
     typ: 'JWT',
     x5c: extractCertificates(resolvedSecrets.certificate!),
   };
@@ -79,10 +86,7 @@ function buildJwtToken(): { token: string; expiresAt: number } {
   const payloadPart = toBase64Url(JSON.stringify(payload));
   const dataToSign = `${headerPart}.${payloadPart}`;
 
-  const sign = createSign('RSA-SHA256');
-  sign.update(dataToSign);
-  sign.end();
-  const signature = sign.sign(normalizeMultilineEnv(resolvedSecrets.privateKey!), 'base64url');
+  const signature = signJwt(dataToSign, keyConfig);
 
   return {
     token: `${dataToSign}.${signature}`,
@@ -114,6 +118,27 @@ function resolveSecret(value?: string | null, filePath?: string | null): string 
     }
   }
   return undefined;
+}
+
+function getKeyConfig(keyType: string | undefined) {
+  if (keyType === 'rsa' || keyType === 'rsa-pss') {
+    return { jwtAlg: 'RS256', signAlgorithm: 'RSA-SHA256' as const };
+  }
+  if (keyType === 'ec') {
+    return { jwtAlg: 'ES256', signAlgorithm: 'sha256' as const, dsaEncoding: 'ieee-p1363' as const };
+  }
+  throw new Error(`Tipo di chiave non supportato per RENTRI JWT: ${keyType}`);
+}
+
+function signJwt(data: string, config: ReturnType<typeof getKeyConfig>) {
+  if (!privateKeyObject) throw new Error('Chiave privata non disponibile');
+  if ('dsaEncoding' in config) {
+    return signData(null, Buffer.from(data), {
+      key: privateKeyObject,
+      dsaEncoding: config.dsaEncoding,
+    }).toString('base64url');
+  }
+  return signData(config.signAlgorithm, Buffer.from(data), privateKeyObject).toString('base64url');
 }
 
 
