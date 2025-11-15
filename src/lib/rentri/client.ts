@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { getRentriAuthorizationToken } from './auth';
+
 const DEFAULT_TIMEOUT_MS = Number.parseInt(process.env.RENTRI_HTTP_TIMEOUT_MS ?? '', 10) || 30000;
 const DEFAULT_BASE_URL =
   process.env.RENTRI_GATEWAY_URL?.trim() || 'https://rentri-test.rescuemanager.eu';
@@ -36,6 +38,7 @@ interface RequestOptions {
   headers?: Record<string, string>;
   timeoutMs?: number;
   expectedStatusCodes?: number[];
+  auth?: boolean;
 }
 
 export class RentriError extends Error {
@@ -69,7 +72,7 @@ export class RentriClient {
    */
   async getServiceStatus(service: RentriService): Promise<RentriResponse> {
     const path = `${SERVICE_PATHS[service]}/status`;
-    return this.request('GET', path, { expectedStatusCodes: [200, 422] });
+    return this.request('GET', path, { expectedStatusCodes: [200, 422], auth: false });
   }
 
   /**
@@ -101,44 +104,64 @@ export class RentriClient {
       ...options.headers,
     };
 
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      options.timeoutMs ?? this.timeoutMs,
-    );
-
-    let body: BodyInit | undefined;
+    let body: string | undefined;
     if (options.body !== undefined) {
       headers['Content-Type'] = 'application/json';
       body = JSON.stringify(options.body);
     }
 
-    let response: Response | null = null;
+    if (options.auth !== false) {
+      const token = await getRentriAuthorizationToken();
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await this.fetchWithTimeout(url, {
+      method,
+      headers,
+      body,
+      timeoutMs: options.timeoutMs ?? this.timeoutMs,
+    });
+
+    const rawBody = await response.text();
+    const rentriResponse = this.buildResponse<T>(response, rawBody, options.expectedStatusCodes);
+
+    if (!rentriResponse.ok) {
+      throw new RentriError(`Richiesta RENTRI fallita (${response.status})`, rentriResponse);
+    }
+
+    return rentriResponse;
+  }
+
+  private async fetchWithTimeout(url: URL, options: FetchOptions): Promise<Response> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
+
     try {
-      response = await fetch(url, {
-        method,
-        headers,
-        body,
+      return await fetch(url, {
+        method: options.method,
+        headers: options.headers,
+        body: options.body,
         signal: controller.signal,
         cache: 'no-store',
       });
     } catch (error: unknown) {
-      clearTimeout(timeout);
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === 'string'
-            ? error
-            : 'unknown error';
-      throw new RentriError(
-        `Errore connessione RENTRI: ${message}`,
-        null,
-      );
+      let message = 'unknown error';
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      }
+      throw new RentriError(`Errore connessione RENTRI: ${message}`, null);
     } finally {
       clearTimeout(timeout);
     }
+  }
 
-    const rawBody = await response.text();
+  private buildResponse<T>(
+    response: Response,
+    rawBody: string,
+    expectedStatusCodes?: number[],
+  ): RentriResponse<T> {
     let data: T | null = null;
     if (rawBody) {
       try {
@@ -148,26 +171,26 @@ export class RentriClient {
       }
     }
 
-    const rentriResponse: RentriResponse<T> = {
-      ok: response.ok || options.expectedStatusCodes?.includes(response.status) === true,
+    const ok = response.ok || expectedStatusCodes?.includes(response.status) === true;
+
+    return {
+      ok,
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
       data,
       rawBody,
     };
-
-    if (!rentriResponse.ok) {
-      throw new RentriError(
-        `Richiesta RENTRI fallita (${response.status})`,
-        rentriResponse,
-      );
-    }
-
-    return rentriResponse;
   }
 }
 
 export const rentriClient = new RentriClient();
+
+interface FetchOptions {
+  method: string;
+  headers: Record<string, string>;
+  body?: string;
+  timeoutMs: number;
+}
 
 
