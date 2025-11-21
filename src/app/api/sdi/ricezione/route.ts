@@ -114,12 +114,13 @@ async function sendAutomaticEsitoCommittente(params: {
 }
 
 function buildSOAPOkResponse() {
+  // Risposta standard per RicezioneFatture (ER01 = Presa in carico)
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="${SOAP_1_1_NAMESPACE}">
+<soap:Envelope xmlns:soap="${SOAP_1_1_NAMESPACE}" xmlns:sdi="${SDI_RICEZIONE_NAMESPACE}">
   <soap:Body>
-    <rispostaRiceviFatture xmlns="${SDI_RICEZIONE_NAMESPACE}">
+    <sdi:rispostaRiceviFatture>
       <Esito>ER01</Esito>
-    </rispostaRiceviFatture>
+    </sdi:rispostaRiceviFatture>
   </soap:Body>
 </soap:Envelope>`;
 
@@ -174,7 +175,8 @@ export async function POST(request: NextRequest) {
 
   const verified = verifySDIRequest(request, 'production');
   if (!verified) {
-    console.warn('[SDI PROD] Verifica SDI non riuscita (produzione: log, ma non blocchiamo qui)');
+    console.error('[SDI PROD] Verifica SDI FALLITA - Richiesta bloccata');
+    return new NextResponse('Access Denied: Invalid Client Certificate', { status: 403 });
   }
 
   const supabase = createClient(
@@ -610,17 +612,17 @@ export async function POST(request: NextRequest) {
     console.error('[SDI PROD] Errore gestione richiesta:', error);
     return shouldReturnSoapResponse
       ? new NextResponse(soapResponse.xml, {
-          status: 200,
-          headers: {
-            'Content-Type': soapResponse.contentType,
-          },
-        })
+        status: 200,
+        headers: {
+          'Content-Type': soapResponse.contentType,
+        },
+      })
       : new NextResponse('', {
-          status: 200,
-          headers: {
-            'Content-Length': '0',
-          },
-        });
+        status: 200,
+        headers: {
+          'Content-Length': '0',
+        },
+      });
   }
 }
 
@@ -633,4 +635,4 @@ function logSupabaseError(context: string, error: any) {
     code: error.code,
   });
 }
- 
+

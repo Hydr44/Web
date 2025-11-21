@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import type { PostgrestError } from '@supabase/supabase-js';
+import { DOMParser } from '@xmldom/xmldom';
 
 export interface SDIResponse {
   success: boolean;
@@ -66,52 +67,56 @@ export interface SDINotificationResolution {
   normalizedType: string;
 }
 
+function getElementText(doc: Document, tagName: string): string | undefined {
+  const elements = doc.getElementsByTagName(tagName);
+  if (elements && elements.length > 0) {
+    return elements[0].textContent || undefined;
+  }
+  // Fallback per namespace (es. ns2:TipoDocumento)
+  const allElements = doc.getElementsByTagName('*');
+  for (let i = 0; i < allElements.length; i++) {
+    if (allElements[i].localName === tagName) {
+      return allElements[i].textContent || undefined;
+    }
+  }
+  return undefined;
+}
+
 export function parseSDIXML(xml: string): SDIParsedInvoice {
   try {
-    // Simple XML parsing for test purposes
-    // In production, use a proper XML parser like xml2js or fast-xml-parser
-    
-    const tipoDocumentoMatch = xml.match(/<TipoDocumento>([^<]+)<\/TipoDocumento>/i);
-    const numeroMatch = xml.match(/<Numero>([^<]+)<\/Numero>/i);
-    const dataMatch = xml.match(/<Data>([^<]+)<\/Data>/i);
-    const partitaIvaMatch = xml.match(/<PartitaIVA>([^<]+)<\/PartitaIVA>/i);
-    const codiceDestinatarioMatch = xml.match(/<CodiceDestinatario>([^<]+)<\/CodiceDestinatario>/i);
-    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+
     return {
-      tipoDocumento: tipoDocumentoMatch?.[1],
-      numero: numeroMatch?.[1],
-      data: dataMatch?.[1],
-      partitaIva: partitaIvaMatch?.[1],
-      codiceDestinatario: codiceDestinatarioMatch?.[1],
+      tipoDocumento: getElementText(doc, 'TipoDocumento'),
+      numero: getElementText(doc, 'Numero'),
+      data: getElementText(doc, 'Data'),
+      partitaIva: getElementText(doc, 'PartitaIVA'),
+      codiceDestinatario: getElementText(doc, 'CodiceDestinatario'),
       raw: xml,
     };
   } catch (error) {
-    console.error('Errore parsing XML SDI:', error);
+    console.error('Errore parsing XML SDI (DOM):', error);
     return { raw: xml };
   }
 }
 
 export function parseSDINotification(xml: string): SDINotificationData {
   try {
-    // Parse SDI notification XML
-    const tipoNotificaMatch = xml.match(/<TipoNotifica>([^<]+)<\/TipoNotifica>/i);
-    const idSDIMatch = xml.match(/<IdSDI>([^<]+)<\/IdSDI>/i);
-    const identificativoSDIMatch = xml.match(/<IdentificativoSDI>([^<]+)<\/IdentificativoSDI>/i);
-    const esitoMatch = xml.match(/<Esito>([^<]+)<\/Esito>/i);
-    const messageIdMatch = xml.match(/<MessageId>([^<]+)<\/MessageId>/i);
-    const pecMessageIdMatch = xml.match(/<PecMessageId>([^<]+)<\/PecMessageId>/i);
-    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+
     return {
-      tipoNotifica: tipoNotificaMatch?.[1],
-      idSDI: idSDIMatch?.[1],
-      identificativoSDI: identificativoSDIMatch?.[1],
-      esito: esitoMatch?.[1],
-      messageId: messageIdMatch?.[1],
-      pecMessageId: pecMessageIdMatch?.[1],
+      tipoNotifica: getElementText(doc, 'TipoNotifica'),
+      idSDI: getElementText(doc, 'IdSDI'),
+      identificativoSDI: getElementText(doc, 'IdentificativoSdI'),
+      esito: getElementText(doc, 'Esito'),
+      messageId: getElementText(doc, 'MessageId'),
+      pecMessageId: getElementText(doc, 'PecMessageId'),
       raw: xml,
     };
   } catch (error) {
-    console.error('Errore parsing notifica SDI:', error);
+    console.error('Errore parsing notifica SDI (DOM):', error);
     return { raw: xml };
   }
 }

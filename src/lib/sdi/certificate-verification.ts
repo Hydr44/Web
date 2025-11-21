@@ -16,48 +16,45 @@ export function verifySDIRequest(
   environment: SDIEnvironment = 'production'
 ): boolean {
   try {
-    // Verifica User-Agent (SDI usa user agent specifici)
-    const userAgent = request.headers.get('user-agent') || '';
-    const sdiUserAgents = [
-      'SDI',
-      'Sistema di Interscambio',
-      'FatturaPA',
-    ];
-    
-    const isSDIUserAgent = sdiUserAgents.some(ua => 
-      userAgent.toLowerCase().includes(ua.toLowerCase())
-    );
+    // 1. Verifica Header Nginx (Critico per Sicurezza)
+    // Nginx è configurato per passare questi header solo se mTLS è attivo
+    const sslVerify = request.headers.get('x-ssl-client-verify');
+    const sslDN = request.headers.get('x-ssl-client-dn');
 
-    // Verifica IP (SDI usa range IP noti)
-    // In produzione, configurare IP whitelist
-    const forwardedFor = request.headers.get('x-forwarded-for');
-    const realIp = request.headers.get('x-real-ip');
-    const clientIp = forwardedFor?.split(',')[0] || realIp || '';
-    
-    // TODO: Configurare whitelist IP SDI
-    // Per ora, accettiamo tutte le richieste (da configurare in produzione)
-    const sdiIpWhitelist: string[] = [];
-    const isSDIIp = sdiIpWhitelist.length === 0 || sdiIpWhitelist.includes(clientIp);
-
-    // Verifica certificato client (se presente nell'header)
-    // In Vercel/AWS, il certificato è gestito a livello di infrastruttura
-    const clientCert = request.headers.get('x-client-cert');
-    if (clientCert) {
-      // Verifica certificato
-      const sdiCert = loadSDIClientCert(environment);
-      // TODO: Implementare verifica firma certificato
-      // Per ora, verifichiamo solo che il certificato sia presente
+    // In produzione (o test con Nginx), questo header DEVE essere "SUCCESS"
+    if (sslVerify !== 'SUCCESS') {
+      console.warn(`[SDI Security] Rifiutata richiesta senza verifica SSL valida. Verify: ${sslVerify}`);
+      return false;
     }
 
-    // Per ora, accettiamo tutte le richieste
-    // In produzione, configurare:
-    // 1. IP whitelist SDI
-    // 2. Verifica certificato SSL
-    // 3. Verifica firma richiesta
-    return true; // TODO: Implementare verifica completa
+    // 2. Verifica DN (Distinguished Name)
+    // Il certificato SDI deve contenere specifici attributi
+    // Es: C=IT, O=Agenzia delle Entrate, CN=Sistema Interscambio Fattura PA
+    if (!sslDN) {
+      console.warn('[SDI Security] Rifiutata richiesta senza DN');
+      return false;
+    }
+
+    const validDNMarkers = [
+      'O=Agenzia delle Entrate',
+      'CN=Sistema Interscambio',
+      'CN=CA Agenzia delle Entrate', // Per certificati di test CA
+    ];
+
+    const isValidDN = validDNMarkers.some(marker =>
+      sslDN.includes(marker)
+    );
+
+    if (!isValidDN) {
+      console.warn(`[SDI Security] Rifiutata richiesta con DN non valido: ${sslDN}`);
+      return false;
+    }
+
+    console.log(`[SDI Security] Richiesta accettata da: ${sslDN}`);
+    return true;
 
   } catch (error) {
-    console.error('[SDI] Errore verifica richiesta:', error);
+    console.error('[SDI Security] Errore verifica richiesta:', error);
     return false;
   }
 }
@@ -71,11 +68,11 @@ export function verifySDICertificate(
 ): boolean {
   try {
     const sdiCertPem = loadSDIClientCert(environment);
-    
+
     // Per ora, verifichiamo solo che i certificati esistano
     // In produzione, implementare verifica firma completa
     return sdiCertPem.length > 0 && certPem.length > 0;
-    
+
   } catch (error) {
     console.error('[SDI] Errore verifica certificato:', error);
     return false;

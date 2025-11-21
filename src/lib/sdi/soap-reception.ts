@@ -23,7 +23,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
   soapEnvelope?: string;
 }> {
   const contentType = request.headers.get('content-type') || '';
-  
+
   // Se non è multipart, prova a leggere direttamente come XML
   if (!contentType.includes('multipart')) {
     const xml = await request.text();
@@ -35,57 +35,59 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
     };
   }
 
-  // Estrai boundary dal Content-Type
-  const boundaryMatch = contentType.match(/boundary="?([^";\s]+)"?/);
+  // Estrai boundary dal Content-Type (gestisce quote opzionali e spazi)
+  const boundaryMatch = contentType.match(/boundary\s*=\s*"?([^";\s]+)"?/i);
   if (!boundaryMatch) {
+    console.error('[SDI MTOM] Boundary non trovato nel Content-Type:', contentType);
     throw new Error('Boundary non trovato nel Content-Type');
   }
   const boundary = boundaryMatch[1];
-  
+  console.log('[SDI MTOM] Boundary estratto:', boundary);
+
   // Leggi il body come buffer
   const bodyBuffer = Buffer.from(await request.arrayBuffer());
   const bodyString = bodyBuffer.toString('binary');
-  
+
   // Dividi le parti multipart
   const parts = bodyString.split(`--${boundary}`);
-  
+
   let fileName = 'fattura.xml';
   let fileContent: Buffer | null = null;
   let xml = '';
   let soapEnvelope = '';
-  
+
   for (const part of parts) {
     // Skip empty parts
     if (!part.trim() || part.trim() === '--') continue;
-    
+
     // Estrai header e body della parte
     const [headersRaw, ...bodyParts] = part.split('\r\n\r\n');
     const body = bodyParts.join('\r\n\r\n').trim();
-    
+
     if (!body) continue;
-    
+
     // Verifica se è la parte SOAP (XML)
     if (headersRaw.includes('Content-Type: text/xml') || headersRaw.includes('Content-Type: application/xml')) {
       // Questa è la parte SOAP envelope
       soapEnvelope = sanitizeSOAPEnvelope(body);
       xml = soapEnvelope;
-      
+
       // Estrai fileName dal SOAP body se presente
       const fileNameMatch = body.match(/<sdicoop:fileName>([^<]+)<\/sdicoop:fileName>/i) ||
-                           body.match(/<fileName>([^<]+)<\/fileName>/i);
+        body.match(/<fileName>([^<]+)<\/fileName>/i);
       if (fileNameMatch) {
         fileName = fileNameMatch[1];
       }
     }
-    
+
     // Verifica se è l'allegato MTOM (file .xml.p7m)
     if (headersRaw.includes('Content-ID') || headersRaw.includes('Content-Transfer-Encoding: binary')) {
       // Questa è la parte allegato
       const contentIdMatch = headersRaw.match(/Content-ID:\s*<([^>]+)>/i);
-      
+
       // Estrai il file come buffer (binary)
       fileContent = Buffer.from(body, 'binary');
-      
+
       // Se il fileName non è stato trovato nel SOAP, prova a estrarlo dal Content-ID
       if (!fileName.match(/\.xml(\.p7m)?$/i)) {
         const contentId = contentIdMatch?.[1] || '';
@@ -95,7 +97,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
       }
     }
   }
-  
+
   // Se abbiamo trovato il file content, usalo
   // Altrimenti, usa l'XML diretto
   if (fileContent) {
@@ -106,7 +108,7 @@ export async function extractFileFromSOAPMTOM(request: NextRequest): Promise<{
       soapEnvelope: soapEnvelope || xml,
     };
   }
-  
+
   // Fallback: usa l'XML dal SOAP envelope
   return {
     fileName,
@@ -135,7 +137,7 @@ export function createSOAPResponse(
     </sdicoop:RiceviFileResponse>
   </soap:Body>
 </soap:Envelope>`;
-  
+
   return soapResponse;
 }
 
@@ -144,10 +146,10 @@ export function createSOAPResponse(
  */
 export function isSOAPRequest(request: NextRequest): boolean {
   const contentType = request.headers.get('content-type') || '';
-  return contentType.includes('multipart/related') || 
-         contentType.includes('text/xml') ||
-         contentType.includes('application/xml') ||
-         contentType.includes('application/soap+xml');
+  return contentType.includes('multipart/related') ||
+    contentType.includes('text/xml') ||
+    contentType.includes('application/xml') ||
+    contentType.includes('application/soap+xml');
 }
 
 function getFirstElementText(node: Element, localName: string): string | null {
