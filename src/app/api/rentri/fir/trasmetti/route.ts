@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 4. Genera JWT per autenticazione RENTRI
-    const jwt = await generateRentriJWTDynamic({
+    // 4. Genera JWT per autenticazione RENTRI (pattern ID_AUTH_REST_02)
+    const jwtAuth = await generateRentriJWTDynamic({
       issuer: cert.cf_operatore,
       certificatePem: cert.certificate_pem,
       privateKeyPem: cert.private_key_pem,
@@ -130,23 +130,38 @@ export async function POST(request: NextRequest) {
     
     console.log('[RENTRI-FIR] Digest calcolato:', digest.substring(0, 50) + '...');
     
+    // 5. Genera JWT per integrità messaggio (pattern INTEGRITY_REST_01)
+    const { generateRentriJWTIntegrity } = await import("@/lib/rentri/jwt-dynamic");
+    const jwtIntegrity = await generateRentriJWTIntegrity(
+      {
+        issuer: cert.cf_operatore,
+        certificatePem: cert.certificate_pem,
+        privateKeyPem: cert.private_key_pem,
+        audience: fir.environment === "demo" ? "rentrigov.demo.api" : "rentrigov.api"
+      },
+      {
+        digest: digest,
+        contentType: "application/json"
+      }
+    );
+    
     // Retry fino a 3 volte con backoff
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         console.log(`[RENTRI-FIR] Tentativo ${attempt}/3...`);
         
-        // RENTRI richiede ENTRAMBI:
-        // 1. Certificato mTLS (gestito da Nginx gateway)
-        // 2. JWT headers (per autenticazione richiesta)
+        // Pattern AgID completi secondo manuali RENTRI
         const headers: Record<string, string> = {
-          "Authorization": `Bearer ${jwt}`,
-          "Agid-JWT-Signature": jwt,
-          "Digest": digest,
+          "Authorization": `Bearer ${jwtAuth}`,        // JWT ID_AUTH_REST_02
+          "Agid-JWT-Signature": jwtIntegrity,         // JWT INTEGRITY_REST_01
+          "Digest": digest,                            // SHA-256 hash del body
           "Content-Type": "application/json"
         };
         
         console.log('[RENTRI-FIR] URL:', rentriUrl);
         console.log('[RENTRI-FIR] Headers:', Object.keys(headers));
+        console.log('[RENTRI-FIR] JWT Auth length:', jwtAuth.length);
+        console.log('[RENTRI-FIR] JWT Integrity length:', jwtIntegrity.length);
         
         rentriResponse = await fetch(rentriUrl, {
           method: "POST",

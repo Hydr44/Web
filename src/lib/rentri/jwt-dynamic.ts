@@ -15,6 +15,9 @@ interface JWTOptions {
 
 /**
  * Genera JWT ES256 per RENTRI con certificato dinamico dal DB
+ * Genera DUE JWT secondo pattern AgID:
+ * 1. JWT_AUTH: per Authorization Bearer (ID_AUTH_REST_02)
+ * 2. JWT_INTEGRITY: per Agid-JWT-Signature (INTEGRITY_REST_01)
  */
 export async function generateRentriJWTDynamic(options: JWTOptions): Promise<string> {
   const {
@@ -31,14 +34,14 @@ export async function generateRentriJWTDynamic(options: JWTOptions): Promise<str
   // 2. Estrai certificato (x5c header)
   const certChain = extractCertificates(certificatePem);
   
-  // 3. Crea JWT header
+  // 3. Crea JWT header (uguale per entrambi)
   const header = {
     alg: 'ES256',
     typ: 'JWT',
     x5c: certChain // Array di certificati in base64
   };
   
-  // 4. Crea JWT payload
+  // 4. Crea JWT payload BASE (senza signed_headers)
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     iss: issuer,                    // CF operatore
@@ -57,14 +60,78 @@ export async function generateRentriJWTDynamic(options: JWTOptions): Promise<str
   const signatureInput = `${headerB64}.${payloadB64}`;
   const signature = signES256(signatureInput, privateKey);
   
-  // 7. Costruisci JWT finale
+  // 7. Costruisci JWT finale (Authorization Bearer)
   const jwt = `${headerB64}.${payloadB64}.${signature}`;
   
-  console.log('[RENTRI-JWT] JWT generato:', {
+  console.log('[RENTRI-JWT] JWT generato (ID_AUTH_REST_02):', {
     issuer,
     audience,
     expires_in: ttlSeconds,
     jwt_length: jwt.length
+  });
+  
+  return jwt;
+}
+
+/**
+ * Genera JWT per integrità messaggio (Agid-JWT-Signature)
+ * Pattern AgID INTEGRITY_REST_01
+ */
+export async function generateRentriJWTIntegrity(
+  options: JWTOptions,
+  signedHeaders: { digest: string; contentType: string }
+): Promise<string> {
+  const {
+    issuer,
+    certificatePem,
+    privateKeyPem,
+    audience = 'rentrigov.demo.api',
+    ttlSeconds = 55
+  } = options;
+  
+  // 1. Parse chiave privata
+  const privateKey = createPrivateKey(privateKeyPem);
+  
+  // 2. Estrai certificato (x5c header)
+  const certChain = extractCertificates(certificatePem);
+  
+  // 3. Crea JWT header
+  const header = {
+    alg: 'ES256',
+    typ: 'JWT',
+    x5c: certChain
+  };
+  
+  // 4. Crea JWT payload con signed_headers
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    jti: randomUUID(),              // JTI DIVERSO dal JWT auth!
+    signed_headers: [               // ← CLAIM AGGIUNTIVO per integrità
+      { digest: signedHeaders.digest },
+      { 'content-type': signedHeaders.contentType }
+    ],
+    aud: audience,
+    iss: issuer,
+    exp: now + ttlSeconds,
+    iat: now,
+    nbf: now
+  };
+  
+  // 5. Codifica header e payload
+  const headerB64 = toBase64Url(JSON.stringify(header));
+  const payloadB64 = toBase64Url(JSON.stringify(payload));
+  
+  // 6. Firma con ES256
+  const signatureInput = `${headerB64}.${payloadB64}`;
+  const signature = signES256(signatureInput, privateKey);
+  
+  // 7. Costruisci JWT finale
+  const jwt = `${headerB64}.${payloadB64}.${signature}`;
+  
+  console.log('[RENTRI-JWT] JWT Integrità generato (INTEGRITY_REST_01):', {
+    issuer,
+    jwt_length: jwt.length,
+    digest_length: signedHeaders.digest.length
   });
   
   return jwt;
