@@ -105,9 +105,16 @@ export async function POST(request: NextRequest) {
     });
     
     // 6. POST a RENTRI API con retry
-    const rentriUrl = fir.environment === "demo" 
-      ? "https://rentri-test.rescuemanager.eu/formulari/v1.0/"
-      : "https://rentri-prod.rescuemanager.eu/formulari/v1.0/";
+    // OPZIONE: Gateway mTLS (certificati gestiti da Nginx, NO JWT)
+    const useGateway = true;
+    
+    const rentriUrl = useGateway
+      ? (fir.environment === "demo" 
+          ? "https://rentri-test.rescuemanager.eu/formulari/v1.0/"
+          : "https://rentri-prod.rescuemanager.eu/formulari/v1.0/")
+      : (fir.environment === "demo"
+          ? "https://demoapi.rentri.gov.it/formulari/v1.0/"
+          : "https://api.rentri.gov.it/formulari/v1.0/");
     
     let rentriResponse;
     let rentriData;
@@ -128,14 +135,25 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`[RENTRI-FIR] Tentativo ${attempt}/3...`);
         
+        // Se uso gateway mTLS, Nginx gestisce i certificati, NO JWT/Digest
+        // Se chiamo API dirette, serve JWT + Digest
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json"
+        };
+        
+        if (!useGateway) {
+          // Chiamata diretta: serve autenticazione JWT completa
+          headers["Authorization"] = `Bearer ${jwt}`;
+          headers["Agid-JWT-Signature"] = jwt;
+          headers["Digest"] = digest;
+        }
+        // Se uso gateway: Nginx gestisce mTLS con certificati, nessun header JWT
+        
+        console.log('[RENTRI-FIR] Usando gateway:', useGateway, 'Headers:', Object.keys(headers));
+        
         rentriResponse = await fetch(rentriUrl, {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${jwt}`,      // Pattern OAuth
-            "Agid-JWT-Signature": jwt,            // Pattern AgID ID_AUTH_REST_02
-            "Digest": digest,                      // Pattern AgID INTEGRITY_REST_01
-            "Content-Type": "application/json"
-          },
+          headers,
           body: bodyString,
           signal: AbortSignal.timeout(30000) // 30s timeout
         });
