@@ -39,55 +39,83 @@ export async function POST(request: NextRequest) {
     }
     
     console.log("[CERT-UPLOAD] Upload certificato per org:", org_id, "CF:", cf_operatore);
+    console.log("[CERT-UPLOAD] File ricevuto:", {
+      name: p12File.name,
+      size: p12File.size,
+      type: p12File.type
+    });
     
     // 1. Leggi file .p12
-    const p12Buffer = Buffer.from(await p12File.arrayBuffer());
+    console.log("[CERT-UPLOAD] Lettura file in buffer...");
+    const arrayBuffer = await p12File.arrayBuffer();
+    const p12Buffer = Buffer.from(arrayBuffer);
+    console.log("[CERT-UPLOAD] Buffer creato, dimensione:", p12Buffer.length, "bytes");
     
     // 2. Parse .p12 con node-forge
+    console.log("[CERT-UPLOAD] Parsing file .p12...");
     let p12Asn1;
     try {
-      p12Asn1 = forge.asn1.fromDer(p12Buffer.toString('binary'));
-    } catch (error) {
+      // Converti buffer a stringa binaria per node-forge
+      const binaryString = p12Buffer.toString('binary');
+      console.log("[CERT-UPLOAD] Stringa binaria creata, lunghezza:", binaryString.length);
+      p12Asn1 = forge.asn1.fromDer(binaryString);
+      console.log("[CERT-UPLOAD] ASN1 parsing completato");
+    } catch (error: any) {
+      console.error("[CERT-UPLOAD] Errore parsing ASN1:", error.message);
       return NextResponse.json(
-        { error: "File .p12 non valido o corrotto" },
+        { error: "File .p12 non valido o corrotto", details: error.message },
         { status: 400, headers }
       );
     }
     
     // 3. Estrai certificato e chiave con password
+    console.log("[CERT-UPLOAD] Estrazione certificato e chiave con password...");
     let p12;
     try {
       p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, password);
-    } catch (error) {
+      console.log("[CERT-UPLOAD] PKCS12 estratto con successo");
+    } catch (error: any) {
+      console.error("[CERT-UPLOAD] Errore estrazione PKCS12:", error.message);
       return NextResponse.json(
-        { error: "Password errata o file .p12 non valido" },
+        { error: "Password errata o file .p12 non valido", details: error.message },
         { status: 400, headers }
       );
     }
     
     // 4. Estrai chiave privata
+    console.log("[CERT-UPLOAD] Estrazione chiave privata...");
     const bags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
     const keyBag = bags[forge.pki.oids.pkcs8ShroudedKeyBag]?.[0];
     
     if (!keyBag || !keyBag.key) {
+      console.error("[CERT-UPLOAD] Chiave privata non trovata");
+      // Prova anche con altri bag types
+      const allBags = p12.getBags({ bagType: forge.pki.oids.keyBag });
+      console.log("[CERT-UPLOAD] Tentativo con keyBag:", Object.keys(allBags));
       return NextResponse.json(
         { error: "Chiave privata non trovata nel .p12" },
         { status: 400, headers }
       );
     }
     
+    console.log("[CERT-UPLOAD] Chiave privata trovata, conversione in PEM...");
     const privateKeyPem = forge.pki.privateKeyToPem(keyBag.key as any);
+    console.log("[CERT-UPLOAD] Chiave PEM creata, lunghezza:", privateKeyPem.length);
     
     // 5. Estrai certificato
+    console.log("[CERT-UPLOAD] Estrazione certificato...");
     const certBags = p12.getBags({ bagType: forge.pki.oids.certBag });
     const certBag = certBags[forge.pki.oids.certBag]?.[0];
     
     if (!certBag || !certBag.cert) {
+      console.error("[CERT-UPLOAD] Certificato non trovato");
       return NextResponse.json(
         { error: "Certificato non trovato nel .p12" },
         { status: 400, headers }
       );
     }
+    
+    console.log("[CERT-UPLOAD] Certificato trovato");
     
     const certificate = certBag.cert as any;
     const certificatePem = forge.pki.certificateToPem(certificate);
