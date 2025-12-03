@@ -8,18 +8,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateRentriJWTDynamic } from "@/lib/rentri/jwt-dynamic";
+import { handleCors, corsHeaders } from "@/lib/cors";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
 export async function POST(request: NextRequest) {
+  const headers = corsHeaders(request.headers.get('origin'));
   try {
     const { fir_id, motivo } = await request.json();
     
     if (!fir_id) {
       return NextResponse.json(
         { error: "fir_id mancante" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
     if (firError || !fir) {
       return NextResponse.json(
         { error: "FIR non trovato" },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: "FIR locale annullato"
-      });
+      }, { headers });
     }
     
     // 2. Carica certificato
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
     if (!cert) {
       return NextResponse.json(
         { error: "Certificato non trovato" },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
@@ -101,7 +107,7 @@ export async function POST(request: NextRequest) {
       const error = await rentriResponse.json();
       return NextResponse.json(
         { error: "Errore annullamento RENTRI", rentri_error: error },
-        { status: rentriResponse.status }
+        { status: rentriResponse.status, headers }
       );
     }
     
@@ -124,13 +130,13 @@ export async function POST(request: NextRequest) {
       success: true,
       stato: "annullato",
       message: "FIR annullato con successo"
-    });
+    }, { headers });
     
   } catch (error: any) {
     console.error("[RENTRI-ANNULLA] Errore:", error);
     return NextResponse.json(
       { error: "Errore interno server", details: error.message },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }

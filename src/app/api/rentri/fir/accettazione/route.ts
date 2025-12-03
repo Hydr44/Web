@@ -9,9 +9,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateRentriJWTDynamic } from "@/lib/rentri/jwt-dynamic";
 import { mapRentriStatoToLocal } from "@/lib/rentri/fir-builder";
+import { handleCors, corsHeaders } from "@/lib/cors";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
 
 interface AccettazionePayload {
   fir_id: string;
@@ -22,6 +27,7 @@ interface AccettazionePayload {
 }
 
 export async function POST(request: NextRequest) {
+  const headers = corsHeaders(request.headers.get('origin'));
   try {
     const body: AccettazionePayload = await request.json();
     const { fir_id, tipo_accettazione, quantita_accettata, data_arrivo, note } = body;
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (!fir_id || !tipo_accettazione || !data_arrivo) {
       return NextResponse.json(
         { error: "Parametri mancanti (fir_id, tipo_accettazione, data_arrivo)" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -45,14 +51,14 @@ export async function POST(request: NextRequest) {
     if (firError || !fir) {
       return NextResponse.json(
         { error: "FIR non trovato" },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
     if (!fir.rentri_numero) {
       return NextResponse.json(
         { error: "FIR non trasmesso a RENTRI" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -71,7 +77,7 @@ export async function POST(request: NextRequest) {
     if (!cert) {
       return NextResponse.json(
         { error: "Certificato non trovato" },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
@@ -139,7 +145,7 @@ export async function POST(request: NextRequest) {
       console.error("[RENTRI-ACCETTAZIONE] Errore RENTRI:", rentriData);
       return NextResponse.json(
         { error: "Errore inserimento accettazione", rentri_error: rentriData },
-        { status: rentriResponse?.status || 500 }
+        { status: rentriResponse?.status || 500, headers }
       );
     }
     
@@ -170,13 +176,13 @@ export async function POST(request: NextRequest) {
       stato_rentri: rentriData.stato,
       stato_locale: nuovoStatoLocale,
       message: "Accettazione inserita con successo"
-    });
+    }, { headers });
     
   } catch (error: any) {
     console.error("[RENTRI-ACCETTAZIONE] Errore:", error);
     return NextResponse.json(
       { error: "Errore interno server", details: error.message },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }
