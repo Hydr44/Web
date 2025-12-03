@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
             
             const response = await fetch(rentriUrl, {
               method: "GET",
-              headers: { "Authorization": `Bearer ${jwt}` },
+              headers: { "Agid-JWT-Signature": jwt },
               signal: AbortSignal.timeout(10000)
             });
             
