@@ -35,7 +35,48 @@ function HomeContent() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      // Gestione code per reset password
+      // Gestione hash fragment (#access_token=... o #code=...)
+      if (typeof window !== "undefined") {
+        const hash = window.location.hash;
+        
+        // Controlla se c'è access_token o type=recovery nell'hash
+        if (hash.includes("access_token") || hash.includes("type=recovery")) {
+          setProcessing(true);
+          
+          try {
+            const supabase = supabaseBrowser();
+            
+            // Supabase gestisce automaticamente gli hash fragments
+            const { data, error } = await supabase.auth.getSession();
+            
+            if (error) {
+              setShowError(true);
+              setErrorMessage("Link non valido o scaduto. Richiedi un nuovo link di reset.");
+              setProcessing(false);
+              // Pulisci hash dalla URL
+              window.history.replaceState({}, document.title, window.location.pathname);
+              return;
+            }
+
+            // Se c'è una sessione e il tipo è recovery, redirect a update-password
+            if (data.session) {
+              // Pulisci hash prima del redirect
+              window.history.replaceState({}, document.title, window.location.pathname);
+              router.push("/update-password");
+              return;
+            }
+          } catch (err) {
+            console.error("Errore processamento hash:", err);
+            setShowError(true);
+            setErrorMessage("Errore nel processamento del link. Riprova.");
+            setProcessing(false);
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+          return;
+        }
+      }
+
+      // Gestione code per reset password (query parameter)
       const code = searchParams.get("code");
       
       if (code) {
