@@ -9,18 +9,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { buildRentriFIRPayload, validateFIRForRentri, mapRentriStatoToLocal } from "@/lib/rentri/fir-builder";
 import { generateRentriJWTDynamic } from "@/lib/rentri/jwt-dynamic";
+import { handleCors, corsHeaders } from "@/lib/cors";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const headers = corsHeaders(origin);
   try {
     const { fir_id } = await request.json();
     
     if (!fir_id) {
       return NextResponse.json(
         { error: "fir_id mancante" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -37,7 +44,7 @@ export async function POST(request: NextRequest) {
     if (firError || !fir) {
       return NextResponse.json(
         { error: "FIR non trovato", details: firError },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
@@ -49,7 +56,7 @@ export async function POST(request: NextRequest) {
           error: "FIR non valido per trasmissione",
           validation_errors: validation.errors
         },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -66,7 +73,7 @@ export async function POST(request: NextRequest) {
     if (certError || !cert) {
       return NextResponse.json(
         { error: "Certificato RENTRI non trovato per questa organizzazione" },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
     
@@ -75,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (expiresAt < new Date()) {
       return NextResponse.json(
         { error: "Certificato RENTRI scaduto" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
     
@@ -172,7 +179,7 @@ export async function POST(request: NextRequest) {
           error: "Errore trasmissione RENTRI",
           rentri_error: rentriData
         },
-        { status: rentriResponse.status }
+        { status: rentriResponse.status, headers }
       );
     }
     
@@ -209,13 +216,13 @@ export async function POST(request: NextRequest) {
       stato_rentri: rentriData.stato,
       stato_locale: statoLocale,
       message: "FIR trasmesso con successo a RENTRI"
-    });
+    }, { headers });
     
   } catch (error: any) {
     console.error("[RENTRI-FIR] Errore trasmissione:", error);
     return NextResponse.json(
       { error: "Errore interno server", details: error.message },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }
