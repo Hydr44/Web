@@ -17,14 +17,69 @@ import {
   Users,
   TrendingUp,
   Award,
-  Calculator
+  Calculator,
+  AlertCircle,
+  X
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
+  const searchParams = useSearchParams();
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const errorCode = searchParams.get("error_code");
+    const errorDescription = searchParams.get("error_description");
+
+    if (error || errorCode) {
+      setShowError(true);
+      
+      if (errorCode === "otp_expired") {
+        setErrorMessage("Il link di reset password è scaduto o non valido. Richiedi un nuovo link.");
+      } else if (errorDescription) {
+        setErrorMessage(decodeURIComponent(errorDescription));
+      } else {
+        setErrorMessage("Si è verificato un errore. Riprova.");
+      }
+    }
+  }, [searchParams]);
   
   return (
     <main className="hero-bg">
+      {/* Error Banner */}
+      {showError && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-full mx-4"
+        >
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-red-900 mb-1">Errore Reset Password</h3>
+              <p className="text-sm text-red-700">{errorMessage}</p>
+              <Link 
+                href="/reset"
+                className="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 mt-2"
+              >
+                Richiedi nuovo link <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowError(false)}
+              className="text-red-400 hover:text-red-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* HERO */}
       <section id="hero" className="relative overflow-hidden pt-18 md:pt-24 pb-20 md:pb-28 bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
         {/* Background elements */}
