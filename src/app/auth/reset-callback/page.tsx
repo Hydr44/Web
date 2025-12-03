@@ -11,14 +11,21 @@ export default function ResetCallbackPage() {
 
   useEffect(() => {
     const handleResetCallback = async () => {
+      console.log("[RESET-CALLBACK] Inizio processamento...");
+      
       try {
         const supabase = supabaseBrowser();
+        
+        console.log("[RESET-CALLBACK] Controllo sessione...");
         
         // Supabase gestisce automaticamente l'hash fragment (#access_token=...)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
+        console.log("[RESET-CALLBACK] Sessione:", session ? "TROVATA" : "NON TROVATA");
+        console.log("[RESET-CALLBACK] Errore:", sessionError);
+
         if (sessionError) {
-          console.error("Error getting session:", sessionError);
+          console.error("[RESET-CALLBACK] Error getting session:", sessionError);
           setError("Link non valido o scaduto. Richiedi un nuovo link di reset.");
           
           // Redirect al reset dopo 3 secondi
@@ -29,24 +36,30 @@ export default function ResetCallbackPage() {
         }
 
         if (!session) {
-          setError("Nessuna sessione trovata. Il link potrebbe essere scaduto.");
+          console.log("[RESET-CALLBACK] Nessuna sessione, provo a fare redirect diretto...");
           
+          // Forse la sessione non è ancora pronta, prova redirect diretto
           setTimeout(() => {
-            router.push("/reset?error=no_session");
-          }, 3000);
+            console.log("[RESET-CALLBACK] Redirect a /update-password");
+            router.push("/update-password");
+          }, 1000);
           return;
         }
 
-        // Sessione valida, pulisci hash e redirect
+        // Sessione valida
+        console.log("[RESET-CALLBACK] Sessione valida! User:", session.user.email);
+        
+        // Pulisci hash e redirect
         if (typeof window !== "undefined") {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         // Redirect a update-password
+        console.log("[RESET-CALLBACK] Redirect a /update-password");
         router.push("/update-password");
 
       } catch (err) {
-        console.error("Errore durante callback:", err);
+        console.error("[RESET-CALLBACK] Errore durante callback:", err);
         setError("Si è verificato un errore. Riprova.");
         
         setTimeout(() => {
