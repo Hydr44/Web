@@ -82,24 +82,60 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 4. Estrai chiave privata
+    // 4. Estrai chiave privata (prova più formati)
     console.log("[CERT-UPLOAD] Estrazione chiave privata...");
-    const bags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
-    const keyBag = bags[forge.pki.oids.pkcs8ShroudedKeyBag]?.[0];
     
-    if (!keyBag || !keyBag.key) {
-      console.error("[CERT-UPLOAD] Chiave privata non trovata");
-      // Prova anche con altri bag types
-      const allBags = p12.getBags({ bagType: forge.pki.oids.keyBag });
-      console.log("[CERT-UPLOAD] Tentativo con keyBag:", Object.keys(allBags));
+    // Prova diversi tipi di bag per la chiave
+    let privateKey: any = null;
+    
+    // Tentativo 1: pkcs8ShroudedKeyBag (più comune)
+    const shroudedBags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
+    if (shroudedBags[forge.pki.oids.pkcs8ShroudedKeyBag]?.[0]?.key) {
+      privateKey = shroudedBags[forge.pki.oids.pkcs8ShroudedKeyBag][0].key;
+      console.log("[CERT-UPLOAD] Chiave trovata in pkcs8ShroudedKeyBag");
+    }
+    
+    // Tentativo 2: keyBag
+    if (!privateKey) {
+      const keyBags = p12.getBags({ bagType: forge.pki.oids.keyBag });
+      if (keyBags[forge.pki.oids.keyBag]?.[0]?.key) {
+        privateKey = keyBags[forge.pki.oids.keyBag][0].key;
+        console.log("[CERT-UPLOAD] Chiave trovata in keyBag");
+      }
+    }
+    
+    // Tentativo 3: Cerca in tutti i bag disponibili
+    if (!privateKey) {
+      console.log("[CERT-UPLOAD] Cerco chiave in tutti i bag disponibili...");
+      const allBags = p12.getBags({});
+      console.log("[CERT-UPLOAD] Bag disponibili:", Object.keys(allBags));
+      
+      // Itera su tutti i bag types
+      for (const bagType of Object.keys(allBags)) {
+        const bags = allBags[bagType];
+        if (Array.isArray(bags)) {
+          for (const bag of bags) {
+            if (bag.key) {
+              privateKey = bag.key;
+              console.log("[CERT-UPLOAD] Chiave trovata in bag type:", bagType);
+              break;
+            }
+          }
+        }
+        if (privateKey) break;
+      }
+    }
+    
+    if (!privateKey) {
+      console.error("[CERT-UPLOAD] Chiave privata non trovata in nessun bag");
       return NextResponse.json(
-        { error: "Chiave privata non trovata nel .p12" },
+        { error: "Chiave privata non trovata nel .p12. Il file potrebbe essere corrotto o in un formato non supportato." },
         { status: 400, headers }
       );
     }
     
     console.log("[CERT-UPLOAD] Chiave privata trovata, conversione in PEM...");
-    const privateKeyPem = forge.pki.privateKeyToPem(keyBag.key as any);
+    const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
     console.log("[CERT-UPLOAD] Chiave PEM creata, lunghezza:", privateKeyPem.length);
     
     // 5. Estrai certificato
