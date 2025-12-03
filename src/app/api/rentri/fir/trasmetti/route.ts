@@ -135,21 +135,18 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`[RENTRI-FIR] Tentativo ${attempt}/3...`);
         
-        // Se uso gateway mTLS, Nginx gestisce i certificati, NO JWT/Digest
-        // Se chiamo API dirette, serve JWT + Digest
+        // RENTRI richiede ENTRAMBI:
+        // 1. Certificato mTLS (gestito da Nginx gateway)
+        // 2. JWT headers (per autenticazione richiesta)
         const headers: Record<string, string> = {
+          "Authorization": `Bearer ${jwt}`,
+          "Agid-JWT-Signature": jwt,
+          "Digest": digest,
           "Content-Type": "application/json"
         };
         
-        if (!useGateway) {
-          // Chiamata diretta: serve autenticazione JWT completa
-          headers["Authorization"] = `Bearer ${jwt}`;
-          headers["Agid-JWT-Signature"] = jwt;
-          headers["Digest"] = digest;
-        }
-        // Se uso gateway: Nginx gestisce mTLS con certificati, nessun header JWT
-        
-        console.log('[RENTRI-FIR] Usando gateway:', useGateway, 'Headers:', Object.keys(headers));
+        console.log('[RENTRI-FIR] URL:', rentriUrl);
+        console.log('[RENTRI-FIR] Headers:', Object.keys(headers));
         
         rentriResponse = await fetch(rentriUrl, {
           method: "POST",
