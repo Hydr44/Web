@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
       headers: {
+        "Authorization": `Bearer ${jwt}`,
         "Agid-JWT-Signature": jwt
       }
     });

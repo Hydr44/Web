@@ -121,7 +121,8 @@ export async function POST(request: NextRequest) {
         rentriResponse = await fetch(rentriUrl, {
           method: "POST",
           headers: {
-            "Agid-JWT-Signature": jwt,  // ✅ Header richiesto da RENTRI
+            "Authorization": `Bearer ${jwt}`,      // ✅ Header standard OAuth
+            "Agid-JWT-Signature": jwt,            // ✅ Header specifico AgID
             "Content-Type": "application/json"
           },
           body: JSON.stringify(rentriPayload),
