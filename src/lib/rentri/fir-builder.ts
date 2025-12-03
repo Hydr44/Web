@@ -32,6 +32,7 @@ export interface FIRLocal {
   destinatario_nome: string;
   destinatario_indirizzo: string;
   destinatario_autorizzazione?: string;
+  destinatario_autorizzazione_tipo?: string;
   destinatario_pec?: string;
   destinatario_num_iscr_sito?: string;
   
@@ -116,7 +117,7 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         ...(fir.destinatario_autorizzazione && {
           autorizzazione: {
             numero: fir.destinatario_autorizzazione,
-            tipo: "TrattamentoRifiuti" // Default
+            tipo: fir.destinatario_autorizzazione_tipo || "AIA" // AIA, AUA, AU, Ordinaria, Semplificata
           }
         })
       },
