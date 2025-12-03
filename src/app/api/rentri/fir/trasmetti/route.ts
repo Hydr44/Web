@@ -113,6 +113,16 @@ export async function POST(request: NextRequest) {
     let rentriData;
     let lastError;
     
+    // Prepara body
+    const bodyString = JSON.stringify(rentriPayload);
+    
+    // Calcola Digest SHA-256 del body (pattern AgID INTEGRITY_REST_01)
+    const crypto = require('crypto');
+    const bodyHash = crypto.createHash('sha256').update(bodyString).digest('base64');
+    const digest = `SHA-256=${bodyHash}`;
+    
+    console.log('[RENTRI-FIR] Digest calcolato:', digest.substring(0, 50) + '...');
+    
     // Retry fino a 3 volte con backoff
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
@@ -121,11 +131,12 @@ export async function POST(request: NextRequest) {
         rentriResponse = await fetch(rentriUrl, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${jwt}`,      // ✅ Header standard OAuth
-            "Agid-JWT-Signature": jwt,            // ✅ Header specifico AgID
+            "Authorization": `Bearer ${jwt}`,      // Pattern OAuth
+            "Agid-JWT-Signature": jwt,            // Pattern AgID ID_AUTH_REST_02
+            "Digest": digest,                      // Pattern AgID INTEGRITY_REST_01
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(rentriPayload),
+          body: bodyString,
           signal: AbortSignal.timeout(30000) // 30s timeout
         });
         
