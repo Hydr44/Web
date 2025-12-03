@@ -22,10 +22,10 @@ import {
   X
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
-export default function Home() {
+function HomeContent() {
   const shouldReduceMotion = useReducedMotion();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1050,5 +1050,18 @@ export default function Home() {
       {/* Back to top button */}
       <BackToTopButton />
     </main>
+  );
+}
+
+// Wrapper con Suspense per useSearchParams
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
