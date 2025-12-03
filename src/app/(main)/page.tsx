@@ -21,33 +21,85 @@ import {
   AlertCircle,
   X
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    const error = searchParams.get("error");
-    const errorCode = searchParams.get("error_code");
-    const errorDescription = searchParams.get("error_description");
-
-    if (error || errorCode) {
-      setShowError(true);
+    const handleAuthCallback = async () => {
+      // Gestione code per reset password
+      const code = searchParams.get("code");
       
-      if (errorCode === "otp_expired") {
-        setErrorMessage("Il link di reset password è scaduto o non valido. Richiedi un nuovo link.");
-      } else if (errorDescription) {
-        setErrorMessage(decodeURIComponent(errorDescription));
-      } else {
-        setErrorMessage("Si è verificato un errore. Riprova.");
+      if (code) {
+        setProcessing(true);
+        try {
+          const supabase = supabaseBrowser();
+          
+          // Scambia il code con una sessione
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          
+          if (error) {
+            setShowError(true);
+            setErrorMessage("Link non valido o scaduto. Richiedi un nuovo link di reset.");
+            setProcessing(false);
+            return;
+          }
+
+          // Code valido, redirect a update-password
+          if (data.session) {
+            router.push("/update-password");
+            return;
+          }
+        } catch (err) {
+          console.error("Errore processamento code:", err);
+          setShowError(true);
+          setErrorMessage("Errore nel processamento del link. Riprova.");
+          setProcessing(false);
+        }
+        return;
       }
-    }
-  }, [searchParams]);
+
+      // Gestione errori URL
+      const error = searchParams.get("error");
+      const errorCode = searchParams.get("error_code");
+      const errorDescription = searchParams.get("error_description");
+
+      if (error || errorCode) {
+        setShowError(true);
+        
+        if (errorCode === "otp_expired") {
+          setErrorMessage("Il link di reset password è scaduto o non valido. Richiedi un nuovo link.");
+        } else if (errorDescription) {
+          setErrorMessage(decodeURIComponent(errorDescription));
+        } else {
+          setErrorMessage("Si è verificato un errore. Riprova.");
+        }
+      }
+    };
+
+    handleAuthCallback();
+  }, [searchParams, router]);
   
+  // Mostra loading durante processamento code
+  if (processing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifica link in corso...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="hero-bg">
       {/* Error Banner */}
