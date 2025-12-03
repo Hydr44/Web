@@ -1,8 +1,8 @@
 {
-  "functions": {
-    "src/app/api/sdi/**/*.ts": {
-      "maxDuration": 30
+  "crons": [
+    {
+      "path": "/api/rentri/fir/sync-stati",
+      "schedule": "*/5 * * * *"
     }
-  }
+  ]
 }
-
