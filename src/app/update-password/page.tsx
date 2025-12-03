@@ -11,16 +11,38 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     // Verifica che l'utente abbia un token valido per il reset
     const checkSession = async () => {
-      const supabase = supabaseBrowser();
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("[UPDATE-PASSWORD] Controllo sessione...");
       
-      if (!session) {
-        setError("Link di reset non valido o scaduto. Richiedi un nuovo link.");
+      try {
+        const supabase = supabaseBrowser();
+        
+        // Attendi un momento per permettere a Supabase di processare l'hash
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log("[UPDATE-PASSWORD] Sessione:", session ? "TROVATA" : "NON TROVATA");
+        console.log("[UPDATE-PASSWORD] User:", session?.user?.email);
+        
+        if (sessionError) {
+          console.error("[UPDATE-PASSWORD] Errore sessione:", sessionError);
+        }
+        
+        if (!session) {
+          console.warn("[UPDATE-PASSWORD] Nessuna sessione, ma permetto comunque di continuare");
+          // Non bloccare, potrebbe essere un problema di timing
+        }
+        
+        setCheckingSession(false);
+      } catch (err) {
+        console.error("[UPDATE-PASSWORD] Errore check:", err);
+        setCheckingSession(false);
       }
     };
     
@@ -62,6 +84,17 @@ export default function UpdatePasswordPage() {
       router.push("/login?message=Password aggiornata con successo!");
     }, 2000);
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (

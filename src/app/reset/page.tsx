@@ -25,7 +25,7 @@ export default function ResetPage() {
     const origin = typeof globalThis === "undefined" ? "" : globalThis.location.origin;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      emailRedirectTo: `${origin}/auth/reset-callback`,
+      emailRedirectTo: `${origin}/update-password`,
     });
 
     if (error) {
