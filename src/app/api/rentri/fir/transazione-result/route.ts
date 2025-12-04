@@ -95,19 +95,30 @@ export async function GET(request: NextRequest) {
     
     // 4. Aggiorna DB locale se fir_id è fornito
     if (fir_id && result) {
-      const statoLocale = mapRentriStatoToLocal(result.stato || "InserimentoQuantita");
+      // Estrai dati dall'esito (struttura diversa per transazioni)
+      const numeroFir = result.esito?.numero_fir || result.numero_fir;
+      const identificativo = result.esito?.identificativo || result.identificativo || result.id;
+      const stato = result.esito?.stato || result.stato || "InserimentoQuantita";
+      
+      const statoLocale = mapRentriStatoToLocal(stato);
       
       await supabase
         .from('rentri_formulari')
         .update({
           stato: statoLocale,
-          rentri_id: result.identificativo || result.id,
-          rentri_numero: result.numero_fir,
-          rentri_stato: result.stato,
+          rentri_id: identificativo,
+          rentri_numero: numeroFir,
+          rentri_stato: stato,
           sync_status: 'synced',
           sync_at: new Date().toISOString()
         })
         .eq('id', fir_id);
+        
+      console.log('[RENTRI-RESULT] DB aggiornato:', {
+        fir_id,
+        numero_fir: numeroFir,
+        stato: stato
+      });
     }
     
     return NextResponse.json({
