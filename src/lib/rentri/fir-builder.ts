@@ -56,96 +56,108 @@ export interface FIRLocal {
  * Costruisce il payload per POST /formulari/v1.0/
  */
 export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: string) {
-  // Parse indirizzo produttore
+  // Parse indirizzi
   const prodIndirizzo = parseIndirizzo(fir.produttore_indirizzo);
   const destIndirizzo = parseIndirizzo(fir.destinatario_indirizzo);
   
+  // Usa primo rifiuto come "rifiuto" principale (RENTRI vuole singolo, non array)
+  const rifiutoPrincipale = fir.codici_eer[0];
+  
   const payload = {
-    num_iscr_sito: numIscrSitoOperatore, // NumIscrSito dell'operatore che trasmette
+    // NumIscrSito formato: OP123XXXXXXXX00-MI00001
+    num_iscr_sito: numIscrSitoOperatore || "OP100011134-MI00001",
     
     dati_partenza: {
-      // Numero FIR (opzionale, RENTRI lo assegna se manca)
-      ...(fir.numero_fir && { numero_fir: fir.numero_fir }),
+      // NO numero_fir - lo assegna RENTRI
       
       // Produttore
       produttore: {
-        codice_fiscale: fir.produttore_cf,
-        denominazione: fir.produttore_nome,
         ...(fir.produttore_num_iscr_sito && {
           num_iscr_sito: fir.produttore_num_iscr_sito
         }),
         luogo_produzione: {
-          indirizzo: prodIndirizzo.via,
-          civico: prodIndirizzo.civico || "SNC",
+          indirizzo: prodIndirizzo.via || "Via Esempio",
+          civico: prodIndirizzo.civico || "1",
           citta: {
-            comune_id: prodIndirizzo.comuneId || "F205", // Default Milano
-            cap: prodIndirizzo.cap || "20100"
+            comune_id: prodIndirizzo.comuneIdISTAT || "015146" // Milano ISTAT
           }
         }
-      },
-      
-      // Trasportatore
-      trasportatore: {
-        codice_fiscale: fir.trasportatore_cf,
-        denominazione: fir.trasportatore_nome,
-        targa: fir.trasportatore_targa.toUpperCase(),
-        ...(fir.trasportatore_rimorchio && {
-          rimorchio: fir.trasportatore_rimorchio.toUpperCase()
-        }),
-        ...(fir.trasportatore_albo && {
-          albo_gestori: {
-            numero: fir.trasportatore_albo
-          }
-        })
       },
       
       // Destinatario
       destinatario: {
         codice_fiscale: fir.destinatario_cf,
         denominazione: fir.destinatario_nome,
-        ...(fir.destinatario_num_iscr_sito && {
-          num_iscr_sito: fir.destinatario_num_iscr_sito
-        }),
         indirizzo: {
-          indirizzo: destIndirizzo.via,
-          civico: destIndirizzo.civico || "SNC",
+          indirizzo: destIndirizzo.via || "Via Destinazione",
+          civico: destIndirizzo.civico || "1",
           citta: {
-            comune_id: destIndirizzo.comuneId || "F205",
-            cap: destIndirizzo.cap || "20100"
+            comune_id: destIndirizzo.comuneIdISTAT || "015146" // Milano ISTAT
           }
         },
         ...(fir.destinatario_autorizzazione && {
           autorizzazione: {
             numero: fir.destinatario_autorizzazione,
-            tipo: fir.destinatario_autorizzazione_tipo || "AIA" // AIA, AUA, AU, Ordinaria, Semplificata
+            tipo: fir.destinatario_autorizzazione_tipo || "TrattamentoRifiuti"
           }
-        })
+        }),
+        attivita: "R13" // Codice attività recupero/smaltimento
       },
       
-      // Rifiuti (array)
-      rifiuti: fir.codici_eer.map(r => ({
-        codice_eer: r.codice,
-        ...(r.descrizione && { descrizione: r.descrizione }),
+      // Trasportatori (ARRAY, non singolo!)
+      trasportatori: [
+        {
+          codice_fiscale: fir.trasportatore_cf,
+          denominazione: fir.trasportatore_nome,
+          ...(fir.trasportatore_albo && {
+            numero_iscrizione_albo: fir.trasportatore_albo
+          }),
+          tipo_trasporto: "Terrestre"
+        }
+      ],
+      
+      // Rifiuto (SINGOLO, non array!)
+      rifiuto: {
+        codice_eer: rifiutoPrincipale.codice,
+        provenienza: "D", // Domestico/Detentore
+        ...(rifiutoPrincipale.caratteristiche_pericolo && rifiutoPrincipale.caratteristiche_pericolo.length > 0 && {
+          classi_pericolo: rifiutoPrincipale.caratteristiche_pericolo
+        }),
+        stato_fisico: mapStatoFisicoToRENTRI(rifiutoPrincipale.stato_fisico),
+        verificato_in_partenza: false,
         quantita: {
-          valore: r.quantita,
-          unita_misura: r.unita
-        },
-        stato_fisico: r.stato_fisico,
-        ...(r.caratteristiche_pericolo && r.caratteristiche_pericolo.length > 0 && {
-          caratteristiche_pericolo: r.caratteristiche_pericolo
-        })
-      }))
+          unita_misura: rifiutoPrincipale.unita,
+          valore: parseFloat(rifiutoPrincipale.quantita.toString())
+        }
+      }
     },
     
-    // Trasporto iniziale (se presente)
+    // Dati trasporto partenza (se presente)
     ...(fir.data_inizio_trasporto && {
-      trasporto_iniziale: {
-        data_ora_inizio: new Date(fir.data_inizio_trasporto).toISOString()
+      dati_trasporto_partenza: {
+        targa_automezzo: fir.trasportatore_targa.toUpperCase(),
+        ...(fir.trasportatore_rimorchio && {
+          targa_rimorchio: fir.trasportatore_rimorchio.toUpperCase()
+        }),
+        data_ora_inizio_trasporto: new Date(fir.data_inizio_trasporto).toISOString()
       }
     })
   };
   
   return payload;
+}
+
+/**
+ * Mappa stato fisico locale → codice RENTRI
+ */
+function mapStatoFisicoToRENTRI(statoFisico: string): string {
+  const mapping: Record<string, string> = {
+    'solido': 'Solido',
+    'liquido': 'Liquido',
+    'gassoso': 'Gassoso',
+    'fangoso': 'Fangoso'
+  };
+  return mapping[statoFisico.toLowerCase()] || 'Solido';
 }
 
 /**
@@ -170,8 +182,8 @@ function parseIndirizzo(indirizzo: string) {
   const provMatch = parts[1]?.match(/\(([A-Z]{2})\)/);
   const provincia = provMatch ? provMatch[1] : undefined;
   
-  // TODO: Lookup comuneId da tabella comuni (API RENTRI o DB locale)
-  const comuneId = getComuneId(comune, provincia);
+  // Lookup comuneId ISTAT da tabella comuni
+  const comuneIdISTAT = getComuneId(comune, provincia);
   
   return {
     via: via || indirizzo,
@@ -179,7 +191,8 @@ function parseIndirizzo(indirizzo: string) {
     cap,
     comune,
     provincia,
-    comuneId
+    comuneId: undefined, // Vecchio codice catastale (deprecato)
+    comuneIdISTAT // Nuovo: codice ISTAT a 6 cifre
   };
 }
 
@@ -187,26 +200,26 @@ function parseIndirizzo(indirizzo: string) {
  * Mappa nome comune → codice catastale (semplificato)
  */
 function getComuneId(comune?: string, provincia?: string): string {
-  if (!comune) return "F205"; // Default: Milano
+  if (!comune) return "015146"; // Default: Milano ISTAT
   
-  const comuni: Record<string, string> = {
-    "MILANO": "F205",
-    "ROMA": "H501",
-    "TORINO": "L219",
-    "NAPOLI": "F839",
-    "PALERMO": "G273",
-    "GENOVA": "D969",
-    "BOLOGNA": "A944",
-    "FIRENZE": "D612",
-    "LAINATE": "E412",
-    "PARABIAGO": "G325",
-    "SARONNO": "I433",
-    "GALLARATE": "D869",
-    // ... altri comuni comuni
+  // Codici ISTAT (6 cifre) - DA USARE per RENTRI
+  const comuniISTAT: Record<string, string> = {
+    "MILANO": "015146",
+    "ROMA": "058091",
+    "TORINO": "001272",
+    "NAPOLI": "063049",
+    "PALERMO": "082053",
+    "GENOVA": "010025",
+    "BOLOGNA": "037006",
+    "FIRENZE": "048017",
+    "LAINATE": "015118",
+    "PARABIAGO": "015173",
+    "SARONNO": "012115",
+    "GALLARATE": "012076"
   };
   
   const comuneNorm = comune.toUpperCase();
-  return comuni[comuneNorm] || "F205"; // Default: Milano
+  return comuniISTAT[comuneNorm] || "015146"; // Default: Milano ISTAT
 }
 
 /**
@@ -275,4 +288,5 @@ export function mapRentriStatoToLocal(rentriStato: string): string {
   
   return mapping[rentriStato] || 'trasmesso';
 }
+
 
