@@ -135,7 +135,7 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         ...(rifiutoPrincipale.caratteristiche_pericolo && rifiutoPrincipale.caratteristiche_pericolo.length > 0 && {
           classi_pericolo: rifiutoPrincipale.caratteristiche_pericolo
         }),
-        stato_fisico: mapStatoFisicoToRENTRI(rifiutoPrincipale.stato_fisico),
+        stato_fisico: rifiutoPrincipale.stato_fisico, // Già in formato RENTRI corretto dal form
         verificato_in_partenza: false,
         quantita: {
           unita_misura: rifiutoPrincipale.unita,
@@ -165,22 +165,25 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
 
 /**
  * Mappa stato fisico locale → codice RENTRI
- * Codici: VS (Solido), VL (Liquido), VG (Gassoso), VF (Fangoso)
+ * Codici RENTRI: SP, S, FP, L, VS
  */
 function mapStatoFisicoToRENTRI(statoFisico: string): string {
-  // Se già in formato RENTRI (VS, VL, VG, VF), ritorna così com'è
-  if (/^V[SLFG]$/.test(statoFisico)) {
+  // Se già in formato RENTRI corretto (SP, S, FP, L, VS), ritorna così com'è
+  if (['SP', 'S', 'FP', 'L', 'VS'].includes(statoFisico)) {
     return statoFisico;
   }
   
-  // Altrimenti mappa da testo esteso
+  // Altrimenti mappa da testo esteso (backward compatibility)
   const mapping: Record<string, string> = {
-    'solido': 'VS',
-    'liquido': 'VL',
-    'gassoso': 'VG',
-    'fangoso': 'VF'
+    'solido': 'S',
+    'liquido': 'L',
+    'fangoso': 'FP',
+    'polvere': 'SP',
+    'pulverulento': 'SP',
+    'vischioso': 'VS',
+    'sciropposo': 'VS'
   };
-  return mapping[statoFisico.toLowerCase()] || 'VS'; // Default: Solido
+  return mapping[statoFisico.toLowerCase()] || 'S'; // Default: Solido
 }
 
 /**
