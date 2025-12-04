@@ -98,7 +98,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         ...(fir.destinatario_autorizzazione && {
           autorizzazione: {
             numero: fir.destinatario_autorizzazione,
-            tipo: fir.destinatario_autorizzazione_tipo || "TrattamentoRifiuti"
+            // Valori validi: RecSmalArt208, AIA, RecProcSemplificata, etc.
+            tipo: fir.destinatario_autorizzazione_tipo || "RecSmalArt208"
           }
         }),
         attivita: "R13" // Codice attività recupero/smaltimento
