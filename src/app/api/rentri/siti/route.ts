@@ -43,28 +43,27 @@ export async function GET(request: NextRequest) {
     
     // 2. Estrai num_iscr_operatore dal dnQualifier del certificato
     // Il subject del cert contiene: dnQualifier=RENTRI-100011134
-    // Il num_iscr_operatore è: OP100011134 (13 caratteri: OP + 9 cifre + 00 finale)
+    // Il num_iscr_operatore è: OP10001113400 (13 caratteri)
     
-    // Usa openssl per estrarre il subject correttamente
-    const { execSync } = require('child_process');
-    const fs = require('fs');
-    
-    // Salva cert temporaneo
-    const tmpCert = '/tmp/rentri_cert_temp.pem';
-    fs.writeFileSync(tmpCert, cert.certificate_pem);
-    
-    // Estrai subject con openssl
-    const subject = execSync(`openssl x509 -in ${tmpCert} -noout -subject`, { encoding: 'utf8' });
-    console.log('[RENTRI-SITI] Subject estratto:', subject);
-    
-    // Parse dnQualifier
-    const dnMatch = subject.match(/dnQualifier\s*=\s*RENTRI-(\d+)/);
+    // Parse diretto del PEM (senza openssl command per compatibilità Vercel)
+    const dnMatch = cert.certificate_pem.match(/dnQualifier\s*=\s*RENTRI-(\d+)/i);
     if (!dnMatch) {
-      throw new Error('dnQualifier non trovato nel certificato');
+      // Fallback: cerca nel subject alternativo
+      const subjectMatch = cert.certificate_pem.match(/Subject:.*dnQualifier\s*=\s*RENTRI-(\d+)/i);
+      if (!subjectMatch) {
+        throw new Error('dnQualifier non trovato nel certificato. Verifica che il certificato sia valido.');
+      }
+      const dnCode = subjectMatch[1];
+      const numIscrOperatore = `OP${dnCode}00`;
+      console.log('[RENTRI-SITI] num_iscr_operatore (da Subject):', numIscrOperatore);
+    } else {
+      const dnCode = dnMatch[1]; // Es: "100011134"
+      const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400"
+      console.log('[RENTRI-SITI] num_iscr_operatore (da dnQualifier):', numIscrOperatore);
     }
     
-    const dnCode = dnMatch[1]; // Es: "100011134"
-    const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400" (13 caratteri)
+    const dnCode = dnMatch[1];
+    const numIscrOperatore = `OP${dnCode}00`;
     
     console.log('[RENTRI-SITI] Recupero siti per operatore:', numIscrOperatore);
     
