@@ -152,6 +152,12 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
  * Codici: VS (Solido), VL (Liquido), VG (Gassoso), VF (Fangoso)
  */
 function mapStatoFisicoToRENTRI(statoFisico: string): string {
+  // Se già in formato RENTRI (VS, VL, VG, VF), ritorna così com'è
+  if (/^V[SLFG]$/.test(statoFisico)) {
+    return statoFisico;
+  }
+  
+  // Altrimenti mappa da testo esteso
   const mapping: Record<string, string> = {
     'solido': 'VS',
     'liquido': 'VL',
