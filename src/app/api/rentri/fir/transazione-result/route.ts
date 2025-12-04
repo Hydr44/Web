@@ -95,30 +95,49 @@ export async function GET(request: NextRequest) {
     
     // 4. Aggiorna DB locale se fir_id è fornito
     if (fir_id && result) {
-      // Estrai dati dall'esito (struttura diversa per transazioni)
-      const numeroFir = result.esito?.numero_fir || result.numero_fir;
-      const identificativo = result.esito?.identificativo || result.identificativo || result.id;
-      const stato = result.esito?.stato || result.stato || "InserimentoQuantita";
+      // Estrai dati dall'esito (struttura transazione asincrona)
+      const numeroFir = result.esito?.numero_fir || result.numero_fir || null;
+      const identificativo = result.esito?.identificativo || result.identificativo || result.id || null;
+      const stato = result.esito?.stato || result.stato || null;
       
-      const statoLocale = mapRentriStatoToLocal(stato);
+      // Se non c'è stato nella risposta, usa default per FIR appena creato
+      const statoRentri = stato || "InserimentoQuantita";
+      const statoLocale = mapRentriStatoToLocal(statoRentri);
       
-      await supabase
+      console.log('[RENTRI-RESULT] Dati estratti per DB:', {
+        numeroFir,
+        identificativo,
+        stato: statoRentri,
+        statoLocale
+      });
+      
+      const updatePayload: any = {
+        sync_status: 'synced',
+        sync_at: new Date().toISOString()
+      };
+      
+      // Aggiorna solo campi disponibili
+      if (numeroFir) {
+        updatePayload.rentri_numero = numeroFir;
+        updatePayload.stato = statoLocale;
+      }
+      if (identificativo) {
+        updatePayload.rentri_id = identificativo;
+      }
+      if (stato) {
+        updatePayload.rentri_stato = stato;
+      }
+      
+      const { error: updateError } = await supabase
         .from('rentri_formulari')
-        .update({
-          stato: statoLocale,
-          rentri_id: identificativo,
-          rentri_numero: numeroFir,
-          rentri_stato: stato,
-          sync_status: 'synced',
-          sync_at: new Date().toISOString()
-        })
+        .update(updatePayload)
         .eq('id', fir_id);
         
-      console.log('[RENTRI-RESULT] DB aggiornato:', {
-        fir_id,
-        numero_fir: numeroFir,
-        stato: stato
-      });
+      if (updateError) {
+        console.error('[RENTRI-RESULT] Errore aggiornamento DB:', updateError);
+      } else {
+        console.log('[RENTRI-RESULT] DB aggiornato con successo:', updatePayload);
+      }
     }
     
     return NextResponse.json({
