@@ -43,11 +43,28 @@ export async function GET(request: NextRequest) {
     
     // 2. Estrai num_iscr_operatore dal dnQualifier del certificato
     // Il subject del cert contiene: dnQualifier=RENTRI-100011134
-    // Il num_iscr_operatore è: OP100011134
-    const certSubject = cert.certificate_pem.match(/Subject:.*dnQualifier=RENTRI-(\d+)/);
-    const numIscrOperatore = certSubject 
-      ? `OP${certSubject[1]}`
-      : `OP${cert.cf_operatore.substring(0, 9)}`; // Fallback
+    // Il num_iscr_operatore è: OP100011134 (13 caratteri: OP + 9 cifre + 00 finale)
+    
+    // Usa openssl per estrarre il subject correttamente
+    const { execSync } = require('child_process');
+    const fs = require('fs');
+    
+    // Salva cert temporaneo
+    const tmpCert = '/tmp/rentri_cert_temp.pem';
+    fs.writeFileSync(tmpCert, cert.certificate_pem);
+    
+    // Estrai subject con openssl
+    const subject = execSync(`openssl x509 -in ${tmpCert} -noout -subject`, { encoding: 'utf8' });
+    console.log('[RENTRI-SITI] Subject estratto:', subject);
+    
+    // Parse dnQualifier
+    const dnMatch = subject.match(/dnQualifier\s*=\s*RENTRI-(\d+)/);
+    if (!dnMatch) {
+      throw new Error('dnQualifier non trovato nel certificato');
+    }
+    
+    const dnCode = dnMatch[1]; // Es: "100011134"
+    const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400" (13 caratteri)
     
     console.log('[RENTRI-SITI] Recupero siti per operatore:', numIscrOperatore);
     
