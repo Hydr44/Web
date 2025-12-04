@@ -80,6 +80,15 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
       
       // Produttore
       produttore: {
+        codice_fiscale: fir.produttore_cf,
+        denominazione: fir.produttore_nome,
+        indirizzo: {
+          indirizzo: prodIndirizzo.via || "Via Esempio",
+          civico: prodIndirizzo.civico || "1",
+          citta: {
+            comune_id: prodIndirizzo.comuneIdISTAT || "015146" // Milano ISTAT
+          }
+        },
         // num_iscr_sito: OPZIONALE - solo se unità locale registrata in RENTRI
         // In DEMO, non specificare se non registrato
         // ...(fir.produttore_num_iscr_sito && {
