@@ -119,10 +119,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         {
           codice_fiscale: fir.trasportatore_cf,
           denominazione: fir.trasportatore_nome,
-          // Numero albo formato: MI/123456 (provincia/numero)
-          ...(fir.trasportatore_albo && fir.trasportatore_albo.includes('/') && {
-            numero_iscrizione_albo: fir.trasportatore_albo
-          }),
+          // Numero albo formato: XX/YYYYYY (2 lettere/6 cifre) - Pattern RENTRI: ^([A-Za-z]{2})/([0-9]{6})$
+          ...(fir.trasportatore_albo && normalizeAlbo(fir.trasportatore_albo)),
           tipo_trasporto: "Terrestre"
         }
       ],
@@ -132,9 +130,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         codice_eer: rifiutoPrincipale.codice,
         // Provenienza: U=Urbano, S=Speciale (OBBLIGATORIO)
         provenienza: fir.rifiuto_provenienza || "S",
-        ...(rifiutoPrincipale.caratteristiche_pericolo && rifiutoPrincipale.caratteristiche_pericolo.length > 0 && {
-          classi_pericolo: rifiutoPrincipale.caratteristiche_pericolo
-        }),
+        // Caratteristiche pericolo: SEMPRE presente come array (anche vuoto se rifiuto non pericoloso)
+        caratteristiche_pericolo: rifiutoPrincipale.caratteristiche_pericolo || [],
         stato_fisico: rifiutoPrincipale.stato_fisico, // Già in formato RENTRI corretto dal form
         verificato_in_partenza: false,
         quantita: {
@@ -161,6 +158,24 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
   };
   
   return payload;
+}
+
+/**
+ * Normalizza numero iscrizione albo al formato RENTRI
+ * Pattern: ^([A-Za-z]{2})/([0-9]{6})$ (es: MI/123456)
+ */
+function normalizeAlbo(albo: string): { numero_iscrizione_albo: string } | {} {
+  if (!albo) return {};
+  
+  const parts = albo.split('/');
+  if (parts.length !== 2) return {};
+  
+  const provincia = parts[0].toUpperCase().substring(0, 2);
+  const numero = parts[1].padStart(6, '0').substring(0, 6); // Pad a 6 cifre
+  
+  return {
+    numero_iscrizione_albo: `${provincia}/${numero}`
+  };
 }
 
 /**
