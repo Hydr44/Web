@@ -119,7 +119,7 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
       // Rifiuto (SINGOLO, non array!)
       rifiuto: {
         codice_eer: rifiutoPrincipale.codice,
-        provenienza: "D", // Domestico/Detentore
+        provenienza: "S", // S=Servizi, P=Privati, I=Industriale (da API /codifiche/v1.0/provenienza)
         ...(rifiutoPrincipale.caratteristiche_pericolo && rifiutoPrincipale.caratteristiche_pericolo.length > 0 && {
           classi_pericolo: rifiutoPrincipale.caratteristiche_pericolo
         }),
@@ -149,15 +149,16 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
 
 /**
  * Mappa stato fisico locale → codice RENTRI
+ * Codici: VS (Solido), VL (Liquido), VG (Gassoso), VF (Fangoso)
  */
 function mapStatoFisicoToRENTRI(statoFisico: string): string {
   const mapping: Record<string, string> = {
-    'solido': 'Solido',
-    'liquido': 'Liquido',
-    'gassoso': 'Gassoso',
-    'fangoso': 'Fangoso'
+    'solido': 'VS',
+    'liquido': 'VL',
+    'gassoso': 'VG',
+    'fangoso': 'VF'
   };
-  return mapping[statoFisico.toLowerCase()] || 'Solido';
+  return mapping[statoFisico.toLowerCase()] || 'VS'; // Default: Solido
 }
 
 /**
