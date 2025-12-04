@@ -95,7 +95,9 @@ export async function POST(request: NextRequest) {
     });
     
     // 5. Costruisci payload RENTRI
-    const rentriPayload = buildRentriFIRPayload(fir, cert.cf_operatore);
+    // Usa num_iscr_sito del certificato, altrimenti default
+    const numIscrSito = cert.num_iscr_sito || "OP100011134-MI00001";
+    const rentriPayload = buildRentriFIRPayload(fir, numIscrSito);
     
     console.log("[RENTRI-FIR] Trasmissione FIR:", {
       fir_id,
