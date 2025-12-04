@@ -265,9 +265,10 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      rentri_id: rentriData.id,
-      numero_fir: rentriData.numero_fir,
-      stato_rentri: rentriData.stato,
+      transazione_id: rentriData.transazione_id, // ID per polling
+      rentri_id: rentriData.id || null,
+      numero_fir: rentriData.numero_fir || null,
+      stato_rentri: rentriData.stato || null,
       stato_locale: statoLocale,
       message: "FIR trasmesso con successo a RENTRI"
     }, { headers });
