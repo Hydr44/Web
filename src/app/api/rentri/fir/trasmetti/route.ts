@@ -106,34 +106,8 @@ export async function POST(request: NextRequest) {
       numero_fir: fir.numero_fir
     });
     
-    // 🔍 LOG COMPLETO PAYLOAD PER DEBUG
-    console.log("[RENTRI-FIR] 🔍 PAYLOAD COMPLETO INVIATO:", JSON.stringify({
-      num_iscr_sito: rentriPayload.num_iscr_sito,
-      dati_partenza: {
-        produttore: {
-          num_iscr_sito: rentriPayload.dati_partenza.produttore?.num_iscr_sito,
-          codice_fiscale_from_fir: fir.produttore_cf
-        },
-        destinatario: {
-          codice_fiscale: rentriPayload.dati_partenza.destinatario.codice_fiscale,
-          attivita: rentriPayload.dati_partenza.destinatario.attivita
-        },
-        trasportatori: rentriPayload.dati_partenza.trasportatori.map((t: any) => ({
-          codice_fiscale: t.codice_fiscale,
-          numero_iscrizione_albo: t.numero_iscrizione_albo,
-          tipo_trasporto: t.tipo_trasporto
-        })),
-        rifiuto: {
-          codice_eer: rentriPayload.dati_partenza.rifiuto.codice_eer,
-          provenienza: rentriPayload.dati_partenza.rifiuto.provenienza,
-          stato_fisico: rentriPayload.dati_partenza.rifiuto.stato_fisico
-        }
-      },
-      dati_trasporto_partenza: rentriPayload.dati_trasporto_partenza ? {
-        conducente: rentriPayload.dati_trasporto_partenza.conducente,
-        targa_automezzo: rentriPayload.dati_trasporto_partenza.targa_automezzo
-      } : null
-    }, null, 2));
+    // 🔍 LOG COMPLETO PAYLOAD REALE INVIATO A RENTRI (non subset!)
+    console.log("[RENTRI-FIR] 🔍 PAYLOAD COMPLETO REALE:", JSON.stringify(rentriPayload, null, 2));
     
     // 6. POST a RENTRI API con retry
     // OPZIONE: Gateway mTLS (certificati gestiti da Nginx, NO JWT)
