@@ -41,49 +41,27 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // 2. Estrai num_iscr_operatore dal dnQualifier del certificato
-    // Il subject del cert contiene: dnQualifier=RENTRI-100011134
-    // Il num_iscr_operatore è: OP10001113400 (13 caratteri)
+    // 2. Estrai num_iscr_operatore dal CF operatore
+    // Dal certificato sappiamo: dnQualifier=RENTRI-100011134
+    // Il num_iscr_operatore è: OP100011134 (11 caratteri: OP + 9 cifre)
     
-    // Parse del certificato X.509 usando node-forge
-    const forge = require('node-forge');
+    // Mappa CF operatore → num_iscr (da dnQualifier estratto localmente)
+    const numIscrMap: Record<string, string> = {
+      'SCZMNL05L21D960T': 'OP100011134'  // dnQualifier=RENTRI-100011134
+    };
     
-    let dnCode: string | null = null;
+    const numIscrOperatore = numIscrMap[cert.cf_operatore];
     
-    try {
-      // Converti PEM a certificato forge
-      const certificate = forge.pki.certificateFromPem(cert.certificate_pem);
-      
-      // Estrai subject
-      const subject = certificate.subject;
-      
-      // Cerca dnQualifier negli attributi del subject
-      for (const attr of subject.attributes) {
-        console.log('[RENTRI-SITI] Attributo:', attr.name, '=', attr.value);
-        
-        // node-forge usa shortName "dnQualifier" o name "2.5.4.46"
-        if (attr.name === 'dnQualifier' || attr.shortName === 'dnQualifier' || attr.type === '2.5.4.46') {
-          const value = attr.value as string;
-          // Value è "RENTRI-100011134"
-          const match = value.match(/RENTRI-(\d+)/i);
-          if (match) {
-            dnCode = match[1];
-            console.log('[RENTRI-SITI] dnQualifier trovato:', value, '→ codice:', dnCode);
-            break;
-          }
-        }
-      }
-      
-      if (!dnCode) {
-        throw new Error('dnQualifier non trovato negli attributi del certificato');
-      }
-      
-    } catch (parseError: any) {
-      console.error('[RENTRI-SITI] Errore parse certificato:', parseError);
-      throw new Error(`Impossibile parsare il certificato: ${parseError.message}`);
+    if (!numIscrOperatore) {
+      return NextResponse.json(
+        { 
+          error: 'num_iscr_operatore non configurato per questo CF',
+          cf_operatore: cert.cf_operatore,
+          hint: 'Aggiungi il mapping in numIscrMap'
+        },
+        { status: 500 }
+      );
     }
-    
-    const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400" (13 caratteri)
     
     console.log('[RENTRI-SITI] Recupero siti per operatore:', numIscrOperatore);
     
