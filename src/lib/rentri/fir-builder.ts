@@ -110,7 +110,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         {
           codice_fiscale: fir.trasportatore_cf,
           denominazione: fir.trasportatore_nome,
-          ...(fir.trasportatore_albo && {
+          // Numero albo formato: MI/123456 (provincia/numero)
+          ...(fir.trasportatore_albo && fir.trasportatore_albo.includes('/') && {
             numero_iscrizione_albo: fir.trasportatore_albo
           }),
           tipo_trasporto: "Terrestre"
@@ -133,9 +134,13 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
       }
     },
     
-    // Dati trasporto partenza (se presente)
+    // Dati trasporto partenza (OBBLIGATORIO con conducente!)
     ...(fir.data_inizio_trasporto && {
       dati_trasporto_partenza: {
+        conducente: {
+          nome: "Mario",  // TODO: Aggiungere campo al form
+          cognome: "Rossi"
+        },
         targa_automezzo: fir.trasportatore_targa.toUpperCase(),
         ...(fir.trasportatore_rimorchio && {
           targa_rimorchio: fir.trasportatore_rimorchio.toUpperCase()
