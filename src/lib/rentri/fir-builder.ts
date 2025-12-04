@@ -33,8 +33,13 @@ export interface FIRLocal {
   destinatario_indirizzo: string;
   destinatario_autorizzazione?: string;
   destinatario_autorizzazione_tipo?: string;
+  destinatario_attivita?: string; // R1-R13, D1-D15
   destinatario_pec?: string;
   destinatario_num_iscr_sito?: string;
+  
+  // Conducente (OBBLIGATORIO per trasporto terrestre)
+  conducente_nome?: string;
+  conducente_cognome?: string;
   
   // Rifiuti
   codici_eer: Array<{
@@ -45,6 +50,9 @@ export interface FIRLocal {
     stato_fisico: string;
     caratteristiche_pericolo?: string[];
   }>;
+  
+  // Provenienza rifiuto (OBBLIGATORIO)
+  rifiuto_provenienza?: string; // U=Urbano, S=Speciale
   
   // Trasporto
   data_inizio_trasporto?: string;
@@ -102,7 +110,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
             tipo: fir.destinatario_autorizzazione_tipo || "RecSmalArt208"
           }
         }),
-        attivita: "R13" // Codice attività recupero/smaltimento
+        // Attività recupero/smaltimento (R1-R13, D1-D15)
+        attivita: fir.destinatario_attivita || "R13" // Default: Messa in riserva
       },
       
       // Trasportatori (ARRAY, non singolo!)
@@ -121,7 +130,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
       // Rifiuto (SINGOLO, non array!)
       rifiuto: {
         codice_eer: rifiutoPrincipale.codice,
-        provenienza: "S", // S=Servizi, P=Privati, I=Industriale (da API /codifiche/v1.0/provenienza)
+        // Provenienza: U=Urbano, S=Speciale (OBBLIGATORIO)
+        provenienza: fir.rifiuto_provenienza || "S",
         ...(rifiutoPrincipale.caratteristiche_pericolo && rifiutoPrincipale.caratteristiche_pericolo.length > 0 && {
           classi_pericolo: rifiutoPrincipale.caratteristiche_pericolo
         }),
@@ -138,8 +148,8 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
     ...(fir.data_inizio_trasporto && {
       dati_trasporto_partenza: {
         conducente: {
-          nome: "Mario",  // TODO: Aggiungere campo al form
-          cognome: "Rossi"
+          nome: fir.conducente_nome || "Da Specificare",
+          cognome: fir.conducente_cognome || "Da Specificare"
         },
         targa_automezzo: fir.trasportatore_targa.toUpperCase(),
         ...(fir.trasportatore_rimorchio && {
