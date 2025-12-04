@@ -119,8 +119,9 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         {
           codice_fiscale: fir.trasportatore_cf,
           denominazione: fir.trasportatore_nome,
-          // Numero albo formato: XX/YYYYYY (2 lettere/6 cifre) - Pattern RENTRI: ^([A-Za-z]{2})/([0-9]{6})$
-          ...(fir.trasportatore_albo && normalizeAlbo(fir.trasportatore_albo)),
+          // Numero albo: OPZIONALE in DEMO se non registrato
+          // Solo se presente E validato da RENTRI
+          // ...(fir.trasportatore_albo && normalizeAlbo(fir.trasportatore_albo)),
           tipo_trasporto: "Terrestre"
         }
       ],
