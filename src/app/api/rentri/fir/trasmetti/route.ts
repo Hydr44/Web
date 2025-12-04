@@ -230,7 +230,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 7. Salva risposta RENTRI nel DB
+    // 7. Log risposta completa RENTRI per debug
+    console.log("[RENTRI-FIR] ✅ RISPOSTA COMPLETA RENTRI:", JSON.stringify(rentriData, null, 2));
+    
+    // 8. Salva risposta RENTRI nel DB
     const statoLocale = mapRentriStatoToLocal(rentriData.stato || "InserimentoQuantita");
     
     const { error: updateError } = await supabase
