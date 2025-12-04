@@ -45,25 +45,45 @@ export async function GET(request: NextRequest) {
     // Il subject del cert contiene: dnQualifier=RENTRI-100011134
     // Il num_iscr_operatore è: OP10001113400 (13 caratteri)
     
-    // Parse diretto del PEM (senza openssl command per compatibilità Vercel)
-    const dnMatch = cert.certificate_pem.match(/dnQualifier\s*=\s*RENTRI-(\d+)/i);
-    if (!dnMatch) {
-      // Fallback: cerca nel subject alternativo
-      const subjectMatch = cert.certificate_pem.match(/Subject:.*dnQualifier\s*=\s*RENTRI-(\d+)/i);
-      if (!subjectMatch) {
-        throw new Error('dnQualifier non trovato nel certificato. Verifica che il certificato sia valido.');
+    // Parse del certificato X.509 usando node-forge
+    const forge = require('node-forge');
+    
+    let dnCode: string | null = null;
+    
+    try {
+      // Converti PEM a certificato forge
+      const certificate = forge.pki.certificateFromPem(cert.certificate_pem);
+      
+      // Estrai subject
+      const subject = certificate.subject;
+      
+      // Cerca dnQualifier negli attributi del subject
+      for (const attr of subject.attributes) {
+        console.log('[RENTRI-SITI] Attributo:', attr.name, '=', attr.value);
+        
+        // node-forge usa shortName "dnQualifier" o name "2.5.4.46"
+        if (attr.name === 'dnQualifier' || attr.shortName === 'dnQualifier' || attr.type === '2.5.4.46') {
+          const value = attr.value as string;
+          // Value è "RENTRI-100011134"
+          const match = value.match(/RENTRI-(\d+)/i);
+          if (match) {
+            dnCode = match[1];
+            console.log('[RENTRI-SITI] dnQualifier trovato:', value, '→ codice:', dnCode);
+            break;
+          }
+        }
       }
-      const dnCode = subjectMatch[1];
-      const numIscrOperatore = `OP${dnCode}00`;
-      console.log('[RENTRI-SITI] num_iscr_operatore (da Subject):', numIscrOperatore);
-    } else {
-      const dnCode = dnMatch[1]; // Es: "100011134"
-      const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400"
-      console.log('[RENTRI-SITI] num_iscr_operatore (da dnQualifier):', numIscrOperatore);
+      
+      if (!dnCode) {
+        throw new Error('dnQualifier non trovato negli attributi del certificato');
+      }
+      
+    } catch (parseError: any) {
+      console.error('[RENTRI-SITI] Errore parse certificato:', parseError);
+      throw new Error(`Impossibile parsare il certificato: ${parseError.message}`);
     }
     
-    const dnCode = dnMatch[1];
-    const numIscrOperatore = `OP${dnCode}00`;
+    const numIscrOperatore = `OP${dnCode}00`; // Es: "OP10001113400" (13 caratteri)
     
     console.log('[RENTRI-SITI] Recupero siti per operatore:', numIscrOperatore);
     
