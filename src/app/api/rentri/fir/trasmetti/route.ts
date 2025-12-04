@@ -234,16 +234,19 @@ export async function POST(request: NextRequest) {
     console.log("[RENTRI-FIR] ✅ RISPOSTA COMPLETA RENTRI:", JSON.stringify(rentriData, null, 2));
     
     // 8. Salva risposta RENTRI nel DB
-    const statoLocale = mapRentriStatoToLocal(rentriData.stato || "InserimentoQuantita");
+    // RENTRI usa API asincrone: restituisce solo transazione_id
+    // I dati completi (numero_fir, stato) vanno recuperati dopo con sync-stati
+    const statoLocale = "trasmesso"; // Stato iniziale dopo trasmissione
     
     const { error: updateError } = await supabase
       .from("rentri_formulari")
       .update({
         stato: statoLocale,
-        rentri_id: rentriData.id || rentriData.identificativo,
-        rentri_numero: rentriData.numero_fir,
-        rentri_stato: rentriData.stato,
-        sync_status: "synced",
+        rentri_transazione_id: rentriData.transazione_id, // ID transazione asincrona
+        rentri_id: rentriData.id || rentriData.identificativo || null,
+        rentri_numero: rentriData.numero_fir || null,
+        rentri_stato: rentriData.stato || "InserimentoQuantita",
+        sync_status: "pending", // In attesa di elaborazione RENTRI
         sync_at: new Date().toISOString(),
         sync_error: null
       })
@@ -253,10 +256,11 @@ export async function POST(request: NextRequest) {
       console.error("[RENTRI-FIR] Errore update DB:", updateError);
     }
     
-    console.log("[RENTRI-FIR] Trasmissione completata:", {
-      rentri_id: rentriData.id,
-      numero_fir: rentriData.numero_fir,
-      stato: rentriData.stato
+    console.log("[RENTRI-FIR] Trasmissione completata (asincrona):", {
+      transazione_id: rentriData.transazione_id,
+      rentri_id: rentriData.id || "In elaborazione",
+      numero_fir: rentriData.numero_fir || "In elaborazione",
+      stato: rentriData.stato || "In elaborazione"
     });
     
     return NextResponse.json({
