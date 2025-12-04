@@ -80,9 +80,11 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
       
       // Produttore
       produttore: {
-        ...(fir.produttore_num_iscr_sito && {
-          num_iscr_sito: fir.produttore_num_iscr_sito
-        }),
+        // num_iscr_sito: OPZIONALE - solo se unità locale registrata in RENTRI
+        // In DEMO, non specificare se non registrato
+        // ...(fir.produttore_num_iscr_sito && {
+        //   num_iscr_sito: fir.produttore_num_iscr_sito
+        // }),
         luogo_produzione: {
           indirizzo: prodIndirizzo.via || "Via Esempio",
           civico: prodIndirizzo.civico || "1",
