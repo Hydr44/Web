@@ -15,11 +15,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const RENTRI_BASE_URL = process.env.RENTRI_GATEWAY_URL || 'https://rentri-test.rescuemanager.eu';
 
 export async function OPTIONS(request: NextRequest) {
-  const origin = request.headers.get('origin');
-  return NextResponse.json(null, {
-    status: 204,
-    headers: corsHeaders(origin)
-  });
+  return handleCors(request);
 }
 
 export async function POST(request: NextRequest) {
