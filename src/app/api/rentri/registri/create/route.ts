@@ -283,10 +283,41 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const createResponse = await rentriResponse.json();
-    const rentri_id = createResponse.identificativo;
+    // RENTRI potrebbe restituire JSON o XML (XML per vidimazione)
+    const contentType = rentriResponse.headers.get('content-type') || '';
+    let rentri_id: string | null = null;
+    
+    if (contentType.includes('application/json')) {
+      // Risposta JSON (prevista dalla documentazione)
+      const createResponse = await rentriResponse.json();
+      rentri_id = createResponse.identificativo;
+    } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
+      // Risposta XML (caso reale osservato)
+      const xmlText = await rentriResponse.text();
+      // Estrai identificativo dall'XML usando regex
+      const match = xmlText.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+      if (match && match[1]) {
+        rentri_id = match[1].trim();
+        console.log(`[RENTRI-REGISTRI] Identificativo estratto da XML: ${rentri_id}`);
+      }
+    } else {
+      // Prova prima JSON, poi XML come fallback
+      const textResponse = await rentriResponse.text();
+      try {
+        const createResponse = JSON.parse(textResponse);
+        rentri_id = createResponse.identificativo;
+      } catch (e) {
+        // Non è JSON, prova XML
+        const match = textResponse.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+        if (match && match[1]) {
+          rentri_id = match[1].trim();
+          console.log(`[RENTRI-REGISTRI] Identificativo estratto da XML (fallback): ${rentri_id}`);
+        }
+      }
+    }
     
     if (!rentri_id) {
+      console.error('[RENTRI-REGISTRI] Impossibile estrarre identificativo dalla risposta RENTRI');
       return NextResponse.json(
         { error: "RENTRI non ha restituito identificativo registro" },
         { status: 500, headers }
