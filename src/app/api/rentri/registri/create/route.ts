@@ -294,11 +294,18 @@ export async function POST(request: NextRequest) {
     } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
       // Risposta XML (caso reale osservato)
       const xmlText = await rentriResponse.text();
-      // Estrai identificativo dall'XML usando regex
-      const match = xmlText.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+      console.log(`[RENTRI-REGISTRI] Risposta XML ricevuta (${xmlText.length} caratteri)`);
+      // Estrai identificativo dall'XML - prova diversi pattern
+      let match = xmlText.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+      if (!match) {
+        // Prova senza namespace
+        match = xmlText.match(/<Identificativo[^>]*>([^<]+)<\/Identificativo>/i);
+      }
       if (match && match[1]) {
         rentri_id = match[1].trim();
         console.log(`[RENTRI-REGISTRI] Identificativo estratto da XML: ${rentri_id}`);
+      } else {
+        console.error(`[RENTRI-REGISTRI] Impossibile estrarre identificativo da XML. Primi 500 caratteri:`, xmlText.substring(0, 500));
       }
     } else {
       // Prova prima JSON, poi XML come fallback
@@ -306,12 +313,19 @@ export async function POST(request: NextRequest) {
       try {
         const createResponse = JSON.parse(textResponse);
         rentri_id = createResponse.identificativo;
+        console.log(`[RENTRI-REGISTRI] Identificativo estratto da JSON: ${rentri_id}`);
       } catch (e) {
         // Non è JSON, prova XML
-        const match = textResponse.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+        console.log(`[RENTRI-REGISTRI] Tentativo parsing XML (fallback)`);
+        let match = textResponse.match(/<reg:Identificativo[^>]*>([^<]+)<\/reg:Identificativo>/i);
+        if (!match) {
+          match = textResponse.match(/<Identificativo[^>]*>([^<]+)<\/Identificativo>/i);
+        }
         if (match && match[1]) {
           rentri_id = match[1].trim();
           console.log(`[RENTRI-REGISTRI] Identificativo estratto da XML (fallback): ${rentri_id}`);
+        } else {
+          console.error(`[RENTRI-REGISTRI] Impossibile estrarre identificativo. Primi 500 caratteri:`, textResponse.substring(0, 500));
         }
       }
     }
@@ -340,8 +354,19 @@ export async function POST(request: NextRequest) {
     
     if (updateError) {
       console.error("[RENTRI-REGISTRI] Errore aggiornamento registro locale:", updateError);
-      // Non fallire, il registro è stato creato su RENTRI
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Errore aggiornamento registro locale dopo creazione su RENTRI",
+          rentri_id: rentri_id,
+          registro_id: registro_id,
+          update_error: updateError
+        },
+        { status: 500, headers }
+      );
     }
+    
+    console.log(`[RENTRI-REGISTRI] Registro locale aggiornato con rentri_id: ${rentri_id}`);
     
     return NextResponse.json(
       {
