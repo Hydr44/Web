@@ -247,9 +247,10 @@ export async function POST(request: NextRequest) {
       headers: {
         "Authorization": `Bearer ${jwtAuth}`,
         "Agid-JWT-Signature": jwtIntegrity,
+        "Digest": digest, // Header richiesto per pattern INTEGRITY_REST_01
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload),
+      body: bodyString, // Usa bodyString già calcolato per il digest
       signal: AbortSignal.timeout(30000)
     });
     
