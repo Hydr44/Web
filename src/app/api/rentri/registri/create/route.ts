@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateRentriJWTDynamic, generateRentriJWTIntegrity } from "@/lib/rentri/jwt-dynamic";
 import { handleCors, corsHeaders } from "@/lib/cors";
+import { createHash } from "crypto";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -94,15 +95,120 @@ export async function POST(request: NextRequest) {
     // 4. Prepara payload per RENTRI
     // POST /anagrafiche/v1.0/registri
     // Body: { num_iscr_sito, attivita[], descrizione?, attivita_rec_smalt?[] }
+    
+    // Mappa tipo locale → attivita RENTRI
+    // I valori RENTRI possibili sono: CentroRaccolta, Produzione, Recupero, Smaltimento, Trasporto, IntermediazioneSenzaDetenzione
+    // IMPORTANTE: Se attivita contiene "Recupero" o "Smaltimento", attivita_rec_smalt è OBBLIGATORIO
+    let attivitaRentri: string[] = ["Produzione"]; // Default sicuro (non richiede attivita_rec_smalt)
+    
+    if (registro.attivita && Array.isArray(registro.attivita)) {
+      // Se abbiamo già attivita salvata nel DB, usiamola
+      attivitaRentri = registro.attivita;
+    } else {
+      // Altrimenti mappiamo dal tipo locale
+      // Per sicurezza, evita Recupero/Smaltimento se non abbiamo attivita_rec_smalt
+      switch (registro.tipo) {
+        case "carico":
+          attivitaRentri = ["Produzione"]; // Registro carico → produzione rifiuti
+          break;
+        case "scarico":
+          // Se non abbiamo attivita_rec_smalt salvato, usiamo solo Produzione per evitare errori
+          // L'utente può poi modificare manualmente le attività se necessario
+          attivitaRentri = ["Produzione"];
+          break;
+        case "carico_scarico":
+          // Stessa logica: evita Recupero/Smaltimento senza codici
+          attivitaRentri = ["Produzione"];
+          break;
+        default:
+          attivitaRentri = ["Produzione"]; // Default
+      }
+    }
+    
+    // Se abbiamo Recupero/Smaltimento ma non abbiamo attivita_rec_smalt, recuperiamo le autorizzazioni
+    let attivitaRecSmalt: string[] = [];
+    let haRecuperoSmaltimento = attivitaRentri.some(a => a === "Recupero" || a === "Smaltimento");
+    
+    if (haRecuperoSmaltimento && (!registro.attivita_rec_smalt || !Array.isArray(registro.attivita_rec_smalt) || registro.attivita_rec_smalt.length === 0)) {
+      // Recupera autorizzazioni dal sito per ottenere i codici
+      try {
+        const num_iscr = cert.num_iscr_sito.split('-')[0];
+        const autorizzazioniUrl = `${RENTRI_BASE_URL}/anagrafiche/v1.0/operatore/${num_iscr}/siti/${cert.num_iscr_sito}/autorizzazioni`;
+        
+        const tempJwtAuth = await generateRentriJWTDynamic({
+          issuer: cert.cf_operatore,
+          certificatePem: cert.certificate_pem,
+          privateKeyPem: cert.private_key_pem,
+          audience: 'rentrigov.demo.api',
+        });
+        
+        const authResponse = await fetch(autorizzazioniUrl, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tempJwtAuth}`,
+            "Content-Type": "application/json"
+          },
+          signal: AbortSignal.timeout(10000)
+        });
+        
+        if (authResponse.ok) {
+          const autorizzazioni = await authResponse.json();
+          if (Array.isArray(autorizzazioni)) {
+            // Estrai tutti i codici attivita_recupero_smaltimento da tutte le autorizzazioni
+            const codiciSet = new Set<string>();
+            autorizzazioni.forEach((auth: any) => {
+              if (auth.attivita_recupero_smaltimento && Array.isArray(auth.attivita_recupero_smaltimento)) {
+                auth.attivita_recupero_smaltimento.forEach((codice: string) => {
+                  codiciSet.add(codice);
+                });
+              }
+            });
+            attivitaRecSmalt = Array.from(codiciSet);
+            
+            if (attivitaRecSmalt.length === 0) {
+              // Nessun codice trovato: rimuovi Recupero/Smaltimento dalle attività
+              console.warn(`[RENTRI-REGISTRI] Nessun codice attivita_rec_smalt trovato per ${cert.num_iscr_sito}, rimuovo Recupero/Smaltimento`);
+              attivitaRentri = attivitaRentri.filter(a => a !== "Recupero" && a !== "Smaltimento");
+              if (attivitaRentri.length === 0) {
+                attivitaRentri = ["Produzione"]; // Fallback
+              }
+              haRecuperoSmaltimento = false; // Aggiorna flag
+            }
+          }
+        } else {
+          console.warn(`[RENTRI-REGISTRI] Errore recupero autorizzazioni: ${authResponse.status}, rimuovo Recupero/Smaltimento`);
+          attivitaRentri = attivitaRentri.filter(a => a !== "Recupero" && a !== "Smaltimento");
+          if (attivitaRentri.length === 0) {
+            attivitaRentri = ["Produzione"]; // Fallback
+          }
+          haRecuperoSmaltimento = false; // Aggiorna flag
+        }
+      } catch (err) {
+        console.error(`[RENTRI-REGISTRI] Errore recupero autorizzazioni:`, err);
+        // In caso di errore, rimuovi Recupero/Smaltimento
+        attivitaRentri = attivitaRentri.filter(a => a !== "Recupero" && a !== "Smaltimento");
+        if (attivitaRentri.length === 0) {
+          attivitaRentri = ["Produzione"]; // Fallback
+        }
+        haRecuperoSmaltimento = false; // Aggiorna flag
+      }
+    } else if (registro.attivita_rec_smalt && Array.isArray(registro.attivita_rec_smalt) && registro.attivita_rec_smalt.length > 0) {
+      // Usa i codici salvati nel DB
+      attivitaRecSmalt = registro.attivita_rec_smalt;
+    }
+    
     const payload: any = {
       num_iscr_sito: cert.num_iscr_sito,
-      attivita: registro.attivita || ["Produzione"], // Default se non specificato
-      descrizione: registro.descrizione || null
+      attivita: attivitaRentri,
+      descrizione: registro.numero_registro || registro.unita_locale || null
     };
     
-    // Attività recupero/smaltimento (se presente)
-    if (registro.attivita_rec_smalt && Array.isArray(registro.attivita_rec_smalt) && registro.attivita_rec_smalt.length > 0) {
-      payload.attivita_rec_smalt = registro.attivita_rec_smalt;
+    // Ricalcola haRecuperoSmaltimento dopo eventuali modifiche
+    haRecuperoSmaltimento = attivitaRentri.some(a => a === "Recupero" || a === "Smaltimento");
+    
+    // Aggiungi attivita_rec_smalt solo se necessario e disponibile
+    if (haRecuperoSmaltimento && attivitaRecSmalt.length > 0) {
+      payload.attivita_rec_smalt = attivitaRecSmalt;
     }
     
     // 5. Genera JWT per autenticazione e integrità
@@ -113,13 +219,23 @@ export async function POST(request: NextRequest) {
       audience: 'rentrigov.demo.api',
     });
     
-    const jwtIntegrity = await generateRentriJWTIntegrity({
-      issuer: cert.cf_operatore,
-      certificatePem: cert.certificate_pem,
-      privateKeyPem: cert.private_key_pem,
-      audience: 'rentrigov.demo.api',
-      body: JSON.stringify(payload)
-    });
+    // Calcola digest SHA-256 del body per integrità
+    const bodyString = JSON.stringify(payload);
+    const bodyHash = createHash('sha256').update(bodyString).digest('base64');
+    const digest = `SHA-256=${bodyHash}`;
+    
+    const jwtIntegrity = await generateRentriJWTIntegrity(
+      {
+        issuer: cert.cf_operatore,
+        certificatePem: cert.certificate_pem,
+        privateKeyPem: cert.private_key_pem,
+        audience: 'rentrigov.demo.api',
+      },
+      {
+        digest: digest,
+        contentType: "application/json"
+      }
+    );
     
     // 6. Chiama RENTRI per creare registro
     const rentriUrl = `${RENTRI_BASE_URL}/anagrafiche/v1.0/registri`;
@@ -138,15 +254,31 @@ export async function POST(request: NextRequest) {
     });
     
     if (!rentriResponse.ok) {
-      const errorData = await rentriResponse.json().catch(() => ({}));
-      console.error("[RENTRI-REGISTRI] Errore creazione registro su RENTRI:", errorData);
+      const errorText = await rentriResponse.text();
+      let errorData: any = {};
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        errorData = { message: errorText || "Errore sconosciuto" };
+      }
+      
+      console.error("[RENTRI-REGISTRI] Errore creazione registro su RENTRI:", {
+        status: rentriResponse.status,
+        statusText: rentriResponse.statusText,
+        payload,
+        error: errorData
+      });
+      
+      // Ritorna errore 500 se è un errore interno del server, altrimenti passa lo status originale
+      const statusCode = rentriResponse.status >= 500 ? 500 : rentriResponse.status;
+      
       return NextResponse.json(
         {
-          error: "Errore creazione registro su RENTRI",
+          error: errorData.title || errorData.detail || errorData.message || "Errore creazione registro su RENTRI",
           status: rentriResponse.status,
           details: errorData
         },
-        { status: rentriResponse.status, headers }
+        { status: statusCode, headers }
       );
     }
     
