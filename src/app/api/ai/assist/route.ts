@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleCors } from "@/lib/cors";
+import { corsHeaders } from "@/lib/cors";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
-export async function OPTIONS(request: NextRequest) {
-  const headers = handleCors(request);
+export function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  const headers = corsHeaders(origin);
   return new NextResponse(null, { status: 204, headers });
 }
 
 export async function POST(request: NextRequest) {
-  const cors = handleCors(request);
+  const origin = request.headers.get("origin");
+  const cors = corsHeaders(origin);
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
