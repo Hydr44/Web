@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleCors } from "@/src/lib/cors";
+import { handleCors } from "@/lib/cors";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -90,5 +90,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 
 
