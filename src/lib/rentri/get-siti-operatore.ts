@@ -77,3 +77,5 @@ export function getDefaultNumIscrSito(siti: RentriSito[]): string | null {
   return siti[0].num_iscr_sito;
 }
 
+
+

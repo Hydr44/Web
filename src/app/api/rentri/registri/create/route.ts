@@ -304,8 +304,14 @@ export async function POST(request: NextRequest) {
       if (match && match[1]) {
         rentri_id = match[1].trim();
         console.log(`[RENTRI-REGISTRI] Identificativo estratto da XML: ${rentri_id}`);
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/a9b73842-7ee7-4ba8-90ad-a06f20488e0e',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'create/route.ts:295',message:'XML ID EXTRACTED SUCCESS',data:{rentri_id,xml_length:xmlText.length},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
       } else {
         console.error(`[RENTRI-REGISTRI] Impossibile estrarre identificativo da XML. Primi 500 caratteri:`, xmlText.substring(0, 500));
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/a9b73842-7ee7-4ba8-90ad-a06f20488e0e',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'create/route.ts:300',message:'XML ID EXTRACTION FAILED',data:{xml_sample:xmlText.substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
       }
     } else {
       // Prova prima JSON, poi XML come fallback
