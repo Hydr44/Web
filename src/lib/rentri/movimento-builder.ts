@@ -133,12 +133,14 @@ export function buildRentriMovimentoPayload(movimento: MovimentoLocale) {
     }
     
     payload.materiali = {
-      // Codice identificativo materiale (obbligatorio per RENTRI)
-      codice: codiceMateriale || "MATERIALE_GENERICO",
-      // Descrizione materiale (opzionale ma consigliata)
-      ...(movimento.descrizione_eer && {
-        descrizione: movimento.descrizione_eer
-      }),
+      // Campo "materiale" obbligatorio (non "codice")
+      materiale: {
+        codice: codiceMateriale || "MATERIALE_GENERICO",
+        // Descrizione materiale (opzionale ma consigliata)
+        ...(movimento.descrizione_eer && {
+          descrizione: movimento.descrizione_eer
+        })
+      },
       // Quantità materiale (obbligatoria)
       quantita: {
         valore: movimento.quantita,
