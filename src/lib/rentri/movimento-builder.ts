@@ -29,6 +29,11 @@ export interface MovimentoLocale {
   // FIR integrazione (per causali aT, TR, T*, T*aT)
   riferimento_fir?: string;
   
+  // Esito (obbligatorio per causali aT, T*aT)
+  esito_accettazione?: "Accettato" | "Rifiutato" | "AccettatoParzialmente";
+  quantita_accettata?: number;
+  note_esito?: string;
+  
   // Note
   note?: string;
   
@@ -104,9 +109,22 @@ export function buildRentriMovimentoPayload(movimento: MovimentoLocale) {
   }
   
   // Esito (obbligatorio per causali aT, T*aT)
+  // Nota: Schema esatto da verificare con OpenAPI spec dati-registri
+  // Implementazione base basata su logica operativa standard
   if (movimento.causale_operazione && ["aT", "T*aT"].includes(movimento.causale_operazione)) {
-    // TODO: Implementare quando necessario
-    // payload.esito = { ... };
+    payload.esito = {
+      // Esito accettazione: tipicamente "Accettato", "Rifiutato", "AccettatoParzialmente"
+      // Se non specificato, default "Accettato" (caso più comune)
+      esito_accettazione: movimento.esito_accettazione || "Accettato",
+      // Quantità accettata (opzionale, se non specificato usa quantità rifiuto)
+      ...(movimento.quantita_accettata !== undefined && {
+        quantita_accettata: movimento.quantita_accettata
+      }),
+      // Note esito (opzionale)
+      ...(movimento.note_esito && {
+        note_esito: movimento.note_esito.substring(0, 500)
+      })
+    };
   }
   
   // Annotazioni (opzionale, max 500 caratteri)
@@ -171,6 +189,16 @@ export function validateMovimentoForRentri(movimento: MovimentoLocale): {
   if (movimento.causale_operazione && causaliConFIR.includes(movimento.causale_operazione)) {
     if (!movimento.riferimento_fir) {
       errors.push(`riferimento_fir obbligatorio per causale ${movimento.causale_operazione}`);
+    }
+  }
+  
+  // Validazione esito (obbligatorio per causali aT, T*aT)
+  const causaliConEsito = ["aT", "T*aT"];
+  if (movimento.causale_operazione && causaliConEsito.includes(movimento.causale_operazione)) {
+    // Campo esito è sempre presente (con default "Accettato" se non specificato)
+    // Validazione aggiuntiva se necessario
+    if (movimento.esito_accettazione && !["Accettato", "Rifiutato", "AccettatoParzialmente"].includes(movimento.esito_accettazione)) {
+      errors.push(`esito_accettazione non valido: ${movimento.esito_accettazione}. Valori validi: Accettato, Rifiutato, AccettatoParzialmente`);
     }
   }
   

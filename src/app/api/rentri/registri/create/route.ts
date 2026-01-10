@@ -238,7 +238,8 @@ export async function POST(request: NextRequest) {
     );
     
     // 6. Chiama RENTRI per creare registro
-    const rentriUrl = `${RENTRI_BASE_URL}/anagrafiche/v1.0/registri`;
+    // NOTA: /registri è DEPRECATO, usare /operatore/registri (secondo OpenAPI spec)
+    const rentriUrl = `${RENTRI_BASE_URL}/anagrafiche/v1.0/operatore/registri`;
     
     console.log(`[RENTRI-REGISTRI] Creazione registro su RENTRI per ${cert.num_iscr_sito}...`);
     
