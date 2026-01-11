@@ -201,6 +201,7 @@ export async function GET(
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
       headers: fetchHeaders,
+      cache: 'no-store', // Evita caching che potrebbe interferire con Authorization header
       signal: AbortSignal.timeout(30000)
     });
     
