@@ -201,12 +201,14 @@ export async function GET(
       jwt_preview: jwtAuth.substring(0, 50) + "..."
     });
     
+    const fetchHeaders: Record<string, string> = {
+      "Authorization": `Bearer ${jwtAuth}`,
+      "Content-Type": "application/json"
+    };
+    
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
-      headers: {
-        "Authorization": `Bearer ${jwtAuth}`,
-        "Content-Type": "application/json"
-      },
+      headers: fetchHeaders,
       signal: AbortSignal.timeout(30000)
     });
     
