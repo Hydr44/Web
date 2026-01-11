@@ -191,10 +191,10 @@ export async function GET(
     // 3. GET result transazione
     const rentriUrl = `${RENTRI_BASE_URL}/dati-registri/v1.0/${transazioneId}/result`;
     
-    const fetchHeaders: Record<string, string> = {
-      "Authorization": `Bearer ${jwtAuth}`,
-      "Content-Type": "application/json"
-    };
+    // Usa Headers object per garantire che gli header vengano passati correttamente
+    const fetchHeaders = new Headers();
+    fetchHeaders.set("Authorization", `Bearer ${jwtAuth}`);
+    fetchHeaders.set("Content-Type", "application/json");
     
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",

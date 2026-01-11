@@ -201,15 +201,15 @@ export async function GET(
       jwt_preview: jwtAuth.substring(0, 50) + "..."
     });
     
-    const fetchHeaders: Record<string, string> = {
-      "Authorization": `Bearer ${jwtAuth}`,
-      "Content-Type": "application/json"
-    };
+    // Usa Headers object per garantire che gli header vengano passati correttamente
+    const fetchHeaders = new Headers();
+    fetchHeaders.set("Authorization", `Bearer ${jwtAuth}`);
+    fetchHeaders.set("Content-Type", "application/json");
     
     console.log(`[RENTRI-STATUS] DEBUG - Headers da inviare:`, {
-      Authorization: fetchHeaders.Authorization ? `${fetchHeaders.Authorization.substring(0, 50)}...` : "MANCANTE!",
-      "Content-Type": fetchHeaders["Content-Type"],
-      keys: Object.keys(fetchHeaders)
+      Authorization: fetchHeaders.get("Authorization") ? `${fetchHeaders.get("Authorization")!.substring(0, 50)}...` : "MANCANTE!",
+      "Content-Type": fetchHeaders.get("Content-Type"),
+      hasAuthorization: fetchHeaders.has("Authorization")
     });
     
     const rentriResponse = await fetch(rentriUrl, {
