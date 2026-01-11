@@ -208,8 +208,12 @@ export async function POST(
       );
     }
     
-    // 3. Carica certificato RENTRI
-    const { data: cert, error: certError } = await supabase
+    // 3. Carica certificato RENTRI (prima prova con is_default, poi senza)
+    let cert = null;
+    let certError = null;
+    
+    // Prova prima con is_default = true
+    const { data: certDefault, error: errorDefault } = await supabase
       .from("rentri_org_certificates")
       .select("*")
       .eq("org_id", registro.org_id)
@@ -217,6 +221,27 @@ export async function POST(
       .eq("is_active", true)
       .eq("is_default", true)
       .maybeSingle();
+    
+    if (certDefault) {
+      cert = certDefault;
+    } else {
+      // Se non trovato, prendi il primo certificato attivo
+      const { data: certActive, error: errorActive } = await supabase
+        .from("rentri_org_certificates")
+        .select("*")
+        .eq("org_id", registro.org_id)
+        .eq("environment", registro.environment || "demo")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (certActive) {
+        cert = certActive;
+      } else {
+        certError = errorActive || errorDefault;
+      }
+    }
     
     if (certError || !cert) {
       return NextResponse.json(
