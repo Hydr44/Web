@@ -201,15 +201,17 @@ export async function GET(
       jwt_preview: jwtAuth.substring(0, 50) + "..."
     });
     
-    // Usa Headers object per garantire che gli header vengano passati correttamente
-    const fetchHeaders = new Headers();
-    fetchHeaders.set("Authorization", `Bearer ${jwtAuth}`);
-    fetchHeaders.set("Content-Type", "application/json");
+    // Usa Record come oggetto semplice (come POST movimenti che funziona)
+    // Headers object potrebbe non funzionare correttamente su Vercel
+    const fetchHeaders: Record<string, string> = {
+      "Authorization": `Bearer ${jwtAuth}`,
+      "Content-Type": "application/json"
+    };
     
     console.log(`[RENTRI-STATUS] DEBUG - Headers da inviare:`, {
-      Authorization: fetchHeaders.get("Authorization") ? `${fetchHeaders.get("Authorization")!.substring(0, 50)}...` : "MANCANTE!",
-      "Content-Type": fetchHeaders.get("Content-Type"),
-      hasAuthorization: fetchHeaders.has("Authorization")
+      Authorization: fetchHeaders.Authorization ? `${fetchHeaders.Authorization.substring(0, 50)}...` : "MANCANTE!",
+      "Content-Type": fetchHeaders["Content-Type"],
+      keys: Object.keys(fetchHeaders)
     });
     
     const rentriResponse = await fetch(rentriUrl, {

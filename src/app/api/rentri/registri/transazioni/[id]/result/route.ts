@@ -191,10 +191,12 @@ export async function GET(
     // 3. GET result transazione
     const rentriUrl = `${RENTRI_BASE_URL}/dati-registri/v1.0/${transazioneId}/result`;
     
-    // Usa Headers object per garantire che gli header vengano passati correttamente
-    const fetchHeaders = new Headers();
-    fetchHeaders.set("Authorization", `Bearer ${jwtAuth}`);
-    fetchHeaders.set("Content-Type", "application/json");
+    // Usa Record come oggetto semplice (come POST movimenti che funziona)
+    // Headers object potrebbe non funzionare correttamente su Vercel
+    const fetchHeaders: Record<string, string> = {
+      "Authorization": `Bearer ${jwtAuth}`,
+      "Content-Type": "application/json"
+    };
     
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
