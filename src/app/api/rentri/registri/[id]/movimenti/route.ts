@@ -276,6 +276,12 @@ export async function POST(
     
     // 6. Prepara body e calcola Digest
     const bodyString = JSON.stringify(payloadMovimenti);
+    
+    // Log payload per debug (solo per causale M con materiali)
+    if (payloadMovimenti.some((m: any) => m.materiali)) {
+      console.log("[RENTRI-MOVIMENTI] Payload materiali:", JSON.stringify(payloadMovimenti, null, 2));
+    }
+    
     const bodyHash = createHash('sha256').update(bodyString).digest('base64');
     const digest = `SHA-256=${bodyHash}`;
     
@@ -327,6 +333,9 @@ export async function POST(
           console.log(`[RENTRI-REGISTRI] Successo al tentativo ${attempt}`);
           break;
         }
+        
+        // Log dettagliato dell'errore per debug
+        console.error(`[RENTRI-REGISTRI] Errore dettagliato:`, JSON.stringify(rentriData, null, 2));
         
         lastError = rentriData;
         

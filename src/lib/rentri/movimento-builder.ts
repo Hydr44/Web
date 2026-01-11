@@ -132,23 +132,38 @@ export function buildRentriMovimentoPayload(movimento: MovimentoLocale) {
       console.warn("[RENTRI-MOVIMENTI] Causale 'M' senza codice_materiale/codice_eer");
     }
     
+    // Struttura materiali secondo schema RENTRI
+    // L'errore "sys.invalid" su materiali.materiale suggerisce che la struttura non è corretta
+    // 
+    // Basandoci sulla struttura di "rifiuto" (che ha codice_eer, descrizione_eer, stato_fisico, quantita, caratteristiche_pericolo),
+    // proviamo una struttura simile per materiali:
+    // - materiale potrebbe essere un oggetto con codice e descrizione (come rifiuto ha codice_eer e descrizione_eer)
+    // - oppure materiale potrebbe essere semplicemente il codice (stringa)
+    //
+    // PROVA: struttura simile a rifiuto ma con campo "materiale" invece di "codice_eer"
+    // L'errore "sys.invalid" su materiali.materiale suggerisce che la struttura non è corretta
+    // 
+    // PROVA 1: materiale come stringa semplice (codice)
+    // Se questo non funziona, provare con oggetto o struttura diversa
     payload.materiali = {
-      // Campo "materiale" obbligatorio (non "codice")
-      materiale: {
-        codice: codiceMateriale || "MATERIALE_GENERICO",
-        // Descrizione materiale (opzionale ma consigliata)
-        ...(movimento.descrizione_eer && {
-          descrizione: movimento.descrizione_eer
-        })
-      },
-      // Quantità materiale (obbligatoria)
+      // Campo "materiale" - PROVA: stringa semplice con codice
+      materiale: codiceMateriale || "MATERIALE_GENERICO",
+      // Descrizione separata (se supportata)
+      ...(movimento.descrizione_eer && {
+        descrizione: movimento.descrizione_eer
+      }),
+      // Quantità materiale (obbligatoria) - stessa struttura di rifiuto
       quantita: {
         valore: movimento.quantita,
         unita_misura: movimento.unita_misura
       }
-      // Nota: stato_fisico potrebbe non essere applicabile per materiali
-      // RENTRI potrebbe richiedere altri campi specifici per materiali
+      // Nota: Se questa struttura non funziona, provare:
+      // 1. materiale come oggetto { codice: "...", descrizione: "..." }
+      // 2. aggiungere altri campi obbligatori (stato_fisico, caratteristiche_pericolo, ecc.)
     };
+    
+    // Log per debug
+    console.log("[RENTRI-MOVIMENTI] Payload materiali costruito:", JSON.stringify(payload.materiali, null, 2));
   }
   
   // Integrazione FIR (obbligatorio per causali aT, TR, T*, T*aT)
