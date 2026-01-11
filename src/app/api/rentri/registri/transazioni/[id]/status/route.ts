@@ -206,6 +206,12 @@ export async function GET(
       "Content-Type": "application/json"
     };
     
+    console.log(`[RENTRI-STATUS] DEBUG - Headers da inviare:`, {
+      Authorization: fetchHeaders.Authorization ? `${fetchHeaders.Authorization.substring(0, 50)}...` : "MANCANTE!",
+      "Content-Type": fetchHeaders["Content-Type"],
+      keys: Object.keys(fetchHeaders)
+    });
+    
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
       headers: fetchHeaders,
