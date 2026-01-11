@@ -194,6 +194,13 @@ export async function GET(
     // 3. GET status transazione (endpoint usa solo transazione_id nel path)
     const rentriUrl = `${RENTRI_BASE_URL}/dati-registri/v1.0/${transazioneId}/status`;
     
+    console.log(`[RENTRI-STATUS] DEBUG - Chiamata a RENTRI:`, {
+      url: rentriUrl,
+      method: "GET",
+      jwt_length: jwtAuth.length,
+      jwt_preview: jwtAuth.substring(0, 50) + "..."
+    });
+    
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
       headers: {
@@ -202,6 +209,23 @@ export async function GET(
       },
       signal: AbortSignal.timeout(30000)
     });
+    
+    console.log(`[RENTRI-STATUS] DEBUG - Risposta RENTRI:`, {
+      status: rentriResponse.status,
+      statusText: rentriResponse.statusText,
+      headers: Object.fromEntries(rentriResponse.headers.entries())
+    });
+    
+    // Se 401, logga anche il body per capire l'errore
+    if (rentriResponse.status === 401) {
+      const errorBody = await rentriResponse.text().catch(() => "Impossibile leggere body");
+      console.error(`[RENTRI-STATUS] DEBUG - Errore 401 da RENTRI:`, {
+        status: rentriResponse.status,
+        statusText: rentriResponse.statusText,
+        body: errorBody,
+        url: rentriUrl
+      });
+    }
     
     // 200 = ancora in elaborazione
     if (rentriResponse.status === 200) {
@@ -235,7 +259,25 @@ export async function GET(
     }
     
     // Altri codici = errore
-    const errorData = await rentriResponse.json().catch(() => ({}));
+    let errorData = {};
+    try {
+      const text = await rentriResponse.text();
+      try {
+        errorData = JSON.parse(text);
+      } catch {
+        errorData = { raw: text };
+      }
+    } catch (e) {
+      errorData = { error: "Impossibile leggere risposta" };
+    }
+    
+    console.error(`[RENTRI-STATUS] DEBUG - Errore da RENTRI:`, {
+      status: rentriResponse.status,
+      statusText: rentriResponse.statusText,
+      errorData,
+      url: rentriUrl
+    });
+    
     return NextResponse.json(
       {
         error: "Errore recupero stato transazione",
