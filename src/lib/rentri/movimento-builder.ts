@@ -145,23 +145,26 @@ export function buildRentriMovimentoPayload(movimento: MovimentoLocale) {
     // PROVA: struttura simile a rifiuto ma con campo "materiale" invece di "codice_eer"
     // L'errore "sys.invalid" su materiali.materiale suggerisce che la struttura non è corretta
     // 
-    // PROVA 1: materiale come stringa semplice (codice)
-    // Se questo non funziona, provare con oggetto o struttura diversa
+    // Struttura materiali - PROVA: materiale come oggetto con codice
+    // L'errore "sys.invalid" persiste anche con stringa, proviamo oggetto
     payload.materiali = {
-      // Campo "materiale" - PROVA: stringa semplice con codice
-      materiale: codiceMateriale || "MATERIALE_GENERICO",
-      // Descrizione separata (se supportata)
-      ...(movimento.descrizione_eer && {
-        descrizione: movimento.descrizione_eer
-      }),
-      // Quantità materiale (obbligatoria) - stessa struttura di rifiuto
+      // Campo "materiale" - PROVA: oggetto con codice
+      materiale: {
+        codice: codiceMateriale || "MATERIALE_GENERICO",
+        // Descrizione (se supportata nell'oggetto)
+        ...(movimento.descrizione_eer && {
+          descrizione: movimento.descrizione_eer
+        })
+      },
+      // Quantità materiale (obbligatoria)
       quantita: {
         valore: movimento.quantita,
         unita_misura: movimento.unita_misura
       }
-      // Nota: Se questa struttura non funziona, provare:
-      // 1. materiale come oggetto { codice: "...", descrizione: "..." }
-      // 2. aggiungere altri campi obbligatori (stato_fisico, caratteristiche_pericolo, ecc.)
+      // Nota: Se questa struttura non funziona, potrebbe essere che:
+      // 1. I codici EER non sono validi per materiali (sono per rifiuti)
+      // 2. La struttura è completamente diversa
+      // 3. Materiali richiede altri campi obbligatori
     };
     
     // Log per debug
