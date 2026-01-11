@@ -111,8 +111,10 @@ export function buildRentriMovimentoPayload(movimento: MovimentoLocale) {
       },
       // Caratteristiche pericolo (array, anche vuoto se non pericoloso)
       caratteristiche_pericolo: movimento.caratteristiche_pericolo || [],
-      // Provenienza (U=Urbano, S=Speciale)
-      ...(movimento.provenienza_codice && {
+      // Provenienza (U=Urbano, S=Speciale) - solo se valore valido
+      // Nota: RENTRI accetta solo "U" o "S", non codici numerici
+      // Se provenienza_codice è un numero, omettiamo il campo (opzionale)
+      ...(movimento.provenienza_codice && typeof movimento.provenienza_codice === 'string' && ["U", "S"].includes(movimento.provenienza_codice) && {
         provenienza: movimento.provenienza_codice
       }),
       // Destinato attività (R1-R13, D1-D15, CR)
