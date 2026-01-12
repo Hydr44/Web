@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, corsHeaders } from '@/lib/cors';
 
-const SDI_SFTP_SERVER_URL = process.env.SDI_SFTP_SERVER_URL || 'https://sdi-sftp.rescuemanager.eu';
+const SDI_SFTP_SERVER_URL = process.env.SDI_SFTP_SERVER_URL || 'http://sdi-sftp.rescuemanager.eu';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request);
