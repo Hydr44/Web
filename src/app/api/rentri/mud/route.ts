@@ -170,12 +170,14 @@ export async function POST(request: NextRequest) {
     };
 
     // Crea record MUD
+    // Nota: Il MUD è un'aggregazione locale dei dati, non viene trasmesso a RENTRI
+    // Lo stato 'completato' indica che l'aggregazione è completa e pronta per l'export/stampa
     const { data: mud, error: mudError } = await supabase
       .from("rentri_mud")
       .insert({
         org_id,
         anno: Number.parseInt(anno),
-        stato: 'in_completamento',
+        stato: 'completato', // Aggregazione completata, pronta per export
         data_inizio: startDate,
         data_fine: endDate,
         dati_mud: datiMud,
