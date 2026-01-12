@@ -16,9 +16,24 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 ```
 
-2. Install dependencies and run the dev server with pnpm:
+2. Install dependencies and run the dev server:
 
+**Opzione A: Script automatico (Windows)**
+```powershell
+# PowerShell
+.\start-dev.ps1
+
+# O Batch
+.\start-dev.bat
+```
+
+**Opzione B: Comandi manuali**
 ```bash
+# Con npm (consigliato su Windows)
+npm install
+npm run dev
+
+# O con pnpm (se installato)
 pnpm install
 pnpm dev
 ```
