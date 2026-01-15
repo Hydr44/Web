@@ -203,7 +203,11 @@ function DesktopOAuthContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mx-auto mb-4"></div>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
+          />
           <p className="text-gray-600 font-medium">Caricamento parametri OAuth...</p>
         </div>
       </div>
@@ -351,16 +355,20 @@ function DesktopOAuthContent() {
 
           {/* Submit Button */}
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={isLoading ? {} : { scale: 1.02 }}
+            whileTap={isLoading ? {} : { scale: 0.98 }}
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-purple-500/30 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-purple-500/30 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 relative overflow-hidden"
           >
             {isLoading ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Accesso in corso...
+              <div className="flex items-center justify-center gap-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                />
+                <span>Accesso in corso...</span>
               </div>
             ) : (
               <div className="flex items-center">
@@ -368,6 +376,13 @@ function DesktopOAuthContent() {
                 Accedi alla Desktop App
                 <ArrowRight className="h-5 w-5 ml-2" />
               </div>
+            )}
+            {isLoading && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                animate={{ x: ["-100%", "100%"] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              />
             )}
           </motion.button>
 
@@ -420,7 +435,11 @@ export default function DesktopOAuthPage() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mx-auto mb-4"></div>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
+          />
           <p className="text-gray-600 font-medium">Caricamento...</p>
         </div>
       </div>
