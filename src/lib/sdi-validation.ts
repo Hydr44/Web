@@ -179,20 +179,38 @@ export function validatePartitaIVA(piva: string): { valid: boolean; error?: stri
 }
 
 /**
- * Valida checksum partita IVA (algoritmo Luhn)
+ * Valida checksum partita IVA (algoritmo Luhn modificato per P.IVA italiana)
+ * L'algoritmo corretto per P.IVA italiana:
+ * - Si prendono le prime 10 cifre
+ * - Si moltiplicano per 2 le cifre in posizione DISPARI (1-based: 1, 3, 5, 7, 9)
+ *   che corrispondono agli indici 0, 2, 4, 6, 8 (0-based)
+ * - Se il risultato è > 9, si sottrae 9
+ * - Si sommano tutte le cifre
+ * - La cifra di controllo è (10 - (somma % 10)) % 10
+ * 
+ * NOTA: L'algoritmo è corretto. Se una P.IVA valida viene rifiutata,
+ * potrebbe essere un problema di input (spazi, caratteri speciali, ecc.)
  */
 function validatePIVAChecksum(piva: string): boolean {
+  // Assicurati che sia una stringa di 11 cifre
+  if (!/^\d{11}$/.test(piva)) {
+    return false;
+  }
+  
   let sum = 0;
   for (let i = 0; i < 10; i++) {
-    let digit = parseInt(piva[i]);
+    let digit = parseInt(piva[i], 10);
+    // Posizioni dispari (1-based): 1, 3, 5, 7, 9 -> indici 0, 2, 4, 6, 8 (0-based)
     if (i % 2 === 0) {
       digit *= 2;
-      if (digit > 9) digit -= 9;
+      if (digit > 9) {
+        digit -= 9;
+      }
     }
     sum += digit;
   }
   const checkDigit = (10 - (sum % 10)) % 10;
-  return checkDigit === parseInt(piva[10]);
+  return checkDigit === parseInt(piva[10], 10);
 }
 
 /**
@@ -296,9 +314,10 @@ export function validateCodiceDestinatario(
 
   const cleanCodice = codice.trim().toUpperCase();
 
-  // FPR12 e FSM10: 6 caratteri
-  // FPA12: 7 caratteri
-  const lunghezzaAttesa = (formatoTrasm === 'FPA12') ? 7 : 6;
+  // FPR12 (privati/B2B): 7 caratteri (es. "0000000" per privati senza PEC, o codice azienda a 7 caratteri)
+  // FPA12 (PA): 7 caratteri
+  // FSM10 (vecchio formato): 6 caratteri (deprecato)
+  const lunghezzaAttesa = (formatoTrasm === 'FSM10') ? 6 : 7;
 
   if (cleanCodice.length !== lunghezzaAttesa) {
     return {

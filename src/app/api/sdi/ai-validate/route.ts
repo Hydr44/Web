@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { handleCors, corsHeaders } from "@/lib/cors";
+import { validatePIVAVies, validateCodiceDestinatarioIPA } from "@/lib/sdi-validation";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -44,14 +45,89 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Costruisci prompt per l'IA
-    const prompt = buildValidationPrompt(invoice_data);
+    // Esegui controlli API esterne (Vies, IPA) prima della validazione IA
+    const apiChecks: any[] = [];
+    
+    // Controllo P.IVA con Vies (se presente)
+    if (invoice_data.customer?.vat) {
+      try {
+        console.log('[SDI-AI-VALIDATE] Controllo P.IVA Vies:', invoice_data.customer.vat);
+        const viesResult = await validatePIVAVies(invoice_data.customer.vat, 'IT');
+        if (viesResult.valid && viesResult.exists !== undefined) {
+          if (!viesResult.exists) {
+            apiChecks.push({
+              tipo: 'error',
+              campo: 'customer_vat',
+              messaggio: `P.IVA ${invoice_data.customer.vat} non risulta esistente nel database Vies`,
+              severita: 8,
+              suggerimento: 'Verifica che la P.IVA sia corretta o che l\'azienda sia registrata in UE'
+            });
+          } else if (viesResult.name) {
+            // P.IVA valida e esistente
+            apiChecks.push({
+              tipo: 'info',
+              campo: 'customer_vat',
+              messaggio: `P.IVA verificata: ${viesResult.name}`,
+              severita: 1
+            });
+          }
+        }
+      } catch (viesError: any) {
+        console.warn('[SDI-AI-VALIDATE] Errore controllo Vies:', viesError);
+        apiChecks.push({
+          tipo: 'warning',
+          campo: 'customer_vat',
+          messaggio: 'Impossibile verificare P.IVA con Vies (servizio temporaneamente non disponibile)',
+          severita: 3
+        });
+      }
+    }
+
+    // Controllo Codice Destinatario PA con IPA (se presente e formato PA)
+    if (invoice_data.trasmissione?.codice_destinatario && 
+        invoice_data.trasmissione.codice_destinatario.length === 6) {
+      try {
+        console.log('[SDI-AI-VALIDATE] Controllo Codice Destinatario IPA:', invoice_data.trasmissione.codice_destinatario);
+        const ipaResult = await validateCodiceDestinatarioIPA(invoice_data.trasmissione.codice_destinatario);
+        if (ipaResult.valid && ipaResult.exists !== undefined) {
+          if (!ipaResult.exists) {
+            apiChecks.push({
+              tipo: 'error',
+              campo: 'codice_destinatario',
+              messaggio: `Codice Destinatario PA ${invoice_data.trasmissione.codice_destinatario} non risulta esistente nell'anagrafica IPA`,
+              severita: 7,
+              suggerimento: 'Verifica che il codice destinatario sia corretto o che l\'amministrazione sia registrata in IPA'
+            });
+          } else if (ipaResult.denominazione) {
+            // Codice valido e esistente
+            apiChecks.push({
+              tipo: 'info',
+              campo: 'codice_destinatario',
+              messaggio: `Codice Destinatario PA verificato: ${ipaResult.denominazione}`,
+              severita: 1
+            });
+          }
+        }
+      } catch (ipaError: any) {
+        console.warn('[SDI-AI-VALIDATE] Errore controllo IPA:', ipaError);
+        apiChecks.push({
+          tipo: 'warning',
+          campo: 'codice_destinatario',
+          messaggio: 'Impossibile verificare Codice Destinatario PA con IPA (servizio temporaneamente non disponibile)',
+          severita: 3
+        });
+      }
+    }
+
+    // Costruisci prompt per l'IA (include anche i risultati dei controlli API)
+    const prompt = buildValidationPrompt(invoice_data, apiChecks);
 
     // Chiama OpenAI per validazione
     const aiResponse = await callOpenAI(prompt);
 
-    // Analizza risposta IA e costruisci alert
-    const alert_ia = parseAIResponse(aiResponse);
+    // Analizza risposta IA e costruisci alert (combina con controlli API)
+    const aiAlerts = parseAIResponse(aiResponse);
+    const alert_ia = [...apiChecks, ...aiAlerts];
 
     // Determina stato validazione
     const stato_validazione = determineValidationStatus(alert_ia);
@@ -106,7 +182,7 @@ export async function POST(request: NextRequest) {
 /**
  * Costruisci prompt per validazione IA fattura SDI
  */
-function buildValidationPrompt(invoice_data: any): string {
+function buildValidationPrompt(invoice_data: any, apiChecks: any[] = []): string {
   return `Analizza questi dati di fattura elettronica SDI e segnala incongruenze, errori sospetti o dati mancanti.
 Rispondi SOLO con un JSON valido nel formato:
 {
@@ -125,6 +201,10 @@ Rispondi SOLO con un JSON valido nel formato:
 
 DATI FATTURA DA VALIDARE:
 ${JSON.stringify(invoice_data, null, 2)}
+
+${apiChecks.length > 0 ? `\nCONTROLLI API ESTERNE GIÀ ESEGUITI:
+${JSON.stringify(apiChecks, null, 2)}
+\nConsidera questi controlli nella tua analisi.` : ''}
 
 CONTROLLA:
 
