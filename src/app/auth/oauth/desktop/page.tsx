@@ -13,7 +13,7 @@ function DesktopOAuthContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(true); // Accettato automaticamente
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,10 +65,8 @@ function DesktopOAuthContent() {
       return;
     }
 
-    if (!acceptTerms) {
-      setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
-      return;
-    }
+    // Termini e condizioni accettati automaticamente al click del pulsante
+    setAcceptTerms(true);
 
     if (!oauthInfo) {
       setError("Parametri OAuth non validi.");
@@ -333,25 +331,27 @@ function DesktopOAuthContent() {
             </div>
           </div>
 
-          {/* Terms */}
-          <div className="flex items-center">
+          {/* Terms - Accettati automaticamente */}
+          <div className="flex items-center opacity-60">
             <input
               id="accept-terms"
               name="accept-terms"
               type="checkbox"
               checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              disabled
+              readOnly
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-not-allowed"
             />
             <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700">
               Accetto i{" "}
-              <a href="/terms-of-use" className="text-indigo-600 hover:text-indigo-500">
+              <a href="/terms-of-use" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
                 Termini d'Uso
               </a>{" "}
               e la{" "}
-              <a href="/privacy-policy" className="text-indigo-600 hover:text-indigo-500">
+              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
                 Privacy Policy
               </a>
+              {" "}(accettati automaticamente)
             </label>
           </div>
 
