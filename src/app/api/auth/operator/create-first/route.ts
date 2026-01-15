@@ -4,21 +4,52 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { hashPassword } from '@/lib/operator-auth';
+import jwt from 'jsonwebtoken';
 
 export const runtime = 'nodejs';
 
+// JWT Secret per desktop app (dovrebbe essere in env)
+const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+
+// Verifica token OAuth
+function verifyOAuthToken(token: string) {
+  try {
+    return jwt.verify(token, JWT_SECRET) as any;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
-    // Verifica autenticazione SSO
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Leggi token Bearer dall'header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'Non autenticato' },
+        { error: 'Token non fornito' },
         { status: 401 }
       );
     }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyOAuthToken(token);
+    
+    if (!decoded || decoded.type !== 'access') {
+      return NextResponse.json(
+        { error: 'Token non valido o scaduto' },
+        { status: 401 }
+      );
+    }
+
+    const userId = decoded.user_id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Token non valido' },
+        { status: 401 }
+      );
+    }
+
+    const supabase = await supabaseServer();
 
     const body = await request.json();
     const { org_id, username, password, ruolo } = body;
@@ -34,7 +65,7 @@ export async function POST(request: NextRequest) {
     const { data: orgMember, error: orgError } = await supabase
       .from('org_members')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('org_id', org_id)
       .single();
 
@@ -90,7 +121,7 @@ export async function POST(request: NextRequest) {
       .from('operators')
       .insert({
         org_id,
-        user_id: user.id, // Associa all'utente SSO corrente
+        user_id: userId, // Associa all'utente SSO corrente
         nome: username, // Usa username come nome
         cognome: '', // Vuoto
         email: null,
@@ -99,7 +130,7 @@ export async function POST(request: NextRequest) {
         password_hash: passwordHash,
         attivo: true,
         permissions: ['*'], // Tutti i permessi
-        created_by: user.id,
+        created_by: userId,
       })
       .select('id, nome, cognome, codice_operatore, ruolo')
       .single();
