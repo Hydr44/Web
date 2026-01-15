@@ -356,11 +356,11 @@ function DesktopOAuthContent() {
           </div>
 
           {/* Error/Success Messages */}
-          {error && (
+          {error && !success && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl"
             >
               {error}
             </motion.div>
@@ -370,10 +370,10 @@ function DesktopOAuthContent() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center"
+              className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center shadow-sm"
             >
-              <CheckCircle className="h-5 w-5 mr-2" />
-              {error} {/* Usa error per il messaggio di successo */}
+              <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+              <span className="font-medium">{error}</span>
             </motion.div>
           )}
 
