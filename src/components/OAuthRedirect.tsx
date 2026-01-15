@@ -40,7 +40,7 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="text-center space-y-6"
+      className="text-center space-y-6 py-4"
     >
       <motion.div
         initial={{ scale: 0 }}

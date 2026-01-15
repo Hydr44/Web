@@ -219,9 +219,17 @@ function DesktopOAuthContent() {
   // Se abbiamo l'URL di redirect, mostra il componente di redirect
   if (redirectUrl) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="max-w-md w-full">
-          <OAuthRedirect redirectUrl={redirectUrl} />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
+        </div>
+        <div className="max-w-md w-full relative z-10 px-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-purple-500/10 border border-white/20 p-8">
+            <OAuthRedirect redirectUrl={redirectUrl} />
+          </div>
         </div>
       </div>
     );
