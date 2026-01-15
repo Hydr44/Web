@@ -11,21 +11,52 @@ import {
 } from '@/lib/operator-auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 export const runtime = 'nodejs';
 
+// JWT Secret per desktop app (dovrebbe essere in env)
+const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+
+// Verifica token OAuth
+function verifyOAuthToken(token: string) {
+  try {
+    return jwt.verify(token, JWT_SECRET) as any;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
-    // Verifica autenticazione SSO
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Leggi token Bearer dall'header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'Non autenticato SSO' },
+        { error: 'Token non fornito' },
         { status: 401 }
       );
     }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyOAuthToken(token);
+    
+    if (!decoded || decoded.type !== 'access') {
+      return NextResponse.json(
+        { error: 'Token non valido o scaduto' },
+        { status: 401 }
+      );
+    }
+
+    const userId = decoded.user_id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Token non valido' },
+        { status: 401 }
+      );
+    }
+
+    const supabase = await supabaseServer();
 
     const body = await request.json();
     const { operator_id, password, device_id, device_name, remember_device } = body;
@@ -62,11 +93,11 @@ export async function POST(request: NextRequest) {
     const { data: orgMember } = await supabase
       .from('org_members')
       .select('org_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('org_id', operator.org_id)
       .single();
 
-    if (!orgMember && operator.user_id !== user.id) {
+    if (!orgMember && operator.user_id !== userId) {
       return NextResponse.json(
         { error: 'Non autorizzato per questo operatore' },
         { status: 403 }
@@ -90,7 +121,7 @@ export async function POST(request: NextRequest) {
     const tokenPayload = {
       operator_id: operator.id,
       org_id: operator.org_id,
-      user_id: user.id,
+      user_id: userId,
       session_id: sessionId,
       ruolo: operator.ruolo as 'operatore' | 'supervisore' | 'admin',
       permissions: (operator.permissions as string[]) || [],
@@ -109,7 +140,7 @@ export async function POST(request: NextRequest) {
         id: sessionId,
         operator_id: operator.id,
         org_id: operator.org_id,
-        user_id: user.id,
+        user_id: userId,
         access_token_hash: hashToken(accessToken),
         refresh_token_hash: hashToken(refreshToken),
         device_id,
