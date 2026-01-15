@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { org_id, nome, cognome, email, password, ruolo } = body;
+    const { org_id, username, password, ruolo } = body;
 
-    if (!org_id || !nome || !cognome || !password) {
+    if (!org_id || !username || !password) {
       return NextResponse.json(
-        { error: 'org_id, nome, cognome e password richiesti' },
+        { error: 'org_id, username e password richiesti' },
         { status: 400 }
       );
     }
@@ -70,8 +70,20 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Genera codice operatore (OP001)
-    const codiceOperatore = 'OP001';
+    // Verifica che il codice operatore non esista già
+    const { data: existing } = await supabaseAdmin
+      .from('operators')
+      .select('id')
+      .eq('org_id', org_id)
+      .eq('codice_operatore', username)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Username già esistente' },
+        { status: 400 }
+      );
+    }
 
     // Crea operatore (il primo è sempre admin)
     const { data: operator, error: createError } = await supabaseAdmin
@@ -79,10 +91,10 @@ export async function POST(request: NextRequest) {
       .insert({
         org_id,
         user_id: user.id, // Associa all'utente SSO corrente
-        nome,
-        cognome,
-        email: email || null,
-        codice_operatore: codiceOperatore,
+        nome: username, // Usa username come nome
+        cognome: '', // Vuoto
+        email: null,
+        codice_operatore: username,
         ruolo: ruolo || 'admin', // Il primo è sempre admin
         password_hash: passwordHash,
         attivo: true,
