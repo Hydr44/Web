@@ -2,21 +2,52 @@
 // Lista operatori disponibili per l'utente SSO autenticato
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
+import jwt from 'jsonwebtoken';
 
 export const runtime = 'nodejs';
 
+// JWT Secret per desktop app (dovrebbe essere in env)
+const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+
+// Verifica token OAuth
+function verifyOAuthToken(token: string) {
+  try {
+    return jwt.verify(token, JWT_SECRET) as any;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
-    // Verifica autenticazione SSO
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Leggi token Bearer dall'header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'Non autenticato' },
+        { error: 'Token non fornito' },
         { status: 401 }
       );
     }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyOAuthToken(token);
+    
+    if (!decoded || decoded.type !== 'access') {
+      return NextResponse.json(
+        { error: 'Token non valido o scaduto' },
+        { status: 401 }
+      );
+    }
+
+    const userId = decoded.user_id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Token non valido' },
+        { status: 401 }
+      );
+    }
+
+    const supabase = await supabaseServer();
 
     // Ottieni org_id dalla query o dal header
     const { searchParams } = new URL(request.url);
@@ -33,7 +64,7 @@ export async function GET(request: NextRequest) {
     const { data: orgMember, error: orgError } = await supabase
       .from('org_members')
       .select('org_id, role')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('org_id', orgId)
       .single();
 
