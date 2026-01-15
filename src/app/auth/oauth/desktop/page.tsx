@@ -13,7 +13,6 @@ function DesktopOAuthContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(true); // Accettato automaticamente
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,9 +63,6 @@ function DesktopOAuthContent() {
       setError("Inserisci email e password.");
       return;
     }
-
-    // Termini e condizioni accettati automaticamente al click del pulsante
-    setAcceptTerms(true);
 
     if (!oauthInfo) {
       setError("Parametri OAuth non validi.");
@@ -331,30 +327,6 @@ function DesktopOAuthContent() {
             </div>
           </div>
 
-          {/* Terms - Accettati automaticamente */}
-          <div className="flex items-center opacity-60">
-            <input
-              id="accept-terms"
-              name="accept-terms"
-              type="checkbox"
-              checked={acceptTerms}
-              disabled
-              readOnly
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-not-allowed"
-            />
-            <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700">
-              Accetto i{" "}
-              <a href="/terms-of-use" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
-                Termini d'Uso
-              </a>{" "}
-              e la{" "}
-              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
-                Privacy Policy
-              </a>
-              {" "}(accettati automaticamente)
-            </label>
-          </div>
-
           {/* Error/Success Messages */}
           {error && !success && (
             <motion.div
@@ -398,6 +370,18 @@ function DesktopOAuthContent() {
               </div>
             )}
           </motion.button>
+
+          {/* Terms - Accettati automaticamente cliccando Accedi */}
+          <p className="text-xs text-center text-gray-500 mt-3">
+            Cliccando su "Accedi", accetti i{" "}
+            <a href="/terms-of-use" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
+              Termini d'Uso
+            </a>{" "}
+            e la{" "}
+            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
+              Privacy Policy
+            </a>
+          </p>
 
           {/* Divider */}
           <div className="relative">
