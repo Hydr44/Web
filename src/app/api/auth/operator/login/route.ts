@@ -133,6 +133,12 @@ export async function POST(request: NextRequest) {
     const refreshToken = generateRefreshToken(tokenPayload);
     const expiresAt = getExpiresAt(accessToken);
 
+    // Se il token è persistente e non ha scadenza, imposta una data molto lontana nel futuro
+    // (100 anni da ora) per rispettare il vincolo NOT NULL del database
+    const expiresAtValue = isPersistent && !expiresAt 
+      ? new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) // 100 anni
+      : expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 giorni se null
+
     // Salva sessione nel DB
     const { error: sessionError } = await supabaseAdmin
       .from('operator_sessions')
@@ -148,7 +154,7 @@ export async function POST(request: NextRequest) {
         device_type: 'desktop', // TODO: rilevare da user_agent
         user_agent: request.headers.get('user-agent') || null,
         ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
-        expires_at: expiresAt?.toISOString() || null,
+        expires_at: expiresAtValue.toISOString(),
         refresh_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 giorni
         is_persistent: isPersistent,
         attivo: true,
@@ -191,7 +197,7 @@ export async function POST(request: NextRequest) {
         codice_operatore: operator.codice_operatore,
         ruolo: operator.ruolo,
       },
-      expires_at: expiresAt?.toISOString() || null,
+      expires_at: expiresAtValue.toISOString(),
       session_id: sessionId,
     });
   } catch (error: any) {
