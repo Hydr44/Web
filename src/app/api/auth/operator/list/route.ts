@@ -2,6 +2,7 @@
 // Lista operatori disponibili per l'utente SSO autenticato
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import jwt from 'jsonwebtoken';
 
 export const runtime = 'nodejs';
@@ -76,7 +77,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Carica operatori dell'org
-    const { data: operators, error: operatorsError } = await supabase
+    // Usa supabaseAdmin per bypassare RLS e vedere tutti gli operatori dell'org
+    const { data: operators, error: operatorsError } = await supabaseAdmin
       .from('operators')
       .select('id, nome, cognome, email, codice_operatore, ruolo, attivo')
       .eq('org_id', orgId)
@@ -91,6 +93,8 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log(`[operator/list] Found ${operators?.length || 0} operators for org ${orgId}`);
 
     return NextResponse.json({
       operators: operators || [],
