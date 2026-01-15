@@ -33,6 +33,14 @@ export function hashToken(token: string): string {
  * Genera access token JWT per operatore
  */
 export function generateAccessToken(payload: Omit<OperatorTokenPayload, 'iat' | 'exp' | 'type' | 'version'>): string {
+  const signOptions: jwt.SignOptions = {};
+  
+  // Se non è persistente, imposta scadenza
+  if (!payload.is_persistent) {
+    signOptions.expiresIn = JWT_ACCESS_EXPIRES;
+  }
+  // Se è persistente, non imposta expiresIn (token non scade)
+  
   return jwt.sign(
     {
       ...payload,
@@ -40,9 +48,7 @@ export function generateAccessToken(payload: Omit<OperatorTokenPayload, 'iat' | 
       version: 1,
     },
     JWT_SECRET,
-    {
-      expiresIn: payload.is_persistent ? undefined : JWT_ACCESS_EXPIRES,
-    }
+    signOptions
   );
 }
 
