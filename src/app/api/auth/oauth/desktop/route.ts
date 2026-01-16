@@ -87,13 +87,50 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Usa redirect assoluto con status 302 (compatibilità massima)
+    // Rileva se è un browser Electron (potrebbe non seguire redirect HTTP)
+    const userAgent = request.headers.get('user-agent') || '';
+    const isElectron = userAgent.includes('Electron');
+    
+    console.log('User-Agent:', userAgent);
+    console.log('Is Electron:', isElectron);
+    
+    if (isElectron) {
+      // Per Electron, usa una pagina HTML con redirect JavaScript
+      console.log('Using HTML redirect for Electron browser');
+      const htmlRedirect = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=${finalUrl.replace(/'/g, "\\'")}">
+  <title>Redirecting...</title>
+  <script>
+    console.log('[OAuth Redirect] Redirecting to:', ${JSON.stringify(finalUrl)});
+    window.location.href = ${JSON.stringify(finalUrl)};
+    setTimeout(function() {
+      window.location.replace(${JSON.stringify(finalUrl)});
+    }, 100);
+  </script>
+</head>
+<body>
+  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <h2>Reindirizzamento in corso...</h2>
+    <p>Se non vieni reindirizzato automaticamente, <a href="${finalUrl.replace(/"/g, '&quot;')}">clicca qui</a>.</p>
+  </div>
+</body>
+</html>`;
+      
+      return new NextResponse(htmlRedirect, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+      });
+    }
+
+    // Per browser normali, usa redirect HTTP standard
     const response = NextResponse.redirect(finalUrl, 302);
-    
-    // Aggiungi header per forzare il redirect
-    response.headers.set('Location', finalUrl);
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    
     console.log('Redirect response created, Location header:', response.headers.get('Location'));
     
     return response;
