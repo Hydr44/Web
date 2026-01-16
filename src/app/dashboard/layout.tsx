@@ -22,25 +22,44 @@ export default function DashboardLayout({
     
     const checkAuth = async () => {
       try {
-        // Prova direttamente a ottenere l'utente (Supabase controlla sia localStorage che cookie)
-        const { data: { user }, error } = await supabase.auth.getUser();
+        // Prova prima con getSession (più veloce, legge da localStorage)
+        let { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (error || !user) {
-          router.push("/login?redirect=/dashboard");
+        // Se non c'è sessione, prova getUser (può fare una chiamata al server)
+        if (!session || sessionError) {
+          const { data: { user }, error } = await supabase.auth.getUser();
+          
+          if (error || !user) {
+            router.push("/login?redirect=/dashboard");
+            return;
+          }
+          
+          setUserEmail(user.email || "Utente");
+          setCurrentOrgName("RescueManager");
+          setLoading(false);
           return;
         }
         
-        setUserEmail(user.email || "Utente");
-        setCurrentOrgName("RescueManager");
-        setLoading(false);
+        // Se c'è la sessione, usa quella
+        if (session?.user) {
+          setUserEmail(session.user.email || "Utente");
+          setCurrentOrgName("RescueManager");
+          setLoading(false);
+          return;
+        }
+        
+        // Se non c'è utente nella sessione, redirect
+        router.push("/login?redirect=/dashboard");
       } catch (error) {
         console.error("Auth check error:", error);
         router.push("/login?redirect=/dashboard");
       }
     };
 
-    // Carica stato iniziale
-    checkAuth();
+    // Carica stato iniziale con un piccolo delay per dare tempo alla sessione di essere salvata
+    setTimeout(() => {
+      checkAuth();
+    }, 100);
 
     // Listener per cambiamenti di autenticazione
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
