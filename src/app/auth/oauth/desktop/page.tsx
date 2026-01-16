@@ -30,15 +30,8 @@ function DesktopOAuthContent() {
     state_id: string;
   } | null>(null);
 
-  let params;
-  try {
-    params = useSearchParams();
-    console.log('[DesktopOAuthContent] useSearchParams called successfully');
-  } catch (err) {
-    console.error('[DesktopOAuthContent] Error calling useSearchParams:', err);
-    // Fallback: leggi direttamente dall'URL
-    params = null;
-  }
+  // useSearchParams deve essere chiamato sempre, non condizionalmente
+  const params = useSearchParams();
 
   // Estrai parametri OAuth
   useEffect(() => {
@@ -473,11 +466,12 @@ function DesktopOAuthContent() {
           </div>
 
           {/* Google Login */}
-          <GoogleLoginButton
-            onSuccess={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full"
-          />
+          <div className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+            <GoogleLoginButton
+              onSuccess={handleGoogleLogin}
+              className="w-full"
+            />
+          </div>
         </motion.form>
 
         {/* Footer */}
