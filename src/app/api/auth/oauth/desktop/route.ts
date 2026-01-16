@@ -37,11 +37,14 @@ export async function GET(request: NextRequest) {
 
     // Validazione redirect_uri
     if (!redirectUri.startsWith('desktop://') && !redirectUri.startsWith('http://localhost:') && !redirectUri.startsWith('http://127.0.0.1:')) {
+      console.error('Invalid redirect_uri:', redirectUri);
       return NextResponse.json(
         { error: 'Invalid redirect_uri. Must start with desktop://, http://localhost: or http://127.0.0.1:' },
         { status: 400 }
       );
     }
+    
+    console.log('Redirect URI validated:', redirectUri);
 
     // Genera state temporaneo (senza database per evitare RLS)
     const stateCode = `state_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;

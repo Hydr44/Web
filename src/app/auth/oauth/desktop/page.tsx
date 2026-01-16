@@ -29,35 +29,79 @@ function DesktopOAuthContent() {
 
   // Estrai parametri OAuth
   useEffect(() => {
-    console.log('[DesktopOAuth] Page loaded, extracting params...');
+    console.log('[DesktopOAuth] === PAGE LOADED ===');
+    console.log('[DesktopOAuth] Current URL:', window.location.href);
+    console.log('[DesktopOAuth] Search params:', window.location.search);
+    
     const encodedParams = params.get('params');
-    console.log('[DesktopOAuth] Encoded params:', encodedParams ? 'present' : 'missing');
+    console.log('[DesktopOAuth] Encoded params from useSearchParams:', encodedParams ? `present (length: ${encodedParams.length})` : 'missing');
+    
+    // Fallback: prova a leggere direttamente dall'URL se useSearchParams non funziona
+    if (!encodedParams) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fallbackParams = urlParams.get('params');
+      console.log('[DesktopOAuth] Fallback: params from URLSearchParams:', fallbackParams ? `present (length: ${fallbackParams.length})` : 'missing');
+      
+      if (fallbackParams) {
+        // Usa i parametri dal fallback
+        try {
+          const decodedString = atob(fallbackParams);
+          const decodedParams = JSON.parse(decodedString);
+          console.log('[DesktopOAuth] Decoded OAuth params (fallback):', decodedParams);
+          
+          if (decodedParams.expires_at < Date.now()) {
+            setError("Sessione OAuth scaduta. Riprova.");
+            return;
+          }
+          
+          setOauthInfo({
+            app_id: decodedParams.app_id,
+            redirect_uri: decodedParams.redirect_uri,
+            state: decodedParams.state,
+            state_id: decodedParams.state_code
+          });
+          return;
+        } catch (err) {
+          console.error('[DesktopOAuth] Error decoding fallback params:', err);
+        }
+      }
+    }
     
     if (encodedParams) {
       try {
+        console.log('[DesktopOAuth] Attempting to decode params...');
         // Usa atob per decodificare base64 nel browser (Buffer non è disponibile)
         const decodedString = atob(encodedParams);
+        console.log('[DesktopOAuth] Decoded string length:', decodedString.length);
         const decodedParams = JSON.parse(decodedString);
         console.log('[DesktopOAuth] Decoded OAuth params:', decodedParams);
         
         // Verifica scadenza
         if (decodedParams.expires_at < Date.now()) {
+          console.error('[DesktopOAuth] OAuth session expired');
           setError("Sessione OAuth scaduta. Riprova.");
           return;
         }
         
+        console.log('[DesktopOAuth] Setting OAuth info...');
         setOauthInfo({
           app_id: decodedParams.app_id,
           redirect_uri: decodedParams.redirect_uri,
           state: decodedParams.state,
           state_id: decodedParams.state_code
         });
+        console.log('[DesktopOAuth] OAuth info set successfully');
       } catch (err) {
-        console.error('Error decoding OAuth params:', err);
-        setError("Parametri OAuth non validi. Impossibile procedere con l'autenticazione.");
+        console.error('[DesktopOAuth] Error decoding OAuth params:', err);
+        console.error('[DesktopOAuth] Error details:', {
+          message: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined
+        });
+        setError(`Parametri OAuth non validi: ${err instanceof Error ? err.message : 'Errore sconosciuto'}`);
       }
     } else {
-      setError("Parametri OAuth mancanti. Impossibile procedere con l'autenticazione.");
+      console.error('[DesktopOAuth] No params found in URL');
+      setError("Parametri OAuth mancanti. L'URL potrebbe non essere corretto. Riprova il login dalla desktop app.");
     }
   }, [params]);
 
