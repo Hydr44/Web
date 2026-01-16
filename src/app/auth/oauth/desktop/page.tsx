@@ -28,11 +28,15 @@ function DesktopOAuthContent() {
 
   // Estrai parametri OAuth
   useEffect(() => {
+    console.log('[DesktopOAuth] Page loaded, extracting params...');
     const encodedParams = params.get('params');
+    console.log('[DesktopOAuth] Encoded params:', encodedParams ? 'present' : 'missing');
     
     if (encodedParams) {
       try {
-        const decodedParams = JSON.parse(Buffer.from(encodedParams, 'base64').toString());
+        // Usa atob per decodificare base64 nel browser
+        const decodedString = atob(encodedParams);
+        const decodedParams = JSON.parse(decodedString);
         console.log('Decoded OAuth params:', decodedParams);
         
         // Verifica scadenza

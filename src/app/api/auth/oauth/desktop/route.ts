@@ -11,6 +11,10 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   try {
     console.log('=== OAUTH DESKTOP ENDPOINT START ===');
+    console.log('Request URL:', request.url);
+    console.log('Request nextUrl:', request.nextUrl.toString());
+    console.log('Request origin:', request.nextUrl.origin);
+    
     const { searchParams } = new URL(request.url);
     const appId = searchParams.get('app_id');
     const redirectUri = searchParams.get('redirect_uri');
@@ -60,9 +64,12 @@ export async function GET(request: NextRequest) {
     console.log('Encoded OAuth params:', encodedParams);
 
     // Redirect alla pagina di login OAuth
-    const loginUrl = new URL('/auth/oauth/desktop', request.url);
+    // Usa request.nextUrl per costruire correttamente l'URL
+    const baseUrl = request.nextUrl.origin;
+    const loginUrl = new URL('/auth/oauth/desktop', baseUrl);
     loginUrl.searchParams.set('params', encodedParams);
 
+    console.log('Redirecting to login page:', loginUrl.toString());
     return NextResponse.redirect(loginUrl.toString());
 
   } catch (error) {
