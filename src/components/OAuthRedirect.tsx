@@ -25,15 +25,26 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
             console.log('[OAuthRedirect] Redirecting to:', redirectUrl);
             console.log('[OAuthRedirect] Current location:', globalThis.location.href);
             try {
-              globalThis.location.href = redirectUrl;
-              console.log('[OAuthRedirect] Redirect initiated');
+              // Usa window.location.replace() invece di href per evitare problemi con history
+              window.location.replace(redirectUrl);
+              console.log('[OAuthRedirect] Redirect initiated with replace()');
             } catch (err) {
               console.error('[OAuthRedirect] Redirect error:', err);
-              // Fallback: prova con window.location
+              // Fallback: prova con href
               try {
-                window.location.href = redirectUrl;
+                globalThis.location.href = redirectUrl;
+                console.log('[OAuthRedirect] Fallback redirect with href');
               } catch (err2) {
-                console.error('[OAuthRedirect] Fallback redirect also failed:', err2);
+                console.error('[OAuthRedirect] All redirect methods failed:', err2);
+                // Ultimo fallback: mostra link cliccabile
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `
+                  <p style="color: red; margin-top: 20px;">
+                    Reindirizzamento automatico fallito. 
+                    <a href="${redirectUrl}" style="color: blue; text-decoration: underline;">Clicca qui per continuare</a>
+                  </p>
+                `;
+                document.body.appendChild(errorDiv);
               }
             }
             onComplete?.();
