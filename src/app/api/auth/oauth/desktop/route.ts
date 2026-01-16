@@ -87,53 +87,114 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Rileva se è un browser Electron (potrebbe non seguire redirect HTTP)
-    const userAgent = request.headers.get('user-agent') || '';
-    const isElectron = userAgent.includes('Electron');
+    // SEMPRE usa HTML redirect per questo endpoint
+    // Il browser esterno aperto da Electron potrebbe non seguire redirect HTTP
+    console.log('Using HTML redirect (always for desktop OAuth)');
     
-    console.log('User-Agent:', userAgent);
-    console.log('Is Electron:', isElectron);
+    // Escape dell'URL per sicurezza in HTML/JavaScript
+    const escapedUrl = finalUrl
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '&quot;')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
     
-    if (isElectron) {
-      // Per Electron, usa una pagina HTML con redirect JavaScript
-      console.log('Using HTML redirect for Electron browser');
-      const htmlRedirect = `<!DOCTYPE html>
-<html>
+    const htmlRedirect = `<!DOCTYPE html>
+<html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0;url=${finalUrl.replace(/'/g, "\\'")}">
-  <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0;url=${escapedUrl}">
+  <title>Reindirizzamento OAuth...</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
   <script>
-    console.log('[OAuth Redirect] Redirecting to:', ${JSON.stringify(finalUrl)});
-    window.location.href = ${JSON.stringify(finalUrl)};
-    setTimeout(function() {
-      window.location.replace(${JSON.stringify(finalUrl)});
-    }, 100);
+    (function() {
+      console.log('[OAuth Redirect] Page loaded');
+      console.log('[OAuth Redirect] Target URL:', ${JSON.stringify(finalUrl)});
+      
+      // Prova immediatamente con href
+      try {
+        window.location.href = ${JSON.stringify(finalUrl)};
+        console.log('[OAuth Redirect] window.location.href set');
+      } catch (e) {
+        console.error('[OAuth Redirect] Error setting href:', e);
+      }
+      
+      // Fallback con replace dopo 50ms
+      setTimeout(function() {
+        try {
+          window.location.replace(${JSON.stringify(finalUrl)});
+          console.log('[OAuth Redirect] window.location.replace called');
+        } catch (e) {
+          console.error('[OAuth Redirect] Error with replace:', e);
+        }
+      }, 50);
+      
+      // Ultimo fallback dopo 200ms
+      setTimeout(function() {
+        if (window.location.href.indexOf('/auth/oauth/desktop') !== -1) {
+          console.warn('[OAuth Redirect] Still on same page, forcing redirect');
+          document.body.innerHTML = '<div class="container"><h2>Reindirizzamento manuale necessario</h2><p><a href="' + ${JSON.stringify(finalUrl)} + '">Clicca qui per continuare</a></p></div>';
+        }
+      }, 200);
+    })();
   </script>
 </head>
 <body>
-  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+  <div class="container">
     <h2>Reindirizzamento in corso...</h2>
-    <p>Se non vieni reindirizzato automaticamente, <a href="${finalUrl.replace(/"/g, '&quot;')}">clicca qui</a>.</p>
+    <div class="spinner"></div>
+    <p>Se non vieni reindirizzato automaticamente, <a href="${escapedUrl}">clicca qui</a>.</p>
   </div>
 </body>
 </html>`;
-      
-      return new NextResponse(htmlRedirect, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        },
-      });
-    }
-
-    // Per browser normali, usa redirect HTTP standard
-    const response = NextResponse.redirect(finalUrl, 302);
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    console.log('Redirect response created, Location header:', response.headers.get('Location'));
     
-    return response;
+    console.log('HTML redirect page created, length:', htmlRedirect.length);
+    
+    return new NextResponse(htmlRedirect, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
 
   } catch (error) {
     console.error('OAuth desktop error:', error);
