@@ -94,9 +94,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log(`[operator/list] Found ${operators?.length || 0} operators for org ${orgId}`);
-
     return NextResponse.json({
+      success: true,
       operators: operators || [],
     });
   } catch (error: any) {

@@ -22,23 +22,10 @@ export default function DashboardLayout({
     
     const checkAuth = async () => {
       try {
-        console.log("Starting dashboard auth check...");
-        
-        // Controlla cookie Supabase
-        const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
-        
-        if (!hasSbCookie) {
-          console.log("No auth data found, redirecting to login");
-          router.push("/login?redirect=/dashboard");
-          return;
-        }
-
-        // Prova a ottenere l'utente
+        // Prova direttamente a ottenere l'utente (Supabase controlla sia localStorage che cookie)
         const { data: { user }, error } = await supabase.auth.getUser();
-        console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         
         if (error || !user) {
-          console.log("Auth check failed, redirecting to login");
           router.push("/login?redirect=/dashboard");
           return;
         }
@@ -46,7 +33,6 @@ export default function DashboardLayout({
         setUserEmail(user.email || "Utente");
         setCurrentOrgName("RescueManager");
         setLoading(false);
-        console.log("Dashboard auth check completed successfully");
       } catch (error) {
         console.error("Auth check error:", error);
         router.push("/login?redirect=/dashboard");
@@ -58,15 +44,11 @@ export default function DashboardLayout({
 
     // Listener per cambiamenti di autenticazione
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Dashboard auth state change:", event, session?.user?.email);
-      
       if (event === 'SIGNED_IN' && session?.user) {
         setUserEmail(session.user.email || "Utente");
         setCurrentOrgName("RescueManager");
         setLoading(false);
-        console.log("User signed in, dashboard updated");
       } else if (event === 'SIGNED_OUT') {
-        console.log("User signed out, redirecting to login");
         router.push("/login?redirect=/dashboard");
       }
     });

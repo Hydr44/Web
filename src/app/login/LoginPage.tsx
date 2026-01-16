@@ -45,15 +45,14 @@ export default function LoginPage() {
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        console.log("Login successful:", result.user.email);
         setSuccess(true);
         setError("✅ Accesso completato! Reindirizzamento...");
         
-        // Piccola pausa per mostrare il successo
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Piccola pausa per mostrare il successo e permettere a Supabase di salvare la sessione
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Redirect
-        globalThis.location.href = redirectTo;
+        // Usa router.push invece di location.href per un redirect più fluido
+        window.location.href = redirectTo;
       } else {
         console.error("Login failed:", result.error);
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
