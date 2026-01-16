@@ -9,6 +9,16 @@ export const runtime = "nodejs";
  * GET /api/auth/oauth/desktop?app_id=desktop_app&redirect_uri=http://localhost:3001/auth/callback&state=random_state
  */
 export async function GET(request: NextRequest) {
+  // Log immediato all'inizio per verificare che l'endpoint viene chiamato
+  console.log('=== OAUTH DESKTOP ENDPOINT CALLED ===');
+  console.log('Request URL:', request.url);
+  console.log('Request method:', request.method);
+  console.log('Headers:', {
+    'user-agent': request.headers.get('user-agent'),
+    'origin': request.headers.get('origin'),
+    'referer': request.headers.get('referer'),
+  });
+  
   try {
     console.log('=== OAUTH DESKTOP ENDPOINT START ===');
     const { searchParams } = new URL(request.url);
