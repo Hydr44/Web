@@ -88,17 +88,24 @@ export class AuthManager {
     try {
       const supabase = supabaseBrowser();
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Aggiungi timeout per evitare che la pagina si blocchi se Supabase non risponde
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: Supabase non risponde. Il progetto potrebbe essere in pausa. Verifica su https://supabase.com/dashboard')), 10000)
+      );
+      
+      const { data, error } = await Promise.race([loginPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error("Login error:", error);
         return { success: false, error: error.message };
       }
 
-      if (data.user) {
+      if (data?.user) {
         const user = this.transformUser(data.user);
         this.currentUser = user;
         this.notifyListeners();
@@ -108,8 +115,11 @@ export class AuthManager {
       }
 
       return { success: false, error: "No user data received" };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login exception:", error);
+      if (error.message?.includes('Timeout')) {
+        return { success: false, error: error.message };
+      }
       return { success: false, error: "Errore imprevisto durante l'accesso" };
     }
   }

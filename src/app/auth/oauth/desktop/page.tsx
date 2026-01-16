@@ -99,13 +99,26 @@ function DesktopOAuthContent() {
         console.log("Redirect URI:", oauthInfo.redirect_uri);
         console.log("State:", oauthInfo.state);
         
-        // Verifica autenticazione
-        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-        console.log("=== AUTHENTICATION CHECK ===");
-        console.log("Current User:", currentUser?.id);
-        console.log("Auth Error:", authError);
+        // Verifica autenticazione con timeout
+        const getUserPromise = supabase.auth.getUser();
+        const getUserTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout verifica autenticazione')), 5000)
+        );
         
-        const { data: insertData, error: oauthError } = await supabase
+        let currentUser;
+        try {
+          const { data: { user }, error: authError } = await Promise.race([getUserPromise, getUserTimeout]) as any;
+          currentUser = user;
+          console.log("=== AUTHENTICATION CHECK ===");
+          console.log("Current User:", currentUser?.id);
+          console.log("Auth Error:", authError);
+        } catch (authErr: any) {
+          console.warn("Auth check timeout, continuing anyway:", authErr.message);
+          // Continua comunque, il login è già avvenuto
+        }
+        
+        // Salva OAuth code con timeout
+        const insertPromise = supabase
           .from('oauth_codes')
           .insert({
             code: oauthCode,
@@ -117,6 +130,12 @@ function DesktopOAuthContent() {
             used: false
           })
           .select();
+        
+        const insertTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout salvataggio OAuth code')), 5000)
+        );
+        
+        const { data: insertData, error: oauthError } = await Promise.race([insertPromise, insertTimeout]) as any;
 
         if (oauthError) {
           console.error('=== OAUTH CODE SAVE ERROR ===');
