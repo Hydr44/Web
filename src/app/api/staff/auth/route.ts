@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { corsHeaders, handleCors } from '@/lib/cors';
 
-export async function POST(request: Request) {
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
+export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Email e password sono richiesti' 
-      }, { status: 400 });
+      const origin = request.headers.get('origin');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Email e password sono richiesti' 
+        },
+        { 
+          status: 400,
+          headers: corsHeaders(origin)
+        }
+      );
     }
 
     console.log('Staff auth API called for:', email);
@@ -20,10 +33,17 @@ export async function POST(request: Request) {
 
     if (!authUser) {
       console.log('Auth user not found:', email);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Credenziali non valide' 
-      }, { status: 401 });
+      const origin = request.headers.get('origin');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Credenziali non valide' 
+        },
+        { 
+          status: 401,
+          headers: corsHeaders(origin)
+        }
+      );
     }
 
     // For now, we'll use a simple password check for known staff users
@@ -35,10 +55,17 @@ export async function POST(request: Request) {
 
     if (knownStaffCredentials[email] !== password) {
       console.log('Invalid password for:', email);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Credenziali non valide' 
-      }, { status: 401 });
+      const origin = request.headers.get('origin');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Credenziali non valide' 
+        },
+        { 
+          status: 401,
+          headers: corsHeaders(origin)
+        }
+      );
     }
 
     console.log('Password verified for:', email);
@@ -52,19 +79,33 @@ export async function POST(request: Request) {
 
     if (profileError || !profile) {
       console.log('Profile not found:', profileError);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Profilo utente non trovato' 
-      }, { status: 401 });
+      const origin = request.headers.get('origin');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Profilo utente non trovato' 
+        },
+        { 
+          status: 401,
+          headers: corsHeaders(origin)
+        }
+      );
     }
 
     // Check if user is staff
     if (!profile.is_staff) {
       console.log('User is not staff:', email);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Accesso negato: utente non autorizzato' 
-      }, { status: 403 });
+      const origin = request.headers.get('origin');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Accesso negato: utente non autorizzato' 
+        },
+        { 
+          status: 403,
+          headers: corsHeaders(origin)
+        }
+      );
     }
 
     // Create staff user object
@@ -81,13 +122,24 @@ export async function POST(request: Request) {
     };
 
     console.log('Staff auth successful:', user);
-    return NextResponse.json({ success: true, user });
+    const origin = request.headers.get('origin');
+    return NextResponse.json(
+      { success: true, user },
+      { headers: corsHeaders(origin) }
+    );
 
   } catch (error: any) {
     console.error('Staff auth API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
-    }, { status: 500 });
+    const origin = request.headers.get('origin');
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Errore interno del server' 
+      },
+      { 
+        status: 500,
+        headers: corsHeaders(origin)
+      }
+    );
   }
 }
