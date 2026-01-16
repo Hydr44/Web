@@ -80,9 +80,23 @@ export async function GET(request: NextRequest) {
     // Verifica che l'URL non sia troppo lungo (alcuni browser hanno limiti)
     if (finalUrl.length > 2000) {
       console.error('WARNING: Redirect URL is very long:', finalUrl.length);
+      // Se l'URL è troppo lungo, usa un approccio alternativo
+      return NextResponse.json({
+        error: 'URL too long',
+        redirect_url: finalUrl
+      }, { status: 400 });
     }
 
-    return NextResponse.redirect(finalUrl, 307); // Usa 307 Temporary Redirect invece di 302
+    // Usa redirect assoluto con status 302 (compatibilità massima)
+    const response = NextResponse.redirect(finalUrl, 302);
+    
+    // Aggiungi header per forzare il redirect
+    response.headers.set('Location', finalUrl);
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    console.log('Redirect response created, Location header:', response.headers.get('Location'));
+    
+    return response;
 
   } catch (error) {
     console.error('OAuth desktop error:', error);
