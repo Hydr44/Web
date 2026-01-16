@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
-import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
+import { loginWithGoogle } from "@/lib/auth";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function LoginPage() {
@@ -42,26 +42,39 @@ export default function LoginPage() {
       console.log("Email:", email);
       console.log("Redirect to:", redirectTo);
 
-      const result = await loginWithPassword(email, password);
+      // Usa l'API route che imposta i cookie correttamente
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, redirectTo }),
+      });
 
-      if (result.success && result.user) {
+      const result = await response.json();
+
+      if (result.ok && result.user) {
         console.log("Login successful:", result.user.email);
         setSuccess(true);
         setError("Accesso completato! Reindirizzamento...");
         
-        // Piccola pausa per mostrare il successo
+        // Piccola pausa per mostrare il successo e permettere ai cookie di essere salvati
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Redirect
-        globalThis.location.href = redirectTo;
+        // Redirect - i cookie sono già stati impostati dal server
+        window.location.href = result.redirectTo || redirectTo;
       } else {
         console.error("Login failed:", result.error);
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
+        setIsLoading(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login exception:", error);
-      setError("Errore imprevisto durante l'accesso. Riprova.");
-    } finally {
+      if (error.message?.includes('Timeout')) {
+        setError(error.message);
+      } else {
+        setError("Errore imprevisto durante l'accesso. Riprova.");
+      }
       setIsLoading(false);
     }
   };
