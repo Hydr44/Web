@@ -35,10 +35,10 @@ export async function POST(request: NextRequest) {
     
     let authUsers;
     try {
-      // Aggiungi timeout manuale (10 secondi)
+      // Aggiungi timeout manuale (5 secondi - più corto per rispondere prima)
       const listUsersPromise = supabaseAdmin.auth.admin.listUsers();
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Supabase timeout: listUsers() non ha risposto entro 10 secondi. Il progetto potrebbe essere in pausa.')), 10000)
+        setTimeout(() => reject(new Error('Supabase timeout: listUsers() non ha risposto entro 5 secondi. Il progetto potrebbe essere in pausa.')), 5000)
       );
       
       const result = await Promise.race([listUsersPromise, timeoutPromise]) as any;
