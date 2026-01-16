@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import jwt from 'jsonwebtoken';
 
 export const runtime = "nodejs";
+export const maxDuration = 30; // 30 secondi per Supabase queries
 
 // JWT Secret per desktop app (dovrebbe essere in env)
 const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
