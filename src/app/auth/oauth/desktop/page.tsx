@@ -9,7 +9,12 @@ import GoogleLoginButton from "@/components/GoogleLoginButton";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
+// Log immediato quando il modulo viene caricato
+console.log('[DesktopOAuth] Module loaded');
+
 function DesktopOAuthContent() {
+  console.log('[DesktopOAuthContent] Component rendered');
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +30,15 @@ function DesktopOAuthContent() {
     state_id: string;
   } | null>(null);
 
-  const params = useSearchParams();
+  let params;
+  try {
+    params = useSearchParams();
+    console.log('[DesktopOAuthContent] useSearchParams called successfully');
+  } catch (err) {
+    console.error('[DesktopOAuthContent] Error calling useSearchParams:', err);
+    // Fallback: leggi direttamente dall'URL
+    params = null;
+  }
 
   // Estrai parametri OAuth
   useEffect(() => {
@@ -482,12 +495,15 @@ function DesktopOAuthContent() {
 }
 
 export default function DesktopOAuthPage() {
+  console.log('[DesktopOAuthPage] Component rendered');
+  
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Caricamento...</p>
+          <p className="text-xs text-gray-400 mt-2">Suspense fallback attivo</p>
         </div>
       </div>
     }>

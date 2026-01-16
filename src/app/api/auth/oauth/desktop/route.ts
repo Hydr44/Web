@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
     
     const encodedParams = Buffer.from(JSON.stringify(oauthParams)).toString('base64');
     console.log('Encoded OAuth params:', encodedParams);
+    console.log('Encoded params length:', encodedParams.length);
 
     // Redirect alla pagina di login OAuth
     // Usa request.nextUrl.origin per ottenere l'URL base corretto
@@ -68,9 +69,20 @@ export async function GET(request: NextRequest) {
     const loginUrl = new URL('/auth/oauth/desktop', origin);
     loginUrl.searchParams.set('params', encodedParams);
     
-    console.log('Redirecting to login page:', loginUrl.toString());
+    const finalUrl = loginUrl.toString();
+    console.log('=== REDIRECT INFO ===');
+    console.log('Origin:', origin);
+    console.log('Login URL path:', '/auth/oauth/desktop');
+    console.log('Final redirect URL:', finalUrl);
+    console.log('URL length:', finalUrl.length);
+    console.log('========================');
 
-    return NextResponse.redirect(loginUrl.toString());
+    // Verifica che l'URL non sia troppo lungo (alcuni browser hanno limiti)
+    if (finalUrl.length > 2000) {
+      console.error('WARNING: Redirect URL is very long:', finalUrl.length);
+    }
+
+    return NextResponse.redirect(finalUrl, 307); // Usa 307 Temporary Redirect invece di 302
 
   } catch (error) {
     console.error('OAuth desktop error:', error);
