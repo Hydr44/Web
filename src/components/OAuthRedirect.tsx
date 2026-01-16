@@ -22,6 +22,7 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
           
           // Redirect alla desktop app
           setTimeout(() => {
+            console.log('[OAuthRedirect] Redirecting to:', redirectUrl);
             globalThis.location.href = redirectUrl;
             onComplete?.();
           }, 500);

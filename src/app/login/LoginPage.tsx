@@ -48,27 +48,10 @@ export default function LoginPage() {
         setSuccess(true);
         setError("✅ Accesso completato! Reindirizzamento...");
         
-        // Verifica che la sessione sia effettivamente salvata prima di fare il redirect
-        const supabase = supabaseBrowser();
-        let sessionReady = false;
-        let attempts = 0;
-        const maxAttempts = 10;
+        // Piccola pausa per permettere a Supabase di salvare la sessione
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        while (!sessionReady && attempts < maxAttempts) {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            sessionReady = true;
-            break;
-          }
-          await new Promise(resolve => setTimeout(resolve, 100));
-          attempts++;
-        }
-        
-        if (!sessionReady) {
-          console.warn("Session not ready after login, redirecting anyway...");
-        }
-        
-        // Redirect dopo aver verificato la sessione
+        // Redirect
         window.location.href = redirectTo;
       } else {
         console.error("Login failed:", result.error);

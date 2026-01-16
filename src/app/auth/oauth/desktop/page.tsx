@@ -139,6 +139,10 @@ function DesktopOAuthContent() {
 
         // Prepara URL di redirect
         const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
+        console.log('[DesktopOAuth] Setting redirect URL:', redirectUrl);
+        console.log('[DesktopOAuth] Redirect URI from oauthInfo:', oauthInfo.redirect_uri);
+        console.log('[DesktopOAuth] OAuth Code:', oauthCode);
+        console.log('[DesktopOAuth] State:', oauthInfo.state);
         setRedirectUrl(redirectUrl);
 
       } else {
