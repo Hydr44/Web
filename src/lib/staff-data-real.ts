@@ -62,17 +62,27 @@ class StaffDataManager {
   // Get real users from database via API
   public async getUsers(): Promise<StaffUser[]> {
     try {
+      console.log('[StaffData] Fetching users from /api/staff/users');
       const response = await fetch('/api/staff/users');
-      const result = await response.json();
+      console.log('[StaffData] Response status:', response.status);
       
-      if (result.success) {
-        return result.users || [];
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      console.error('Error fetching users:', result.error);
+      const result = await response.json();
+      console.log('[StaffData] Response data:', result);
+      
+      if (result.success) {
+        const users = result.users || [];
+        console.log('[StaffData] Returning users:', users.length);
+        return users;
+      }
+      
+      console.error('[StaffData] API returned error:', result.error);
       return [];
-    } catch (error) {
-      console.error('Error in getUsers:', error);
+    } catch (error: any) {
+      console.error('[StaffData] Error in getUsers:', error);
       return [];
     }
   }

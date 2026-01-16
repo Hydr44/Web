@@ -13,6 +13,7 @@ function DesktopOAuthContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,10 +35,10 @@ function DesktopOAuthContent() {
     
     if (encodedParams) {
       try {
-        // Usa atob per decodificare base64 nel browser
+        // Usa atob per decodificare base64 nel browser (Buffer non è disponibile)
         const decodedString = atob(encodedParams);
         const decodedParams = JSON.parse(decodedString);
-        console.log('Decoded OAuth params:', decodedParams);
+        console.log('[DesktopOAuth] Decoded OAuth params:', decodedParams);
         
         // Verifica scadenza
         if (decodedParams.expires_at < Date.now()) {
@@ -65,6 +66,11 @@ function DesktopOAuthContent() {
     
     if (!email || !password) {
       setError("Inserisci email e password.");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
       return;
     }
 
@@ -99,26 +105,13 @@ function DesktopOAuthContent() {
         console.log("Redirect URI:", oauthInfo.redirect_uri);
         console.log("State:", oauthInfo.state);
         
-        // Verifica autenticazione con timeout
-        const getUserPromise = supabase.auth.getUser();
-        const getUserTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout verifica autenticazione')), 5000)
-        );
+        // Verifica autenticazione
+        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+        console.log("=== AUTHENTICATION CHECK ===");
+        console.log("Current User:", currentUser?.id);
+        console.log("Auth Error:", authError);
         
-        let currentUser;
-        try {
-          const { data: { user }, error: authError } = await Promise.race([getUserPromise, getUserTimeout]) as any;
-          currentUser = user;
-          console.log("=== AUTHENTICATION CHECK ===");
-          console.log("Current User:", currentUser?.id);
-          console.log("Auth Error:", authError);
-        } catch (authErr: any) {
-          console.warn("Auth check timeout, continuing anyway:", authErr.message);
-          // Continua comunque, il login è già avvenuto
-        }
-        
-        // Salva OAuth code con timeout
-        const insertPromise = supabase
+        const { data: insertData, error: oauthError } = await supabase
           .from('oauth_codes')
           .insert({
             code: oauthCode,
@@ -130,12 +123,6 @@ function DesktopOAuthContent() {
             used: false
           })
           .select();
-        
-        const insertTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout salvataggio OAuth code')), 5000)
-        );
-        
-        const { data: insertData, error: oauthError } = await Promise.race([insertPromise, insertTimeout]) as any;
 
         if (oauthError) {
           console.error('=== OAUTH CODE SAVE ERROR ===');
@@ -148,7 +135,7 @@ function DesktopOAuthContent() {
         console.log("Insert Data:", insertData);
 
         setSuccess(true);
-        setError("Accesso completato! Reindirizzamento alla desktop app...");
+        setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
 
         // Prepara URL di redirect
         const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
@@ -205,7 +192,7 @@ function DesktopOAuthContent() {
         }
 
         setSuccess(true);
-        setError("Accesso completato! Reindirizzamento alla desktop app...");
+        setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
 
         // Prepara URL di redirect
         const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
@@ -224,14 +211,10 @@ function DesktopOAuthContent() {
 
   if (!oauthInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <p className="text-gray-600 font-medium">Caricamento parametri OAuth...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento parametri OAuth...</p>
         </div>
       </div>
     );
@@ -240,48 +223,34 @@ function DesktopOAuthContent() {
   // Se abbiamo l'URL di redirect, mostra il componente di redirect
   if (redirectUrl) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
-        </div>
-        <div className="max-w-md w-full relative z-10 px-4">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-purple-500/10 border border-white/20 p-8">
-            <OAuthRedirect redirectUrl={redirectUrl} />
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="max-w-md w-full">
+          <OAuthRedirect redirectUrl={redirectUrl} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30 py-12 px-4 sm:px-6 lg:px-8">
-        <motion.div
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-md w-full space-y-8"
       >
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-        </div>
         {/* Header */}
         <div className="text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto h-20 w-20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30"
+            className="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center mb-6"
           >
-            <Monitor className="h-10 w-10 text-white" />
+            <Monitor className="h-8 w-8 text-white" />
           </motion.div>
           
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Accesso Desktop App
           </h2>
           <p className="text-gray-600 mb-8">
@@ -294,7 +263,7 @@ function DesktopOAuthContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="space-y-6 bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl shadow-purple-500/10 border border-white/20"
+          className="space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Email */}
@@ -354,12 +323,34 @@ function DesktopOAuthContent() {
             </div>
           </div>
 
+          {/* Terms */}
+          <div className="flex items-center">
+            <input
+              id="accept-terms"
+              name="accept-terms"
+              type="checkbox"
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700">
+              Accetto i{" "}
+              <a href="/terms-of-use" className="text-indigo-600 hover:text-indigo-500">
+                Termini d'Uso
+              </a>{" "}
+              e la{" "}
+              <a href="/privacy-policy" className="text-indigo-600 hover:text-indigo-500">
+                Privacy Policy
+              </a>
+            </label>
+          </div>
+
           {/* Error/Success Messages */}
-          {error && !success && (
+          {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl"
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
             >
               {error}
             </motion.div>
@@ -369,29 +360,25 @@ function DesktopOAuthContent() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center shadow-sm"
+              className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center"
             >
-              <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-              <span className="font-medium">{error}</span>
+              <CheckCircle className="h-5 w-5 mr-2" />
+              {error} {/* Usa error per il messaggio di successo */}
             </motion.div>
           )}
 
           {/* Submit Button */}
           <motion.button
-            whileHover={isLoading ? {} : { scale: 1.02 }}
-            whileTap={isLoading ? {} : { scale: 0.98 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-purple-500/30 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 relative overflow-hidden"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                />
-                <span>Accesso in corso...</span>
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Accesso in corso...
               </div>
             ) : (
               <div className="flex items-center">
@@ -400,26 +387,7 @@ function DesktopOAuthContent() {
                 <ArrowRight className="h-5 w-5 ml-2" />
               </div>
             )}
-            {isLoading && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                animate={{ x: ["-100%", "100%"] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              />
-            )}
           </motion.button>
-
-          {/* Terms - Accettati automaticamente cliccando Accedi */}
-          <p className="text-xs text-center text-gray-500 mt-3">
-            Cliccando su "Accedi", accetti i{" "}
-            <a href="/terms-of-use" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
-              Termini d'Uso
-            </a>{" "}
-            e la{" "}
-            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-500 underline">
-              Privacy Policy
-            </a>
-          </p>
 
           {/* Divider */}
           <div className="relative">
@@ -456,14 +424,10 @@ function DesktopOAuthContent() {
 export default function DesktopOAuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <p className="text-gray-600 font-medium">Caricamento...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento...</p>
         </div>
       </div>
     }>

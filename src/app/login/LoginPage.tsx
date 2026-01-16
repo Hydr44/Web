@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
-import { loginWithGoogle } from "@/lib/auth";
+import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function LoginPage() {
@@ -42,39 +42,26 @@ export default function LoginPage() {
       console.log("Email:", email);
       console.log("Redirect to:", redirectTo);
 
-      // Usa l'API route che imposta i cookie correttamente
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, redirectTo }),
-      });
+      const result = await loginWithPassword(email, password);
 
-      const result = await response.json();
-
-      if (result.ok && result.user) {
+      if (result.success && result.user) {
         console.log("Login successful:", result.user.email);
         setSuccess(true);
-        setError("Accesso completato! Reindirizzamento...");
+        setError("✅ Accesso completato! Reindirizzamento...");
         
-        // Piccola pausa per mostrare il successo e permettere ai cookie di essere salvati
+        // Piccola pausa per mostrare il successo
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Redirect - i cookie sono già stati impostati dal server
-        window.location.href = result.redirectTo || redirectTo;
+        // Redirect
+        globalThis.location.href = redirectTo;
       } else {
         console.error("Login failed:", result.error);
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
-        setIsLoading(false);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login exception:", error);
-      if (error.message?.includes('Timeout')) {
-        setError(error.message);
-      } else {
-        setError("Errore imprevisto durante l'accesso. Riprova.");
-      }
+      setError("Errore imprevisto durante l'accesso. Riprova.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -82,7 +69,7 @@ export default function LoginPage() {
   // Google login handled by GoogleLoginButton component
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -108,10 +95,10 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-purple-500/10 border border-white/20 p-8"
+          className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8"
         >
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Accedi al tuo account</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Accedi al tuo account</h1>
             <p className="text-gray-600">Inserisci le tue credenziali per accedere</p>
           </div>
 
@@ -234,7 +221,7 @@ export default function LoginPage() {
               className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                 isLoading || !acceptTerms
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/30"
+                  : "bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25"
               }`}
               whileHover={!isLoading && acceptTerms ? { scale: 1.02 } : {}}
               whileTap={!isLoading && acceptTerms ? { scale: 0.98 } : {}}

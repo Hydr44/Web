@@ -24,7 +24,16 @@ export default function DashboardLayout({
       try {
         console.log("Starting dashboard auth check...");
         
-        // Prova a ottenere l'utente (Supabase controlla automaticamente cookie e localStorage)
+        // Controlla cookie Supabase
+        const hasSbCookie = document.cookie.split(";").some(c => c.trim().startsWith("sb-"));
+        
+        if (!hasSbCookie) {
+          console.log("No auth data found, redirecting to login");
+          router.push("/login?redirect=/dashboard");
+          return;
+        }
+
+        // Prova a ottenere l'utente
         const { data: { user }, error } = await supabase.auth.getUser();
         console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         

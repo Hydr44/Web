@@ -32,10 +32,13 @@ export default function AdminOverviewPage() {
   const loadStaffUsers = async () => {
     try {
       setLoading(true);
+      console.log('[Staff Overview] Loading users...');
       const users = await staffData.getUsers();
+      console.log('[Staff Overview] Loaded users:', users.length);
       setStaffUsers(users);
-    } catch (error) {
-      console.error('Error loading staff users:', error);
+    } catch (error: any) {
+      console.error('[Staff Overview] Error loading staff users:', error);
+      setStaffUsers([]); // Assicurati che sia un array vuoto
     } finally {
       setLoading(false);
     }

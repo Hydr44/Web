@@ -56,16 +56,49 @@ export default function AdminDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('[Staff Dashboard] Loading data...');
       
       // Fetch dashboard data from API
       const response = await fetch('/api/staff/dashboard');
-      const data = await response.json();
+      console.log('[Staff Dashboard] Response status:', response.status);
       
-      if (data.success) {
-        setStats(data.stats);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      
+      const data = await response.json();
+      console.log('[Staff Dashboard] Response data:', data);
+      
+      if (data.success && data.stats) {
+        console.log('[Staff Dashboard] Setting stats:', data.stats);
+        setStats(data.stats);
+      } else {
+        console.error('[Staff Dashboard] API returned error:', data.error);
+        // Imposta valori di default invece di lasciare tutto a 0
+        setStats({
+          totalUsers: 0,
+          totalOrgs: 0,
+          totalLeads: 0,
+          monthlyRevenue: 0,
+          userGrowth: 0,
+          leadConversion: 0,
+          activeUsers: 0,
+          newLeadsToday: 0
+        });
+      }
+    } catch (error: any) {
+      console.error('[Staff Dashboard] Error loading dashboard data:', error);
+      // Imposta valori di default in caso di errore
+      setStats({
+        totalUsers: 0,
+        totalOrgs: 0,
+        totalLeads: 0,
+        monthlyRevenue: 0,
+        userGrowth: 0,
+        leadConversion: 0,
+        activeUsers: 0,
+        newLeadsToday: 0
+      });
     } finally {
       setLoading(false);
     }

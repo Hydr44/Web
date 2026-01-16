@@ -18,8 +18,6 @@ export interface FIRLocal {
   produttore_indirizzo: string;
   produttore_pec?: string;
   produttore_num_iscr_sito?: string;
-  produttore_luogo_produzione?: string;
-  produttore_autorizzazione?: string;
   
   // Trasportatore
   trasportatore_cf: string;
@@ -60,14 +58,6 @@ export interface FIRLocal {
   data_inizio_trasporto?: string;
   data_fine_trasporto?: string;
   note?: string;
-  
-  // Intermediari/Commercianti (opzionale)
-  intermediari?: Array<{
-    codice_fiscale: string;
-    denominazione: string;
-    nazione_id?: string;
-    numero_iscrizione_albo?: string;
-  }>;
 }
 
 /**
@@ -77,9 +67,6 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
   // Parse indirizzi
   const prodIndirizzo = parseIndirizzo(fir.produttore_indirizzo);
   const destIndirizzo = parseIndirizzo(fir.destinatario_indirizzo);
-  const prodLuogoProduzione = fir.produttore_luogo_produzione 
-    ? parseIndirizzo(fir.produttore_luogo_produzione) 
-    : null;
   
   // Usa primo rifiuto come "rifiuto" principale (RENTRI vuole singolo, non array)
   const rifiutoPrincipale = fir.codici_eer[0];
@@ -107,31 +94,13 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
         // ...(fir.produttore_num_iscr_sito && {
         //   num_iscr_sito: fir.produttore_num_iscr_sito
         // }),
-        luogo_produzione: prodLuogoProduzione ? {
-          indirizzo: prodLuogoProduzione.via || prodIndirizzo.via || "Via Esempio",
-          civico: prodLuogoProduzione.civico || prodIndirizzo.civico || "1",
-          citta: {
-            comune_id: prodLuogoProduzione.comuneIdISTAT || prodIndirizzo.comuneIdISTAT || "015146"
-          }
-        } : {
+        luogo_produzione: {
           indirizzo: prodIndirizzo.via || "Via Esempio",
           civico: prodIndirizzo.civico || "1",
           citta: {
             comune_id: prodIndirizzo.comuneIdISTAT || "015146" // Milano ISTAT
           }
-        },
-        ...(fir.produttore_autorizzazione && {
-          autorizzazione: {
-            numero: fir.produttore_autorizzazione,
-            tipo: fir.produttore_autorizzazione_tipo || "RecSmalArt208"
-          }
-        }),
-        ...(fir.produttore_numero_iscrizione_albo && {
-          numero_iscrizione_albo: fir.produttore_numero_iscrizione_albo
-        }),
-        ...(fir.produttore_detentore && {
-          detentore: fir.produttore_detentore
-        })
+        }
       },
       
       // Destinatario
@@ -181,21 +150,7 @@ export function buildRentriFIRPayload(fir: FIRLocal, numIscrSitoOperatore: strin
           unita_misura: rifiutoPrincipale.unita,
           valore: parseFloat(rifiutoPrincipale.quantita.toString())
         }
-      },
-      
-      // Intermediari (OPZIONALE - array)
-      ...(fir.intermediari && fir.intermediari.length > 0 && {
-        intermediari: fir.intermediari.map(inter => ({
-          codice_fiscale: inter.codice_fiscale,
-          denominazione: inter.denominazione,
-          ...(inter.nazione_id && inter.nazione_id !== "IT" && {
-            nazione_id: inter.nazione_id
-          }),
-          ...(inter.numero_iscrizione_albo && {
-            numero_iscrizione_albo: inter.numero_iscrizione_albo
-          })
-        }))
-      })
+      }
     },
     
     // Dati trasporto partenza (OBBLIGATORIO con conducente!)
