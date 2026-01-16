@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Validazione redirect_uri
-    if (!redirectUri.startsWith('desktop://') && !redirectUri.startsWith('http://localhost:')) {
+    if (!redirectUri.startsWith('desktop://') && !redirectUri.startsWith('http://localhost:') && !redirectUri.startsWith('http://127.0.0.1:')) {
       return NextResponse.json(
-        { error: 'Invalid redirect_uri. Must start with desktop:// or http://localhost:' },
+        { error: 'Invalid redirect_uri. Must start with desktop://, http://localhost: or http://127.0.0.1:' },
         { status: 400 }
       );
     }

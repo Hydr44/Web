@@ -23,7 +23,19 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
           // Redirect alla desktop app
           setTimeout(() => {
             console.log('[OAuthRedirect] Redirecting to:', redirectUrl);
-            globalThis.location.href = redirectUrl;
+            console.log('[OAuthRedirect] Current location:', globalThis.location.href);
+            try {
+              globalThis.location.href = redirectUrl;
+              console.log('[OAuthRedirect] Redirect initiated');
+            } catch (err) {
+              console.error('[OAuthRedirect] Redirect error:', err);
+              // Fallback: prova con window.location
+              try {
+                window.location.href = redirectUrl;
+              } catch (err2) {
+                console.error('[OAuthRedirect] Fallback redirect also failed:', err2);
+              }
+            }
             onComplete?.();
           }, 500);
           
