@@ -24,40 +24,8 @@ export default function DashboardLayout({
       try {
         console.log("Starting dashboard auth check...");
         
-        // Prova a ottenere l'utente (controlla sia cookie che localStorage)
+        // Prova a ottenere l'utente (Supabase controlla automaticamente cookie e localStorage)
         const { data: { user }, error } = await supabase.auth.getUser();
-        
-        // Se non c'è utente, controlla anche localStorage come fallback
-        if (error || !user) {
-          // Controlla se c'è una sessione in localStorage (per compatibilità)
-          const hasLocalStorageSession = typeof window !== 'undefined' && 
-            localStorage.getItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token');
-          
-          if (!hasLocalStorageSession) {
-            console.log("No auth data found (cookie or localStorage), redirecting to login");
-            router.push("/login?redirect=/dashboard");
-            return;
-          }
-          
-          // Se c'è localStorage ma getUser() fallisce, potrebbe essere un problema di sincronizzazione
-          // Riprova dopo un breve delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const { data: { user: retryUser }, error: retryError } = await supabase.auth.getUser();
-          
-          if (retryError || !retryUser) {
-            console.log("Auth check failed after retry, redirecting to login");
-            router.push("/login?redirect=/dashboard");
-            return;
-          }
-          
-          // Usa l'utente dal retry
-          const finalUser = retryUser;
-          setUserEmail(finalUser.email || "Utente");
-          setCurrentOrgName("RescueManager");
-          setLoading(false);
-          console.log("Dashboard auth check completed successfully (after retry)");
-          return;
-        }
         console.log("Dashboard auth check:", { user: user?.email, error: error?.message });
         
         if (error || !user) {
