@@ -60,8 +60,12 @@ export async function GET(request: NextRequest) {
     console.log('Encoded OAuth params:', encodedParams);
 
     // Redirect alla pagina di login OAuth
-    const loginUrl = new URL('/auth/oauth/desktop', request.url);
+    // Usa request.nextUrl.origin per ottenere l'URL base corretto
+    const origin = request.nextUrl.origin;
+    const loginUrl = new URL('/auth/oauth/desktop', origin);
     loginUrl.searchParams.set('params', encodedParams);
+    
+    console.log('Redirecting to login page:', loginUrl.toString());
 
     return NextResponse.redirect(loginUrl.toString());
 

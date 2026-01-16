@@ -219,6 +219,18 @@ function DesktopOAuthContent() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Caricamento parametri OAuth...</p>
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 max-w-md mx-auto">
+              <p className="font-semibold">Errore:</p>
+              <p className="text-sm">{error}</p>
+              <a 
+                href="/login" 
+                className="mt-2 inline-block text-sm text-indigo-600 hover:text-indigo-500 underline"
+              >
+                Torna al login
+              </a>
+            </div>
+          )}
         </div>
       </div>
     );
