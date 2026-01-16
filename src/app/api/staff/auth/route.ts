@@ -26,10 +26,57 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Staff auth API called for:', email);
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('Service role key present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-    // Find user by email first
-    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const authUser = authUsers?.users?.find(u => u.email === email);
+    // Find user by email first con timeout
+    console.log('[Staff Auth] Calling supabaseAdmin.auth.admin.listUsers()...');
+    const startTime = Date.now();
+    
+    let authUsers;
+    try {
+      // Aggiungi timeout manuale (10 secondi)
+      const listUsersPromise = supabaseAdmin.auth.admin.listUsers();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Supabase timeout: listUsers() non ha risposto entro 10 secondi. Il progetto potrebbe essere in pausa.')), 10000)
+      );
+      
+      const result = await Promise.race([listUsersPromise, timeoutPromise]) as any;
+      authUsers = result;
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`[Staff Auth] listUsers() completed in ${elapsed}ms`);
+      console.log(`[Staff Auth] Found ${authUsers?.data?.users?.length || 0} users`);
+    } catch (error: any) {
+      const elapsed = Date.now() - startTime;
+      console.error(`[Staff Auth] Error after ${elapsed}ms:`, error);
+      const origin = request.headers.get('origin');
+      
+      // Messaggio più dettagliato
+      let errorMessage = 'Errore connessione Supabase';
+      if (error.message?.includes('timeout')) {
+        errorMessage = 'Timeout: Supabase non risponde entro 10 secondi. Possibili cause:\n' +
+          '1. Il progetto Supabase è in pausa (piano gratuito)\n' +
+          '2. Problemi di rete/VPS\n' +
+          '3. Supabase temporaneamente non disponibile\n\n' +
+          'Verifica: https://status.supabase.com o vai su https://supabase.com/dashboard e controlla se il progetto è attivo.';
+      } else {
+        errorMessage = `Errore Supabase: ${error.message}`;
+      }
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: errorMessage
+        },
+        { 
+          status: 503,
+          headers: corsHeaders(origin)
+        }
+      );
+    }
+    
+    const authUser = authUsers?.data?.users?.find((u: any) => u.email === email);
 
     if (!authUser) {
       console.log('Auth user not found:', email);
