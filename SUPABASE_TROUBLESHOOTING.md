@@ -52,13 +52,50 @@ Quando provi a fare login, controlla i log del server:
 - `[Staff Auth] Calling supabaseAdmin.auth.admin.listUsers()...`
 - Se vedi timeout dopo 5 secondi → Progetto in pausa o non raggiungibile
 
-### Soluzione Temporanea
+### Soluzione: Riavvia il Progetto Supabase
 
-Se Supabase è in pausa e non puoi riattivarlo subito:
-1. Vai su https://supabase.com/dashboard
-2. Clicca "Resume" sul progetto
-3. Attendi 1-2 minuti per la riattivazione
-4. Riprova il login
+**Questo è spesso la soluzione migliore!** Riavviare il progetto Supabase può risolvere:
+- Timeout e connessioni bloccate
+- Progetto in pausa (piano gratuito)
+- Problemi residui dopo manutenzione
+- Cache o connessioni stale
+
+#### Come Riavviare:
+
+1. **Vai al Dashboard Supabase**:
+   - Apri https://supabase.com/dashboard
+   - Accedi con le tue credenziali
+
+2. **Seleziona il Progetto**:
+   - Clicca sul progetto RescueManager dalla lista
+
+3. **Riavvia il Progetto**:
+   - **Se vedi "Paused"**: Clicca il pulsante **"Resume"** (o "Riprendi")
+   - **Se il progetto è attivo**: Vai su **Settings** → **General** → **Restart Project** (o "Riavvia Progetto")
+   - In alternativa, puoi anche:
+     - Mettere in pausa il progetto (se disponibile)
+     - Attendere 30 secondi
+     - Riprendere il progetto
+
+4. **Attendi la Riattivazione**:
+   - Il riavvio richiede **1-3 minuti**
+   - Vedrai un indicatore di progresso
+   - Non chiudere la pagina durante il riavvio
+
+5. **Verifica il Riavvio**:
+   - Controlla che il progetto mostri "Active" o "Running"
+   - Testa l'endpoint: `https://rescuemanager.eu/api/test/supabase`
+   - Dovrebbe rispondere entro 3-5 secondi
+
+6. **Riprova il Login**:
+   - Prova il login nell'admin panel
+   - Prova il login nell'app desktop
+   - Entrambi dovrebbero funzionare correttamente
+
+#### Nota Importante:
+- **Piano Gratuito**: I progetti vengono messi in pausa automaticamente dopo periodi di inattività
+- **Dopo Riavvio**: Il primo accesso potrebbe essere leggermente più lento (cold start)
+- **Frequenza**: Puoi riavviare il progetto quante volte vuoi, non ci sono limiti
 
 ### Verifica Configurazione
 
