@@ -5,7 +5,11 @@ import { corsHeaders } from '@/lib/cors';
 /**
  * Endpoint di test per verificare la connessione a Supabase
  * GET /api/test/supabase
+ * 
+ * NOTA: Vercel timeout 10s (Hobby). I test hanno timeout di 3s ciascuno.
  */
+export const maxDuration = 10;
+
 export async function GET(request: Request) {
   const origin = request.headers.get('origin');
   const overallStartTime = Date.now();
@@ -40,7 +44,7 @@ export async function GET(request: Request) {
       .single();
     
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout dopo 5 secondi')), 5000)
+      setTimeout(() => reject(new Error('Timeout dopo 3 secondi')), 3000)
     );
     
     const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
@@ -69,7 +73,7 @@ export async function GET(request: Request) {
   let test3StartTime = Date.now();
   try {
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout dopo 5 secondi')), 5000)
+      setTimeout(() => reject(new Error('Timeout dopo 3 secondi')), 3000)
     );
     
     const listUsersPromise = supabaseAdmin.auth.admin.listUsers();
@@ -101,7 +105,7 @@ export async function GET(request: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const healthUrl = `${supabaseUrl}/rest/v1/`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
     
     const response = await fetch(healthUrl, {
       method: 'GET',
