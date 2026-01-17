@@ -265,9 +265,9 @@ function DesktopOAuthContent() {
 
   if (!oauthInfo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
         <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 text-center border border-white/20 dark:border-white/10">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Caricamento parametri OAuth</h3>
             <p className="text-gray-600 dark:text-gray-400">Attendere prego...</p>
@@ -292,7 +292,7 @@ function DesktopOAuthContent() {
   // Se abbiamo l'URL di redirect, mostra il componente di redirect
   if (redirectUrl) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
         <div className="min-h-screen flex items-center justify-center p-6">
           <div className="max-w-md w-full">
             <OAuthRedirect redirectUrl={redirectUrl} />
@@ -303,13 +303,13 @@ function DesktopOAuthContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
       <div className="min-h-screen flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 space-y-8"
+        className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 space-y-8 border border-white/20 dark:border-white/10"
       >
         {/* Header */}
         <div className="text-center">
@@ -317,12 +317,12 @@ function DesktopOAuthContent() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-lg"
+            className="mx-auto h-16 w-16 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-6 shadow-lg"
           >
             <Monitor className="h-8 w-8 text-white" />
           </motion.div>
           
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Accesso Desktop App
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
@@ -445,7 +445,7 @@ function DesktopOAuthContent() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isLoading ? (
               <div className="flex items-center">
@@ -500,9 +500,9 @@ export default function DesktopOAuthPage() {
   
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
         <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 text-center border border-white/20 dark:border-white/10">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Caricamento</h3>
             <p className="text-gray-600 dark:text-gray-400">Attendere prego...</p>
