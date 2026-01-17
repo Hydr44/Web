@@ -60,12 +60,13 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
   }, [redirectUrl, onComplete]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="text-center space-y-6"
-    >
+    <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="text-center space-y-6"
+      >
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -76,30 +77,30 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
       </motion.div>
 
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Accesso Completato!
+        <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          Autenticazione completata
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Reindirizzamento alla desktop app in corso...
         </p>
       </div>
 
       <div className="flex items-center justify-center space-x-2">
-        <Monitor className="h-5 w-5 text-indigo-600" />
-        <span className="text-sm text-gray-600">
+        <Monitor className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        <span className="text-sm text-gray-600 dark:text-gray-400">
           {isRedirecting ? "Reindirizzamento..." : `Reindirizzamento in ${countdown} secondi`}
         </span>
-        <ArrowRight className="h-4 w-4 text-indigo-600" />
+        <ArrowRight className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
       </div>
 
       {!isRedirecting && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="w-full bg-gray-200 rounded-full h-2"
+          className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2"
         >
           <motion.div
-            className="bg-indigo-600 h-2 rounded-full"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
             transition={{ duration: 3, ease: "linear" }}
@@ -107,15 +108,16 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
         </motion.div>
       )}
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-gray-500 dark:text-gray-400">
         Se il reindirizzamento non funziona automaticamente,{" "}
         <a 
           href={redirectUrl} 
-          className="text-indigo-600 hover:text-indigo-500 underline"
+          className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 underline"
         >
           clicca qui
         </a>
       </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

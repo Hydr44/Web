@@ -20,10 +20,12 @@ function verifyOAuthToken(token: string) {
 }
 
 export async function GET(request: NextRequest) {
+  console.log('[operator/list] API called');
   try {
     // Leggi token Bearer dall'header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[operator/list] No token provided');
       return NextResponse.json(
         { error: 'Token non fornito' },
         { status: 401 }
@@ -34,6 +36,7 @@ export async function GET(request: NextRequest) {
     const decoded = verifyOAuthToken(token);
     
     if (!decoded || decoded.type !== 'access') {
+      console.log('[operator/list] Invalid token');
       return NextResponse.json(
         { error: 'Token non valido o scaduto' },
         { status: 401 }
@@ -42,11 +45,14 @@ export async function GET(request: NextRequest) {
 
     const userId = decoded.user_id;
     if (!userId) {
+      console.log('[operator/list] No user_id in token');
       return NextResponse.json(
         { error: 'Token non valido' },
         { status: 401 }
       );
     }
+
+    console.log('[operator/list] User ID:', userId);
 
     const supabase = await supabaseServer();
 
@@ -55,11 +61,14 @@ export async function GET(request: NextRequest) {
     const orgId = searchParams.get('org_id');
 
     if (!orgId) {
+      console.log('[operator/list] No org_id provided');
       return NextResponse.json(
         { error: 'org_id richiesto' },
         { status: 400 }
       );
     }
+    
+    console.log('[operator/list] Org ID:', orgId);
 
     // Verifica che l'utente appartenga all'org
     const { data: orgMember, error: orgError } = await supabase
@@ -87,13 +96,15 @@ export async function GET(request: NextRequest) {
       .order('nome', { ascending: true });
 
     if (operatorsError) {
-      console.error('Error loading operators:', operatorsError);
+      console.error('[operator/list] Error loading operators:', operatorsError);
       return NextResponse.json(
         { error: 'Errore caricamento operatori' },
         { status: 500 }
       );
     }
 
+    console.log('[operator/list] Found operators:', operators?.length || 0, 'for org:', orgId);
+    
     return NextResponse.json({
       success: true,
       operators: operators || [],
