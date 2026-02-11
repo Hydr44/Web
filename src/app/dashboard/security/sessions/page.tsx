@@ -136,19 +136,19 @@ export default function SessionsPage() {
     } else if (device.includes("iPad") || device.includes("tablet")) {
       return <Tablet className="h-5 w-5 text-purple-500" />;
     } else {
-      return <Monitor className="h-5 w-5 text-gray-500" />;
+      return <Monitor className="h-5 w-5 text-slate-500" />;
     }
   };
 
   const getBrowserIcon = (browser: string) => {
     if (browser.includes("Chrome")) {
-      return <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>;
+      return <div className="w-4 h-4 bg-blue-500/100 rounded-sm"></div>;
     } else if (browser.includes("Safari")) {
       return <div className="w-4 h-4 bg-blue-600 rounded-sm"></div>;
     } else if (browser.includes("Firefox")) {
       return <div className="w-4 h-4 bg-orange-500 rounded-sm"></div>;
     } else {
-      return <div className="w-4 h-4 bg-gray-500 rounded-sm"></div>;
+      return <div className="w-4 h-4 bg-[#141c27]0 rounded-sm"></div>;
     }
   };
 
@@ -167,19 +167,19 @@ export default function SessionsPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link 
             href="/dashboard/security"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </Link>
           <div>
             <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
               <Monitor className="h-4 w-4" />
               Gestione Sessioni
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Sessioni <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Attive</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
+              Sessioni <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Attive</span>
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Monitora e gestisci i dispositivi connessi al tuo account
             </p>
           </div>
@@ -188,78 +188,78 @@ export default function SessionsPage() {
 
       {/* Session Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
               <Monitor className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sessioni Attive</h3>
-              <p className="text-sm text-gray-600">Dispositivi connessi</p>
+              <h3 className="text-lg font-semibold text-slate-100">Sessioni Attive</h3>
+              <p className="text-sm text-slate-400">Dispositivi connessi</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             {sessions.length}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sicurezza</h3>
-              <p className="text-sm text-gray-600">Stato account</p>
+              <h3 className="text-lg font-semibold text-slate-100">Sicurezza</h3>
+              <p className="text-sm text-slate-400">Stato account</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             Sicuro
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
               <Clock className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Ultima Attività</h3>
-              <p className="text-sm text-gray-600">Accesso recente</p>
+              <h3 className="text-lg font-semibold text-slate-100">Ultima Attività</h3>
+              <p className="text-sm text-slate-400">Accesso recente</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             2h
           </div>
         </div>
       </div>
 
       {/* Current Session */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-green-200/50 shadow-sm">
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-emerald-500/20/50 ">
         <div className="flex items-center gap-3 mb-4">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Sessione Corrente</h2>
+          <CheckCircle className="h-5 w-5 text-emerald-400" />
+          <h2 className="text-xl font-semibold text-slate-100">Sessione Corrente</h2>
         </div>
-        <p className="text-sm text-gray-600 mb-6">
+        <p className="text-sm text-slate-400 mb-6">
           Questa è la sessione attualmente attiva. Non puoi disconnetterla da qui.
         </p>
         
         {sessions.filter(session => session.isCurrent).map((session) => (
-          <div key={session.id} className="p-4 rounded-xl bg-white border border-green-200">
+          <div key={session.id} className="p-4 rounded-xl bg-[#1a2536] border border-emerald-500/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {getDeviceIcon(session.device)}
                 <div>
-                  <h3 className="font-medium text-gray-900">{session.device}</h3>
-                  <p className="text-sm text-gray-600">{session.browser} • {session.os}</p>
+                  <h3 className="font-medium text-slate-100">{session.device}</h3>
+                  <p className="text-sm text-slate-400">{session.browser} • {session.os}</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-2 text-sm text-green-600">
+                <div className="flex items-center gap-2 text-sm text-emerald-400">
                   <CheckCircle className="h-4 w-4" />
                   <span>Attiva</span>
                 </div>
-                <p className="text-xs text-gray-500">{session.lastActive}</p>
+                <p className="text-xs text-slate-500">{session.lastActive}</p>
               </div>
             </div>
           </div>
@@ -267,17 +267,17 @@ export default function SessionsPage() {
       </div>
 
       {/* Other Sessions */}
-      <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+      <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Altre Sessioni</h2>
-            <p className="text-sm text-gray-600">Dispositivi connessi in precedenza</p>
+            <h2 className="text-xl font-semibold text-slate-100">Altre Sessioni</h2>
+            <p className="text-sm text-slate-400">Dispositivi connessi in precedenza</p>
           </div>
           
           {sessions.filter(session => !session.isCurrent).length > 0 && (
             <button
               onClick={handleLogoutAllOtherSessions}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-800 transition-colors duration-200 font-medium"
+              className="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-800 transition-colors duration-200 font-medium"
             >
               <LogOut className="h-4 w-4" />
               Disconnetti Tutte
@@ -288,23 +288,23 @@ export default function SessionsPage() {
         {sessions.filter(session => !session.isCurrent).length > 0 ? (
           <div className="space-y-4">
             {sessions.filter(session => !session.isCurrent).map((session) => (
-              <div key={session.id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={session.id} className="p-4 rounded-xl bg-[#141c27] border border-[#243044]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {getDeviceIcon(session.device)}
                     <div>
-                      <h3 className="font-medium text-gray-900">{session.device}</h3>
-                      <p className="text-sm text-gray-600">{session.browser} • {session.os}</p>
+                      <h3 className="font-medium text-slate-100">{session.device}</h3>
+                      <p className="text-sm text-slate-400">{session.browser} • {session.os}</p>
                       <div className="flex items-center gap-4 mt-1">
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
                           <MapPin className="h-3 w-3" />
                           {session.location}
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
                           <Wifi className="h-3 w-3" />
                           {session.ip}
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
                           <Clock className="h-3 w-3" />
                           {session.lastActive}
                         </div>
@@ -314,12 +314,12 @@ export default function SessionsPage() {
                   
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">Ultima attività</div>
-                      <div className="text-xs text-gray-500">{session.lastActive}</div>
+                      <div className="text-sm text-slate-400">Ultima attività</div>
+                      <div className="text-xs text-slate-500">{session.lastActive}</div>
                     </div>
                     <button
                       onClick={() => handleLogoutSession(session.id)}
-                      className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                      className="flex items-center gap-2 px-3 py-2 text-red-400 hover:text-red-800 hover:bg-red-500/10 rounded-lg transition-colors duration-200"
                     >
                       <LogOut className="h-4 w-4" />
                       Disconnetti
@@ -331,42 +331,42 @@ export default function SessionsPage() {
           </div>
         ) : (
           <div className="text-center py-8">
-            <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna altra sessione</h3>
-            <p className="text-sm text-gray-600">Non ci sono altre sessioni attive al momento.</p>
+            <Monitor className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-100 mb-2">Nessuna altra sessione</h3>
+            <p className="text-sm text-slate-400">Non ci sono altre sessioni attive al momento.</p>
           </div>
         )}
       </div>
 
       {/* Security Tips */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-200/50 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza</h2>
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-500/20/50 ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-4">Consigli per la Sicurezza</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Disconnetti sempre da dispositivi condivisi</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Monitora regolarmente le sessioni attive</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Disconnetti sessioni sospette immediatamente</span>
             </div>
           </div>
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Usa sempre HTTPS per le connessioni</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Abilita l'autenticazione a due fattori</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Aggiorna regolarmente i tuoi dispositivi</span>
             </div>
           </div>

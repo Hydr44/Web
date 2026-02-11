@@ -124,26 +124,26 @@ export default function AuditLogPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "success":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-emerald-400" />;
       case "failed":
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
+        return <AlertTriangle className="h-4 w-4 text-red-400" />;
       case "info":
-        return <Clock className="h-4 w-4 text-blue-600" />;
+        return <Clock className="h-4 w-4 text-blue-400" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
+        return <Clock className="h-4 w-4 text-slate-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "success":
-        return "text-green-600 bg-green-50 border-green-200";
+        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
       case "failed":
-        return "text-red-600 bg-red-50 border-red-200";
+        return "text-red-400 bg-red-500/10 border-red-500/20";
       case "info":
-        return "text-blue-600 bg-blue-50 border-blue-200";
+        return "text-blue-400 bg-blue-500/10 border-blue-500/20";
       default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
+        return "text-slate-400 bg-[#141c27] border-[#243044]";
     }
   };
 
@@ -177,19 +177,19 @@ export default function AuditLogPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link 
             href="/dashboard/security"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </Link>
           <div>
             <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
               <Shield className="h-4 w-4" />
               Audit Log
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Log di <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Sicurezza</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
+              Log di <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Sicurezza</span>
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Monitora tutte le attività di sicurezza del tuo account
             </p>
           </div>
@@ -198,62 +198,62 @@ export default function AuditLogPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
               <CheckCircle className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Successi</h3>
-              <p className="text-sm text-gray-600">Ultimi 30 giorni</p>
+              <h3 className="text-lg font-semibold text-slate-100">Successi</h3>
+              <p className="text-sm text-slate-400">Ultimi 30 giorni</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             {auditLogs.filter(log => log.status === "success").length}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-red-50/30 border border-red-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-red-50/30 border border-red-500/20/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
               <AlertTriangle className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Tentativi Falliti</h3>
-              <p className="text-sm text-gray-600">Ultimi 30 giorni</p>
+              <h3 className="text-lg font-semibold text-slate-100">Tentativi Falliti</h3>
+              <p className="text-sm text-slate-400">Ultimi 30 giorni</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             {auditLogs.filter(log => log.status === "failed").length}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-blue-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-blue-500/20/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
               <Clock className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Eventi Totali</h3>
-              <p className="text-sm text-gray-600">Ultimi 30 giorni</p>
+              <h3 className="text-lg font-semibold text-slate-100">Eventi Totali</h3>
+              <p className="text-sm text-slate-400">Ultimi 30 giorni</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             {auditLogs.length}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
               <Globe className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Posizioni</h3>
-              <p className="text-sm text-gray-600">Diverse</p>
+              <h3 className="text-lg font-semibold text-slate-100">Posizioni</h3>
+              <p className="text-sm text-slate-400">Diverse</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-3xl font-bold text-slate-100">
             {new Set(auditLogs.map(log => log.location)).size}
           </div>
         </div>
@@ -262,20 +262,20 @@ export default function AuditLogPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
           <input
             type="text"
             placeholder="Cerca per azione, dettagli o IP..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
           <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 appearance-none"
+            className="w-full sm:w-auto pl-10 pr-4 py-2 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -287,9 +287,9 @@ export default function AuditLogPage() {
         </div>
 
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
           <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 appearance-none"
+            className="w-full sm:w-auto pl-10 pr-4 py-2 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
             value={filterAction}
             onChange={(e) => setFilterAction(e.target.value)}
           >
@@ -308,33 +308,33 @@ export default function AuditLogPage() {
       </div>
 
       {/* Audit Logs */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Log di Sicurezza ({filteredLogs.length})</h3>
+      <div className="bg-[#1a2536] rounded-2xl shadow-lg shadow-black/20 border border-[#243044] overflow-hidden">
+        <div className="p-6 border-b border-[#243044]">
+          <h3 className="text-xl font-semibold text-slate-100">Log di Sicurezza ({filteredLogs.length})</h3>
         </div>
         
         {filteredLogs.length > 0 ? (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-[#243044]">
             {filteredLogs.map((log) => (
-              <div key={log.id} className="p-6 hover:bg-gray-50 transition-colors duration-200">
+              <div key={log.id} className="p-6 hover:bg-[#141c27] transition-colors duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#1a2536] flex items-center justify-center">
                       {getActionIcon(log.action)}
                     </div>
                     
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium text-gray-900">{log.action}</h4>
+                        <h4 className="font-medium text-slate-100">{log.action}</h4>
                         <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(log.status)}`}>
                           {getStatusIcon(log.status)}
                           {log.status}
                         </span>
                       </div>
                       
-                      <p className="text-sm text-gray-600 mb-3">{log.details}</p>
+                      <p className="text-sm text-slate-400 mb-3">{log.details}</p>
                       
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {new Date(log.timestamp).toLocaleString('it-IT')}
@@ -355,7 +355,7 @@ export default function AuditLogPage() {
                     </div>
                   </div>
                   
-                  <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                  <button className="p-2 text-slate-500 hover:text-slate-400 transition-colors duration-200">
                     <Eye className="h-4 w-4" />
                   </button>
                 </div>
@@ -364,9 +364,9 @@ export default function AuditLogPage() {
           </div>
         ) : (
           <div className="p-12 text-center">
-            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessun log trovato</h3>
-            <p className="text-sm text-gray-600">Prova a modificare i filtri di ricerca.</p>
+            <Shield className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-100 mb-2">Nessun log trovato</h3>
+            <p className="text-sm text-slate-400">Prova a modificare i filtri di ricerca.</p>
           </div>
         )}
       </div>

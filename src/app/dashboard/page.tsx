@@ -155,7 +155,7 @@ export default function DashboardPanoramica() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             
-            <button className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+            <button className="inline-flex items-center gap-2 px-6 py-3 border border-[#243044] text-slate-300 font-semibold rounded-xl hover:bg-[#1a2536] transition-all duration-200">
               <Users className="h-5 w-5" />
               Unisciti a un'Organizzazione
             </button>
@@ -175,10 +175,10 @@ export default function DashboardPanoramica() {
             <motion.div
               key={benefit.title}
               {...animations.staggerItem}
-              className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm"
+              className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]"
             >
               <benefit.icon className="h-8 w-8 text-primary mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">{benefit.title}</h3>
               <p className="text-gray-600">{benefit.desc}</p>
             </motion.div>
           ))}

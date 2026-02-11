@@ -116,11 +116,11 @@ export default function InviteMemberPage() {
       case "owner":
         return <Crown className="h-4 w-4 text-amber-600" />;
       case "admin":
-        return <Shield className="h-4 w-4 text-blue-600" />;
+        return <Shield className="h-4 w-4 text-blue-400" />;
       case "member":
-        return <User className="h-4 w-4 text-green-600" />;
+        return <User className="h-4 w-4 text-emerald-400" />;
       default:
-        return <User className="h-4 w-4 text-gray-600" />;
+        return <User className="h-4 w-4 text-slate-400" />;
     }
   };
 
@@ -144,19 +144,19 @@ export default function InviteMemberPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link 
             href="/dashboard/org/members"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </Link>
           <div>
             <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
               <UserPlus className="h-4 w-4" />
               Invita Membro
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Invita nuovo <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">membro</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
+              Invita nuovo <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">membro</span>
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Aggiungi un nuovo membro al team di {orgData?.name}
             </p>
           </div>
@@ -165,45 +165,45 @@ export default function InviteMemberPage() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="p-4 rounded-xl bg-green-50 border border-green-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-emerald-400" />
           <span className="text-green-800 font-medium">Invito inviato con successo!</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600" />
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-red-400" />
           <span className="text-red-800 font-medium">{error}</span>
         </div>
       )}
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Invite Form */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+        <div className="bg-[#1a2536] rounded-2xl border border-[#243044] ">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Invita via Email</h2>
+            <h2 className="text-2xl font-bold text-slate-100 mb-6">Invita via Email</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Email del membro
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                    className="w-full pl-10 pr-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                     placeholder="membro@example.com"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Ruolo
                 </label>
                 <div className="space-y-3">
@@ -211,7 +211,7 @@ export default function InviteMemberPage() {
                     { value: "member", label: "Membro", icon: User, color: "green" },
                     { value: "admin", label: "Amministratore", icon: Shield, color: "blue" }
                   ].map((role) => (
-                    <label key={role.value} className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-primary/30 cursor-pointer transition-colors duration-200">
+                    <label key={role.value} className="flex items-center gap-3 p-4 rounded-xl border border-[#243044] hover:border-primary/30 cursor-pointer transition-colors duration-200">
                       <input
                         type="radio"
                         name="role"
@@ -223,17 +223,17 @@ export default function InviteMemberPage() {
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                         formData.role === role.value 
                           ? `bg-${role.color}-100` 
-                          : 'bg-gray-100'
+                          : 'bg-[#1a2536]'
                       }`}>
                         <role.icon className={`h-4 w-4 ${
                           formData.role === role.value 
                             ? `text-${role.color}-600` 
-                            : 'text-gray-600'
+                            : 'text-slate-400'
                         }`} />
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium text-gray-900">{role.label}</div>
-                        <div className="text-sm text-gray-600">{getRoleDescription(role.value)}</div>
+                        <div className="font-medium text-slate-100">{role.label}</div>
+                        <div className="text-sm text-slate-400">{getRoleDescription(role.value)}</div>
                       </div>
                       {formData.role === role.value && (
                         <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -246,14 +246,14 @@ export default function InviteMemberPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Messaggio personalizzato (opzionale)
                 </label>
                 <textarea
                   value={formData.message}
                   onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Ciao! Ti invito a unirti al nostro team su RescueManager..."
                 />
               </div>
@@ -264,9 +264,9 @@ export default function InviteMemberPage() {
                   id="sendEmail"
                   checked={formData.sendEmail}
                   onChange={(e) => setFormData(prev => ({ ...prev, sendEmail: e.target.checked }))}
-                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/20"
+                  className="w-4 h-4 text-primary bg-[#1a2536] border-[#243044] rounded focus:ring-blue-500/20"
                 />
-                <label htmlFor="sendEmail" className="text-sm text-gray-700">
+                <label htmlFor="sendEmail" className="text-sm text-slate-300">
                   Invia notifica email al membro
                 </label>
               </div>
@@ -293,13 +293,13 @@ export default function InviteMemberPage() {
         </div>
 
         {/* Invite Link */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+        <div className="bg-[#1a2536] rounded-2xl border border-[#243044] ">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Link di Invito</h2>
+            <h2 className="text-2xl font-bold text-slate-100 mb-6">Link di Invito</h2>
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Link di invito pubblico
                 </label>
                 <div className="flex items-center gap-2">
@@ -307,29 +307,29 @@ export default function InviteMemberPage() {
                     type={showInviteLink ? "text" : "password"}
                     value={inviteLink}
                     readOnly
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-sm"
+                    className="flex-1 px-4 py-3 border border-[#243044] rounded-xl bg-[#141c27] text-sm"
                   />
                   <button
                     onClick={() => setShowInviteLink(!showInviteLink)}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                    className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
                   >
                     {showInviteLink ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                   <button
                     onClick={copyInviteLink}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                    className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
                   >
                     <Copy className="h-4 w-4" />
                   </button>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-slate-400 mt-2">
                   Condividi questo link per permettere a chiunque di richiedere l'accesso
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <h3 className="font-medium text-blue-900 mb-2">Come funziona</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
+                <ul className="text-sm text-blue-400 space-y-1">
                   <li>• Il link può essere condiviso con chiunque</li>
                   <li>• I nuovi membri dovranno registrarsi</li>
                   <li>• Dovrai approvare la loro richiesta</li>
@@ -340,7 +340,7 @@ export default function InviteMemberPage() {
               <div className="flex gap-3">
                 <button
                   onClick={copyInviteLink}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#1a2536] border border-[#243044] text-slate-300 rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 font-medium"
                 >
                   <Copy className="h-4 w-4" />
                   Copia Link
@@ -356,30 +356,30 @@ export default function InviteMemberPage() {
       </div>
 
       {/* Organization Info */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+      <div className="bg-[#1a2536] rounded-2xl border border-[#243044] ">
         <div className="p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Informazioni Organizzazione</h2>
+          <h2 className="text-2xl font-bold text-slate-100 mb-6">Informazioni Organizzazione</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Nome Organizzazione</h3>
-              <p className="text-gray-600">{orgData?.name || "Caricamento..."}</p>
+              <h3 className="font-medium text-slate-100 mb-2">Nome Organizzazione</h3>
+              <p className="text-slate-400">{orgData?.name || "Caricamento..."}</p>
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Membri Attuali</h3>
-              <p className="text-gray-600">{orgData?.member_count || 0} membri</p>
+              <h3 className="font-medium text-slate-100 mb-2">Membri Attuali</h3>
+              <p className="text-slate-400">{orgData?.member_count || 0} membri</p>
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Creato il</h3>
-              <p className="text-gray-600">
+              <h3 className="font-medium text-slate-100 mb-2">Creato il</h3>
+              <p className="text-slate-400">
                 {orgData?.created_at ? new Date(orgData.created_at).toLocaleDateString('it-IT') : "N/A"}
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Stato</h3>
+              <h3 className="font-medium text-slate-100 mb-2">Stato</h3>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <span className="text-green-600 font-medium">Attiva</span>
+                <div className="w-2 h-2 rounded-full bg-emerald-500/100"></div>
+                <span className="text-emerald-400 font-medium">Attiva</span>
               </div>
             </div>
           </div>

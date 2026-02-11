@@ -174,19 +174,19 @@ export default function OrgSettingsPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link 
             href="/dashboard/org"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </Link>
           <div>
             <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
               <Settings className="h-4 w-4" />
               Impostazioni Organizzazione
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Configura <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{orgData?.name}</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
+              Configura <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">{orgData?.name}</span>
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Personalizza le impostazioni della tua organizzazione
             </p>
           </div>
@@ -195,15 +195,15 @@ export default function OrgSettingsPage() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="p-4 rounded-xl bg-green-50 border border-green-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-emerald-400" />
           <span className="text-green-800 font-medium">Impostazioni salvate con successo!</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600" />
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-red-400" />
           <span className="text-red-800 font-medium">{error}</span>
         </div>
       )}
@@ -218,8 +218,8 @@ export default function OrgSettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors duration-200 ${
                   activeTab === tab.id
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                    ? "bg-primary text-white shadow-lg shadow-black/20"
+                    : "bg-[#1a2536] text-slate-300 hover:bg-[#141c27] border border-[#243044]"
                 }`}
               >
                 <tab.icon className="h-5 w-5" />
@@ -231,61 +231,61 @@ export default function OrgSettingsPage() {
 
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-[#1a2536] rounded-2xl border border-[#243044] ">
             {/* Tab Content */}
             {activeTab === "general" && (
               <div className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Impostazioni Generali</h2>
+                <h2 className="text-2xl font-bold text-slate-100 mb-6">Impostazioni Generali</h2>
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Nome Organizzazione
                     </label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                      className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                       placeholder="Nome della tua organizzazione"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Descrizione
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                       rows={4}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                      className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                       placeholder="Descrivi la tua organizzazione"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
                         Sito Web
                       </label>
                       <input
                         type="url"
                         value={formData.website}
                         onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                        className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                         placeholder="https://example.com"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
                         Fuso Orario
                       </label>
                       <select
                         value={formData.timezone}
                         onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                        className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                       >
                         <option value="Europe/Rome">Europa/Roma</option>
                         <option value="Europe/London">Europa/Londra</option>
@@ -300,25 +300,25 @@ export default function OrgSettingsPage() {
 
             {activeTab === "branding" && (
               <div className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Branding</h2>
+                <h2 className="text-2xl font-bold text-slate-100 mb-6">Branding</h2>
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Logo URL
                     </label>
                     <input
                       type="url"
                       value={formData.logoUrl}
                       onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                      className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                       placeholder="https://example.com/logo.png"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
                         Colore Primario
                       </label>
                       <div className="flex items-center gap-3">
@@ -326,19 +326,19 @@ export default function OrgSettingsPage() {
                           type="color"
                           value={formData.primaryColor}
                           onChange={(e) => setFormData(prev => ({ ...prev, primaryColor: e.target.value }))}
-                          className="w-12 h-12 rounded-lg border border-gray-200 cursor-pointer"
+                          className="w-12 h-12 rounded-lg border border-[#243044] cursor-pointer"
                         />
                         <input
                           type="text"
                           value={formData.primaryColor}
                           onChange={(e) => setFormData(prev => ({ ...prev, primaryColor: e.target.value }))}
-                          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                          className="flex-1 px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
                         Colore Secondario
                       </label>
                       <div className="flex items-center gap-3">
@@ -346,21 +346,21 @@ export default function OrgSettingsPage() {
                           type="color"
                           value={formData.secondaryColor}
                           onChange={(e) => setFormData(prev => ({ ...prev, secondaryColor: e.target.value }))}
-                          className="w-12 h-12 rounded-lg border border-gray-200 cursor-pointer"
+                          className="w-12 h-12 rounded-lg border border-[#243044] cursor-pointer"
                         />
                         <input
                           type="text"
                           value={formData.secondaryColor}
                           onChange={(e) => setFormData(prev => ({ ...prev, secondaryColor: e.target.value }))}
-                          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                          className="flex-1 px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Preview */}
-                  <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Anteprima</h3>
+                  <div className="p-6 rounded-xl bg-[#141c27] border border-[#243044]">
+                    <h3 className="text-lg font-medium text-slate-100 mb-4">Anteprima</h3>
                     <div className="flex items-center gap-4">
                       <div 
                         className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold"
@@ -369,8 +369,8 @@ export default function OrgSettingsPage() {
                         {formData.name.charAt(0)?.toUpperCase() || "O"}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">{formData.name || "Nome Organizzazione"}</h4>
-                        <p className="text-sm text-gray-600">Descrizione organizzazione</p>
+                        <h4 className="font-semibold text-slate-100">{formData.name || "Nome Organizzazione"}</h4>
+                        <p className="text-sm text-slate-400">Descrizione organizzazione</p>
                       </div>
                     </div>
                   </div>
@@ -380,13 +380,13 @@ export default function OrgSettingsPage() {
 
             {activeTab === "notifications" && (
               <div className="p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Notifiche</h2>
+                <h2 className="text-2xl font-bold text-slate-100 mb-6">Notifiche</h2>
                 
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
                     <div>
-                      <h3 className="font-medium text-gray-900">Notifiche Email</h3>
-                      <p className="text-sm text-gray-600">Ricevi notifiche via email</p>
+                      <h3 className="font-medium text-slate-100">Notifiche Email</h3>
+                      <p className="text-sm text-slate-400">Ricevi notifiche via email</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -395,14 +395,14 @@ export default function OrgSettingsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, emailNotifications: e.target.checked }))}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
                     <div>
-                      <h3 className="font-medium text-gray-900">Notifiche Push</h3>
-                      <p className="text-sm text-gray-600">Ricevi notifiche push nel browser</p>
+                      <h3 className="font-medium text-slate-100">Notifiche Push</h3>
+                      <p className="text-sm text-slate-400">Ricevi notifiche push nel browser</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -411,14 +411,14 @@ export default function OrgSettingsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, pushNotifications: e.target.checked }))}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
                     <div>
-                      <h3 className="font-medium text-gray-900">Report Settimanali</h3>
-                      <p className="text-sm text-gray-600">Ricevi un report settimanale dell'attività</p>
+                      <h3 className="font-medium text-slate-100">Report Settimanali</h3>
+                      <p className="text-sm text-slate-400">Ricevi un report settimanale dell'attività</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -427,7 +427,7 @@ export default function OrgSettingsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, weeklyReports: e.target.checked }))}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
 
@@ -437,9 +437,9 @@ export default function OrgSettingsPage() {
 
 
             {/* Save Button */}
-            <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+            <div className="px-8 py-6 border-t border-[#243044] bg-[#141c27] rounded-b-2xl">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-slate-400">
                   Le modifiche vengono salvate automaticamente
                 </div>
                 <button

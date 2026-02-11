@@ -174,11 +174,11 @@ export default function EditOrgPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center"
+          className="w-full max-w-md bg-[#1a2536] rounded-2xl shadow-xl p-8 border border-[#243044] text-center"
         >
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Organizzazione Aggiornata!</h2>
-          <p className="text-gray-600 mb-8">
+          <h2 className="text-3xl font-bold text-slate-200 mb-4">Organizzazione Aggiornata!</h2>
+          <p className="text-slate-400 mb-8">
             Le informazioni dell'organizzazione sono state aggiornate con successo. Sarai reindirizzato alla pagina organizzazione a breve.
           </p>
           <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -194,16 +194,16 @@ export default function EditOrgPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center"
+          className="w-full max-w-md bg-[#1a2536] rounded-2xl shadow-xl p-8 border border-[#243044] text-center"
         >
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Errore</h2>
-          <p className="text-gray-600 mb-8">
+          <h2 className="text-3xl font-bold text-slate-200 mb-4">Errore</h2>
+          <p className="text-slate-400 mb-8">
             Non è stato possibile caricare i dati dell'organizzazione.
           </p>
           <Link
             href="/dashboard/org"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold rounded-xl hover:shadow-lg shadow-black/20 transition-all duration-200"
           >
             <ArrowLeft className="h-4 w-4" />
             Torna all'Organizzazione
@@ -225,19 +225,19 @@ export default function EditOrgPage() {
         <div className="mb-8">
           <Link
             href="/dashboard/org"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Torna all'Organizzazione
           </Link>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
               <Building2 className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Modifica Organizzazione</h1>
-              <p className="text-gray-600">Aggiorna le informazioni della tua azienda</p>
+              <h1 className="text-3xl font-bold text-slate-100">Modifica Organizzazione</h1>
+              <p className="text-slate-400">Aggiorna le informazioni della tua azienda</p>
             </div>
           </div>
         </div>
@@ -245,20 +245,20 @@ export default function EditOrgPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Informazioni Principali */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div className="bg-[#1a2536] rounded-2xl shadow-lg shadow-black/20 p-8 border border-[#243044]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Informazioni Principali</h2>
-                <p className="text-sm text-gray-600">Dati aziendali essenziali</p>
+                <h2 className="text-xl font-semibold text-slate-100">Informazioni Principali</h2>
+                <p className="text-sm text-slate-400">Dati aziendali essenziali</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
                   Nome Organizzazione <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -267,14 +267,14 @@ export default function EditOrgPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   required
                   disabled={saving}
                 />
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="description" className="block text-sm font-medium text-slate-300 mb-2">
                   Descrizione
                 </label>
                 <input
@@ -283,7 +283,7 @@ export default function EditOrgPage() {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -291,20 +291,20 @@ export default function EditOrgPage() {
           </div>
 
           {/* Contatti */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div className="bg-[#1a2536] rounded-2xl shadow-lg shadow-black/20 p-8 border border-[#243044]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                 <MapPin className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Contatti</h2>
-                <p className="text-sm text-gray-600">Informazioni di contatto</p>
+                <h2 className="text-xl font-semibold text-slate-100">Contatti</h2>
+                <p className="text-sm text-slate-400">Informazioni di contatto</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="address" className="block text-sm font-medium text-slate-300 mb-2">
                   Indirizzo
                 </label>
                 <input
@@ -313,13 +313,13 @@ export default function EditOrgPage() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
                   Telefono
                 </label>
                 <input
@@ -328,13 +328,13 @@ export default function EditOrgPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
                   Email
                 </label>
                 <input
@@ -343,13 +343,13 @@ export default function EditOrgPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
 
               <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="website" className="block text-sm font-medium text-slate-300 mb-2">
                   Sito Web
                 </label>
                 <input
@@ -358,7 +358,7 @@ export default function EditOrgPage() {
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -366,20 +366,20 @@ export default function EditOrgPage() {
           </div>
 
           {/* Dati Fiscali */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div className="bg-[#1a2536] rounded-2xl shadow-lg shadow-black/20 p-8 border border-[#243044]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                 <FileText className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Dati Fiscali</h2>
-                <p className="text-sm text-gray-600">Informazioni fiscali e legali</p>
+                <h2 className="text-xl font-semibold text-slate-100">Dati Fiscali</h2>
+                <p className="text-sm text-slate-400">Informazioni fiscali e legali</p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="vat" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="vat" className="block text-sm font-medium text-slate-300 mb-2">
                   Partita IVA
                 </label>
                 <input
@@ -388,13 +388,13 @@ export default function EditOrgPage() {
                   name="vat"
                   value={formData.vat}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
 
               <div>
-                <label htmlFor="tax_code" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="tax_code" className="block text-sm font-medium text-slate-300 mb-2">
                   Codice Fiscale
                 </label>
                 <input
@@ -403,7 +403,7 @@ export default function EditOrgPage() {
                   name="tax_code"
                   value={formData.tax_code}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -415,7 +415,7 @@ export default function EditOrgPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2"
+              className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center gap-2"
             >
               <AlertCircle className="h-4 w-4" />
               {error}
@@ -426,7 +426,7 @@ export default function EditOrgPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-end">
             <Link
               href="/dashboard/org"
-              className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200 text-center"
+              className="px-6 py-3 rounded-xl border border-[#243044] text-slate-300 font-semibold hover:bg-[#141c27] transition-all duration-200 text-center"
             >
               Annulla
             </Link>
@@ -434,7 +434,7 @@ export default function EditOrgPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (
                 <>

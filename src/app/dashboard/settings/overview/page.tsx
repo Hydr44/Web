@@ -192,15 +192,15 @@ export default function SettingsOverviewPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "complete":
-        return "text-green-600 bg-green-50 border-green-200";
+        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
       case "partial":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+        return "text-amber-400 bg-amber-500/10 border-amber-500/20";
       case "warning":
-        return "text-orange-600 bg-orange-50 border-orange-200";
+        return "text-amber-400 bg-orange-50 border-orange-200";
       case "incomplete":
-        return "text-red-600 bg-red-50 border-red-200";
+        return "text-red-400 bg-red-500/10 border-red-500/20";
       default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
+        return "text-slate-400 bg-[#141c27] border-[#243044]";
     }
   };
 
@@ -236,118 +236,118 @@ export default function SettingsOverviewPage() {
           Dashboard Impostazioni
         </div>
         
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Centro <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Impostazioni</span>
+        <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4">
+          Centro <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Impostazioni</span>
         </h1>
         
-        <p className="text-lg text-gray-600 max-w-2xl">
+        <p className="text-lg text-slate-400 max-w-2xl">
           Gestisci tutte le impostazioni del tuo account, organizzazione e preferenze in un unico posto.
         </p>
       </header>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
               <Settings className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Impostazioni</h3>
-              <p className="text-sm text-gray-600">Configurate</p>
+              <h3 className="text-lg font-semibold text-slate-100">Impostazioni</h3>
+              <p className="text-sm text-slate-400">Configurate</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-3xl font-bold text-slate-100 mb-2">
             {stats.configuredSettings}/{stats.totalSettings}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-[#243044] rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-primary to-blue-600 h-2 rounded-full"
+              className="bg-gradient-to-r from-blue-600 to-emerald-500 h-2 rounded-full"
               style={{ width: `${(stats.configuredSettings / stats.totalSettings) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sicurezza</h3>
-              <p className="text-sm text-gray-600">Score</p>
+              <h3 className="text-lg font-semibold text-slate-100">Sicurezza</h3>
+              <p className="text-sm text-slate-400">Score</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-3xl font-bold text-slate-100 mb-2">
             {stats.securityScore}%
           </div>
-          <div className="text-sm text-green-600 font-medium">
+          <div className="text-sm text-emerald-400 font-medium">
             {stats.securityScore >= 80 ? "Ottimo" : stats.securityScore >= 60 ? "Buono" : "Da migliorare"}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
               <Activity className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Attività</h3>
-              <p className="text-sm text-gray-600">Ultima modifica</p>
+              <h3 className="text-lg font-semibold text-slate-100">Attività</h3>
+              <p className="text-sm text-slate-400">Ultima modifica</p>
             </div>
           </div>
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-slate-100">
             {stats.lastActivity ? new Date(stats.lastActivity).toLocaleDateString('it-IT') : "N/A"}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-orange-50/30 border border-orange-200/50 shadow-sm">
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-orange-50/30 border border-orange-200/50 ">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Completamento</h3>
-              <p className="text-sm text-gray-600">Progresso</p>
+              <h3 className="text-lg font-semibold text-slate-100">Completamento</h3>
+              <p className="text-sm text-slate-400">Progresso</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-3xl font-bold text-slate-100 mb-2">
             {Math.round((stats.configuredSettings / stats.totalSettings) * 100)}%
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Azioni Rapide</h2>
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-4">Azioni Rapide</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/dashboard/settings/security"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Shield className="h-5 w-5 text-primary" />
-            <span className="font-medium text-gray-900">Sicurezza</span>
+            <span className="font-medium text-slate-100">Sicurezza</span>
           </Link>
           <Link
             href="/dashboard/billing"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <CreditCard className="h-5 w-5 text-primary" />
-            <span className="font-medium text-gray-900">Fatturazione</span>
+            <span className="font-medium text-slate-100">Fatturazione</span>
           </Link>
           <Link
             href="/dashboard/settings/notifications"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Bell className="h-5 w-5 text-primary" />
-            <span className="font-medium text-gray-900">Notifiche</span>
+            <span className="font-medium text-slate-100">Notifiche</span>
           </Link>
           <Link
             href="/dashboard/settings/privacy"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Database className="h-5 w-5 text-primary" />
-            <span className="font-medium text-gray-900">Privacy</span>
+            <span className="font-medium text-slate-100">Privacy</span>
           </Link>
         </div>
       </div>
@@ -358,16 +358,16 @@ export default function SettingsOverviewPage() {
           <Link
             key={section.id}
             href={section.href}
-            className="block p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
+            className="block p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <section.icon className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
-                  <p className="text-sm text-gray-600">{section.description}</p>
+                  <h3 className="text-lg font-semibold text-slate-100">{section.title}</h3>
+                  <p className="text-sm text-slate-400">{section.description}</p>
                 </div>
               </div>
               <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(section.status)}`}>
@@ -381,12 +381,12 @@ export default function SettingsOverviewPage() {
             <div className="space-y-2">
               {section.items.map((item, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">{item.name}</span>
+                  <span className="text-slate-300">{item.name}</span>
                   <div className="flex items-center gap-1">
                     {item.configured ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <Clock className="h-4 w-4 text-gray-400" />
+                      <Clock className="h-4 w-4 text-slate-500" />
                     )}
                   </div>
                 </div>
@@ -397,34 +397,34 @@ export default function SettingsOverviewPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Attività Recente</h2>
+      <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-4">Attività Recente</h2>
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-[#141c27]">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Password aggiornata</p>
-              <p className="text-xs text-gray-600">2 ore fa</p>
+              <p className="text-sm font-medium text-slate-100">Password aggiornata</p>
+              <p className="text-xs text-slate-400">2 ore fa</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <Bell className="h-4 w-4 text-blue-600" />
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-[#141c27]">
+            <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center">
+              <Bell className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Notifiche configurate</p>
-              <p className="text-xs text-gray-600">1 giorno fa</p>
+              <p className="text-sm font-medium text-slate-100">Notifiche configurate</p>
+              <p className="text-xs text-slate-400">1 giorno fa</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-[#141c27]">
             <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-purple-600" />
+              <Building2 className="h-4 w-4 text-purple-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Organizzazione aggiornata</p>
-              <p className="text-xs text-gray-600">3 giorni fa</p>
+              <p className="text-sm font-medium text-slate-100">Organizzazione aggiornata</p>
+              <p className="text-xs text-slate-400">3 giorni fa</p>
             </div>
           </div>
         </div>

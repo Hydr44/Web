@@ -122,7 +122,7 @@ export default function CategoriesClient() {
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-semibold">Categorie</h1>
-      <p className="mt-2 text-gray-600">
+      <p className="mt-2 text-slate-400">
         Definisci le categorie (es. “Soccorso leggero”, “Traino autostrada”, “Deposito”, …). Ogni utente
         vede solo le proprie grazie alle policy RLS.
       </p>
@@ -130,17 +130,17 @@ export default function CategoriesClient() {
       {/* Add form */}
       <form onSubmit={onAdd} className="mt-6 flex gap-2 items-end">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700">Nome categoria</label>
+          <label className="block text-sm font-medium text-slate-300">Nome categoria</label>
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Es. Soccorso leggero"
-            className="mt-1 w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none"
+            className="mt-1 w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Colore</label>
+          <label className="block text-sm font-medium text-slate-300">Colore</label>
           <input
             type="color"
             value={newColor}
@@ -162,17 +162,17 @@ export default function CategoriesClient() {
       {/* List */}
       <div className="mt-6">
         {loading ? (
-          <div className="text-sm text-gray-500">Caricamento…</div>
+          <div className="text-sm text-slate-500">Caricamento…</div>
         ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-400">
             {error}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-lg border px-4 py-6 text-sm text-gray-600">
+          <div className="rounded-lg border px-4 py-6 text-sm text-slate-400">
             Nessuna categoria ancora. Aggiungine una sopra.
           </div>
         ) : (
-          <ul className="divide-y rounded-lg border bg-white">
+          <ul className="divide-y rounded-lg border bg-[#1a2536]">
             {items.map((c) => (
               <li key={c.id} className="flex items-center gap-3 p-3">
                 {/* colore */}
@@ -187,7 +187,7 @@ export default function CategoriesClient() {
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 rounded-lg border px-3 py-1.5 focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="flex-1 rounded-lg border px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                     <input
                       type="color"
@@ -200,7 +200,7 @@ export default function CategoriesClient() {
                 ) : (
                   <div className="flex-1">
                     <div className="font-medium">{c.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-slate-500">
                       Creata il {new Date(c.created_at).toLocaleString()}
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export default function CategoriesClient() {
                     </button>
                     <button
                       onClick={cancelEdit}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-200 text-gray-800 text-xs"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#243044] text-slate-200 text-xs"
                       type="button"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -230,7 +230,7 @@ export default function CategoriesClient() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => startEdit(c)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-white ring-1 ring-gray-300 text-xs"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#1a2536] ring-1 ring-[#243044] text-xs"
                       type="button"
                     >
                       <PencilLine className="h-3.5 w-3.5" />
@@ -238,7 +238,7 @@ export default function CategoriesClient() {
                     </button>
                     <button
                       onClick={() => onDelete(c.id)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-50 text-red-700 ring-1 ring-red-200 text-xs"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-500/10 text-red-400 ring-1 ring-red-200 text-xs"
                       type="button"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

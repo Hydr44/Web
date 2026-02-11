@@ -89,40 +89,40 @@ export default function SecurityPage() {
   }, []);
 
   const getSecurityScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 80) return "text-emerald-400";
+    if (score >= 60) return "text-amber-400";
+    return "text-red-400";
   };
 
   const getSecurityScoreBg = (score: number) => {
-    if (score >= 80) return "bg-green-50 border-green-200";
-    if (score >= 60) return "bg-yellow-50 border-yellow-200";
-    return "bg-red-50 border-red-200";
+    if (score >= 80) return "bg-emerald-500/10 border-emerald-500/20";
+    if (score >= 60) return "bg-amber-500/10 border-amber-500/20";
+    return "bg-red-500/10 border-red-500/20";
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "success":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-emerald-400" />;
       case "failed":
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
+        return <AlertTriangle className="h-4 w-4 text-red-400" />;
       case "warning":
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+        return <AlertTriangle className="h-4 w-4 text-amber-400" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
+        return <Clock className="h-4 w-4 text-slate-400" />;
     }
   };
 
   const getAlertIcon = (type: string) => {
     switch (type) {
       case "warning":
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
+        return <AlertTriangle className="h-5 w-5 text-amber-400" />;
       case "info":
-        return <Shield className="h-5 w-5 text-blue-600" />;
+        return <Shield className="h-5 w-5 text-blue-400" />;
       case "error":
-        return <AlertTriangle className="h-5 w-5 text-red-600" />;
+        return <AlertTriangle className="h-5 w-5 text-red-400" />;
       default:
-        return <Shield className="h-5 w-5 text-gray-600" />;
+        return <Shield className="h-5 w-5 text-slate-400" />;
     }
   };
 
@@ -143,25 +143,25 @@ export default function SecurityPage() {
           Centro Sicurezza
         </div>
         
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Sicurezza <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Account</span>
+        <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4">
+          Sicurezza <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Account</span>
         </h1>
         
-        <p className="text-lg text-gray-600 max-w-2xl">
+        <p className="text-lg text-slate-400 max-w-2xl">
           Monitora e gestisci la sicurezza del tuo account. Proteggi i tuoi dati con le migliori pratiche di sicurezza.
         </p>
       </header>
 
       {/* Security Score */}
-      <div className={`p-6 rounded-2xl border ${getSecurityScoreBg(securityData.securityScore)} shadow-sm`}>
+      <div className={`p-6 rounded-2xl border ${getSecurityScoreBg(securityData.securityScore)} `}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Score Sicurezza</h2>
-              <p className="text-sm text-gray-600">Valutazione generale della sicurezza</p>
+              <h2 className="text-xl font-semibold text-slate-100">Score Sicurezza</h2>
+              <p className="text-sm text-slate-400">Valutazione generale della sicurezza</p>
             </div>
           </div>
           <div className={`text-3xl font-bold ${getSecurityScoreColor(securityData.securityScore)}`}>
@@ -169,17 +169,17 @@ export default function SecurityPage() {
           </div>
         </div>
         
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+        <div className="w-full bg-[#243044] rounded-full h-3 mb-4">
           <div 
             className={`h-3 rounded-full transition-all duration-500 ${
-              securityData.securityScore >= 80 ? 'bg-green-500' : 
-              securityData.securityScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+              securityData.securityScore >= 80 ? 'bg-emerald-500/100' : 
+              securityData.securityScore >= 60 ? 'bg-amber-500/100' : 'bg-red-500/100'
             }`}
             style={{ width: `${securityData.securityScore}%` }}
           ></div>
         </div>
         
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-400">
           {securityData.securityScore >= 80 ? "Ottimo! Il tuo account è ben protetto." : 
            securityData.securityScore >= 60 ? "Buono, ma puoi migliorare la sicurezza." : 
            "Attenzione! La sicurezza del tuo account necessita di miglioramenti."}
@@ -190,114 +190,114 @@ export default function SecurityPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link
           href="/dashboard/security/password"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+          className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <Key className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Password</h3>
-              <p className="text-sm text-gray-600">Gestisci password</p>
+              <h3 className="text-lg font-semibold text-slate-100">Password</h3>
+              <p className="text-sm text-slate-400">Gestisci password</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ultimo cambio: 1 giorno fa</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-sm text-slate-400">Ultimo cambio: 1 giorno fa</span>
+            <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors duration-200" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/2fa"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+          className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <Smartphone className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">2FA</h3>
-              <p className="text-sm text-gray-600">Autenticazione a due fattori</p>
+              <h3 className="text-lg font-semibold text-slate-100">2FA</h3>
+              <p className="text-sm text-slate-400">Autenticazione a due fattori</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className={`text-sm ${securityData.twoFactorEnabled ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`text-sm ${securityData.twoFactorEnabled ? 'text-emerald-400' : 'text-red-400'}`}>
               {securityData.twoFactorEnabled ? 'Abilitato' : 'Non abilitato'}
             </span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors duration-200" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/sessions"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+          className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <Monitor className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sessioni</h3>
-              <p className="text-sm text-gray-600">Dispositivi attivi</p>
+              <h3 className="text-lg font-semibold text-slate-100">Sessioni</h3>
+              <p className="text-sm text-slate-400">Dispositivi attivi</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">{securityData.activeSessions} dispositivi</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-sm text-slate-400">{securityData.activeSessions} dispositivi</span>
+            <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors duration-200" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/audit"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+          className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Audit Log</h3>
-              <p className="text-sm text-gray-600">Log di sicurezza</p>
+              <h3 className="text-lg font-semibold text-slate-100">Audit Log</h3>
+              <p className="text-sm text-slate-400">Log di sicurezza</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Monitora attività</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-sm text-slate-400">Monitora attività</span>
+            <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors duration-200" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/audit"
-          className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 group"
+          className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <Activity className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Audit Log</h3>
-              <p className="text-sm text-gray-600">Attività di sicurezza</p>
+              <h3 className="text-lg font-semibold text-slate-100">Audit Log</h3>
+              <p className="text-sm text-slate-400">Attività di sicurezza</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Ultimo accesso: 2 ore fa</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-sm text-slate-400">Ultimo accesso: 2 ore fa</span>
+            <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors duration-200" />
           </div>
         </Link>
       </div>
 
       {/* Security Alerts */}
       {securityData.securityAlerts.length > 0 && (
-        <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Avvisi Sicurezza</h2>
+        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+          <h2 className="text-xl font-semibold text-slate-100 mb-6">Avvisi Sicurezza</h2>
           <div className="space-y-4">
             {securityData.securityAlerts.map((alert, index) => (
-              <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
                 <div className="flex items-center gap-3">
                   {getAlertIcon(alert.type)}
                   <div>
-                    <p className="font-medium text-gray-900">{alert.message}</p>
-                    <p className="text-sm text-gray-600">Raccomandazione di sicurezza</p>
+                    <p className="font-medium text-slate-100">{alert.message}</p>
+                    <p className="text-sm text-slate-400">Raccomandazione di sicurezza</p>
                   </div>
                 </div>
                 <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium">
@@ -310,20 +310,20 @@ export default function SecurityPage() {
       )}
 
       {/* Recent Activity */}
-      <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Attività Recente</h2>
+      <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-6">Attività Recente</h2>
         <div className="space-y-4">
           {securityData.recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-[#141c27] border border-[#243044]">
               <div className="flex-shrink-0">
                 {getStatusIcon(activity.status)}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">{activity.action}</h3>
-                  <span className="text-sm text-gray-500">{activity.time}</span>
+                  <h3 className="font-medium text-slate-100">{activity.action}</h3>
+                  <span className="text-sm text-slate-500">{activity.time}</span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                <div className="flex items-center gap-4 text-sm text-slate-400 mt-1">
                   <span className="flex items-center gap-1">
                     <Monitor className="h-3 w-3" />
                     {activity.device}
@@ -340,19 +340,19 @@ export default function SecurityPage() {
       </div>
 
       {/* Security Progress */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-200/50 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Migliora la Sicurezza del tuo Account</h2>
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-500/20/50 ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-4">Migliora la Sicurezza del tuo Account</h2>
         
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Livello di Sicurezza</span>
-            <span className="text-sm font-bold text-gray-900">{securityData.securityScore}%</span>
+            <span className="text-sm font-medium text-slate-300">Livello di Sicurezza</span>
+            <span className="text-sm font-bold text-slate-100">{securityData.securityScore}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-[#243044] rounded-full h-3">
             <div 
               className={`h-3 rounded-full transition-all duration-500 ${
-                securityData.securityScore < 40 ? 'bg-red-500' : 
-                securityData.securityScore < 70 ? 'bg-yellow-500' : 'bg-green-500'
+                securityData.securityScore < 40 ? 'bg-red-500/100' : 
+                securityData.securityScore < 70 ? 'bg-amber-500/100' : 'bg-emerald-500/100'
               }`}
               style={{ width: `${securityData.securityScore}%` }}
             ></div>
@@ -360,16 +360,16 @@ export default function SecurityPage() {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Azioni per raggiungere il 100%:</h3>
+          <h3 className="text-lg font-medium text-slate-100">Azioni per raggiungere il 100%:</h3>
           
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <Shield className="h-4 w-4 text-gray-600" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#1a2536] border border-[#243044]">
+              <div className="w-8 h-8 rounded-full bg-[#1a2536] flex items-center justify-center">
+                <Shield className="h-4 w-4 text-slate-400" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">Abilita l'autenticazione a due fattori</p>
-                <p className="text-sm text-gray-600">Aggiungi un ulteriore livello di sicurezza</p>
+                <p className="font-medium text-slate-100">Abilita l'autenticazione a due fattori</p>
+                <p className="text-sm text-slate-400">Aggiungi un ulteriore livello di sicurezza</p>
               </div>
               <Link 
                 href="/dashboard/security/2fa"
@@ -379,13 +379,13 @@ export default function SecurityPage() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <Key className="h-4 w-4 text-gray-600" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#1a2536] border border-[#243044]">
+              <div className="w-8 h-8 rounded-full bg-[#1a2536] flex items-center justify-center">
+                <Key className="h-4 w-4 text-slate-400" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">Aggiorna la tua password</p>
-                <p className="text-sm text-gray-600">Usa una password forte e unica</p>
+                <p className="font-medium text-slate-100">Aggiorna la tua password</p>
+                <p className="text-sm text-slate-400">Usa una password forte e unica</p>
               </div>
               <Link 
                 href="/dashboard/security/password"
@@ -395,13 +395,13 @@ export default function SecurityPage() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <Monitor className="h-4 w-4 text-gray-600" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#1a2536] border border-[#243044]">
+              <div className="w-8 h-8 rounded-full bg-[#1a2536] flex items-center justify-center">
+                <Monitor className="h-4 w-4 text-slate-400" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">Monitora le sessioni attive</p>
-                <p className="text-sm text-gray-600">Controlla i dispositivi connessi</p>
+                <p className="font-medium text-slate-100">Monitora le sessioni attive</p>
+                <p className="text-sm text-slate-400">Controlla i dispositivi connessi</p>
               </div>
               <Link 
                 href="/dashboard/security/sessions"

@@ -116,19 +116,19 @@ export default function PrivacySettingsPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link 
             href="/dashboard/settings"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1a2536] transition-colors duration-200"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-400" />
           </Link>
           <div>
             <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
               <Database className="h-4 w-4" />
               Privacy & Dati
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Gestione <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Privacy</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
+              Gestione <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Privacy</span>
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Controlla come vengono utilizzati i tuoi dati e gestisci le tue preferenze di privacy
             </p>
           </div>
@@ -136,55 +136,55 @@ export default function PrivacySettingsPage() {
       </header>
 
       {/* GDPR Compliance */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-green-200/50 shadow-sm">
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-emerald-500/20/50 ">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
             <Shield className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Conformità GDPR</h2>
-            <p className="text-sm text-gray-600">I tuoi diritti sulla privacy sono protetti</p>
+            <h2 className="text-xl font-semibold text-slate-100">Conformità GDPR</h2>
+            <p className="text-sm text-slate-400">I tuoi diritti sulla privacy sono protetti</p>
           </div>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">I tuoi diritti</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-medium text-slate-100">I tuoi diritti</h3>
+            <ul className="space-y-2 text-sm text-slate-400">
               <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-emerald-400" />
                 Accesso ai tuoi dati personali
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-emerald-400" />
                 Correzione di dati inesatti
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-emerald-400" />
                 Cancellazione dei tuoi dati
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-emerald-400" />
                 Portabilità dei dati
               </li>
             </ul>
           </div>
           
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Stato conformità</h3>
+            <h3 className="font-medium text-slate-100">Stato conformità</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 <span className="text-sm font-medium text-green-900">Consenso GDPR</span>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-700">Attivo</span>
+                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                  <span className="text-sm text-emerald-400">Attivo</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 <span className="text-sm font-medium text-green-900">Privacy Policy</span>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-700">Accettata</span>
+                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                  <span className="text-sm text-emerald-400">Accettata</span>
                 </div>
               </div>
             </div>
@@ -195,14 +195,14 @@ export default function PrivacySettingsPage() {
       {/* Privacy Settings */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Data Collection */}
-        <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Raccolta Dati</h2>
+        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+          <h2 className="text-xl font-semibold text-slate-100 mb-6">Raccolta Dati</h2>
           
           <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
               <div>
-                <h3 className="font-medium text-gray-900">Raccolta dati essenziali</h3>
-                <p className="text-sm text-gray-600">Dati necessari per il funzionamento del servizio</p>
+                <h3 className="font-medium text-slate-100">Raccolta dati essenziali</h3>
+                <p className="text-sm text-slate-400">Dati necessari per il funzionamento del servizio</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -211,14 +211,14 @@ export default function PrivacySettingsPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataCollection: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
               <div>
-                <h3 className="font-medium text-gray-900">Analytics anonime</h3>
-                <p className="text-sm text-gray-600">Dati aggregati per migliorare il servizio</p>
+                <h3 className="font-medium text-slate-100">Analytics anonime</h3>
+                <p className="text-sm text-slate-400">Dati aggregati per migliorare il servizio</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -227,14 +227,14 @@ export default function PrivacySettingsPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, analytics: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[#141c27] border border-[#243044]">
               <div>
-                <h3 className="font-medium text-gray-900">Marketing</h3>
-                <p className="text-sm text-gray-600">Comunicazioni promozionali e newsletter</p>
+                <h3 className="font-medium text-slate-100">Marketing</h3>
+                <p className="text-sm text-slate-400">Comunicazioni promozionali e newsletter</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -243,25 +243,25 @@ export default function PrivacySettingsPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, marketing: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
         </div>
 
         {/* Data Management */}
-        <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Gestione Dati</h2>
+        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+          <h2 className="text-xl font-semibold text-slate-100 mb-6">Gestione Dati</h2>
           
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Conservazione dati
               </label>
               <select
                 value={privacySettings.dataRetention}
                 onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataRetention: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors duration-200"
+                className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
               >
                 {dataRetentionOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -271,9 +271,9 @@ export default function PrivacySettingsPage() {
               </select>
             </div>
 
-            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
               <h3 className="font-medium text-blue-900 mb-2">I tuoi dati</h3>
-              <div className="space-y-2 text-sm text-blue-800">
+              <div className="space-y-2 text-sm text-blue-400">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span>Profilo utente: {userData?.full_name || "N/A"}</span>
@@ -295,26 +295,26 @@ export default function PrivacySettingsPage() {
       {/* Data Actions */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Export Data */}
-        <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
               <Download className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Export Dati</h2>
-              <p className="text-sm text-gray-600">Scarica una copia dei tuoi dati</p>
+              <h2 className="text-xl font-semibold text-slate-100">Export Dati</h2>
+              <p className="text-sm text-slate-400">Scarica una copia dei tuoi dati</p>
             </div>
           </div>
           
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-400">
               Puoi richiedere una copia completa dei tuoi dati personali in formato JSON. 
               Il processo può richiedere fino a 24 ore.
             </p>
             
-            <div className="p-4 rounded-xl bg-yellow-50 border border-yellow-200">
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
                 <span className="text-sm font-medium text-yellow-900">Nota importante</span>
               </div>
               <p className="text-sm text-yellow-800">
@@ -334,26 +334,26 @@ export default function PrivacySettingsPage() {
         </div>
 
         {/* Delete Account */}
-        <div className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm">
+        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
               <Trash2 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Elimina Account</h2>
-              <p className="text-sm text-gray-600">Cancella permanentemente il tuo account</p>
+              <h2 className="text-xl font-semibold text-slate-100">Elimina Account</h2>
+              <p className="text-sm text-slate-400">Cancella permanentemente il tuo account</p>
             </div>
           </div>
           
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-400">
               Eliminando il tuo account, tutti i tuoi dati verranno cancellati permanentemente 
               e non potranno essere recuperati.
             </p>
             
-            <div className="p-4 rounded-xl bg-red-50 border border-red-200">
+            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
               <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertTriangle className="h-4 w-4 text-red-400" />
                 <span className="text-sm font-medium text-red-900">Azione irreversibile</span>
               </div>
               <p className="text-sm text-red-800">
@@ -374,39 +374,39 @@ export default function PrivacySettingsPage() {
       </div>
 
       {/* Privacy Policy Links */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50/50 via-white to-slate-50/30 border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Documentazione Privacy</h2>
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50/50 via-white to-slate-50/30 border border-[#243044] ">
+        <h2 className="text-xl font-semibold text-slate-100 mb-4">Documentazione Privacy</h2>
         <div className="grid md:grid-cols-3 gap-4">
           <Link
             href="/privacy-policy"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <FileText className="h-5 w-5 text-primary" />
             <div>
-              <div className="font-medium text-gray-900">Privacy Policy</div>
-              <div className="text-sm text-gray-600">Come utilizziamo i tuoi dati</div>
+              <div className="font-medium text-slate-100">Privacy Policy</div>
+              <div className="text-sm text-slate-400">Come utilizziamo i tuoi dati</div>
             </div>
           </Link>
           
           <Link
             href="/terms-of-use"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Shield className="h-5 w-5 text-primary" />
             <div>
-              <div className="font-medium text-gray-900">Termini di Servizio</div>
-              <div className="text-sm text-gray-600">Condizioni di utilizzo</div>
+              <div className="font-medium text-slate-100">Termini di Servizio</div>
+              <div className="text-sm text-slate-400">Condizioni di utilizzo</div>
             </div>
           </Link>
           
           <Link
             href="/cookie-policy"
-            className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Settings className="h-5 w-5 text-primary" />
             <div>
-              <div className="font-medium text-gray-900">Cookie Policy</div>
-              <div className="text-sm text-gray-600">Gestione dei cookie</div>
+              <div className="font-medium text-slate-100">Cookie Policy</div>
+              <div className="text-sm text-slate-400">Gestione dei cookie</div>
             </div>
           </Link>
         </div>

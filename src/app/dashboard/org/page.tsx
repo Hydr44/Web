@@ -124,11 +124,11 @@ export default function OrgPage() {
         
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              La tua <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">azienda</span>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4">
+              La tua <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">azienda</span>
             </h1>
             
-            <p className="text-lg text-gray-600 max-w-2xl">
+            <p className="text-lg text-slate-400 max-w-2xl">
               Gestisci le informazioni della tua azienda, i contatti e i dettagli fiscali per una gestione completa.
             </p>
           </div>
@@ -142,7 +142,7 @@ export default function OrgPage() {
                 <Edit className="h-4 w-4" />
                 Modifica
               </Link>
-              <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 font-medium">
+              <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a2536] border border-[#243044] text-slate-300 rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 font-medium">
                 <FileText className="h-4 w-4" />
                 Esporta
               </button>
@@ -156,42 +156,42 @@ export default function OrgPage() {
           {/* Informazioni principali */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Dettagli azienda */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <Building2 className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Informazioni Principali</h3>
-                  <p className="text-sm text-gray-600">Dati aziendali</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Informazioni Principali</h3>
+                  <p className="text-sm text-slate-400">Dati aziendali</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Nome Azienda</label>
-                  <div className="mt-1 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <label className="text-sm font-medium text-slate-300">Nome Azienda</label>
+                  <div className="mt-1 p-3 rounded-lg bg-[#141c27] border border-[#243044]">
                     {orgData.name || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Partita IVA</label>
-                  <div className="mt-1 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <label className="text-sm font-medium text-slate-300">Partita IVA</label>
+                  <div className="mt-1 p-3 rounded-lg bg-[#141c27] border border-[#243044]">
                     {orgData.vat_number || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Codice Fiscale</label>
-                  <div className="mt-1 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <label className="text-sm font-medium text-slate-300">Codice Fiscale</label>
+                  <div className="mt-1 p-3 rounded-lg bg-[#141c27] border border-[#243044]">
                     {orgData.fiscal_code || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Settore</label>
-                  <div className="mt-1 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <label className="text-sm font-medium text-slate-300">Settore</label>
+                  <div className="mt-1 p-3 rounded-lg bg-[#141c27] border border-[#243044]">
                     {orgData.sector || "Non specificato"}
                   </div>
                 </div>
@@ -199,61 +199,61 @@ export default function OrgPage() {
             </div>
 
             {/* Contatti */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <MapPin className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Contatti</h3>
-                  <p className="text-sm text-gray-600">Informazioni di contatto</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Contatti</h3>
+                  <p className="text-sm text-slate-400">Informazioni di contatto</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <MapPin className="h-4 w-4 text-blue-600" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1a2536] border border-[#243044]">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/100/10 flex items-center justify-center">
+                    <MapPin className="h-4 w-4 text-blue-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Indirizzo</div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-sm font-medium text-slate-100">Indirizzo</div>
+                    <div className="text-xs text-slate-400">
                       {orgData.address || "Non specificato"}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <Phone className="h-4 w-4 text-green-600" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1a2536] border border-[#243044]">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/100/10 flex items-center justify-center">
+                    <Phone className="h-4 w-4 text-emerald-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Telefono</div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-sm font-medium text-slate-100">Telefono</div>
+                    <div className="text-xs text-slate-400">
                       {orgData.phone || "Non specificato"}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1a2536] border border-[#243044]">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                    <Mail className="h-4 w-4 text-purple-600" />
+                    <Mail className="h-4 w-4 text-purple-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Email</div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-sm font-medium text-slate-100">Email</div>
+                    <div className="text-xs text-slate-400">
                       {orgData.email || "Non specificato"}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-200">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-[#1a2536] border border-[#243044]">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                    <Globe className="h-4 w-4 text-orange-600" />
+                    <Globe className="h-4 w-4 text-amber-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">Sito Web</div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-sm font-medium text-slate-100">Sito Web</div>
+                    <div className="text-xs text-slate-400">
                       {orgData.website || "Non specificato"}
                     </div>
                   </div>
@@ -264,17 +264,17 @@ export default function OrgPage() {
 
           {/* Statistiche e informazioni aggiuntive */}
           <div className="grid lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <Users className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Membri</h3>
-                  <p className="text-sm text-gray-600">Team attivo</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Membri</h3>
+                  <p className="text-sm text-slate-400">Team attivo</p>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">
+              <div className="text-3xl font-bold text-slate-100 mb-2">
                 {stats.totalMembers}
               </div>
               <Link 
@@ -285,51 +285,51 @@ export default function OrgPage() {
               </Link>
             </div>
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Creata il</h3>
-                  <p className="text-sm text-gray-600">Data di registrazione</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Creata il</h3>
+                  <p className="text-sm text-slate-400">Data di registrazione</p>
                 </div>
               </div>
-              <div className="text-sm font-medium text-gray-900">
+              <div className="text-sm font-medium text-slate-100">
                 {orgData.created_at ? new Date(orgData.created_at).toLocaleDateString('it-IT') : "Non disponibile"}
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Stato</h3>
-                  <p className="text-sm text-gray-600">Organizzazione</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Stato</h3>
+                  <p className="text-sm text-slate-400">Organizzazione</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <span className="text-sm font-medium text-gray-900">Attiva</span>
+                <div className="w-2 h-2 rounded-full bg-emerald-500/100"></div>
+                <span className="text-sm font-medium text-slate-100">Attiva</span>
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-green-200/50 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
                   <Zap className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Attività</h3>
-                  <p className="text-sm text-gray-600">Ultimi 30 giorni</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Attività</h3>
+                  <p className="text-sm text-slate-400">Ultimi 30 giorni</p>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-slate-100">
                 {stats.activeTransports}
               </div>
-              <div className="text-sm text-green-600 font-medium">
+              <div className="text-sm text-emerald-400 font-medium">
                 Trasporti in corso
               </div>
             </div>
@@ -338,50 +338,50 @@ export default function OrgPage() {
           {/* Quick Actions */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Gestione Azienda */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                   <Edit className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Gestione Azienda</h3>
-                  <p className="text-sm text-gray-600">Modifica le informazioni aziendali</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Gestione Azienda</h3>
+                  <p className="text-sm text-slate-400">Modifica le informazioni aziendali</p>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/dashboard/org/edit"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-medium hover:shadow-lg shadow-black/20 transition-all duration-200"
                 >
                   <Edit className="h-4 w-4" />
                   Modifica informazioni
                 </Link>
                 <Link
                   href="/dashboard/org/settings"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-primary/30 hover:shadow-md transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a2536] border border-[#243044] text-slate-300 font-medium hover:border-primary/30 hover:shadow-md transition-all duration-200"
                 >
                   <Settings className="h-4 w-4" />
                   Impostazioni
                 </Link>
               </div>
               
-              <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-200">
+              <div className="mt-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <h4 className="font-medium text-blue-900 mb-2">Impostazioni Avanzate</h4>
-                <p className="text-sm text-blue-700 mb-3">
+                <p className="text-sm text-blue-400 mb-3">
                   Per sicurezza e fatturazione, utilizza le impostazioni globali
                 </p>
                 <div className="flex gap-3">
                   <Link
                     href="/dashboard/settings/security"
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-blue-200 text-blue-700 text-sm font-medium hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#1a2536] border border-blue-500/20 text-blue-400 text-sm font-medium hover:border-blue-300 hover: transition-all duration-200"
                   >
                     <Shield className="h-4 w-4" />
                     Sicurezza
                   </Link>
                   <Link
                     href="/dashboard/billing"
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-blue-200 text-blue-700 text-sm font-medium hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#1a2536] border border-blue-500/20 text-blue-400 text-sm font-medium hover:border-blue-300 hover: transition-all duration-200"
                   >
                     <CreditCard className="h-4 w-4" />
                     Fatturazione
@@ -391,26 +391,26 @@ export default function OrgPage() {
             </div>
 
             {/* Analytics e Report */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-green-200/50 shadow-lg">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-emerald-500/20/50 shadow-lg shadow-black/20">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Analytics</h3>
-                  <p className="text-sm text-gray-600">Monitora le performance</p>
+                  <h3 className="text-lg font-semibold text-slate-100">Analytics</h3>
+                  <p className="text-sm text-slate-400">Monitora le performance</p>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/dashboard/org/analytics"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:shadow-lg transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:shadow-lg shadow-black/20 transition-all duration-200"
                 >
                   <BarChart3 className="h-4 w-4" />
                   Visualizza Analytics
                 </Link>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 font-medium hover:border-green-300 hover:shadow-md transition-all duration-200">
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a2536] border border-[#243044] text-slate-300 font-medium hover:border-green-300 hover:shadow-md transition-all duration-200">
                   <FileText className="h-4 w-4" />
                   Esporta Report
                 </button>
@@ -420,12 +420,12 @@ export default function OrgPage() {
         </>
       ) : (
         <div className="text-center py-12">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="h-8 w-8 text-gray-400" />
+          <div className="w-16 h-16 rounded-full bg-[#1a2536] flex items-center justify-center mx-auto mb-4">
+            <Building2 className="h-8 w-8 text-slate-500" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna organizzazione trovata</h3>
-          <p className="text-sm text-gray-600 mb-4">Crea o seleziona un&apos;organizzazione per gestire le informazioni aziendali</p>
-          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-medium hover:shadow-lg transition-all duration-200">
+          <h3 className="text-lg font-medium text-slate-100 mb-2">Nessuna organizzazione trovata</h3>
+          <p className="text-sm text-slate-400 mb-4">Crea o seleziona un&apos;organizzazione per gestire le informazioni aziendali</p>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 text-white text-sm font-medium hover:shadow-lg shadow-black/20 transition-all duration-200">
             <Building2 className="h-4 w-4" />
             Crea organizzazione
           </button>

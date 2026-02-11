@@ -157,17 +157,17 @@ export default function CreateOrgPage() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50/30 flex items-center justify-center px-4">
         <motion.div
           {...animations.scaleIn}
-          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center"
+          className="w-full max-w-md bg-[#1a2536] rounded-2xl shadow-xl p-8 border border-[#243044] text-center"
         >
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="h-8 w-8 text-green-600" />
+          <div className="w-16 h-16 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="h-8 w-8 text-emerald-400" />
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-slate-100 mb-4">
             Organizzazione Creata!
           </h2>
           
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-400 mb-6">
             La tua organizzazione è stata creata con successo. 
             Ora puoi iniziare a utilizzare RescueManager.
           </p>
@@ -195,12 +195,12 @@ export default function CreateOrgPage() {
               Crea Organizzazione
             </motion.div>
             
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-slate-100 mb-4">
               Crea la tua{" "}
               <span className="text-primary">Organizzazione</span>
             </h1>
             
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-slate-400">
               Configura la tua organizzazione per iniziare a utilizzare RescueManager
             </p>
           </div>
@@ -208,25 +208,25 @@ export default function CreateOrgPage() {
           {/* Form */}
           <motion.div
             {...animations.slideUp}
-            className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200"
+            className="bg-[#1a2536] rounded-2xl shadow-xl p-8 border border-[#243044]"
           >
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Informazioni Principali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                     <Building2 className="h-4 w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Informazioni Principali</h3>
+                  <h3 className="text-lg font-semibold text-slate-100">Informazioni Principali</h3>
                 </div>
 
                 {/* Nome Organizzazione */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
                     Nome Organizzazione <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                     <input
                       type="text"
                       id="name"
@@ -234,7 +234,7 @@ export default function CreateOrgPage() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="es. Autofficina Rossi"
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                       required
                       disabled={loading}
                     />
@@ -243,7 +243,7 @@ export default function CreateOrgPage() {
 
                 {/* Descrizione */}
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="description" className="block text-sm font-medium text-slate-300 mb-2">
                     Descrizione
                   </label>
                   <textarea
@@ -253,7 +253,7 @@ export default function CreateOrgPage() {
                     onChange={handleChange}
                     placeholder="Breve descrizione della tua attività..."
                     rows={3}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                    className="w-full px-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                     disabled={loading}
                   />
                 </div>
@@ -262,19 +262,19 @@ export default function CreateOrgPage() {
               {/* Contatti */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                     <MapPin className="h-4 w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Contatti</h3>
+                  <h3 className="text-lg font-semibold text-slate-100">Contatti</h3>
                 </div>
 
                 {/* Indirizzo con suggerimenti */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-slate-300 mb-2">
                     Indirizzo
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                     <input
                       type="text"
                       id="address"
@@ -282,19 +282,19 @@ export default function CreateOrgPage() {
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="Via, Città, CAP"
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                     {showAddressSuggestions && addressSuggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a2536] border border-[#243044] rounded-xl shadow-lg shadow-black/20 z-10 max-h-48 overflow-y-auto">
                         {addressSuggestions.map((suggestion, index) => (
                           <button
                             key={index}
                             type="button"
                             onClick={() => selectAddressSuggestion(suggestion)}
-                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+                            className="w-full px-4 py-2 text-left hover:bg-[#141c27] flex items-center gap-2"
                           >
-                            <Search className="h-4 w-4 text-gray-400" />
+                            <Search className="h-4 w-4 text-slate-500" />
                             {suggestion}
                           </button>
                         ))}
@@ -306,11 +306,11 @@ export default function CreateOrgPage() {
                 {/* Telefono e Email */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
                       Telefono
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                       <input
                         type="tel"
                         id="phone"
@@ -318,18 +318,18 @@ export default function CreateOrgPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+39 123 456 7890"
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        className="w-full pl-10 pr-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
                       Email
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                       <input
                         type="email"
                         id="email"
@@ -337,7 +337,7 @@ export default function CreateOrgPage() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="info@azienda.com"
-                        className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        className="w-full pl-10 pr-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                     </div>
@@ -346,11 +346,11 @@ export default function CreateOrgPage() {
 
                 {/* Website */}
                 <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="website" className="block text-sm font-medium text-slate-300 mb-2">
                     Sito Web
                   </label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                     <input
                       type="url"
                       id="website"
@@ -358,7 +358,7 @@ export default function CreateOrgPage() {
                       value={formData.website}
                       onChange={handleChange}
                       placeholder="https://www.azienda.com"
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                   </div>
@@ -368,16 +368,16 @@ export default function CreateOrgPage() {
               {/* Dati Fiscali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
                     <FileText className="h-4 w-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Dati Fiscali</h3>
+                  <h3 className="text-lg font-semibold text-slate-100">Dati Fiscali</h3>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Partita IVA */}
                   <div>
-                    <label htmlFor="vat" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="vat" className="block text-sm font-medium text-slate-300 mb-2">
                       Partita IVA
                     </label>
                     <input
@@ -387,14 +387,14 @@ export default function CreateOrgPage() {
                       value={formData.vat}
                       onChange={handleChange}
                       placeholder="IT12345678901"
-                      className="w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                      className="w-full px-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                   </div>
 
                   {/* Codice Fiscale con calcolo */}
                   <div>
-                    <label htmlFor="taxCode" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="taxCode" className="block text-sm font-medium text-slate-300 mb-2">
                       Codice Fiscale
                     </label>
                     <div className="flex gap-2">
@@ -405,14 +405,14 @@ export default function CreateOrgPage() {
                         value={formData.taxCode}
                         onChange={handleChange}
                         placeholder="RSSMRA80A01H501S"
-                        className="flex-1 px-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                        className="flex-1 px-3 py-3 border border-[#243044] rounded-xl  focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                       <button
                         type="button"
                         onClick={calculateCodiceFiscale}
                         disabled={calculatingCF || loading}
-                        className="px-4 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-4 py-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-white rounded-xl hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {calculatingCF ? (
                           <LoadingSpinner size="sm" color="white" />
@@ -430,7 +430,7 @@ export default function CreateOrgPage() {
               {error && (
                 <motion.div
                   {...animations.fadeIn}
-                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-2"
+                  className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center gap-2"
                 >
                   <AlertCircle className="h-4 w-4" />
                   {error}
@@ -441,7 +441,7 @@ export default function CreateOrgPage() {
               <button
                 type="submit"
                 disabled={loading || !formData.name.trim()}
-                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <LoadingSpinner size="sm" color="white" text="Creazione in corso..." />
@@ -469,11 +469,11 @@ export default function CreateOrgPage() {
               <motion.div 
                 key={benefit.title} 
                 {...animations.staggerItem}
-                className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200"
+                className="p-4 rounded-xl bg-[#1a2536]/80 backdrop-blur-sm border border-[#243044]"
               >
                 <benefit.icon className="h-6 w-6 text-primary mb-2" />
-                <h3 className="font-semibold text-gray-900 mb-1">{benefit.title}</h3>
-                <p className="text-sm text-gray-600">{benefit.desc}</p>
+                <h3 className="font-semibold text-slate-100 mb-1">{benefit.title}</h3>
+                <p className="text-sm text-slate-400">{benefit.desc}</p>
               </motion.div>
             ))}
           </motion.div>

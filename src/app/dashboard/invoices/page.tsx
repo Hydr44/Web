@@ -8,12 +8,12 @@ export default function InvoicesPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">Fatture</h1>
-        <p className="mt-2 text-gray-600">Storico fatture e ricevute.</p>
+        <p className="mt-2 text-slate-400">Storico fatture e ricevute.</p>
       </header>
 
       <div className="rounded-xl border overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-[#141c27] text-slate-400">
             <tr>
               <th className="text-left px-4 py-2">Numero</th>
               <th className="text-left px-4 py-2">Data</th>

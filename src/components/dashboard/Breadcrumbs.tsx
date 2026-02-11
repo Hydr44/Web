@@ -17,16 +17,16 @@ export default function Breadcrumbs() {
   if (items.length <= 1) return null;
 
   return (
-    <nav className="text-sm text-gray-600" aria-label="Breadcrumb">
+    <nav className="text-sm text-slate-400" aria-label="Breadcrumb">
       <ol className="flex items-center gap-2">
         <li>
           <Link className="hover:underline" href="/dashboard">Dashboard</Link>
         </li>
         {items.slice(1).map((item) => (
           <li key={item.href} className="flex items-center gap-2">
-            <span className="text-gray-400">/</span>
+            <span className="text-slate-600">/</span>
             {item.isLast ? (
-              <span aria-current="page" className="font-medium text-gray-800">
+              <span aria-current="page" className="font-medium text-slate-200">
                 {item.label}
               </span>
             ) : (

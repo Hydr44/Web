@@ -94,18 +94,18 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
+                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-blue-400 font-medium"
               >
                 <UserPlus className="h-3 w-3" />
                 Registrazione Gratuita
               </motion.div>
               
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+              <h1 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-6 leading-tight">
                 Inizia la tua{" "}
-                <span className="block text-primary">trasformazione digitale</span>
+                <span className="block text-blue-400">trasformazione digitale</span>
               </h1>
               
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-lg text-slate-400 mb-8 leading-relaxed">
                 Crea il tuo account RescueManager e scopri come gestire la tua officina di soccorso stradale in modo più efficiente e professionale.
               </p>
               
@@ -120,10 +120,10 @@ export default function RegisterPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#1a2536]/80 backdrop-blur-sm border border-[#243044]"
                   >
-                    <item.icon className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-gray-700">{item.text}</span>
+                    <item.icon className="h-4 w-4 text-blue-400" />
+                    <span className="text-sm font-medium text-slate-300">{item.text}</span>
                   </motion.div>
                 ))}
               </div>
@@ -134,13 +134,13 @@ export default function RegisterPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200"
+              className="bg-[#1a2536] rounded-3xl p-8 shadow-xl border border-[#243044]"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-slate-100 mb-2">
                   Crea il tuo account
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-slate-400">
                   Inizia subito con RescueManager
                 </p>
               </div>
@@ -169,18 +169,18 @@ export default function RegisterPage() {
                 )}
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
                     Email
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
                     <input
                       id="email"
                       type="email"
                       autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="la-tua-email@azienda.com"
                       required
                     />
@@ -188,25 +188,25 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
                     <input
                       id="password"
                       type={showPw ? "text" : "password"}
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      className="w-full pl-10 pr-12 py-3 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Scegli una password sicura"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPw((v) => !v)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-400 transition-colors"
                       aria-label={showPw ? "Nascondi password" : "Mostra password"}
                     >
                       {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -215,25 +215,25 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-300 mb-2">
                     Conferma Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
                     <input
                       id="confirm-password"
                       type={showConfirmPw ? "text" : "password"}
                       autoComplete="new-password"
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
-                      className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                      className="w-full pl-10 pr-12 py-3 rounded-xl border border-[#243044] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Conferma la password"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPw((v) => !v)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-400 transition-colors"
                       aria-label={showConfirmPw ? "Nascondi password" : "Mostra password"}
                     >
                       {showConfirmPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -249,17 +249,17 @@ export default function RegisterPage() {
                       type="checkbox"
                       checked={acceptTerms}
                       onChange={(e) => setAcceptTerms(e.target.checked)}
-                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                      className="w-4 h-4 text-blue-400 bg-[#1a2536] border-[#243044] rounded focus:ring-blue-500 focus:ring-2"
                       required
                     />
                   </div>
-                  <label htmlFor="accept-terms" className="text-sm text-gray-600 leading-relaxed">
+                  <label htmlFor="accept-terms" className="text-sm text-slate-400 leading-relaxed">
                     Accetto i{" "}
-                    <Link href="/terms-of-use" target="_blank" className="text-primary hover:underline font-medium">
+                    <Link href="/terms-of-use" target="_blank" className="text-blue-400 hover:underline font-medium">
                       Termini d'Uso
                     </Link>
                     {" "}e la{" "}
-                    <Link href="/privacy-policy" target="_blank" className="text-primary hover:underline font-medium">
+                    <Link href="/privacy-policy" target="_blank" className="text-blue-400 hover:underline font-medium">
                       Privacy Policy
                     </Link>
                     {" "}di RescueManager
@@ -285,10 +285,10 @@ export default function RegisterPage() {
                 </button>
               </form>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-sm text-center text-gray-600">
+              <div className="mt-6 pt-6 border-t border-[#243044]">
+                <p className="text-sm text-center text-slate-400">
                   Hai già un account?{" "}
-                  <Link href={`/login?redirect=${encodeURIComponent(redirectTo)}`} className="text-primary hover:underline font-medium">
+                  <Link href={`/login?redirect=${encodeURIComponent(redirectTo)}`} className="text-blue-400 hover:underline font-medium">
                     Accedi
                   </Link>
                 </p>
