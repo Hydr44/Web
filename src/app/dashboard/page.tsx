@@ -206,123 +206,100 @@ export default function DashboardPanoramica() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
-            Benvenuto in {currentOrg}, {userEmail}
+          <h1 className="text-2xl font-semibold text-slate-100">Dashboard</h1>
+          <p className="text-slate-400 mt-1">
+            Benvenuto in {currentOrg}
           </p>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="text-sm text-gray-500">Piano attivo</p>
-            <p className="font-semibold text-blue-600">{subscription.plan}</p>
+            <p className="text-xs text-slate-500">Piano attivo</p>
+            <p className="font-semibold text-emerald-400">{subscription.plan}</p>
           </div>
-          <Shield className="h-8 w-8 text-blue-600" />
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <Shield className="h-5 w-5 text-emerald-400" />
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Veicoli</p>
-              <p className="text-2xl font-bold text-gray-900">{counts.vehicles}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Veicoli", value: counts.vehicles, icon: Truck, color: "blue", border: "border-l-blue-500" },
+          { label: "Autisti", value: counts.drivers, icon: Users, color: "emerald", border: "border-l-emerald-500" },
+          { label: "Trasporti", value: counts.transportsOpen, icon: FileText, color: "amber", border: "border-l-amber-500" },
+          { label: "Clienti", value: counts.members, icon: Users, color: "purple", border: "border-l-purple-500" },
+        ].map((card) => (
+          <div key={card.label} className={`bg-[#1a2536] rounded-xl p-5 border border-[#243044] ${card.border} border-l-4 hover:border-l-4 transition-all duration-200`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{card.label}</p>
+                <p className="text-2xl font-semibold text-slate-100 mt-1">{card.value}</p>
+              </div>
+              <div className={`w-10 h-10 rounded-lg bg-${card.color}-500/15 flex items-center justify-center`}>
+                <card.icon className={`h-5 w-5 text-${card.color}-400`} />
+              </div>
             </div>
-            <Truck className="h-8 w-8 text-blue-600" />
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Autisti</p>
-              <p className="text-2xl font-bold text-gray-900">{counts.drivers}</p>
-            </div>
-            <Users className="h-8 w-8 text-green-600" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Trasporti Aperti</p>
-              <p className="text-2xl font-bold text-gray-900">{counts.transportsOpen}</p>
-            </div>
-            <FileText className="h-8 w-8 text-orange-600" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Membri</p>
-              <p className="text-2xl font-bold text-gray-900">{counts.members}</p>
-            </div>
-            <Users className="h-8 w-8 text-purple-600" />
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Azioni Rapide</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-            <Users className="h-6 w-6 text-blue-600 mr-3" />
-            <div>
-              <p className="font-medium text-gray-900">Gestisci Team</p>
-              <p className="text-sm text-gray-600">Aggiungi o modifica membri</p>
+      <div className="bg-[#1a2536] rounded-xl p-6 border border-[#243044]">
+        <h2 className="text-base font-semibold text-slate-200 mb-4">Azioni Rapide</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center mr-3">
+              <Users className="h-4 w-4 text-blue-400" />
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400 ml-auto" />
+            <div className="flex-1">
+              <p className="font-medium text-slate-200 text-sm">Gestisci Team</p>
+              <p className="text-xs text-slate-500">Aggiungi o modifica membri</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
-          <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-            <BarChart3 className="h-6 w-6 text-green-600 mr-3" />
-            <div>
-              <p className="font-medium text-gray-900">Fatturazione</p>
-              <p className="text-sm text-gray-600">Gestisci abbonamenti</p>
+          <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+            <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center mr-3">
+              <BarChart3 className="h-4 w-4 text-emerald-400" />
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400 ml-auto" />
+            <div className="flex-1">
+              <p className="font-medium text-slate-200 text-sm">Fatturazione</p>
+              <p className="text-xs text-slate-500">Gestisci abbonamenti</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
-          <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-            <Download className="h-6 w-6 text-purple-600 mr-3" />
-            <div>
-              <p className="font-medium text-gray-900">Download</p>
-              <p className="text-sm text-gray-600">App e accessi</p>
+          <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+            <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center mr-3">
+              <Download className="h-4 w-4 text-purple-400" />
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400 ml-auto" />
+            <div className="flex-1">
+              <p className="font-medium text-slate-200 text-sm">Download</p>
+              <p className="text-xs text-slate-500">App e accessi</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
         </div>
       </div>
 
       {/* Status */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Stato Sistema</h2>
+      <div className="bg-[#1a2536] rounded-xl p-6 border border-[#243044]">
+        <h2 className="text-base font-semibold text-slate-200 mb-4">Stato Sistema</h2>
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600 mr-2" />
-              <span className="text-gray-900">Sistema operativo</span>
+          {[
+            { label: "Sistema operativo", status: "Attivo" },
+            { label: "Database connesso", status: "Online" },
+            { label: "Abbonamento", status: subscription.plan },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <span className="text-sm text-slate-300">{item.label}</span>
+              </div>
+              <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">{item.status}</span>
             </div>
-            <span className="text-sm text-green-600 font-medium">Attivo</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600 mr-2" />
-              <span className="text-gray-900">Database connesso</span>
-            </div>
-            <span className="text-sm text-green-600 font-medium">Online</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600 mr-2" />
-              <span className="text-gray-900">Abbonamento</span>
-            </div>
-            <span className="text-sm text-green-600 font-medium">{subscription.plan}</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>

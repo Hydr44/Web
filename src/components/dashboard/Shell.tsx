@@ -62,16 +62,16 @@ const NavLink: React.FC<{
     <div>
       <Link
         href={href}
-        className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+        className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
           active 
-            ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/25" 
-            : "text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-900"
+            ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg shadow-blue-500/20" 
+            : "text-slate-400 hover:bg-[#1a2536] hover:text-slate-200"
         }`}
         aria-current={active ? "page" : undefined}
       >
         {Icon && (
           <Icon className={`h-5 w-5 transition-colors ${
-            active ? "text-white" : "text-gray-500 group-hover:text-gray-700"
+            active ? "text-white" : "text-slate-500 group-hover:text-slate-300"
           }`} />
         )}
         <span className="flex-1">{children}</span>
@@ -79,7 +79,7 @@ const NavLink: React.FC<{
           <span className={`text-xs px-2 py-1 rounded-full font-medium ${
             active 
               ? "bg-white/20 text-white" 
-              : "bg-blue-100 text-blue-800"
+              : "bg-blue-500/20 text-blue-400"
           }`}>
             {badge}
           </span>
@@ -101,15 +101,15 @@ const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePa
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
           open 
-            ? "text-gray-900 bg-gray-100" 
-            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            ? "text-slate-200 bg-[#1a2536]" 
+            : "text-slate-400 hover:bg-[#1a2536] hover:text-slate-200"
         }`}
       >
         {Icon && (
           <Icon className={`h-5 w-5 transition-colors ${
-            open ? "text-gray-700" : "text-gray-500 group-hover:text-gray-700"
+            open ? "text-slate-300" : "text-slate-500"
           }`} />
         )}
         <span className="flex-1 text-left">{item.label}</span>
@@ -118,7 +118,7 @@ const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePa
         </div>
       </button>
 
-      <div className={`ml-6 mt-2 space-y-1 border-l border-gray-200 pl-3 ${open ? "block" : "hidden"}`}>
+      <div className={`ml-6 mt-2 space-y-1 border-l border-[#243044] pl-3 ${open ? "block" : "hidden"}`}>
         {item.children?.map((child) => {
           const active = child.href ? activePath.startsWith(child.href) : false;
           return (
@@ -148,30 +148,27 @@ export default function DashboardShell({
   const path = usePathname();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white pt-20">
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6">
+    <div className="min-h-screen bg-[#141c27] pt-20">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* Sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-100px)] p-6 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 shadow-xl">
+        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-4 bg-[#0c1929] border-r border-[#243044]">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
             {/* User block */}
             {userEmail && (
-              <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
-                    <Zap className="h-4 w-4 text-white" />
+              <div className="mb-4 p-3 rounded-xl bg-[#1a2536] border border-[#243044]">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-400 flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900 text-sm truncate">{userEmail}</div>
-                    <div className="text-xs text-gray-500 flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      Utente autenticato
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-slate-200 text-sm truncate">{userEmail}</div>
+                    <div className="text-xs text-slate-500">Account attivo</div>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="text-xs uppercase tracking-wide text-gray-500 px-2 pb-3 font-semibold">
+            <div className="text-xs uppercase tracking-wider text-slate-500 px-3 pb-3 font-semibold">
               Menu Principale
             </div>
 
@@ -202,15 +199,15 @@ export default function DashboardShell({
             </div>
 
             {/* Logout rimosso - usa solo quello dell'header */}
-            <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 bg-gray-50">
-              <LogOut className="h-5 w-5" /> 
-              Usa il menu in alto a destra per uscire
+            <div className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-[#1a2536]/50">
+              <LogOut className="h-4 w-4" /> 
+              Esci dal menu in alto
             </div>
           </nav>
         </aside>
 
         {/* Content */}
-        <section className="p-6 lg:p-8">
+        <section className="p-6 lg:p-8 overflow-auto">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>

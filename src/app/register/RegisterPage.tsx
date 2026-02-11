@@ -74,7 +74,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] pt-20">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -269,7 +269,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={pending}
-                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {pending ? (
                     <div className="flex items-center justify-center gap-2">

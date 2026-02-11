@@ -6,8 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
-import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { loginWithPassword } from "@/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -68,12 +67,12 @@ export default function LoginPage() {
   // Google login handled by GoogleLoginButton component
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] flex items-center justify-center p-4 pt-28">
       <div className="w-full max-w-md">
-        {/* Logo */}
+        {/* Logo grande */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="relative w-12 h-12">
+          <Link href="/" className="inline-flex flex-col items-center gap-3 group">
+            <div className="relative w-24 h-24">
               <Image
                 src="/logoufficiale_1024.png"
                 alt="RescueManager"
@@ -82,7 +81,7 @@ export default function LoginPage() {
                 priority
               />
             </div>
-            <div>
+            <div className="text-center">
               <div className="text-2xl font-bold text-white">RescueManager</div>
               <div className="text-sm text-slate-400 -mt-1">Gestione Trasporti</div>
             </div>
@@ -123,25 +122,6 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Google Login */}
-          <div className="mb-6">
-            <GoogleLoginButton
-              onSuccess={() => console.log("Google login success")}
-              onError={(error) => setError(error)}
-              className="w-full"
-            />
-          </div>
-
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">oppure</span>
-            </div>
-          </div>
-
-          {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>

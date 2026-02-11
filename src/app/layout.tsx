@@ -2,11 +2,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import SiteFooter from "@/components/SiteFooter";
-import CookieBanner from "@/components/CookieBanner";
 import SiteHeader from "@/components/SiteHeader";
-import ChatwootWidget from "@/components/ChatwootWidget";
-import ImagePreloader from "@/components/ImagePreloader";
 
 export const metadata: Metadata = {
   title: "RescueManager — Gestionale soccorso stradale",
@@ -44,11 +40,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
-        {/* Contenuto pagina - flex-1 per occupare spazio rimanente */}
+        <SiteHeader />
         <main className="flex-1 min-h-0">
           {children}
         </main>
-        
         <SpeedInsights />
       </body>
     </html>

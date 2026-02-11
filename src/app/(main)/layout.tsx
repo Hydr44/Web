@@ -1,4 +1,3 @@
-import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CookieBanner from "@/components/CookieBanner";
 import ChatwootWidget from "@/components/ChatwootWidget";
@@ -11,10 +10,6 @@ export default function MainLayout({
 }) {
   return (
     <>
-      {/* Header per pagine principali */}
-      <SiteHeader />
-      
-      {/* Contenuto pagina */}
       {children}
       
       {/* Footer e componenti per pagine principali */}
