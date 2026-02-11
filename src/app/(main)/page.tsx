@@ -203,19 +203,19 @@ function HomeContent() {
                 className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
               >
                 <Zap className="h-3 w-3" />
-              Operatività h24 per il soccorso stradale
+              Il gestionale per chi demolisce e soccorre
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent">
-                Riduci i tempi di intervento{" "}
+                Dalla confisca alla radiazione,{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
-                  fino al 32%
+                  tutto in un click
                 </span>
             </h1>
 
               <p className="mt-6 text-lg text-gray-600 max-w-2xl leading-relaxed">
-              Dalla chiamata al traino: dispatch su mappa, rapportini con foto/firma, fatture e analisi —
-                tutto in un&apos;unica piattaforma veloce.
+              Soccorso stradale, demolizioni, radiazioni RVFU, fatturazione elettronica SDI e registro RENTRI —
+                un unico software che ti segue dalla chiamata fino all&apos;ultimo documento.
             </p>
 
             {/* Value bullets */}
@@ -226,9 +226,9 @@ function HomeContent() {
                 className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
               >
                 {[
-                  { icon: Clock, text: "Dispatch in tempo reale" },
-                  { icon: FileText, text: "Rapportini con foto & firma" },
-                  { icon: BarChart3, text: "Fatture & analytics" },
+                  { icon: Clock, text: "Soccorso e dispatch" },
+                  { icon: FileText, text: "Radiazioni RVFU" },
+                  { icon: BarChart3, text: "Fatturazione SDI" },
                 ].map((bullet, i) => (
                   <motion.div
                     key={bullet.text}
@@ -276,9 +276,9 @@ function HomeContent() {
                 className="mt-8 flex flex-wrap items-center gap-3"
               >
                 {[
-                  { icon: Users, text: "Oltre 120 officine" },
-                  { icon: Award, text: "8 consorzi in 5 regioni" },
-                  { icon: TrendingUp, text: "5.000+ interventi/mese" },
+                  { icon: Shield, text: "Integrazioni governative" },
+                  { icon: Award, text: "Made in Italy" },
+                  { icon: TrendingUp, text: "In continua evoluzione" },
                 ].map((badge, i) => (
                   <motion.div
                     key={badge.text}
@@ -356,9 +356,9 @@ function HomeContent() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Integrazioni certificate</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Integrato con chi conta</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Compatibile con i principali sistemi del settore per una gestione completa
+              Collegato direttamente ai sistemi governativi italiani per demolizioni, rifiuti e fatturazione
             </p>
           </motion.div>
           
@@ -404,8 +404,8 @@ function HomeContent() {
                 />
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-gray-900">Registro Nazionale</span>
-                <div className="text-xs text-gray-600">Trasporti</div>
+                <span className="text-sm font-semibold text-gray-900">RENTRI</span>
+                <div className="text-xs text-gray-600">Tracciabilità Rifiuti</div>
               </div>
             </motion.div>
 
@@ -465,9 +465,9 @@ function HomeContent() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Tutto quello che ti serve</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Tre anime, un solo software</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Tre funzionalità chiave per ottimizzare la gestione del soccorso stradale
+              Soccorso stradale, autodemolizioni e amministrazione: tutto gira insieme, senza doppi inserimenti
             </p>
           </motion.div>
           
@@ -475,24 +475,24 @@ function HomeContent() {
             {[
               { 
                 icon: Clock, 
-                title: "Dispatch in tempo reale", 
-                desc: "Smista chiamate, assegna mezzi, ETA e stato su mappa.",
+                title: "Soccorso & Trasporti", 
+                desc: "Dispatch su mappa, autisti, rapportini con foto e firma, GPS.",
                 color: "blue",
-                features: ["Mappa interattiva", "Assegnazione automatica", "Tracking real-time", "Notifiche push"]
+                features: ["Dispatch in tempo reale", "App mobile autisti", "Rapportini digitali", "Calendario turni"]
               },
               { 
                 icon: FileText, 
-                title: "Rapportini completi", 
-                desc: "Foto, firme, allegati e consegna veicolo, tutto digitale.",
+                title: "Demolizioni & RVFU", 
+                desc: "Radiazioni, certificati di demolizione, fascicolo digitale del veicolo.",
                 color: "green",
-                features: ["Foto integrate", "Firme digitali", "Allegati PDF", "Consegna certificata"]
+                features: ["Radiazione veicoli", "Certificato demolizione", "Ricerca PRA", "Invio a STA"]
               },
               { 
                 icon: BarChart3, 
-                title: "Analytics utili", 
-                desc: "Tempi medi, volumi e margini per mezzo/intervento.",
+                title: "Fatture & SDI", 
+                desc: "Fatturazione elettronica XML, invio SDI, incassi e solleciti.",
                 color: "purple",
-                features: ["Dashboard analytics", "Report personalizzati", "Metriche KPI", "Export dati"]
+                features: ["FatturaPA XML", "Invio automatico SDI", "Gestione incassi", "Bollo e ritenute"]
               },
             ].map((feature, i) => (
               <motion.div
@@ -568,26 +568,26 @@ function HomeContent() {
                   className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
                 >
                   <Shield className="h-3 w-3" />
-                  Gestione completa flotta
+                  Tutto il ciclo, zero carta
                 </motion.div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                  Flotta, turni e manutenzioni{" "}
+                  Confische, sequestri e deposito{" "}
                   <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
-                    senza caos
+                    sotto controllo
                   </span>
                 </h2>
                 
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Disponibilità mezzi in tempo reale, reperibilità, storico viaggi e costi per mezzo.
-                Tutto tracciato, niente fogli sparsi.
+                Registro auto in deposito giudiziario, confische e sequestri tracciati, 
+                scadenze automatiche e documentazione sempre pronta per le autorità.
               </p>
                 
                 <ul className="space-y-4 mb-8">
                   {[
-                    { icon: Clock, text: "Calendario turni e reperibilità" },
-                    { icon: Shield, text: "Scadenze e manutenzioni" },
-                    { icon: BarChart3, text: "Storico interventi per mezzo" },
+                    { icon: Clock, text: "Registro deposito giudiziario" },
+                    { icon: Shield, text: "Confische e sequestri tracciati" },
+                    { icon: BarChart3, text: "Scadenze e alert automatici" },
                   ].map((item, i) => (
                     <motion.li
                       key={item.text}
@@ -685,41 +685,41 @@ function HomeContent() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Risultati che contano</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Perché RescueManager</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              I numeri parlano chiaro: RescueManager fa la differenza
+              Costruito da chi conosce il settore, per chi ci lavora ogni giorno
             </p>
           </motion.div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { 
-                value: "-32%", 
-                label: "tempi di assegnazione", 
-                icon: "📉",
+                value: "RVFU", 
+                label: "Radiazioni integrate", 
+                icon: "�",
                 color: "red",
-                description: "Riduzione media dei tempi di intervento"
+                description: "Radia i veicoli direttamente dal gestionale"
               },
               { 
-                value: "+18%", 
-                label: "interventi/mezzo", 
-                icon: "📈",
+                value: "SDI", 
+                label: "Fatture elettroniche", 
+                icon: "�",
                 color: "green",
-                description: "Aumento della produttività"
+                description: "Invio automatico all'Agenzia delle Entrate"
               },
               { 
-                value: "99.9%", 
-                label: "uptime garantito", 
-                icon: "⚡",
+                value: "RENTRI", 
+                label: "Registro rifiuti", 
+                icon: "♻️",
                 color: "blue",
-                description: "Affidabilità del sistema"
+                description: "Tracciabilità rifiuti a norma di legge"
               },
               { 
-                value: "< 2m", 
-                label: "presa → dispatch", 
-                icon: "⏱️",
+                value: "24/7", 
+                label: "Sempre disponibile", 
+                icon: "⚡",
                 color: "purple",
-                description: "Tempo medio di risposta"
+                description: "Cloud, accessibile da qualsiasi dispositivo"
               },
             ].map((stat, i) => (
               <motion.div 
@@ -789,33 +789,33 @@ function HomeContent() {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
               {
-                q: "Quanto tempo serve per iniziare?",
-                a: "Di solito 1-3 giorni: creiamo l'ambiente, importiamo i dati esistenti e facciamo un onboarding rapido con il tuo team.",
-                icon: Clock
-              },
-              {
-                q: "Posso importare i miei clienti esistenti?",
-                a: "Sì, supportiamo import da CSV/Excel con mappatura guidata dei campi. Ti aiutiamo anche con la migrazione dei dati.",
+                q: "A chi è rivolto RescueManager?",
+                a: "Ad autodemolizioni, centri di soccorso stradale e depositi giudiziari che vogliono digitalizzare tutto: dalla chiamata alla radiazione, dalla fattura al registro rifiuti.",
                 icon: Users
               },
               {
-                q: "È sicuro per i dati sensibili?",
-                a: "Certamente. GDPR-by-design, backup giornalieri, crittografia end-to-end e audit log completi per la tracciabilità.",
-                icon: Shield
-              },
-              {
-                q: "Funziona anche offline?",
-                a: "L'app mobile per autisti funziona offline e sincronizza automaticamente quando torna la connessione.",
+                q: "Serve installazione?",
+                a: "No. RescueManager funziona da browser e ha anche un'app desktop dedicata per Windows e Mac. Per gli autisti c'è l'app mobile.",
                 icon: Zap
               },
               {
-                q: "Posso integrare il mio sistema contabile?",
-                a: "Sì, esportiamo in tutti i formati standard (XML, CSV) e abbiamo integrazioni dirette con i principali software contabili.",
+                q: "Posso usare solo il modulo RVFU o solo la fatturazione?",
+                a: "Certo. Puoi attivare i moduli specializzati (RVFU, SDI, RENTRI) singolarmente oppure prendere il pacchetto completo.",
+                icon: Shield
+              },
+              {
+                q: "I dati sono al sicuro?",
+                a: "Sì. Infrastruttura cloud europea, backup automatici, crittografia e conformità GDPR.",
+                icon: Shield
+              },
+              {
+                q: "Come funziona la fatturazione elettronica?",
+                a: "Crei la fattura nel gestionale, la validiamo in automatico e la inviamo direttamente al Sistema di Interscambio (SDI) dell'Agenzia delle Entrate.",
                 icon: BarChart3
               },
               {
-                q: "Cosa succede se cresco la flotta?",
-                a: "Puoi aumentare o ridurre i mezzi senza penali. I piani sono flessibili e si adattano alle tue esigenze.",
+                q: "L'app è già completa?",
+                a: "RescueManager è in sviluppo attivo. I moduli principali sono funzionanti e ne aggiungiamo di nuovi ogni mese. Contattaci per sapere lo stato attuale.",
                 icon: TrendingUp
               }
             ].map((faq, i) => (
@@ -868,113 +868,54 @@ function HomeContent() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Piani semplici e trasparenti</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Un gestionale, tanti moduli</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Scegli il piano giusto per la tua officina, senza sorprese
+              Scegli il pacchetto completo o attiva solo i moduli che ti servono: RVFU, fatturazione SDI o RENTRI
             </p>
           </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               {
-                name: "Starter",
-                price: "€19,99",
-                period: "/mese",
-                description: "Prezzo benvenuto - Per iniziare: 1-5 mezzi",
-                features: ["Dashboard Completa", "Gestione Clienti", "Gestione Mezzi", "Modulo Trasporti"],
-                highlight: true,
-                color: "blue",
-                icon: Star
+                title: "Modulo RVFU",
+                desc: "Radiazioni veicoli, certificati di demolizione, fascicolo digitale, invio a STA.",
+                icon: Shield,
+                color: "blue"
               },
               {
-                name: "Flotta", 
-                price: "€98,99",
-                period: "/mese",
-                description: "Prezzo benvenuto - Per 6-15 mezzi e team",
-                features: ["Tutto il piano starter", "Registro auto (confische, sequestri)", "Modulo Fatturazione elettronica", "Modulo Radiazioni RVFU"],
-                highlight: false,
-                color: "purple",
-                icon: Users
+                title: "Modulo Fatturazione SDI",
+                desc: "Fatture elettroniche XML, invio automatico SDI, incassi, bollo e ritenute.",
+                icon: FileText,
+                color: "green"
               },
               {
-                name: "Enterprise",
-                price: "€149,99", 
-                period: "/mese",
-                description: "Prezzo benvenuto - Per flotte complesse (16+ mezzi)",
-                features: ["Tutto da starter e flotta", "Supporto prioritario", "Manutenzione avanzata", "Installazione inclusa"],
-                highlight: false,
-                color: "emerald",
-                icon: Award
+                title: "Modulo RENTRI",
+                desc: "Registro nazionale tracciabilità rifiuti, formulari, registri di carico/scarico.",
+                icon: BarChart3,
+                color: "purple"
               }
-            ].map((plan, i) => (
+            ].map((mod, i) => (
               <motion.div
-                key={plan.name}
+                key={mod.title}
                 initial={{ y: 20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`group relative p-8 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${
-                  plan.highlight 
-                    ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary shadow-lg shadow-primary/20' 
-                    : `bg-gradient-to-br from-${plan.color}-50 to-${plan.color}-100 border border-${plan.color}-200 hover:shadow-${plan.color}-200/50`
+                className={`p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${
+                  mod.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' :
+                  mod.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200' :
+                  'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
                 }`}
               >
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 text-white text-xs font-bold">
-                      PIÙ SCELTO
-                    </span>
-                  </div>
-                )}
-                
-                <div className="text-center mb-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
-                    plan.highlight ? 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white' :
-                    plan.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' :
-                    plan.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
-                    'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
-                  }`}>
-                    <plan.icon className="h-6 w-6" />
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-                  
-                  <div className="flex items-baseline justify-center mb-6">
-                    <span className={`text-4xl font-bold ${
-                      plan.highlight ? 'text-primary' :
-                      plan.color === 'blue' ? 'text-blue-600' :
-                      plan.color === 'green' ? 'text-green-600' :
-                      'text-purple-600'
-                    }`}>{plan.price}</span>
-                    <span className="text-gray-600 ml-1">{plan.period}</span>
-                  </div>
+                <div className={`p-3 rounded-xl w-fit mb-4 ${
+                  mod.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
+                  mod.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                  'bg-gradient-to-r from-purple-500 to-purple-600'
+                } text-white`}>
+                  <mod.icon className="h-6 w-6" />
                 </div>
-                
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-center gap-3 text-sm text-gray-700">
-                      <CheckCircle2 className={`h-4 w-4 shrink-0 ${
-                        plan.highlight ? 'text-primary' :
-                        plan.color === 'blue' ? 'text-blue-500' :
-                        plan.color === 'green' ? 'text-green-500' :
-                        'text-purple-500'
-                      }`} />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <SmoothScrollLink
-                  href="#pricing"
-                  className={`block w-full text-center py-4 rounded-xl font-semibold transition-all duration-300 group ${
-                    plan.highlight
-                      ? 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-primary/25'
-                      : `bg-gradient-to-r from-${plan.color}-500 to-${plan.color}-600 text-white hover:shadow-lg hover:shadow-${plan.color}-200/50`
-                  }`}
-                >
-                  {plan.highlight ? 'Attiva subito' : 'Vedi dettagli'}
-                </SmoothScrollLink>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{mod.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{mod.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -984,15 +925,16 @@ function HomeContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center mt-12"
+            className="text-center mt-10"
           >
-            <SmoothScrollLink 
-              href="#pricing" 
-              className="group inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+            <p className="text-gray-600 mb-4">Tutti e tre i moduli sono inclusi nel pacchetto completo, oppure attivabili singolarmente.</p>
+            <Link 
+              href="/contatti" 
+              className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg transition-all duration-300"
             >
-              Confronta tutti i piani
+              Richiedi info e prezzi
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </SmoothScrollLink>
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -1026,17 +968,17 @@ function HomeContent() {
                 </motion.div>
                 
                 <blockquote className="text-xl md:text-2xl leading-relaxed mb-6 font-medium">
-                  &ldquo;Finalmente vediamo in tempo reale chi è più vicino, quanto manca e cosa serve.
-                  I rapportini con foto e firma ci hanno tolto un mondo di carta.&rdquo;
+                  &ldquo;Un software pensato da chi sa cosa vuol dire gestire confische, radiazioni e soccorsi 
+                  tutti i giorni. Niente fronzoli, solo quello che serve davvero.&rdquo;
           </blockquote>
                 
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-white" />
+                    <Shield className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <div className="font-semibold text-white">Responsabile Operativo</div>
-                    <div className="text-sm text-blue-100">Consorzio Sicilia</div>
+                    <div className="font-semibold text-white">La filosofia RescueManager</div>
+                    <div className="text-sm text-blue-100">Fatto da chi ci lavora, per chi ci lavora</div>
                   </div>
                 </div>
               </div>
@@ -1052,7 +994,7 @@ function HomeContent() {
                   Pronto a iniziare?
                 </h3>
                 <p className="text-lg text-blue-100 mb-6">
-                  Unisciti alle oltre 120 officine che hanno già scelto RescueManager per ottimizzare la loro operatività.
+                  Scopri come RescueManager può semplificare la gestione della tua attività, dalla prima chiamata all'ultimo documento.
                 </p>
                 
                 <div className="flex flex-col gap-4">

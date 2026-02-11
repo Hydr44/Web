@@ -49,8 +49,8 @@ export default function SiteFooter() {
           </div>
                 
                 <p className="text-gray-300 mb-6 max-w-sm leading-relaxed">
-                  Il gestionale completo per il soccorso stradale: dalla chiamata al traino, 
-                  con dispatch su mappa, rapportini, fatture e analisi avanzate.
+                  Il gestionale per autodemolizioni e soccorso stradale: radiazioni RVFU, 
+                  fatturazione SDI, registro RENTRI, dispatch e molto altro.
                 </p>
 
                 {/* Contact info */}
@@ -202,27 +202,11 @@ export default function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/carriere" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                  <Link href="/contatti" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
                     <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center">
                       <ArrowRight className="h-2.5 w-2.5 text-emerald-400" />
                     </div>
-                    Carriere
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center">
-                      <ArrowRight className="h-2.5 w-2.5 text-emerald-400" />
-                    </div>
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/press" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center">
-                      <ArrowRight className="h-2.5 w-2.5 text-emerald-400" />
-                    </div>
-                    Press
+                    Contattaci
                   </Link>
                 </li>
           </ul>

@@ -169,18 +169,19 @@ export default function Prodotto() {
                 className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
               >
                 <Zap className="h-3 w-3" />
-                Tutto il ciclo del soccorso, in un'unica piattaforma
+                Autodemolizioni e soccorso stradale, in un unico software
               </motion.div>
               
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent">
-                Moduli completi per ogni aspetto del{" "}
-                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                  soccorso stradale
+                Ogni modulo che serve a chi{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
+                  demolisce e soccorre
                 </span>
               </h1>
               
               <p className="mt-6 text-lg text-gray-600 max-w-2xl leading-relaxed">
-                Dal dispatch alla fatturazione, dalla gestione autisti al magazzino: tutti i moduli per gestire completamente la tua attività di soccorso stradale.
+                Dal soccorso stradale alle radiazioni RVFU, dalla fatturazione SDI al registro RENTRI: 
+                tutti i moduli per gestire la tua autodemolizione o centro di soccorso.
               </p>
 
               {/* Feature badges */}
@@ -493,10 +494,10 @@ export default function Prodotto() {
             <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Pronto a ridurre i tempi di intervento?
+                  Vuoi vedere come funziona?
                 </h2>
                 <p className="text-lg text-blue-100 mb-6">
-                  Ti mostriamo tutti i moduli in 10 minuti, con esempi reali della tua attività.
+                  Raccontaci cosa gestisci e ti mostriamo i moduli giusti per te. Demo gratuita, zero impegno.
                 </p>
                 <div className="flex items-center gap-4 text-sm text-blue-100">
                   <div className="flex items-center gap-2">
@@ -549,7 +550,7 @@ export default function Prodotto() {
             {[
               {
                 q: "Serve installazione sui PC dell'ufficio?",
-                a: "No, RescueManager è web-based: funziona da browser su desktop e mobile. Per i driver è disponibile una web-app ottimizzata.",
+                a: "RescueManager funziona da browser e ha anche un'app desktop dedicata per Windows e Mac. Per gli autisti c'è l'app mobile.",
                 icon: Smartphone
               },
               {
