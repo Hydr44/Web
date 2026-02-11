@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
         type: 'refresh'
       },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '365d' } // 1 anno per token persistente
     );
 
     // Salva i token nel database

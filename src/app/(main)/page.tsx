@@ -208,7 +208,7 @@ function HomeContent() {
               
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent">
                 Riduci i tempi di intervento{" "}
-                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
                   fino al 32%
                 </span>
             </h1>
@@ -254,7 +254,7 @@ function HomeContent() {
               >
                 <Link
                   href="/demo"
-                  className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                  className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
                 >
                   Richiedi demo gratuita
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -573,7 +573,7 @@ function HomeContent() {
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Flotta, turni e manutenzioni{" "}
-                  <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
                     senza caos
                   </span>
                 </h2>
@@ -614,7 +614,7 @@ function HomeContent() {
                 >
                   <SmoothScrollLink 
                     href="#product" 
-                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
                   >
                   Vedi i moduli
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -921,7 +921,7 @@ function HomeContent() {
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-bold">
+                    <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 text-white text-xs font-bold">
                       PIÙ SCELTO
                     </span>
                   </div>
@@ -929,7 +929,7 @@ function HomeContent() {
                 
                 <div className="text-center mb-6">
                   <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
-                    plan.highlight ? 'bg-gradient-to-r from-primary to-blue-600 text-white' :
+                    plan.highlight ? 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white' :
                     plan.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' :
                     plan.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
                     'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
@@ -969,7 +969,7 @@ function HomeContent() {
                   href="#pricing"
                   className={`block w-full text-center py-4 rounded-xl font-semibold transition-all duration-300 group ${
                     plan.highlight
-                      ? 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25'
+                      ? 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-primary/25'
                       : `bg-gradient-to-r from-${plan.color}-500 to-${plan.color}-600 text-white hover:shadow-lg hover:shadow-${plan.color}-200/50`
                   }`}
                 >
@@ -1005,7 +1005,7 @@ function HomeContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative rounded-3xl bg-gradient-to-r from-primary to-blue-600 p-8 md:p-12 text-white overflow-hidden"
+            className="relative rounded-3xl bg-gradient-to-r from-blue-600 to-emerald-500 p-8 md:p-12 text-white overflow-hidden"
           >
             {/* Background pattern */}
             <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>

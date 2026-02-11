@@ -1,1 +1,31 @@
-{}
+{
+  "headers": [
+    {
+      "source": "/api/maintenance/status",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=300"
+        }
+      ]
+    },
+    {
+      "source": "/api/version/check",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=1800, s-maxage=1800"
+        }
+      ]
+    },
+    {
+      "source": "/api/monitoring/heartbeat",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

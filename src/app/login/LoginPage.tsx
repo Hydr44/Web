@@ -68,14 +68,14 @@ export default function LoginPage() {
   // Google login handled by GoogleLoginButton component
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 group">
             <div className="relative w-12 h-12">
               <Image
-                src="/logo-rentri.png"
+                src="/logoufficiale_1024.png"
                 alt="RescueManager"
                 fill
                 className="object-contain transition-transform duration-300 group-hover:scale-105"
@@ -83,8 +83,8 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">RescueManager</div>
-              <div className="text-sm text-gray-500 -mt-1">Gestione Trasporti</div>
+              <div className="text-2xl font-bold text-white">RescueManager</div>
+              <div className="text-sm text-slate-400 -mt-1">Gestione Trasporti</div>
             </div>
           </Link>
         </div>
@@ -94,7 +94,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8"
+          className="bg-white rounded-2xl shadow-2xl shadow-black/20 border border-gray-200 p-8"
         >
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Accedi al tuo account</h1>
@@ -220,7 +220,7 @@ export default function LoginPage() {
               className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                 isLoading || !acceptTerms
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25"
+                  : "bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25"
               }`}
               whileHover={!isLoading && acceptTerms ? { scale: 1.02 } : {}}
               whileTap={!isLoading && acceptTerms ? { scale: 0.98 } : {}}

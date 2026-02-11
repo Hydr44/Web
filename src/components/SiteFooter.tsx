@@ -20,11 +20,11 @@ export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+    <footer className="mt-20 bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] text-white relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-500/8 rounded-full blur-3xl"></div>
       
       <div className="relative z-10">
         {/* Main footer content */}
@@ -231,14 +231,14 @@ export default function SiteFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/20">
+        <div className="border-t border-[#243044]">
           <div className="rm-container py-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-slate-500">
                 © {year} RescueManager. Tutti i diritti riservati.
               </div>
-              <div className="text-sm text-gray-400">
-                P.IVA 00000000000
+              <div className="text-sm text-slate-500">
+                P.IVA 02166430856
         </div>
       </div>
           </div>

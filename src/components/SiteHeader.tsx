@@ -120,7 +120,7 @@ export default function SiteHeader() {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-white/80 backdrop-blur-sm"
+      scrolled ? "bg-[#0c1929]/98 backdrop-blur-md shadow-lg shadow-black/20" : "bg-[#0c1929]/95 backdrop-blur-sm"
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -136,8 +136,8 @@ export default function SiteHeader() {
               />
             </div>
             <div className="hidden sm:block">
-              <div className="text-xl font-bold text-gray-900">RescueManager</div>
-              <div className="text-xs text-gray-500 -mt-1">Gestione Trasporti</div>
+              <div className="text-xl font-bold text-white">RescueManager</div>
+              <div className="text-xs text-slate-400 -mt-1">Gestione Trasporti</div>
             </div>
           </Link>
 
@@ -151,21 +151,21 @@ export default function SiteHeader() {
                   href={item.href}
                   className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
                     active
-                      ? "text-primary"
-                      : "text-gray-600 hover:text-primary"
+                      ? "text-emerald-400"
+                      : "text-slate-300 hover:text-white"
                   }`}
                 >
                   {item.label}
                   {/* underline animata */}
                   <span
-                    className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-primary to-blue-600 transition-all duration-300 ${
+                    className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
                       active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                     }`}
                     aria-hidden
                   />
                   {/* background hover */}
                   <span
-                    className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-primary/5 transition-all duration-300 ${
+                    className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-white/5 transition-all duration-300 ${
                       active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                     }`}
                     aria-hidden
@@ -182,7 +182,7 @@ export default function SiteHeader() {
                 {/* Dashboard link */}
                 <Link
                   href="/dashboard"
-                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-md hover:shadow-primary/20 transition-all duration-300 font-medium"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-emerald-400 text-white hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-300 font-medium"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
@@ -192,7 +192,7 @@ export default function SiteHeader() {
                 {orgs.length > 0 && (
                   <div className="hidden md:block relative">
                     <select
-                      className="text-xs rounded-xl ring-1 ring-gray-200 px-3 py-2 bg-white hover:ring-primary/30 hover:bg-primary/5 transition-all duration-300 appearance-none pr-8 cursor-pointer"
+                      className="text-xs rounded-xl ring-1 ring-slate-600 px-3 py-2 bg-[#1a2536] text-slate-300 hover:ring-blue-500/40 hover:bg-[#243044] transition-all duration-300 appearance-none pr-8 cursor-pointer"
                       value={currentOrg ?? ''}
                       onChange={async (e) => {
                         const val = e.target.value || null;
@@ -210,7 +210,7 @@ export default function SiteHeader() {
                         <option key={o.id} value={o.id}>{o.name}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500 pointer-events-none" />
                   </div>
                 )}
                 
@@ -220,59 +220,59 @@ export default function SiteHeader() {
                     onClick={handleMenuToggle}
                     className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
                       menuOpen 
-                        ? 'ring-primary bg-primary/5' 
-                        : 'ring-gray-200 hover:bg-gray-50 hover:ring-primary/30'
+                        ? 'ring-blue-500 bg-blue-500/10' 
+                        : 'ring-slate-600 hover:bg-[#1a2536] hover:ring-blue-500/40'
                     }`}
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-blue-600 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={user.email}>
+                    <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={user.email}>
                       {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
                     </span>
-                    <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white shadow-lg shadow-black/10 border border-gray-200 p-2 z-[9999]"
+                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-2 z-[9999]"
                     >
-                      <div className="p-3 border-b border-gray-100">
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account</div>
-                        <div className="text-sm font-medium text-gray-900 break-all max-w-full overflow-hidden">
+                      <div className="p-3 border-b border-[#243044]">
+                        <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Account</div>
+                        <div className="text-sm font-medium text-slate-200 break-all max-w-full overflow-hidden">
                           <span className="block truncate" title={user.email}>{user.email}</span>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-1">
                           {user.isGoogle ? "Google Account" : "Email Account"}
                         </div>
                       </div>
                       
                       <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-[#243044] transition-colors duration-200"
                         onClick={() => setMenuOpen(false)}
                       >
                         <User2 className="h-4 w-4" />
                         Impostazioni
                       </Link>
                       
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-[#243044] my-1"></div>
                       
                       <button
                         className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors duration-200 ${
                           isLoggingOut 
-                            ? 'text-gray-500 bg-gray-50 cursor-not-allowed' 
-                            : 'text-red-600 hover:bg-red-50'
+                            ? 'text-slate-500 bg-[#243044] cursor-not-allowed' 
+                            : 'text-red-400 hover:bg-red-500/10'
                         }`}
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
                         {isLoggingOut ? (
                           <>
-                            <div className="h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                            <div className="h-4 w-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
                             Disconnessione...
                           </>
                         ) : (
@@ -289,7 +289,7 @@ export default function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-md hover:shadow-primary/20 transition-all duration-300 font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-emerald-400 text-white hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-300 font-medium"
               >
                 <LogIn className="h-4 w-4" />
                 Accedi
@@ -298,7 +298,7 @@ export default function SiteHeader() {
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+              className="lg:hidden p-2 rounded-xl hover:bg-white/10 transition-colors duration-200 text-white"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -308,7 +308,7 @@ export default function SiteHeader() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4">
+          <div className="lg:hidden border-t border-[#243044] py-4">
             <div className="flex flex-col gap-2">
               {NAV.map((item) => {
                 const active = item.match ? item.match(pathname) : pathname === item.href;
@@ -318,8 +318,8 @@ export default function SiteHeader() {
                     href={item.href}
                     className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
                       active
-                        ? "text-primary bg-primary/5"
-                        : "text-gray-600 hover:text-primary hover:bg-primary/5"
+                        ? "text-emerald-400 bg-emerald-500/10"
+                        : "text-slate-300 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     {item.label}

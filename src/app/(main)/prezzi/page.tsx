@@ -59,7 +59,7 @@ const plans: PricingPlan[] = [
     ],
     popular: true,
     icon: Star,
-    color: "from-primary to-blue-600",
+    color: "from-blue-600 to-emerald-500",
     buttonText: "Prova Gratis",
     buttonLink: "/register?plan=professional"
   },
@@ -209,7 +209,7 @@ export default function PrezziPage() {
                 {/* Popular Badge */}
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                    <div className="bg-gradient-to-r from-blue-600 to-emerald-500 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2">
                       <Star className="h-4 w-4" />
                       Più Popolare
                     </div>
@@ -255,7 +255,7 @@ export default function PrezziPage() {
                   href={plan.buttonLink}
                   className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-xl font-medium transition-all duration-200 ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/25'
+                      ? 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-primary/25'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
                   } ${
                     isCurrentPlan
@@ -338,7 +338,7 @@ export default function PrezziPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-primary to-blue-600">
+      <div className="bg-gradient-to-r from-blue-600 to-emerald-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">

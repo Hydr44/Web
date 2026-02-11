@@ -25,7 +25,7 @@ main {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Inter', var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 
   --color-ring: var(--ring);
@@ -67,8 +67,9 @@ main {
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Ombra morbida “brand-aware” */
+  /* Ombra morbida "brand-aware" */
   --shadow-soft: 0 12px 32px -10px color-mix(in oklab, var(--primary), transparent 82%);
+  --shadow-navy: 0 12px 32px -10px rgba(12, 25, 41, 0.15);
 }
 
 /* === Palette & token (LIGHT) === */
@@ -84,9 +85,16 @@ main {
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
 
-  /* BRAND (colore guida) */
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  /* BRAND — blue-600 allineato all'app desktop */
+  --primary: oklch(0.546 0.245 262.881);
+  --primary-foreground: oklch(0.985 0.002 247.839);
+
+  /* Navy brand (allineato a sidebar app #0c1929) */
+  --navy-900: #0c1929;
+  --navy-800: #141c27;
+  --navy-700: #1a2536;
+  --navy-600: #243044;
+  --emerald-accent: #10b981;
 
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
@@ -207,12 +215,12 @@ main {
 .hero-bg::before {
   content: "";
   position: absolute;
-  inset: -12% -12% auto -12%; /* simmetrico */
+  inset: -12% -12% auto -12%;
   height: 62%;
   background:
-    radial-gradient(46% 54% at 50% 18%, color-mix(in oklab, var(--primary), transparent 78%) 0%, transparent 70%),  /* bolla centrale alta */
-    radial-gradient(34% 50% at 72% 16%, color-mix(in oklab, var(--primary), black 18%) 0%, transparent 72%),       /* bolla destra */
-    radial-gradient(32% 48% at 28% 22%, color-mix(in oklab, var(--primary), white 10%) 0%, transparent 74%);       /* bolla sinistra */
+    radial-gradient(46% 54% at 50% 18%, rgba(37, 99, 235, 0.18) 0%, transparent 70%),
+    radial-gradient(34% 50% at 72% 16%, rgba(16, 185, 129, 0.12) 0%, transparent 72%),
+    radial-gradient(32% 48% at 28% 22%, rgba(37, 99, 235, 0.10) 0%, transparent 74%);
   filter: blur(26px);
   z-index: -1;
   pointer-events: none;
