@@ -3,6 +3,16 @@ import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { generateStaffToken } from '@/lib/staff-auth';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
@@ -10,7 +20,7 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json(
         { success: false, error: 'Email e password sono obbligatori' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -24,14 +34,14 @@ export async function POST(req: NextRequest) {
     if (error || !staff) {
       return NextResponse.json(
         { success: false, error: 'Credenziali non valide' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
     if (!staff.is_active) {
       return NextResponse.json(
         { success: false, error: 'Account disabilitato. Contatta un amministratore.' },
-        { status: 403 }
+        { status: 403, headers: corsHeaders }
       );
     }
 
@@ -40,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (!passwordValid) {
       return NextResponse.json(
         { success: false, error: 'Credenziali non valide' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -79,12 +89,12 @@ export async function POST(req: NextRequest) {
         full_name: staff.full_name,
         role: staff.role,
       },
-    });
+    }, { headers: corsHeaders });
   } catch (error: unknown) {
     console.error('Staff login error:', error);
     return NextResponse.json(
       { success: false, error: 'Errore interno del server' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
