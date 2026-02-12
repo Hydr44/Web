@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 
@@ -83,17 +82,14 @@ export default function LoginPage() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-white">RescueManager</div>
-              <div className="text-sm text-slate-400 -mt-1">Gestione Trasporti</div>
+              <div className="text-sm text-slate-400 -mt-1">Autodemolizioni & Soccorso</div>
             </div>
           </Link>
         </div>
 
         {/* Login Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-[#1a2536] rounded-2xl shadow-2xl shadow-black/30 border border-[#243044] p-8"
+        <div
+          className="bg-[#1a2536] rounded-2xl border border-[#243044] p-8"
         >
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-slate-100 mb-2">Accedi al tuo account</h1>
@@ -102,24 +98,20 @@ export default function LoginPage() {
 
           {/* Error/Success Messages */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <div
               className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
             >
               {error}
-            </motion.div>
+            </div>
           )}
 
           {success && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <div
               className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center gap-2"
             >
               <CheckCircle className="h-4 w-4" />
               {error}
-            </motion.div>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -194,16 +186,14 @@ export default function LoginPage() {
             </div>
 
             {/* Submit Button */}
-            <motion.button
+            <button
               type="submit"
               disabled={isLoading || !acceptTerms}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
                 isLoading || !acceptTerms
                   ? "bg-[#243044] text-slate-600 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25"
+                  : "bg-blue-600 text-white hover:bg-blue-500"
               }`}
-              whileHover={!isLoading && acceptTerms ? { scale: 1.02 } : {}}
-              whileTap={!isLoading && acceptTerms ? { scale: 0.98 } : {}}
             >
               {isLoading ? (
                 <>
@@ -217,7 +207,7 @@ export default function LoginPage() {
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
-            </motion.button>
+            </button>
           </form>
 
           {/* Links */}
@@ -237,7 +227,7 @@ export default function LoginPage() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

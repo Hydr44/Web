@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle, Monitor } from "lucide-react";
 import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
@@ -265,25 +264,20 @@ function DesktopOAuthContent() {
 
   if (!oauthInfo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 text-center border border-white/20 dark:border-white/10">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Caricamento parametri OAuth</h3>
-            <p className="text-gray-600 dark:text-gray-400">Attendere prego...</p>
-            {error && (
-              <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 max-w-md mx-auto">
-                <p className="font-semibold mb-1">Errore:</p>
-                <p className="text-sm">{error}</p>
-                <a 
-                  href="/login" 
-                  className="mt-3 inline-block text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 underline"
-                >
-                  Torna al login
-                </a>
-              </div>
-            )}
-          </div>
+      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <h3 className="text-lg font-semibold text-slate-100 mb-2">Caricamento parametri OAuth</h3>
+          <p className="text-sm text-slate-400">Attendere prego...</p>
+          {error && (
+            <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              <p className="font-semibold mb-1">Errore:</p>
+              <p>{error}</p>
+              <a href="/login" className="mt-3 inline-block text-blue-400 hover:underline">
+                Torna al login
+              </a>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -292,61 +286,39 @@ function DesktopOAuthContent() {
   // Se abbiamo l'URL di redirect, mostra il componente di redirect
   if (redirectUrl) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="max-w-md w-full">
-            <OAuthRedirect redirectUrl={redirectUrl} />
-          </div>
+      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
+        <div className="max-w-md w-full">
+          <OAuthRedirect redirectUrl={redirectUrl} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
-      <div className="min-h-screen flex items-center justify-center p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 space-y-8 border border-white/20 dark:border-white/10"
-      >
+    <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 space-y-8">
         {/* Header */}
         <div className="text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto h-16 w-16 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-6 shadow-lg"
-          >
-            <Monitor className="h-8 w-8 text-white" />
-          </motion.div>
-          
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <div className="mx-auto h-14 w-14 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+            <Monitor className="h-7 w-7 text-white" />
+          </div>
+          <h2 className="text-2xl font-semibold text-slate-100 mb-2">
             Accesso Desktop App
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-slate-400">
             Accedi per continuare con l'applicazione desktop
           </p>
         </div>
 
         {/* Form */}
-        <motion.form
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-6"
-          onSubmit={handleSubmit}
-        >
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
               Email
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <input
                 id="email"
                 name="email"
@@ -355,21 +327,19 @@ function DesktopOAuthContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                placeholder="Inserisci la tua email"
+                className="w-full pl-10 pr-3 py-3 border border-[#243044] bg-[#141c27] text-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600"
+                placeholder="inserisci@email.com"
               />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <input
                 id="password"
                 name="password"
@@ -378,96 +348,82 @@ function DesktopOAuthContent() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                placeholder="Inserisci la tua password"
+                className="w-full pl-10 pr-12 py-3 border border-[#243044] bg-[#141c27] text-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600"
+                placeholder="••••••••"
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
           {/* Terms */}
-          <div className="flex items-center">
+          <div className="flex items-start gap-3">
             <input
               id="accept-terms"
               name="accept-terms"
               type="checkbox"
               checked={acceptTerms}
               onChange={(e) => setAcceptTerms(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              className="mt-1 h-4 w-4 text-blue-500 border-[#243044] bg-[#141c27] rounded focus:ring-blue-500"
             />
-            <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="accept-terms" className="text-sm text-slate-400">
               Accetto i{" "}
-              <a href="/terms-of-use" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                Termini d'Uso
-              </a>{" "}
+              <a href="/terms-of-use" className="text-blue-400 hover:underline">Termini d'Uso</a>{" "}
               e la{" "}
-              <a href="/privacy-policy" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                Privacy Policy
-              </a>
+              <a href="/privacy-policy" className="text-blue-400 hover:underline">Privacy Policy</a>
             </label>
           </div>
 
           {/* Error/Success Messages */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg"
-            >
+            <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 text-sm">
               {error}
-            </motion.div>
+            </div>
           )}
 
           {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg flex items-center"
-            >
-              <CheckCircle className="h-5 w-5 mr-2" />
-              {error} {/* Usa error per il messaggio di successo */}
-            </motion.div>
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 text-sm flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              {error}
+            </div>
           )}
 
           {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            disabled={isLoading || !acceptTerms}
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
+              isLoading || !acceptTerms
+                ? "bg-[#243044] text-slate-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-500"
+            }`}
           >
             {isLoading ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              <>
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Accesso in corso...
-              </div>
+              </>
             ) : (
-              <div className="flex items-center">
-                <LogIn className="h-5 w-5 mr-2" />
+              <>
+                <LogIn className="h-4 w-4" />
                 Accedi alla Desktop App
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </div>
+                <ArrowRight className="h-4 w-4" />
+              </>
             )}
-          </motion.button>
+          </button>
 
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              <div className="w-full border-t border-[#243044]" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Oppure</span>
+              <span className="px-2 bg-[#1a2536] text-slate-500">Oppure</span>
             </div>
           </div>
 
@@ -478,35 +434,30 @@ function DesktopOAuthContent() {
               className="w-full"
             />
           </div>
-        </motion.form>
+        </form>
 
         {/* Footer */}
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-center text-sm text-slate-500">
           <p>
             Non hai un account?{" "}
-            <a href="/register" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
+            <a href="/register" className="text-blue-400 hover:underline">
               Registrati qui
             </a>
           </p>
         </div>
-      </motion.div>
       </div>
     </div>
   );
 }
 
 export default function DesktopOAuthPage() {
-  console.log('[DesktopOAuthPage] Component rendered');
-  
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 dark:from-neutral-900 dark:via-indigo-950/20 dark:to-purple-950/20">
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-3xl bg-white/80 dark:bg-neutral-800/80 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/5 p-8 text-center border border-white/20 dark:border-white/10">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Caricamento</h3>
-            <p className="text-gray-600 dark:text-gray-400">Attendere prego...</p>
-          </div>
+      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <h3 className="text-lg font-semibold text-slate-100 mb-2">Caricamento</h3>
+          <p className="text-sm text-slate-400">Attendere prego...</p>
         </div>
       </div>
     }>
