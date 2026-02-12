@@ -3,9 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   request: Request,
-  { params }: { params: { userId: string, action: string } }
+  { params }: { params: { id: string, action: string } }
 ) {
-  const { userId, action } = params;
+  const { id: userId, action } = params;
 
   try {
     console.log(`User action API called: ${action} for user ${userId}`);
@@ -71,11 +71,10 @@ export async function POST(
       }
 
       case 'suspend': {
-        // In a real implementation, you would disable the user in auth.users
-        // For now, we'll mark them as inactive in profiles
         const { data, error } = await supabaseAdmin
           .from('profiles')
           .update({
+            status: 'suspended',
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
@@ -97,6 +96,7 @@ export async function POST(
         const { data, error } = await supabaseAdmin
           .from('profiles')
           .update({
+            status: 'active',
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
@@ -115,7 +115,6 @@ export async function POST(
       }
 
       case 'delete': {
-        // Delete from auth.users (this should cascade to profiles if RLS is set up correctly)
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
         if (authError) {
           return NextResponse.json({
@@ -124,7 +123,6 @@ export async function POST(
           }, { status: 500 });
         }
 
-        // Also explicitly delete from profiles if not cascading
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
           .delete()
@@ -142,7 +140,6 @@ export async function POST(
       }
 
       case 'reset-password': {
-        // Reset password for user
         const { new_password } = await request.json();
         
         if (!new_password) {

@@ -3,9 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   request: Request,
-  { params }: { params: { orgId: string, action: string } }
+  { params }: { params: { id: string, action: string } }
 ) {
-  const { orgId, action } = params;
+  const { id: orgId, action } = params;
 
   try {
     console.log(`Organization action API called: ${action} for org ${orgId}`);
@@ -41,7 +41,6 @@ export async function POST(
           }, { status: 404 });
         }
 
-        // Get member count
         const { count: memberCount } = await supabaseAdmin
           .from('org_members')
           .select('*', { count: 'exact', head: true })
@@ -98,8 +97,6 @@ export async function POST(
       }
 
       case 'suspend': {
-        // In a real implementation, you would mark the org as inactive
-        // For now, we'll just update the timestamp
         const { data, error } = await supabaseAdmin
           .from('orgs')
           .update({
@@ -142,7 +139,6 @@ export async function POST(
       }
 
       case 'delete': {
-        // First, remove all members from the organization
         const { error: membersError } = await supabaseAdmin
           .from('org_members')
           .delete()
@@ -155,7 +151,6 @@ export async function POST(
           }, { status: 500 });
         }
 
-        // Then delete the organization
         const { error: orgError } = await supabaseAdmin
           .from('orgs')
           .delete()
@@ -173,7 +168,6 @@ export async function POST(
       }
 
       case 'members': {
-        // First get org_members
         const { data: orgMembers, error: orgMembersError } = await supabaseAdmin
           .from('org_members')
           .select(`
@@ -190,7 +184,6 @@ export async function POST(
           }, { status: 500 });
         }
 
-        // Then get profiles for each member
         const memberIds = orgMembers?.map(m => m.user_id) || [];
         const { data: profiles, error: profilesError } = await supabaseAdmin
           .from('profiles')
@@ -209,7 +202,6 @@ export async function POST(
           }, { status: 500 });
         }
 
-        // Combine the data
         const members = orgMembers?.map(orgMember => {
           const profile = profiles?.find(p => p.id === orgMember.user_id);
           return {
@@ -281,13 +273,11 @@ export async function POST(
       }
 
       case 'analytics': {
-        // Get basic analytics for the organization
         const { count: memberCount } = await supabaseAdmin
           .from('org_members')
           .select('*', { count: 'exact', head: true })
           .eq('org_id', orgId);
 
-        // Mock analytics data - in a real implementation, you'd query actual data
         const analytics = {
           member_count: memberCount || 0,
           active_users: Math.floor((memberCount || 0) * 0.8),
