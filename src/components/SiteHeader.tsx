@@ -137,7 +137,7 @@ export default function SiteHeader() {
             </div>
             <div className="hidden sm:block">
               <div className="text-xl font-bold text-white">RescueManager</div>
-              <div className="text-xs text-slate-400 -mt-1">Gestione Trasporti</div>
+              <div className="text-xs text-slate-400 -mt-1">Autodemolizioni & Soccorso</div>
             </div>
           </Link>
 

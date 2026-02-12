@@ -17,7 +17,6 @@ import {
   Users,
   TrendingUp,
   Award,
-  Calculator,
   AlertCircle,
   X
 } from "lucide-react";
@@ -177,8 +176,6 @@ function HomeContent() {
       <section id="hero" className="relative overflow-hidden pt-18 md:pt-24 pb-20 md:pb-28 bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
         {/* Background elements */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
         
         {/* scrim per leggibilità del testo */}
         <div
@@ -196,19 +193,14 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               className="max-w-2xl"
             >
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
-              >
+              <div className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-primary/10 text-primary font-medium">
                 <Zap className="h-3 w-3" />
               Il gestionale per chi demolisce e soccorre
-              </motion.div>
+              </div>
               
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900">
                 Dalla confisca alla radiazione,{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
+                <span className="text-primary">
                   tutto in un click
                 </span>
             </h1>
@@ -219,80 +211,47 @@ function HomeContent() {
             </p>
 
             {/* Value bullets */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
-              >
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { icon: Clock, text: "Soccorso e dispatch" },
                   { icon: FileText, text: "Radiazioni RVFU" },
                   { icon: BarChart3, text: "Fatturazione SDI" },
-                ].map((bullet, i) => (
-                  <motion.div
+                ].map((bullet) => (
+                  <div
                     key={bullet.text}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.5 + i * 0.1 }}
                     className="flex items-center gap-3 text-sm text-gray-700"
                   >
                     <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
                       <bullet.icon className="h-4 w-4" />
                     </div>
                     <span>{bullet.text}</span>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
 
             {/* CTA */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-                className="mt-8 flex flex-wrap gap-4"
-              >
+              <div className="mt-8 flex flex-wrap gap-4">
                 <Link
-                  href="/demo"
-                  className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                  href="/contatti"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
                 >
                   Richiedi demo gratuita
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                  href="/preventivo"
-                  className="inline-flex items-center gap-2 px-6 py-4 rounded-xl ring-2 ring-gray-200 bg-white text-gray-900 font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-all duration-300"
+                  href="/prodotto"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gray-300 bg-white text-gray-900 font-semibold hover:bg-gray-50 transition-colors"
               >
-                  <Calculator className="h-4 w-4" />
-                  Preventivo personalizzato
+                  Scopri i moduli
               </Link>
-              </motion.div>
+              </div>
 
-            {/* Micro-trust badges */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1 }}
-                className="mt-8 flex flex-wrap items-center gap-3"
-              >
-                {[
-                  { icon: Shield, text: "Integrazioni governative" },
-                  { icon: Award, text: "Made in Italy" },
-                  { icon: TrendingUp, text: "In continua evoluzione" },
-                ].map((badge, i) => (
-                  <motion.div
-                    key={badge.text}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 1.1 + i * 0.1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 ring-gray-200 bg-white shadow-sm text-xs text-gray-600 hover:shadow-md transition-all duration-200"
-                  >
-                    <CheckCircle2 className="h-3 w-3 text-green-500" />
-                    <badge.icon className="h-3 w-3" />
-                    <span>{badge.text}</span>
-                  </motion.div>
-                ))}
-              </motion.div>
+            {/* Trust line */}
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                <span className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> Integrazioni governative</span>
+                <span className="flex items-center gap-1.5"><Award className="h-3 w-3" /> Made in Italy</span>
+                <span className="flex items-center gap-1.5"><TrendingUp className="h-3 w-3" /> In sviluppo attivo</span>
+              </div>
             </motion.div>
 
             {/* Right visual */}
@@ -321,26 +280,6 @@ function HomeContent() {
             <div className="absolute inset-x-0 bottom-0 h-28 md:h-32 bg-gradient-to-t from-background/65 via-background/30 to-transparent" />
               </div>
               
-              {/* Floating stats */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-                className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-4 border"
-              >
-                <div className="text-2xl font-bold text-primary">-32%</div>
-                <div className="text-xs text-gray-600">tempi intervento</div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 1 }}
-                className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border"
-              >
-                <div className="text-2xl font-bold text-blue-600">99.9%</div>
-                <div className="text-xs text-gray-600">uptime</div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -369,9 +308,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
             >
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200 p-3 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-200 p-3">
                 <Image 
                   src="/21-9_1320x566_1977.jpg" 
                   alt="ACI Automobile Club Italia" 
@@ -392,9 +331,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
             >
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center border border-green-200 p-3 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-xl bg-green-50 flex items-center justify-center border border-green-200 p-3">
                 <Image 
                   src="/logo-rentri.png" 
                   alt="Registro Rentri" 
@@ -415,9 +354,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.3 }}
-              className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
             >
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center border border-purple-200 p-3 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-200 p-3">
                 <Image 
                   src="/download.jpg" 
                   alt="Agenzia delle Entrate" 
@@ -438,10 +377,10 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.4 }}
-              className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
             >
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-300 group-hover:scale-110 transition-transform duration-300">
-                <svg width="40" height="40" viewBox="0 0 40 40" className="text-gray-600 group-hover:text-primary transition-colors duration-300">
+              <div className="w-20 h-20 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200">
+                <svg width="40" height="40" viewBox="0 0 40 40" className="text-gray-400">
                   <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="2"/>
                   <path d="M20 12 L20 28 M12 20 L28 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
@@ -501,17 +440,17 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`group relative p-8 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${
-                  feature.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 hover:shadow-blue-200/50' :
-                  feature.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200 hover:shadow-green-200/50' :
-                  'bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 hover:shadow-purple-200/50'
+                className={`p-8 rounded-2xl border ${
+                  feature.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
+                  feature.color === 'green' ? 'bg-green-50/50 border-green-200' :
+                  'bg-purple-50/50 border-purple-200'
                 }`}
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`p-4 rounded-xl text-white ${
-                    feature.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
-                    feature.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                    'bg-gradient-to-r from-purple-500 to-purple-600'
+                  <div className={`p-3 rounded-xl text-white ${
+                    feature.color === 'blue' ? 'bg-blue-600' :
+                    feature.color === 'green' ? 'bg-green-600' :
+                    'bg-purple-600'
                   }`}>
                     <feature.icon className="h-6 w-6" />
                   </div>
@@ -647,28 +586,6 @@ function HomeContent() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
               </div>
                 
-                {/* Floating elements */}
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                  className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-4 border"
-                >
-                  <div className="text-2xl font-bold text-blue-600">100%</div>
-                  <div className="text-xs text-gray-600">digitalizzato</div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 1 }}
-                  className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border"
-                >
-                  <div className="text-2xl font-bold text-primary">24/7</div>
-                  <div className="text-xs text-gray-600">disponibile</div>
-                </motion.div>
               </motion.div>
             </div>
           </motion.div>
@@ -728,40 +645,24 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`group relative p-8 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${
-                  stat.color === 'red' ? 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200 hover:shadow-red-200/50' :
-                  stat.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200 hover:shadow-green-200/50' :
-                  stat.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 hover:shadow-blue-200/50' :
-                  'bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 hover:shadow-purple-200/50'
+                className={`p-6 rounded-2xl border ${
+                  stat.color === 'red' ? 'bg-red-50/50 border-red-200' :
+                  stat.color === 'green' ? 'bg-green-50/50 border-green-200' :
+                  stat.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
+                  'bg-purple-50/50 border-purple-200'
                 }`}
               >
                 <div className="text-center">
-                  <motion.div 
-                    initial={{ scale: 0.8 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
-                    className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300"
-                  >
-                    {stat.icon}
-                  </motion.div>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.4 + i * 0.1 }}
-                    className={`text-3xl font-bold mb-2 ${
-                      stat.color === 'red' ? 'text-red-600' :
-                      stat.color === 'green' ? 'text-green-600' :
-                      stat.color === 'blue' ? 'text-blue-600' :
-                      'text-purple-600'
-                    }`}
-                  >
+                  <div className="text-3xl mb-3">{stat.icon}</div>
+                  <div className={`text-2xl font-bold mb-1 ${
+                    stat.color === 'red' ? 'text-red-600' :
+                    stat.color === 'green' ? 'text-green-600' :
+                    stat.color === 'blue' ? 'text-blue-600' :
+                    'text-purple-600'
+                  }`}>
                     {stat.value}
-                  </motion.div>
-                  
-                  <div className="text-sm font-semibold text-gray-900 mb-2">{stat.label}</div>
+                  </div>
+                  <div className="text-sm font-semibold text-gray-900 mb-1">{stat.label}</div>
                   <div className="text-xs text-gray-600">{stat.description}</div>
                 </div>
               </motion.div>
@@ -825,10 +726,10 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="group rounded-2xl border border-gray-200 p-6 bg-white hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+                className="rounded-2xl border border-gray-200 p-6 bg-white"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
                     <faq.icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -901,16 +802,16 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-xl ${
-                  mod.color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' :
-                  mod.color === 'green' ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200' :
-                  'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
+                className={`p-8 rounded-2xl border ${
+                  mod.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
+                  mod.color === 'green' ? 'bg-green-50/50 border-green-200' :
+                  'bg-purple-50/50 border-purple-200'
                 }`}
               >
                 <div className={`p-3 rounded-xl w-fit mb-4 ${
-                  mod.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
-                  mod.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                  'bg-gradient-to-r from-purple-500 to-purple-600'
+                  mod.color === 'blue' ? 'bg-blue-600' :
+                  mod.color === 'green' ? 'bg-green-600' :
+                  'bg-purple-600'
                 } text-white`}>
                   <mod.icon className="h-6 w-6" />
                 </div>
@@ -930,10 +831,10 @@ function HomeContent() {
             <p className="text-gray-600 mb-4">Tutti e tre i moduli sono inclusi nel pacchetto completo, oppure attivabili singolarmente.</p>
             <Link 
               href="/contatti" 
-              className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
             >
               Richiedi info e prezzi
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
         </div>
@@ -947,40 +848,18 @@ function HomeContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative rounded-3xl bg-gradient-to-r from-blue-600 to-emerald-500 p-8 md:p-12 text-white overflow-hidden"
+            className="relative rounded-2xl bg-primary p-8 md:p-12 text-white overflow-hidden"
           >
-            {/* Background pattern */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
             
             <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-white/30 px-3 py-1.5 mb-6 bg-white/10 text-white font-medium"
-                >
-                  <Star className="h-3 w-3" />
-                  Testimonial cliente
-                </motion.div>
-                
-                <blockquote className="text-xl md:text-2xl leading-relaxed mb-6 font-medium">
-                  &ldquo;Un software pensato da chi sa cosa vuol dire gestire confische, radiazioni e soccorsi 
-                  tutti i giorni. Niente fronzoli, solo quello che serve davvero.&rdquo;
-          </blockquote>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <Shield className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-white">La filosofia RescueManager</div>
-                    <div className="text-sm text-blue-100">Fatto da chi ci lavora, per chi ci lavora</div>
-                  </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  Fatto da chi ci lavora, per chi ci lavora
+                </h3>
+                <p className="text-lg text-white/80 leading-relaxed">
+                  Un software pensato da chi sa cosa vuol dire gestire confische, radiazioni e soccorsi 
+                  tutti i giorni. Niente fronzoli, solo quello che serve davvero.
+                </p>
               </div>
               
               <motion.div 
@@ -1000,18 +879,17 @@ function HomeContent() {
                 <div className="flex flex-col gap-4">
                   <Link
                     href="/contatti"
-                    className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-primary font-bold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-primary font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Richiedi una demo gratuita
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-4 w-4" />
             </Link>
-                  <SmoothScrollLink
-                    href="#pricing"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border-2 border-white/30 text-white font-semibold hover:bg-white/10 transition-all duration-300"
+                  <Link
+                    href="/prodotto"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/30 text-white font-semibold hover:bg-white/10 transition-colors"
                   >
-                    <Star className="h-4 w-4" />
-                    Vedi i piani e prezzi
-                  </SmoothScrollLink>
+                    Scopri i moduli
+                  </Link>
                 </div>
                 
                 <div className="flex items-center gap-4 text-sm text-blue-100 mt-4">
