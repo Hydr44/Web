@@ -179,6 +179,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Genera magic link Supabase per creare sessione auth reale nel client
+    // Questo permette a auth.uid() di funzionare nelle policy RLS
+    let supabaseSession = null;
+    try {
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: userData.email,
+      });
+      
+      if (!linkError && linkData?.properties?.hashed_token) {
+        supabaseSession = {
+          hashed_token: linkData.properties.hashed_token,
+          type: 'magiclink' as const,
+        };
+        console.log('[OAuth Exchange] Supabase magic link generated for RLS session');
+      } else {
+        console.warn('[OAuth Exchange] Could not generate Supabase session:', linkError?.message);
+      }
+    } catch (sessionErr) {
+      console.warn('[OAuth Exchange] Supabase session generation failed:', sessionErr);
+    }
+
     // Risposta con token
     return withCORS({
       success: true,
@@ -191,7 +213,9 @@ export async function POST(request: NextRequest) {
         email: userData.email,
         full_name: userData.full_name,
         avatar_url: userData.avatar_url
-      }
+      },
+      // Token per sessione Supabase (RLS)
+      supabase_session: supabaseSession
     }, 200, request);
 
   } catch (error) {
