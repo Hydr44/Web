@@ -108,6 +108,55 @@ function DesktopOAuthContent() {
     }
   }, [params]);
 
+  // Auto-login: se l'utente ha già una sessione Supabase attiva, salta il form
+  useEffect(() => {
+    if (!oauthInfo || success || redirectUrl) return;
+
+    const checkExistingSession = async () => {
+      try {
+        const supabase = supabaseBrowser();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return; // Nessuna sessione, mostra il form
+
+        console.log('[DesktopOAuth] Existing session found for:', user.email);
+        setIsLoading(true);
+        setError(null);
+
+        // Genera OAuth code automaticamente
+        const oauthCode = `oauth_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+
+        const { error: oauthError } = await supabase
+          .from('oauth_codes')
+          .insert({
+            code: oauthCode,
+            user_id: user.id,
+            app_id: oauthInfo.app_id,
+            redirect_uri: oauthInfo.redirect_uri,
+            state: oauthInfo.state,
+            expires_at: new Date(Date.now() + 5 * 60 * 1000),
+            used: false
+          });
+
+        if (oauthError) {
+          console.error('[DesktopOAuth] Auto-login error:', oauthError);
+          setIsLoading(false);
+          return; // Fallback: mostra il form
+        }
+
+        console.log('[DesktopOAuth] Auto-login successful, redirecting...');
+        setSuccess(true);
+        const url = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
+        setRedirectUrl(url);
+      } catch (err) {
+        console.error('[DesktopOAuth] Auto-login check failed:', err);
+        setIsLoading(false);
+      }
+    };
+
+    checkExistingSession();
+  }, [oauthInfo, success, redirectUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
