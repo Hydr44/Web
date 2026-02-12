@@ -6,20 +6,10 @@ export async function GET() {
   try {
     console.log('Admin staff API called');
     
-    const { data: users, error } = await supabaseAdmin
-      .from('profiles')
-      .select(`
-        id,
-        email,
-        full_name,
-        avatar_url,
-        staff_role,
-        is_admin,
-        created_at,
-        updated_at,
-        is_staff
-      `)
-      .eq('is_staff', true)
+    // Read from the dedicated staff table
+    const { data: staffUsers, error } = await supabaseAdmin
+      .from('staff')
+      .select('id, email, full_name, role, is_active, last_login_at, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -30,22 +20,21 @@ export async function GET() {
       }, { status: 500 });
     }
 
-    // Transform data to include additional staff information
-    const transformedUsers = users?.map(user => ({
+    // Transform data to match frontend StaffMember interface
+    const transformedUsers = (staffUsers || []).map(user => ({
       id: user.id,
       email: user.email,
       full_name: user.full_name,
-      avatar_url: user.avatar_url,
-      staff_role: user.staff_role,
-      is_admin: user.is_admin,
+      avatar_url: null,
+      staff_role: user.role,
+      is_admin: user.role === 'super_admin' || user.role === 'admin',
       created_at: user.created_at,
       updated_at: user.updated_at,
-      last_login: user.updated_at, // Use updated_at as last_login for now
-      status: 'active', // Default status
-      permissions: [], // Will be populated based on role
-      session_count: Math.floor(Math.random() * 5) + 1, // Mock session count
-      total_actions: Math.floor(Math.random() * 100) + 10 // Mock total actions
-    })) || [];
+      last_login: user.last_login_at,
+      status: user.is_active ? 'active' : 'inactive',
+      session_count: 0,
+      total_actions: 0
+    }));
 
     return NextResponse.json({ 
       success: true, 
