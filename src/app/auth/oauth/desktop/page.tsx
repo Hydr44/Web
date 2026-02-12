@@ -3,8 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle, Monitor } from "lucide-react";
-import { loginWithPassword, loginWithGoogle } from "@/lib/auth";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { loginWithPassword } from "@/lib/auth";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -17,7 +16,6 @@ function DesktopOAuthContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,11 +116,6 @@ function DesktopOAuthContent() {
       return;
     }
 
-    if (!acceptTerms) {
-      setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
-      return;
-    }
-
     if (!oauthInfo) {
       setError("Parametri OAuth non validi.");
       return;
@@ -200,63 +193,6 @@ function DesktopOAuthContent() {
     } catch (err) {
       console.error("Login error:", err);
       setError("Errore durante l'accesso. Riprova.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    if (!oauthInfo) {
-      setError("Parametri OAuth non validi.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const result = await loginWithGoogle();
-      
-      if (result.success && result.user) {
-        console.log("Google login successful:", result.user.email);
-        
-        // Genera OAuth code
-        const oauthCode = `oauth_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-        
-        // Salva OAuth code nel database
-        const supabase = supabaseBrowser();
-        const { error: oauthError } = await supabase
-          .from('oauth_codes')
-          .insert({
-            code: oauthCode,
-            user_id: result.user.id,
-            app_id: oauthInfo.app_id,
-            redirect_uri: oauthInfo.redirect_uri,
-            state: oauthInfo.state,
-            expires_at: new Date(Date.now() + 5 * 60 * 1000), // 5 minuti
-            used: false
-          });
-
-        if (oauthError) {
-          console.error('Error saving OAuth code:', oauthError);
-          setError("Errore durante la generazione del codice OAuth.");
-          return;
-        }
-
-        setSuccess(true);
-        setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
-
-        // Prepara URL di redirect
-        const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
-        setRedirectUrl(redirectUrl);
-
-      } else {
-        setError(result.error || "Errore durante l'accesso con Google.");
-      }
-    } catch (err) {
-      console.error("Google login error:", err);
-      setError("Errore durante l'accesso con Google. Riprova.");
     } finally {
       setIsLoading(false);
     }
@@ -361,24 +297,6 @@ function DesktopOAuthContent() {
             </div>
           </div>
 
-          {/* Terms */}
-          <div className="flex items-start gap-3">
-            <input
-              id="accept-terms"
-              name="accept-terms"
-              type="checkbox"
-              checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-              className="mt-1 h-4 w-4 text-blue-500 border-[#243044] bg-[#141c27] rounded focus:ring-blue-500"
-            />
-            <label htmlFor="accept-terms" className="text-sm text-slate-400">
-              Accetto i{" "}
-              <a href="/terms-of-use" className="text-blue-400 hover:underline">Termini d'Uso</a>{" "}
-              e la{" "}
-              <a href="/privacy-policy" className="text-blue-400 hover:underline">Privacy Policy</a>
-            </label>
-          </div>
-
           {/* Error/Success Messages */}
           {error && (
             <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 text-sm">
@@ -396,9 +314,9 @@ function DesktopOAuthContent() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading || !acceptTerms}
+            disabled={isLoading}
             className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
-              isLoading || !acceptTerms
+              isLoading
                 ? "bg-[#243044] text-slate-600 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-500"
             }`}
@@ -417,23 +335,12 @@ function DesktopOAuthContent() {
             )}
           </button>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#243044]" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-[#1a2536] text-slate-500">Oppure</span>
-            </div>
-          </div>
-
-          {/* Google Login */}
-          <div className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-            <GoogleLoginButton
-              onSuccess={handleGoogleLogin}
-              className="w-full"
-            />
-          </div>
+          <p className="text-xs text-slate-500 text-center">
+            Accedendo, accetti i{" "}
+            <a href="/terms-of-use" className="text-blue-400 hover:underline">Termini d'Uso</a>{" "}
+            e la{" "}
+            <a href="/privacy-policy" className="text-blue-400 hover:underline">Privacy Policy</a>
+          </p>
         </form>
 
         {/* Footer */}

@@ -124,20 +124,22 @@ export async function GET(request: NextRequest) {
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #141c27;
+      color: #e2e8f0;
     }
     .container {
       text-align: center;
       padding: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
+      background: #1a2536;
+      border-radius: 16px;
+      border: 1px solid #243044;
+      max-width: 400px;
+      width: 100%;
     }
     .spinner {
-      border: 3px solid rgba(255,255,255,0.3);
+      border: 3px solid #243044;
       border-radius: 50%;
-      border-top: 3px solid white;
+      border-top: 3px solid #3b82f6;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
