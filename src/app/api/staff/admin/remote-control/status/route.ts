@@ -5,37 +5,45 @@ import { corsHeaders } from '@/lib/cors';
 export async function GET(request: Request) {
   try {
     const origin = request.headers.get('origin');
-    
-    console.log('Admin get remote control status API called');
-    
-    // Carica configurazione sistema
-    const { data: config, error: configError } = await supabaseAdmin
-      .from('system_config')
-      .select('*')
-      .single();
-    
+
+    // Legge tutte le chiavi rilevanti da system_settings
+    const { data: rows } = await supabaseAdmin
+      .from('system_settings')
+      .select('key, value')
+      .in('key', [
+        'maintenance_enabled', 'maintenance_message',
+        'min_app_version', 'force_update',
+        'website_maintenance_enabled', 'website_maintenance_message',
+      ]);
+
+    const settings: Record<string, any> = {};
+    for (const row of rows || []) {
+      settings[row.key] = row.value;
+    }
+
     // Conta utenti online (ultimi 5 minuti)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const { count: onlineUsers } = await supabaseAdmin
-      .from('user_sessions')
-      .select('*', { count: 'exact', head: true })
-      .gte('last_activity', fiveMinutesAgo);
-    
+    let onlineUsers = 0;
+    try {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { count } = await supabaseAdmin
+        .from('user_sessions')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_activity', fiveMinutesAgo);
+      onlineUsers = count || 0;
+    } catch { /* user_sessions potrebbe non esistere */ }
+
     const status = {
-      maintenance_mode: config?.maintenance_mode || false,
-      maintenance_message: config?.maintenance_message || '',
-      min_app_version: config?.min_app_version || '',
-      force_update: config?.force_update || false,
-      online_users: onlineUsers || 0,
+      maintenance_mode: settings.maintenance_enabled === true || settings.maintenance_enabled === 'true',
+      maintenance_message: settings.maintenance_message || '',
+      min_app_version: settings.min_app_version || '',
+      force_update: settings.force_update === true,
+      online_users: onlineUsers,
+      website_maintenance_enabled: settings.website_maintenance_enabled === true,
+      website_maintenance_message: settings.website_maintenance_message || '',
     };
-    
-    return NextResponse.json({
-      success: true,
-      data: status
-    }, {
-      headers: corsHeaders(origin)
-    });
-    
+
+    return NextResponse.json({ success: true, data: status }, { headers: corsHeaders(origin) });
+
   } catch (error: any) {
     console.error('Admin get remote control status API error:', error);
     const origin = request.headers.get('origin');
@@ -47,9 +55,9 @@ export async function GET(request: Request) {
         min_app_version: '',
         force_update: false,
         online_users: 0,
+        website_maintenance_enabled: false,
+        website_maintenance_message: '',
       }
-    }, {
-      headers: corsHeaders(origin)
-    });
+    }, { headers: corsHeaders(origin) });
   }
 }

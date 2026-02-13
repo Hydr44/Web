@@ -12,12 +12,30 @@ export async function POST(
     
     console.log(`Admin lead lose API called for: ${leadId}`);
     
-    // TODO: Implementare logica reale quando la tabella leads sarà creata
-    // Per ora simuliamo l'aggiornamento
-    
+    const { data, error } = await supabaseAdmin
+      .from('leads')
+      .update({ 
+        status: 'lost',
+        lost_at: new Date().toISOString()
+      })
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      return NextResponse.json({ 
+        success: false, 
+        error: error?.message || 'Lead non trovato' 
+      }, { 
+        status: error ? 500 : 404,
+        headers: corsHeaders(origin)
+      });
+    }
+
     return NextResponse.json({ 
       success: true, 
-      message: 'Lead segnato come perso' 
+      message: 'Lead segnato come perso',
+      lead: data
     }, {
       headers: corsHeaders(origin)
     });

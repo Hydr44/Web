@@ -42,6 +42,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Solo staff può creare organizzazioni
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_staff")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.is_staff) {
+      return NextResponse.json(
+        { error: "Solo lo staff può creare nuove organizzazioni" },
+        { status: 403 }
+      );
+    }
+
     // Controlla se l'utente è già membro di un'organizzazione
     console.log("Checking existing memberships...");
     const { data: existingMemberships, error: membershipError } = await supabase

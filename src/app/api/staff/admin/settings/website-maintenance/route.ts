@@ -5,12 +5,12 @@ import { corsHeaders } from '@/lib/cors';
 export async function POST(request: Request) {
   try {
     const origin = request.headers.get('origin');
-    const { min_version, force_update } = await request.json();
+    const { enabled, message } = await request.json();
 
-    // Upsert version settings in system_settings (key-value)
+    // Upsert website maintenance settings
     const updates = [
-      { key: 'min_app_version', value: min_version || '', description: 'Versione minima app desktop' },
-      { key: 'force_update', value: force_update || false, description: 'Forza aggiornamento app desktop' },
+      { key: 'website_maintenance_enabled', value: enabled, description: 'Sito web in manutenzione' },
+      { key: 'website_maintenance_message', value: message || '', description: 'Messaggio manutenzione sito web' },
     ];
 
     for (const u of updates) {
@@ -24,10 +24,13 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Impostazioni versione salvate' }, { headers: corsHeaders(origin) });
+    return NextResponse.json({
+      success: true,
+      message: `Manutenzione sito ${enabled ? 'attivata' : 'disattivata'}`
+    }, { headers: corsHeaders(origin) });
 
   } catch (error: any) {
-    console.error('Admin set version settings API error:', error);
+    console.error('Website maintenance API error:', error);
     const origin = request.headers.get('origin');
     return NextResponse.json({ success: false, error: 'Errore interno del server' }, { status: 500, headers: corsHeaders(origin) });
   }
