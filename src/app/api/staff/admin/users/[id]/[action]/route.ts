@@ -122,28 +122,78 @@ export async function POST(
       }
 
       case 'delete': {
-        // 1. Rimuovi l'utente da tutte le organizzazioni (org_members) per evitare vincoli FK
-        const { error: membersError } = await supabaseAdmin
-          .from('org_members')
-          .delete()
-          .eq('user_id', userId);
+        console.log(`Deleting user ${userId} — starting FK cleanup...`);
+        const errors: string[] = [];
 
-        if (membersError) {
-          console.error('Error removing org_members for user:', membersError);
-          // Continua comunque, potrebbe non avere membri
+        // ── Step 1: DELETE tabelle con user_id (record di proprietà utente) ──
+        const deleteByUserId = [
+          'org_members',
+          'operators',
+          'subscriptions',
+          'user_sessions',
+          'app_heartbeats',
+          'user_2fa_settings',
+          'user_notification_settings',
+        ];
+        for (const table of deleteByUserId) {
+          const { error } = await supabaseAdmin.from(table).delete().eq('user_id', userId);
+          if (error) {
+            console.error(`  cleanup ${table}.user_id:`, error.message);
+            errors.push(`${table}: ${error.message}`);
+          }
         }
 
-        // 2. Rimuovi eventuali record da operators
-        const { error: operatorsError } = await supabaseAdmin
-          .from('operators')
-          .delete()
-          .eq('user_id', userId);
-
-        if (operatorsError) {
-          console.error('Error removing operators for user:', operatorsError);
+        // ── Step 2: SET NULL su created_by (preserva dati business) ──
+        const nullifyCreatedBy = [
+          'company_settings',
+          'export_templates',
+          'export_configurations',
+          'export_history',
+          'yard_vehicles',
+          'accounting_entries',
+          'invoice_payments',
+          'invoice_email_logs',
+          'rentri_limiti_rifiuti',
+          'rentri_mud',
+          'rentri_registri',
+          'rentri_movimenti',
+          'rentri_formulari',
+          'rentri_org_certificates',
+          'rentri_ai_validations',
+        ];
+        for (const table of nullifyCreatedBy) {
+          const { error } = await supabaseAdmin.from(table).update({ created_by: null }).eq('created_by', userId);
+          if (error) {
+            console.error(`  nullify ${table}.created_by:`, error.message);
+            // Non bloccante — la tabella potrebbe non esistere o non avere record
+          }
         }
 
-        // 3. Elimina il profilo prima (dipende da auth.users)
+        // ── Step 3: SET NULL su updated_by ──
+        for (const table of ['company_settings', 'export_templates']) {
+          const { error } = await supabaseAdmin.from(table).update({ updated_by: null }).eq('updated_by', userId);
+          if (error) console.error(`  nullify ${table}.updated_by:`, error.message);
+        }
+
+        // ── Step 4: SET NULL su leads.assigned_to (referenzia profiles.id) ──
+        {
+          const { error } = await supabaseAdmin.from('leads').update({ assigned_to: null }).eq('assigned_to', userId);
+          if (error) console.error('  nullify leads.assigned_to:', error.message);
+        }
+
+        // ── Step 5: SET NULL su maintenance_mode.started_by ──
+        {
+          const { error } = await supabaseAdmin.from('maintenance_mode').update({ started_by: null }).eq('started_by', userId);
+          if (error) console.error('  nullify maintenance_mode.started_by:', error.message);
+        }
+
+        // ── Step 6: DELETE org_invites per questo utente ──
+        {
+          const { error } = await supabaseAdmin.from('org_invites').delete().eq('invited_by', userId);
+          if (error) console.error('  cleanup org_invites.invited_by:', error.message);
+        }
+
+        // ── Step 7: Elimina profilo (profiles.id → auth.users.id) ──
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
           .delete()
@@ -153,20 +203,21 @@ export async function POST(
           console.error('Error deleting profile:', profileError);
           return NextResponse.json({
             success: false,
-            error: profileError.message || 'Errore eliminazione profilo'
+            error: `Errore eliminazione profilo: ${profileError.message}. Cleanup errors: ${errors.join('; ')}`
           }, { status: 500, headers });
         }
 
-        // 4. Elimina da auth.users
+        // ── Step 8: Elimina da auth.users ──
         const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
         if (authError) {
           console.error('Error deleting auth user:', authError);
           return NextResponse.json({
             success: false,
-            error: authError.message || 'Errore eliminazione utente da auth'
+            error: `Errore eliminazione auth: ${authError.message}`
           }, { status: 500, headers });
         }
 
+        console.log(`User ${userId} deleted successfully.`);
         responseData = { success: true, message: 'Utente eliminato con successo' };
         break;
       }
