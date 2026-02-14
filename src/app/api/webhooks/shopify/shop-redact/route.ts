@@ -31,12 +31,18 @@ export async function POST(req: NextRequest) {
     const hmac = req.headers.get("x-shopify-hmac-sha256") || "";
     const shopDomain = (req.headers.get("x-shopify-shop-domain") || "").toLowerCase();
 
+    console.log("[shopify webhook shop/redact] incoming", {
+      shopDomain,
+      hasHmac: Boolean(hmac),
+    });
+
     if (!hmac) {
       return new NextResponse("Missing HMAC", { status: 400 });
     }
 
     const raw = await req.text();
     if (!verifyWebhookHmac(raw, hmac)) {
+      console.warn("[shopify webhook shop/redact] invalid hmac", { shopDomain });
       return new NextResponse("Invalid HMAC", { status: 401 });
     }
 
