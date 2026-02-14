@@ -19,7 +19,8 @@ import {
   FileText,
   Activity,
   Clock,
-  Monitor
+  Monitor,
+  HeartPulse
 } from "lucide-react";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
@@ -137,6 +138,12 @@ export default function StaffLayout({
       href: '/staff/admin/remote-control',
       icon: Monitor,
       current: pathname.startsWith('/staff/admin/remote-control')
+    },
+    {
+      name: 'Monitoring Servizi',
+      href: '/staff/admin/monitoring',
+      icon: HeartPulse,
+      current: pathname.startsWith('/staff/admin/monitoring')
     }
   ];
 
