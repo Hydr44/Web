@@ -1,0 +1,26 @@
+# Shopify App Configuration - RescueManager Ricambi
+# Questo file serve SOLO per registrare i webhook compliance via CLI.
+# Non è un progetto Shopify CLI completo.
+
+name = "RescueManager Ricambi"
+client_id = "ab5294b772a6d579851238c4f5a2aefa"
+
+[access_scopes]
+scopes = "read_products,write_products,read_inventory,write_inventory"
+
+[auth]
+redirect_urls = [
+  "https://rescuemanager.eu/api/auth/oauth/shopify/callback",
+  "http://localhost:5173/settings?tab=marketplace&oauth=shopify"
+]
+
+[webhooks]
+api_version = "2026-01"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://rescuemanager.eu/api/webhooks/shopify/compliance"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "https://rescuemanager.eu/api/webhooks/shopify/app-uninstalled"
