@@ -12,21 +12,14 @@ export async function GET(
     
     console.log(`Admin get organization members API called for: ${orgId}`);
     
-    // Carica membri con profili
-    const { data: members, error: membersError } = await supabaseAdmin
+    // 1. Carica i record org_members (senza join — il join profiles:user_id fallisce silenziosamente)
+    const { data: orgMembers, error: membersError } = await supabaseAdmin
       .from('org_members')
-      .select(`
-        user_id,
-        role,
-        created_at,
-        profiles:user_id (
-          email,
-          full_name
-        )
-      `)
+      .select('user_id, role, created_at')
       .eq('org_id', orgId);
     
     if (membersError) {
+      console.error('Error fetching org_members:', membersError);
       return NextResponse.json({
         success: false,
         error: 'Errore nel recupero membri'
@@ -36,14 +29,32 @@ export async function GET(
       });
     }
     
-    // Trasforma i dati
-    const formattedMembers = (members || []).map((member: any) => ({
-      user_id: member.user_id,
-      role: member.role,
-      email: member.profiles?.email || null,
-      full_name: member.profiles?.full_name || null,
-      created_at: member.created_at,
-    }));
+    // 2. Carica i profili separatamente e unisci manualmente
+    const userIds = (orgMembers || []).map(m => m.user_id).filter(Boolean);
+    let profilesMap: Record<string, { email: string | null; full_name: string | null }> = {};
+    
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email, full_name')
+        .in('id', userIds);
+      
+      for (const p of (profiles || [])) {
+        profilesMap[p.id] = { email: p.email, full_name: p.full_name };
+      }
+    }
+    
+    // 3. Combina i risultati
+    const formattedMembers = (orgMembers || []).map((member: any) => {
+      const profile = profilesMap[member.user_id];
+      return {
+        user_id: member.user_id,
+        role: member.role,
+        email: profile?.email || null,
+        full_name: profile?.full_name || null,
+        created_at: member.created_at,
+      };
+    });
     
     return NextResponse.json({
       success: true,
