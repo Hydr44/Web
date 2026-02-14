@@ -1,6 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
+// Cache in-memory per evitare query DB su ogni richiesta (TTL 30 secondi)
+let maintenanceCache: { enabled: boolean; checkedAt: number } | null = null;
+const CACHE_TTL = 30_000; // 30 secondi
+
+async function isWebsiteMaintenanceEnabled(): Promise<boolean> {
+  // Usa cache se ancora valida
+  if (maintenanceCache && Date.now() - maintenanceCache.checkedAt < CACHE_TTL) {
+    return maintenanceCache.enabled;
+  }
+
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) return false;
+
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/system_settings?key=eq.website_maintenance_enabled&select=value`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      maintenanceCache = { enabled: false, checkedAt: Date.now() };
+      return false;
+    }
+
+    const rows = await res.json();
+    const enabled = rows?.[0]?.value === true || rows?.[0]?.value === 'true';
+
+    maintenanceCache = { enabled, checkedAt: Date.now() };
+    return enabled;
+  } catch {
+    // In caso di errore, non bloccare il sito
+    maintenanceCache = { enabled: false, checkedAt: Date.now() };
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // CORS for staff admin API routes (admin panel calls from different origin)
@@ -37,6 +80,31 @@ export function middleware(request: NextRequest) {
     if (!url.pathname.startsWith('/staff')) {
       url.pathname = `/staff${url.pathname}`;
       return NextResponse.redirect(url);
+    }
+  }
+
+  // === Website maintenance check ===
+  // Escludi route che non devono essere bloccate:
+  // - /api/* (tutte le API devono restare accessibili)
+  // - /staff/* (pannello staff deve restare accessibile)
+  // - /maintenance (la pagina stessa di manutenzione)
+  // - static assets
+  const isExcluded =
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/staff') ||
+    pathname === '/maintenance' ||
+    pathname.startsWith('/_next/') ||
+    pathname.includes('favicon') ||
+    pathname.endsWith('.png') ||
+    pathname.endsWith('.ico') ||
+    pathname.endsWith('.svg');
+
+  if (!isExcluded) {
+    const maintenanceOn = await isWebsiteMaintenanceEnabled();
+    if (maintenanceOn) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/maintenance';
+      return NextResponse.rewrite(url);
     }
   }
 
