@@ -1,38 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Cache in-memory per evitare query DB su ogni richiesta (TTL 30 secondi)
+// Cache in-memory per evitare chiamate API su ogni richiesta (TTL 30 secondi)
 let maintenanceCache: { enabled: boolean; checkedAt: number } | null = null;
 const CACHE_TTL = 30_000; // 30 secondi
 
-async function isWebsiteMaintenanceEnabled(): Promise<boolean> {
+async function isWebsiteMaintenanceEnabled(requestUrl: string): Promise<boolean> {
   // Usa cache se ancora valida
   if (maintenanceCache && Date.now() - maintenanceCache.checkedAt < CACHE_TTL) {
     return maintenanceCache.enabled;
   }
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) return false;
-
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/system_settings?key=eq.website_maintenance_enabled&select=value`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-        },
-      }
-    );
+    // Chiama l'API interna (stesso dominio, runtime Node.js)
+    // Questo è più affidabile della fetch diretta a Supabase da Edge Runtime
+    const baseUrl = new URL(requestUrl).origin;
+    const res = await fetch(`${baseUrl}/api/internal/maintenance-check`, {
+      cache: 'no-store',
+    });
 
     if (!res.ok) {
       maintenanceCache = { enabled: false, checkedAt: Date.now() };
       return false;
     }
 
-    const rows = await res.json();
-    const enabled = rows?.[0]?.value === true || rows?.[0]?.value === 'true';
+    const data = await res.json();
+    const enabled = data?.enabled === true;
 
     maintenanceCache = { enabled, checkedAt: Date.now() };
     return enabled;
@@ -100,7 +92,7 @@ export async function middleware(request: NextRequest) {
     pathname.endsWith('.svg');
 
   if (!isExcluded) {
-    const maintenanceOn = await isWebsiteMaintenanceEnabled();
+    const maintenanceOn = await isWebsiteMaintenanceEnabled(request.url);
     if (maintenanceOn) {
       const url = request.nextUrl.clone();
       url.pathname = '/maintenance';
