@@ -213,27 +213,15 @@ export async function POST(
       }
 
       case 'delete': {
-        const { error: membersError } = await supabaseAdmin
-          .from('org_members')
-          .delete()
-          .eq('org_id', orgId);
+        // Usa funzione SQL che fa cascade su tutte le tabelle collegate (FK senza ON DELETE CASCADE)
+        const { error: cascadeError } = await supabaseAdmin.rpc('delete_org_cascade', {
+          p_org_id: orgId,
+        });
 
-        if (membersError) {
+        if (cascadeError) {
           return NextResponse.json({
             success: false,
-            error: `Errore rimozione membri: ${membersError.message}`
-          }, { status: 500 });
-        }
-
-        const { error: orgError } = await supabaseAdmin
-          .from('orgs')
-          .delete()
-          .eq('id', orgId);
-
-        if (orgError) {
-          return NextResponse.json({
-            success: false,
-            error: `Errore eliminazione organizzazione: ${orgError.message}`
+            error: `Impossibile eliminare: ci sono dati collegati. Esegui la migrazione 20260216_delete_org_cascade.sql su Supabase, poi riprova. (${cascadeError.message})`,
           }, { status: 500 });
         }
 
