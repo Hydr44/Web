@@ -11,9 +11,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 // Mappa price_id ai nomi dei piani
 const PLAN_MAPPING: Record<string, string> = {
-  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
-  [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
-  [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
+  // Annuali
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_ANNUAL || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_ANNUAL || ""]: "Full",
+  // Mensili
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_MONTHLY || ""]: "Full",
+};
+
+// Mappa product_id ai nomi dei piani (fallback per webhook)
+const PRODUCT_MAPPING: Record<string, string> = {
+  [process.env.STRIPE_PRODUCT_STARTER || ""]: "Starter",
+  [process.env.STRIPE_PRODUCT_PROFESSIONAL || ""]: "Professional",
+  [process.env.STRIPE_PRODUCT_BUSINESS || ""]: "Business",
+  [process.env.STRIPE_PRODUCT_FULL || ""]: "Full",
 };
 
 function getBaseUrl(req: NextRequest): string {

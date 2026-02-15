@@ -11,9 +11,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 // Mappa price_id ai nomi dei piani
 const PLAN_MAPPING: Record<string, string> = {
-  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
-  [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
-  [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
+  // Annuali
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_ANNUAL || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_ANNUAL || ""]: "Full",
+  // Mensili
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_MONTHLY || ""]: "Full",
+};
+
+// Mappa product_id ai nomi dei piani (fallback)
+const PRODUCT_MAPPING: Record<string, string> = {
+  [process.env.STRIPE_PRODUCT_STARTER || ""]: "Starter",
+  [process.env.STRIPE_PRODUCT_PROFESSIONAL || ""]: "Professional",
+  [process.env.STRIPE_PRODUCT_BUSINESS || ""]: "Business",
+  [process.env.STRIPE_PRODUCT_FULL || ""]: "Full",
 };
 
 async function updateUserSubscription(params: {
@@ -26,7 +41,20 @@ async function updateUserSubscription(params: {
 }) {
   const { userId, customerId, subscriptionId, priceId, status, currentPeriodEnd } = params;
   
-  const planName = PLAN_MAPPING[priceId || ""] || "Unknown";
+  // Cerca prima per price_id, poi per product_id come fallback
+  let planName = PLAN_MAPPING[priceId || ""] || "Unknown";
+  if (planName === "Unknown" && priceId) {
+    // Prova a risolvere via Stripe API recuperando il product dal price
+    try {
+      const price = await stripe.prices.retrieve(priceId);
+      const productId = typeof price.product === 'string' ? price.product : (price.product as any)?.id;
+      if (productId && PRODUCT_MAPPING[productId]) {
+        planName = PRODUCT_MAPPING[productId];
+      }
+    } catch (e) {
+      console.error("Error resolving plan from price:", e);
+    }
+  }
 
   // Aggiorna tabella subscriptions
   await supabaseAdmin
