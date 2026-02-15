@@ -29,7 +29,8 @@ export async function POST(
             description,
             created_at,
             updated_at,
-            created_by
+            created_by,
+            is_active
           `)
           .eq('id', orgId)
           .single();
@@ -46,11 +47,82 @@ export async function POST(
           .select('*', { count: 'exact', head: true })
           .eq('org_id', orgId);
 
+        // 1) Abbonamento da org_subscriptions
+        let subscription: { plan: string; status: string; current_period_end: string | null } | null = null;
+        const { data: orgSub } = await supabaseAdmin
+          .from('org_subscriptions')
+          .select('plan, status, current_period_end')
+          .eq('org_id', orgId)
+          .maybeSingle();
+        if (orgSub) {
+          subscription = orgSub;
+        } else {
+          // 2) Fallback: subscription da tabella user-based (owner dell'org)
+          const { data: owner } = await supabaseAdmin
+            .from('org_members')
+            .select('user_id')
+            .eq('org_id', orgId)
+            .eq('role', 'owner')
+            .limit(1)
+            .maybeSingle();
+          if (owner?.user_id) {
+            const { data: profile } = await supabaseAdmin
+              .from('profiles')
+              .select('stripe_customer_id, current_plan')
+              .eq('id', owner.user_id)
+              .single();
+            if (profile?.stripe_customer_id || profile?.current_plan) {
+              let userSub: { status: string; current_period_end: string | null } | null = null;
+              const { data: subByUser } = await supabaseAdmin
+                .from('subscriptions')
+                .select('status, current_period_end')
+                .eq('user_id', owner.user_id)
+                .in('status', ['active', 'trialing'])
+                .limit(1)
+                .maybeSingle();
+              if (subByUser) userSub = subByUser;
+              else if (profile.stripe_customer_id) {
+                const { data: subByCust } = await supabaseAdmin
+                  .from('subscriptions')
+                  .select('status, current_period_end')
+                  .eq('stripe_customer_id', profile.stripe_customer_id)
+                  .in('status', ['active', 'trialing'])
+                  .limit(1)
+                  .maybeSingle();
+                if (subByCust) userSub = subByCust;
+              }
+              if (userSub && (profile.current_plan || userSub.status)) {
+                subscription = {
+                  plan: profile.current_plan || '—',
+                  status: userSub.status,
+                  current_period_end: userSub.current_period_end
+                };
+              } else if (profile.current_plan) {
+                subscription = {
+                  plan: profile.current_plan,
+                  status: 'active',
+                  current_period_end: null
+                };
+              }
+            }
+          }
+        }
+
+        // 3) company_code da company_settings
+        const { data: settings } = await supabaseAdmin
+          .from('company_settings')
+          .select('company_code')
+          .eq('org_id', orgId)
+          .maybeSingle();
+
         responseData = { 
           success: true, 
           organization: {
             ...org,
-            member_count: memberCount || 0
+            member_count: memberCount || 0,
+            status: (org as any).is_active !== false ? 'active' : 'inactive',
+            subscription,
+            company_code: settings?.company_code || null
           }
         };
         break;
@@ -100,6 +172,7 @@ export async function POST(
         const { data, error } = await supabaseAdmin
           .from('orgs')
           .update({
+            is_active: false,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId)
@@ -121,6 +194,7 @@ export async function POST(
         const { data, error } = await supabaseAdmin
           .from('orgs')
           .update({
+            is_active: true,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId)

@@ -67,6 +67,12 @@ export async function POST(req: Request) {
       { onConflict: "org_id" }
     );
 
+    // Aggiorna anche profiles.current_plan per coerenza (debug, admin, ecc.)
+    await supabaseAdmin.from("profiles").update({
+      current_plan: plan,
+      updated_at: now,
+    }).eq("id", user.id);
+
     // Inserisci moduli
     for (const mod of modules) {
       await supabaseAdmin.from("org_modules").upsert(
