@@ -3,9 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string, action: string } }
+  { params }: { params: Promise<{ id: string; action: string }> }
 ) {
-  const { id: orgId, action } = params;
+  const { id: orgId, action } = await params;
 
   try {
     console.log(`Organization action API called: ${action} for org ${orgId}`);
