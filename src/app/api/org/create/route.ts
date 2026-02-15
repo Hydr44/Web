@@ -75,80 +75,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Prova prima a creare l'organizzazione manualmente
-    console.log("Creating organization manually...");
+    // Usa la funzione SQL create_organization_with_owner (SECURITY DEFINER = bypassa RLS)
+    console.log("Creating organization via RPC...");
     
-    // 1. Crea organizzazione
-    const { data: org, error: orgError } = await supabase
-      .from("orgs")
-      .insert({
-        name: name.trim(),
-        description: description?.trim() || null,
-        address: address?.trim() || null,
-        phone: phone?.trim() || null,
-        email: email?.trim() || null,
-        website: website?.trim() || null,
-        vat: vat?.trim() || null,
-        tax_code: taxCode?.trim() || null,
-        created_by: user.id
-      })
-      .select()
-      .single();
+    const { data: orgId, error: rpcError } = await supabase.rpc("create_organization_with_owner", {
+      org_name: name.trim(),
+      org_description: description?.trim() || null,
+      org_address: address?.trim() || null,
+      org_phone: phone?.trim() || null,
+      org_email: email?.trim() || null,
+      org_website: website?.trim() || null,
+      org_vat: vat?.trim() || null,
+      org_tax_code: taxCode?.trim() || null
+    });
 
-    if (orgError) {
-      console.error("Errore creazione organizzazione:", orgError);
+    if (rpcError) {
+      console.error("Errore creazione organizzazione:", rpcError);
       return NextResponse.json(
-        { error: `Errore creazione organizzazione: ${orgError.message}` },
+        { error: `Errore creazione organizzazione: ${rpcError.message}` },
         { status: 500 }
       );
     }
 
-    console.log("Organization created:", org.id);
-
-    // 2. Se l'utente non è già membro di un'organizzazione, aggiungilo
-    if (!existingMemberships || existingMemberships.length === 0) {
-      console.log("User not in any organization, adding as owner...");
-      
-      const { error: memberError } = await supabase
-        .from("org_members")
-        .insert({
-          org_id: org.id,
-          user_id: user.id,
-          role: "owner"
-        });
-
-      if (memberError) {
-        console.error("Errore aggiunta membro:", memberError);
-        return NextResponse.json(
-          { error: `Errore aggiunta membro: ${memberError.message}` },
-          { status: 500 }
-        );
-      }
-
-      console.log("Member added successfully");
-    } else {
-      console.log("User already in organization, skipping member addition");
+    if (!orgId) {
+      return NextResponse.json(
+        { error: "Errore creazione organizzazione" },
+        { status: 500 }
+      );
     }
 
-    // 3. Aggiorna profilo utente con la nuova organizzazione come corrente
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .upsert({
-        id: user.id,
-        current_org: org.id,
-        email: user.email
-      });
-
-    if (profileError) {
-      console.warn("Errore aggiornamento profilo:", profileError);
-      // Non bloccare per questo errore
-    }
-
-    console.log("Profile updated successfully");
+    console.log("Organization created:", orgId);
 
     return NextResponse.json({
       success: true,
-      orgId: org.id,
+      orgId,
       message: "Organizzazione creata con successo"
     });
 
