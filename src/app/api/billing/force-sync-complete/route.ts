@@ -10,11 +10,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
 });
 
-// Mappa price_id ai nomi dei piani
+// Mappa price_id ai nomi dei piani (deve corrispondere al webhook)
 const PLAN_MAPPING: Record<string, string> = {
-  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
-  [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
-  [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || ""]: "Starter",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: "Professional",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_ANNUAL || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY || ""]: "Business",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_ANNUAL || ""]: "Full",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_MONTHLY || ""]: "Full",
+};
+
+const PLAN_MODULES: Record<string, string[]> = {
+  Starter: ["sdi"],
+  Professional: ["sdi", "rvfu"],
+  Business: ["sdi", "rvfu", "rentri"],
+  Full: ["sdi", "rvfu", "rentri"],
 };
 
 export async function POST(req: Request) {
@@ -79,7 +91,16 @@ export async function POST(req: Request) {
     const priceId = activeSubscription.items?.data?.[0]?.price?.id ?? null;
     const planName = PLAN_MAPPING[priceId || ""] || "Unknown";
 
-    console.log(`📋 Syncing: ${planName} (${priceId}) for customer: ${activeCustomer.id}`);
+    // Recupera org_id dell'utente
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("current_org")
+      .eq("id", user.id)
+      .single();
+
+    const orgId = profile?.current_org ?? (activeCustomer.metadata as Record<string, string>)?.org_id ?? null;
+
+    console.log(`📋 Syncing: ${planName} (${priceId}) for customer: ${activeCustomer.id}, org: ${orgId}`);
 
     // Aggiorna tabella subscriptions
     await supabaseAdmin
@@ -108,6 +129,39 @@ export async function POST(req: Request) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
+
+    // Sincronizza org_subscriptions e org_modules per l'organizzazione
+    if (orgId) {
+      const periodEndIso = new Date((activeSubscription.current_period_end ?? 0) * 1000).toISOString();
+      await supabaseAdmin.from("org_subscriptions").upsert(
+        {
+          org_id: orgId,
+          plan: planName,
+          status: activeSubscription.status,
+          stripe_customer_id: activeCustomer.id,
+          stripe_subscription_id: activeSubscription.id,
+          current_period_end: periodEndIso,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "org_id" }
+      );
+
+      const modulesToActivate = PLAN_MODULES[planName] || [];
+      const now = new Date().toISOString();
+      for (const mod of modulesToActivate) {
+        await supabaseAdmin.from("org_modules").upsert(
+          {
+            org_id: orgId,
+            module: mod,
+            status: "active",
+            activated_at: now,
+            expires_at: null,
+            updated_at: now,
+          },
+          { onConflict: "org_id,module" }
+        );
+      }
+    }
 
     console.log(`✅ Sync complete: ${planName} for user ${user.email}`);
 

@@ -16,6 +16,7 @@ import {
   Calculator,
   Package,
 } from "lucide-react";
+import SimulatePlanButton from "@/components/billing/SimulatePlanButton";
 
 export const dynamic = "force-dynamic";
 
@@ -230,6 +231,10 @@ export default async function BillingPage({
         <p className="text-xs text-slate-600 mt-3">
           Per attivare o modificare i moduli, contatta il supporto.
         </p>
+
+        <div className="mt-4">
+          <SimulatePlanButton />
+        </div>
       </div>
 
       {/* Portale fatturazione */}
