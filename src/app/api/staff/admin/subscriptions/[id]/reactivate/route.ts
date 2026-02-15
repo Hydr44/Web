@@ -4,11 +4,11 @@ import { corsHeaders } from '@/lib/cors';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const origin = request.headers.get('origin');
-    const subscriptionId = params.id;
+    const { id: subscriptionId } = await params;
     
     console.log(`Admin reactivate subscription API called for: ${subscriptionId}`);
     
