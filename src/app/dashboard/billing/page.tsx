@@ -16,7 +16,7 @@ import {
   Calculator,
   Package,
 } from "lucide-react";
-import SimulatePlanButton from "@/components/billing/SimulatePlanButton";
+import BillingTestArea from "@/components/billing/BillingTestArea";
 
 export const dynamic = "force-dynamic";
 
@@ -232,8 +232,8 @@ export default async function BillingPage({
           Per attivare o modificare i moduli, contatta il supporto.
         </p>
 
-        <div className="mt-4">
-          <SimulatePlanButton />
+        <div className="mt-6">
+          <BillingTestArea />
         </div>
       </div>
 

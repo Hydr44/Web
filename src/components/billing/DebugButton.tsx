@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bug, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Bug, AlertCircle, X } from "lucide-react";
 
 export default function DebugButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,10 +41,10 @@ export default function DebugButton() {
       <button
         onClick={handleDebug}
         disabled={isLoading}
-        className={`inline-flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+        className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
           isLoading
-            ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-            : "bg-yellow-600 text-white hover:bg-yellow-700"
+            ? "bg-slate-600 text-slate-400 cursor-not-allowed"
+            : "bg-amber-500/20 text-amber-200 hover:bg-amber-500/30"
         }`}
       >
         {isLoading ? (
@@ -56,57 +56,57 @@ export default function DebugButton() {
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Debug Abbonamento</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1a2536] border border-[#243044] rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#243044]">
+              <h3 className="text-lg font-semibold text-slate-100">Debug Abbonamento</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-white/5 rounded-lg transition text-slate-400 hover:text-slate-200"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
               {debugData?.error ? (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-red-800">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-red-400">
                     <AlertCircle className="h-5 w-5" />
                     <span className="font-medium">Errore</span>
                   </div>
-                  <p className="text-red-700 mt-2">{debugData.error}</p>
+                  <p className="text-red-400/80 mt-2">{debugData.error}</p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* User Info */}
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Utente</h4>
+                  <div className="bg-[#141c27] rounded-xl p-4 border border-[#243044]">
+                    <h4 className="font-semibold text-slate-200 mb-3">Utente</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">ID:</span>
-                        <span className="ml-2 font-mono">{debugData?.user?.id}</span>
+                        <span className="text-slate-500">ID:</span>
+                        <span className="ml-2 font-mono text-slate-300 text-xs break-all">{debugData?.user?.id}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Email:</span>
-                        <span className="ml-2">{debugData?.user?.email}</span>
+                        <span className="text-slate-500">Email:</span>
+                        <span className="ml-2 text-slate-300">{debugData?.user?.email}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Profile Info */}
-                  <div className="bg-blue-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Profilo Database</h4>
+                  <div className="bg-blue-500/10 rounded-xl p-4 border border-blue-500/20">
+                    <h4 className="font-semibold text-slate-200 mb-3">Profilo Database</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Stripe Customer ID:</span>
-                        <span className="ml-2 font-mono text-xs break-all">
+                        <span className="text-slate-500">Stripe Customer ID:</span>
+                        <span className="ml-2 font-mono text-xs break-all text-slate-300">
                           {debugData?.profile?.stripe_customer_id || "Nessuno"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Piano Attuale:</span>
-                        <span className="ml-2 font-semibold">
+                        <span className="text-slate-500">Piano Attuale:</span>
+                        <span className="ml-2 font-semibold text-slate-200">
                           {debugData?.profile?.current_plan || "Nessuno"}
                         </span>
                       </div>
@@ -115,28 +115,28 @@ export default function DebugButton() {
 
                   {/* Stripe Customers */}
                   {debugData?.stripe?.customers?.length > 0 && (
-                    <div className="bg-green-50 rounded-xl p-4">
-                      <h4 className="font-semibold text-gray-900 mb-3">Customer Stripe</h4>
+                    <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20">
+                      <h4 className="font-semibold text-slate-200 mb-3">Customer Stripe</h4>
                       {debugData.stripe.customers.map((customer: any, index: number) => (
                         <div key={index} className="mb-3 last:mb-0">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-600">ID:</span>
-                              <span className="ml-2 font-mono text-xs break-all">{customer.id}</span>
+                              <span className="text-slate-500">ID:</span>
+                              <span className="ml-2 font-mono text-xs break-all text-slate-300">{customer.id}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Email:</span>
-                              <span className="ml-2">{customer.email}</span>
+                              <span className="text-slate-500">Email:</span>
+                              <span className="ml-2 text-slate-300">{customer.email}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Creato:</span>
-                              <span className="ml-2">
+                              <span className="text-slate-500">Creato:</span>
+                              <span className="ml-2 text-slate-300">
                                 {new Date(customer.created * 1000).toLocaleString()}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Metadata:</span>
-                              <span className="ml-2 font-mono text-xs">
+                              <span className="text-slate-500">Metadata:</span>
+                              <span className="ml-2 font-mono text-xs text-slate-400 break-all">
                                 {JSON.stringify(customer.metadata)}
                               </span>
                             </div>
@@ -148,40 +148,40 @@ export default function DebugButton() {
 
                   {/* Stripe Subscriptions */}
                   {debugData?.stripe?.subscriptions?.length > 0 ? (
-                    <div className="bg-purple-50 rounded-xl p-4">
-                      <h4 className="font-semibold text-gray-900 mb-3">Abbonamenti Stripe</h4>
+                    <div className="bg-purple-500/10 rounded-xl p-4 border border-purple-500/20">
+                      <h4 className="font-semibold text-slate-200 mb-3">Abbonamenti Stripe</h4>
                       {debugData.stripe.subscriptions.map((sub: any, index: number) => (
-                        <div key={index} className="mb-4 last:mb-0 border border-purple-200 rounded-lg p-3">
+                        <div key={index} className="mb-4 last:mb-0 border border-[#243044] rounded-lg p-3 bg-[#141c27]">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-600">ID:</span>
-                              <span className="ml-2 font-mono text-xs break-all">{sub.id}</span>
+                              <span className="text-slate-500">ID:</span>
+                              <span className="ml-2 font-mono text-xs break-all text-slate-300">{sub.id}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Stato:</span>
+                              <span className="text-slate-500">Stato:</span>
                               <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                                sub.status === 'active' ? 'bg-green-100 text-green-800' :
-                                sub.status === 'canceled' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
+                                sub.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' :
+                                sub.status === 'canceled' ? 'bg-red-500/20 text-red-400' :
+                                'bg-amber-500/20 text-amber-400'
                               }`}>
                                 {sub.status}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Price ID:</span>
-                              <span className="ml-2 font-mono text-xs break-all">
+                              <span className="text-slate-500">Price ID:</span>
+                              <span className="ml-2 font-mono text-xs break-all text-slate-300">
                                 {sub.items?.data?.[0]?.price?.id || "N/A"}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Scadenza:</span>
-                              <span className="ml-2">
+                              <span className="text-slate-500">Scadenza:</span>
+                              <span className="ml-2 text-slate-300">
                                 {new Date(sub.current_period_end * 1000).toLocaleString()}
                               </span>
                             </div>
                             <div className="md:col-span-2">
-                              <span className="text-gray-600">Metadata:</span>
-                              <span className="ml-2 font-mono text-xs break-all">
+                              <span className="text-slate-500">Metadata:</span>
+                              <span className="ml-2 font-mono text-xs break-all text-slate-400">
                                 {JSON.stringify(sub.metadata)}
                               </span>
                             </div>
@@ -190,12 +190,12 @@ export default function DebugButton() {
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                      <div className="flex items-center gap-2 text-yellow-800">
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-2 text-amber-400">
                         <AlertCircle className="h-5 w-5" />
                         <span className="font-medium">Nessun abbonamento trovato</span>
                       </div>
-                      <p className="text-yellow-700 mt-2">
+                      <p className="text-amber-400/80 mt-2">
                         Non sono stati trovati abbonamenti attivi su Stripe per questo utente.
                       </p>
                     </div>
@@ -203,12 +203,12 @@ export default function DebugButton() {
 
                   {/* Error */}
                   {debugData?.stripe?.error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                      <div className="flex items-center gap-2 text-red-800">
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-2 text-red-400">
                         <AlertCircle className="h-5 w-5" />
                         <span className="font-medium">Errore Stripe</span>
                       </div>
-                      <p className="text-red-700 mt-2">{debugData.stripe.error}</p>
+                      <p className="text-red-400/80 mt-2">{debugData.stripe.error}</p>
                     </div>
                   )}
                 </div>
