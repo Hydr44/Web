@@ -18,7 +18,11 @@ import {
   TrendingUp,
   Award,
   AlertCircle,
-  X
+  X,
+  Car,
+  Receipt,
+  Recycle,
+  Cloud
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
@@ -173,7 +177,7 @@ function HomeContent() {
       )}
 
       {/* HERO */}
-      <section id="hero" className="relative overflow-hidden pt-18 md:pt-24 pb-20 md:pb-28 bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
+      <section id="hero" className="relative overflow-hidden pt-18 md:pt-24 pb-20 md:pb-28 bg-white">
         {/* Background elements */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         
@@ -193,7 +197,7 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               className="max-w-2xl"
             >
-              <div className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-primary/10 text-primary font-medium">
+              <div className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-blue-50 text-blue-600 font-medium border border-blue-200">
                 <Zap className="h-3 w-3" />
               Il gestionale per chi demolisce e soccorre
               </div>
@@ -286,7 +290,7 @@ function HomeContent() {
       </section>
 
       {/* PARTNERSHIP & INTEGRAZIONI */}
-      <section id="integrations" className="py-16 bg-gradient-to-r from-gray-50/50 to-white">
+      <section id="integrations" className="py-16 bg-gray-50">
         <div className="rm-container">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -479,14 +483,14 @@ function HomeContent() {
       </section>
 
       {/* SEZIONE PRODOTTO */}
-      <section id="product" className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
+      <section id="product" className="py-16 md:py-20 bg-white">
         <div className="rm-container">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative rounded-3xl bg-gradient-to-r from-white to-gray-50/50 p-8 md:p-12 shadow-xl border border-gray-200/50 overflow-hidden"
+            className="relative rounded-3xl bg-gray-50 p-8 md:p-12 shadow-xl border border-gray-200 overflow-hidden"
           >
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
@@ -504,7 +508,7 @@ function HomeContent() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
+                  className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-blue-50 text-blue-600 font-medium border border-blue-200"
                 >
                   <Shield className="h-3 w-3" />
                   Tutto il ciclo, zero carta
@@ -512,7 +516,7 @@ function HomeContent() {
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Confische, sequestri e deposito{" "}
-                  <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
+                  <span className="text-blue-600">
                     sotto controllo
                   </span>
                 </h2>
@@ -553,7 +557,7 @@ function HomeContent() {
                 >
                   <SmoothScrollLink 
                     href="#product" 
-                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-all duration-300"
                   >
                   Vedi i moduli
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -593,7 +597,7 @@ function HomeContent() {
       </section>
 
       {/* STATS */}
-      <section id="stats" className="py-16 bg-gradient-to-r from-gray-50/50 to-white">
+      <section id="stats" className="py-16 bg-gray-50">
         <div className="rm-container">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -613,28 +617,28 @@ function HomeContent() {
               { 
                 value: "RVFU", 
                 label: "Radiazioni integrate", 
-                icon: "�",
+                Icon: Car,
                 color: "red",
                 description: "Radia i veicoli direttamente dal gestionale"
               },
               { 
                 value: "SDI", 
                 label: "Fatture elettroniche", 
-                icon: "�",
+                Icon: Receipt,
                 color: "green",
                 description: "Invio automatico all'Agenzia delle Entrate"
               },
               { 
                 value: "RENTRI", 
                 label: "Registro rifiuti", 
-                icon: "♻️",
+                Icon: Recycle,
                 color: "blue",
                 description: "Tracciabilità rifiuti a norma di legge"
               },
               { 
                 value: "24/7", 
                 label: "Sempre disponibile", 
-                icon: "⚡",
+                Icon: Cloud,
                 color: "purple",
                 description: "Cloud, accessibile da qualsiasi dispositivo"
               },
@@ -646,14 +650,26 @@ function HomeContent() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className={`p-6 rounded-2xl border ${
-                  stat.color === 'red' ? 'bg-red-50/50 border-red-200' :
-                  stat.color === 'green' ? 'bg-green-50/50 border-green-200' :
-                  stat.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
-                  'bg-purple-50/50 border-purple-200'
+                  stat.color === 'red' ? 'bg-red-50 border-red-200' :
+                  stat.color === 'green' ? 'bg-green-50 border-green-200' :
+                  stat.color === 'blue' ? 'bg-blue-50 border-blue-200' :
+                  'bg-purple-50 border-purple-200'
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-3xl mb-3">{stat.icon}</div>
+                  <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${
+                    stat.color === 'red' ? 'bg-red-100' :
+                    stat.color === 'green' ? 'bg-green-100' :
+                    stat.color === 'blue' ? 'bg-blue-100' :
+                    'bg-purple-100'
+                  }`}>
+                    <stat.Icon className={`h-6 w-6 ${
+                      stat.color === 'red' ? 'text-red-600' :
+                      stat.color === 'green' ? 'text-green-600' :
+                      stat.color === 'blue' ? 'text-blue-600' :
+                      'text-purple-600'
+                    }`} />
+                  </div>
                   <div className={`text-2xl font-bold mb-1 ${
                     stat.color === 'red' ? 'text-red-600' :
                     stat.color === 'green' ? 'text-green-600' :
@@ -760,7 +776,7 @@ function HomeContent() {
       </section>
 
       {/* PRICING PREVIEW */}
-      <section id="pricing" className="py-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
+      <section id="pricing" className="py-16 bg-white">
         <div className="rm-container">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -841,7 +857,7 @@ function HomeContent() {
       </section>
 
       {/* TESTIMONIAL + CTA */}
-      <section id="cta" className="py-16 bg-gradient-to-r from-primary/10 via-blue-50/50 to-primary/10">
+      <section id="cta" className="py-16 bg-gray-50">
         <div className="rm-container">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

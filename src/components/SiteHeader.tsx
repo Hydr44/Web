@@ -12,7 +12,6 @@ type NavItem = { label: string; href: string; match?: (path: string) => boolean 
 const NAV: NavItem[] = [
   { label: "Home", href: "/", match: (p) => p === "/" },
   { label: "Contatti", href: "/contatti", match: (p) => p === "/contatti" },
-  { label: "Documentazione", href: "/docs", match: (p) => p.startsWith("/docs") },
 ];
 
 const PRODOTTO_MODULES = [
@@ -288,22 +287,6 @@ export default function SiteHeader() {
               <span
                 className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
                   pathname === "/contatti" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                }`}
-                aria-hidden
-              />
-            </Link>
-
-            {/* Documentazione */}
-            <Link
-              href="/docs"
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
-                pathname.startsWith("/docs") ? "text-emerald-400" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              Documentazione
-              <span
-                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
-                  pathname.startsWith("/docs") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                 }`}
                 aria-hidden
               />
