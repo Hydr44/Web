@@ -39,10 +39,10 @@ const PLAN_DETAILS: Record<string, { desc: string; modules: string }> = {
 };
 
 const MODULES = [
-  { name: "SDI", desc: "Fatturazione elettronica", Icon: FileText },
-  { name: "RVFU", desc: "Demolizioni MIT", Icon: Truck },
-  { name: "RENTRI", desc: "Registro Rifiuti", Icon: BookOpen },
-  { name: "Contabilità", desc: "Prima nota e conti", Icon: Calculator },
+  { key: "sdi", name: "SDI", desc: "Fatturazione elettronica", Icon: FileText },
+  { key: "rvfu", name: "RVFU", desc: "Demolizioni MIT", Icon: Truck },
+  { key: "rentri", name: "RENTRI", desc: "Registro Rifiuti", Icon: BookOpen },
+  { key: "contabilita", name: "Contabilità", desc: "Prima nota e conti", Icon: Calculator },
 ];
 
 export default async function BillingPage({
@@ -68,34 +68,61 @@ export default async function BillingPage({
     .eq("id", user.id)
     .single();
 
-  const { data: subscription } = await supabase
-    .from("subscriptions")
-    .select("status, price_id, current_period_end")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
+  // Trova org_id dell'utente (da profile o org_members)
+  let userOrgId = profile?.current_org || null;
+  if (!userOrgId) {
+    const { data: mem } = await supabase
+      .from("org_members")
+      .select("org_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+    userOrgId = mem?.org_id || null;
+  }
+
+  // Carica abbonamento da org_subscriptions (tabella reale)
+  let subscription: any = null;
+  if (userOrgId) {
+    const { data: orgSub } = await supabase
+      .from("org_subscriptions")
+      .select("*")
+      .eq("org_id", userOrgId)
+      .maybeSingle();
+    subscription = orgSub;
+  }
 
   // Carica moduli attivi per l'organizzazione
   let activeModules: string[] = [];
-  if (profile?.current_org) {
+  if (userOrgId) {
     const { data: mods } = await supabase
       .from("org_modules")
       .select("module")
-      .eq("org_id", profile.current_org)
+      .eq("org_id", userOrgId)
       .eq("status", "active");
     activeModules = (mods || []).map(m => m.module);
   }
 
-  const currentPlanName = subscription?.price_id 
-    ? PLAN_MAPPING[subscription.price_id] || "Piano Attivo"
+  const PLAN_LABELS: Record<string, string> = {
+    starter: "Starter", professional: "Professional",
+    business: "Business", full: "Full",
+  };
+
+  const currentPlanName = subscription?.plan
+    ? PLAN_LABELS[subscription.plan] || subscription.plan
     : null;
     
   const hasStripeCustomer = !!profile?.stripe_customer_id;
-  const hasActivePlan = !!currentPlanName;
+  const isActive = subscription && (subscription.status === "active" || subscription.status === "trial");
+  const hasActivePlan = !!currentPlanName && isActive;
   const planDetail = currentPlanName ? PLAN_DETAILS[currentPlanName] : null;
   
   const renewalDate = subscription?.current_period_end 
     ? new Date(subscription.current_period_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
+    : null;
+  
+  const isTrial = subscription?.status === "trial";
+  const trialEnd = subscription?.trial_end
+    ? new Date(subscription.trial_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
     : null;
 
   return (
@@ -152,8 +179,8 @@ export default async function BillingPage({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold text-slate-100">Piano {currentPlanName}</h2>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3 w-3" /> Attivo
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isTrial ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'}`}>
+                    <CheckCircle2 className="h-3 w-3" /> {isTrial ? 'Trial' : 'Attivo'}
                   </span>
                 </div>
                 {planDetail && (
