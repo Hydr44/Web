@@ -8,18 +8,14 @@ import {
   Download,
   Wallet,
   Building2,
-  Users,
-  Settings,
   LifeBuoy,
   ChevronRight,
   LogOut,
-  Zap,
   Shield,
   Database,
   User,
   Bell,
 } from "lucide-react";
-import { useMemo } from "react";
 import * as React from "react";
 
 type Item = {
@@ -32,20 +28,10 @@ type Item = {
 
 const NAV: Item[] = [
   { label: "Panoramica", href: "/dashboard", icon: LayoutGrid },
-  {
-    label: "Organizzazione",
-    icon: Building2,
-    children: [
-      { label: "Dashboard", href: "/dashboard/org" },
-      { label: "Membri", href: "/dashboard/org/members" },
-      { label: "Analytics", href: "/dashboard/org/analytics" },
-      { label: "Impostazioni", href: "/dashboard/org/settings" },
-    ],
-  },
+  { label: "Organizzazione", href: "/dashboard/org", icon: Building2 },
   { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet },
   { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
   { label: "Privacy", href: "/dashboard/privacy", icon: Database },
-  { label: "Profilo", href: "/dashboard/profile", icon: User },
   { label: "Notifiche", href: "/dashboard/notifications", icon: Bell },
   { label: "Download", href: "/dashboard/download", icon: Download },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
@@ -198,11 +184,19 @@ export default function DashboardShell({
               })}
             </div>
 
-            {/* Logout rimosso - usa solo quello dell'header */}
-            <div className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-[#1a2536]/50">
+            {/* Logout */}
+            <button
+              onClick={async () => {
+                const { supabaseBrowser } = await import("@/lib/supabase-browser");
+                const supabase = supabaseBrowser();
+                await supabase.auth.signOut();
+                window.location.href = "/login";
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-[#1a2536] hover:text-slate-200 transition-colors"
+            >
               <LogOut className="h-4 w-4" /> 
-              Esci dal menu in alto
-            </div>
+              Esci
+            </button>
           </nav>
         </aside>
 

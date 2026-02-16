@@ -11,9 +11,14 @@ type NavItem = { label: string; href: string; match?: (path: string) => boolean 
 
 const NAV: NavItem[] = [
   { label: "Home", href: "/", match: (p) => p === "/" },
-  { label: "Prodotto", href: "/prodotto", match: (p) => p.startsWith("/prodotto") },
-  { label: "Prezzi", href: "/prezzi", match: (p) => p.startsWith("/prezzi") },
-  { label: "Accessi", href: "/download", match: (p) => p.startsWith("/download") },
+];
+
+const PRODOTTO_MODULES = [
+  { label: "Trasporti", desc: "Gestione completa trasporti e tracking GPS" },
+  { label: "RENTRI", desc: "Registro Elettronico Nazionale Tracciabilità Rifiuti" },
+  { label: "Ricambi TecDoc", desc: "Magazzino ricambi con integrazione TecDoc" },
+  { label: "SDI - Fatturazione Elettronica", desc: "Fatturazione elettronica via Sistema di Interscambio" },
+  { label: "Contabilità", desc: "Prima nota e piano dei conti" },
 ];
 
 export default function SiteHeader() {
@@ -24,6 +29,7 @@ export default function SiteHeader() {
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [prodottoOpen, setProdottoOpen] = useState(false);
 
   // Scroll handler
   useEffect(() => {
@@ -143,36 +149,56 @@ export default function SiteHeader() {
 
           {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {NAV.map((item) => {
-              const active = item.match ? item.match(pathname) : pathname === item.href;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
-                    active
-                      ? "text-emerald-400"
-                      : "text-slate-300 hover:text-white"
+            {/* Home */}
+            <Link
+              href="/"
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
+                pathname === "/" ? "text-emerald-400" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Home
+              <span
+                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
+                  pathname === "/" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+            </Link>
+
+            {/* Prodotto dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setProdottoOpen(true)}
+              onMouseLeave={() => setProdottoOpen(false)}
+            >
+              <button
+                className="relative px-4 py-2 text-sm font-medium transition-all duration-300 group text-slate-300 hover:text-white flex items-center gap-1"
+              >
+                Prodotto
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${prodottoOpen ? 'rotate-180' : ''}`} />
+                <span
+                  className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
+                    prodottoOpen ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                   }`}
-                >
-                  {item.label}
-                  {/* underline animata */}
-                  <span
-                    className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
-                      active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                    }`}
-                    aria-hidden
-                  />
-                  {/* background hover */}
-                  <span
-                    className={`absolute inset-0 -mx-2 -my-1 rounded-lg bg-white/5 transition-all duration-300 ${
-                      active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    }`}
-                    aria-hidden
-                  />
-                </Link>
-              );
-            })}
+                  aria-hidden
+                />
+              </button>
+
+              {prodottoOpen && (
+                <div className="absolute top-full left-0 mt-2 w-80 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-3 z-50">
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 px-2">Moduli Disponibili</div>
+                  {PRODOTTO_MODULES.map((module) => (
+                    <div
+                      key={module.label}
+                      className="px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer"
+                    >
+                      <div className="text-sm font-medium text-slate-200">{module.label}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{module.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Right actions */}
@@ -182,37 +208,12 @@ export default function SiteHeader() {
                 {/* Dashboard link */}
                 <Link
                   href="/dashboard"
-                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-emerald-400 text-white hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-300 font-medium"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-colors font-medium"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Link>
 
-                {/* Organization selector */}
-                {orgs.length > 0 && (
-                  <div className="hidden md:block relative">
-                    <select
-                      className="text-xs rounded-xl ring-1 ring-slate-600 px-3 py-2 bg-[#1a2536] text-slate-300 hover:ring-blue-500/40 hover:bg-[#243044] transition-all duration-300 appearance-none pr-8 cursor-pointer"
-                      value={currentOrg ?? ''}
-                      onChange={async (e) => {
-                        const val = e.target.value || null;
-                        setCurrentOrg(val);
-                        await fetch("/api/org/select", { 
-                          method: "POST", 
-                          headers: { "Content-Type": "application/json" }, 
-                          body: JSON.stringify({ org_id: val }) 
-                        });
-                        globalThis.location.reload();
-                      }}
-                    >
-                      <option value="">Seleziona org</option>
-                      {orgs.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500 pointer-events-none" />
-                  </div>
-                )}
                 
                 {/* User dropdown */}
                 <div className="relative" data-dropdown>
@@ -289,7 +290,7 @@ export default function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-emerald-400 text-white hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-300 font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-colors font-medium"
               >
                 <LogIn className="h-4 w-4" />
                 Accedi

@@ -76,7 +76,14 @@ export default function OrgPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Organizzazione</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl font-semibold text-slate-100">Organizzazione</h1>
+            {orgData && (
+              <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-xs font-mono text-blue-400">
+                {orgData.org_code || `ORG${String(orgData.id).slice(0, 3).toUpperCase()}`}
+              </span>
+            )}
+          </div>
           <p className="text-slate-400 mt-1">
             Informazioni aziendali e dati fiscali
           </p>
