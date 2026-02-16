@@ -5,7 +5,7 @@ import { getStaffFromRequest } from '@/lib/staff-auth';
 import { randomBytes } from 'crypto';
 
 const VALID_PLANS = ['Starter', 'Professional', 'Business', 'Full'];
-const VALID_MODULES = ['sdi', 'rvfu', 'rentri'];
+const VALID_MODULES = ['sdi', 'rvfu', 'rentri', 'contabilita'];
 
 function generateToken(): string {
   return randomBytes(24).toString('hex');
