@@ -8,13 +8,25 @@ import Link from 'next/link';
 export default function ActivatePage() {
   const params = useParams();
   const token = params.token as string;
-  const [result, setResult] = useState<{ ok: boolean; message?: string; error?: string; org_name?: string; plan?: string } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; message?: string; error?: string; org_name?: string; plan?: string; trial_days?: number; expires_at?: string } | null>(null);
 
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/activate/${token}`)
+    fetch(`/api/activate/${token}/info`)
       .then((r) => r.json())
-      .then(setResult)
+      .then((info) => {
+        if (info.ok && info.type === 'purchase' && info.redirect_url) {
+          window.location.href = info.redirect_url;
+          return;
+        }
+        if (info.ok && info.type === 'trial') {
+          return fetch(`/api/activate/${token}`).then((r) => r.json());
+        }
+        setResult({ ok: false, error: info.error || 'Link non valido' });
+      })
+      .then((data) => {
+        if (data && typeof data === 'object' && 'ok' in data) setResult(data);
+      })
       .catch(() => setResult({ ok: false, error: 'Errore di connessione' }));
   }, [token]);
 
@@ -37,16 +49,26 @@ export default function ActivatePage() {
             <div className="h-16 w-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="h-8 w-8 text-emerald-400" />
             </div>
-            <h1 className="text-xl font-semibold text-slate-100 mb-2">Piano attivato</h1>
+            <h1 className="text-xl font-semibold text-slate-100 mb-2">Trial attivato</h1>
             <p className="text-slate-400 mb-6">{result.message}</p>
             {result.org_name && (
-              <p className="text-sm text-slate-500 mb-4">
+              <p className="text-sm text-slate-500 mb-2">
                 Organizzazione: <span className="text-slate-300">{result.org_name}</span>
               </p>
             )}
             {result.plan && (
-              <p className="text-sm text-slate-500 mb-6">
+              <p className="text-sm text-slate-500 mb-2">
                 Piano: <span className="text-slate-300">{result.plan}</span>
+              </p>
+            )}
+            {result.trial_days && (
+              <p className="text-sm text-slate-500 mb-6">
+                Trial: <span className="text-slate-300">{result.trial_days} giorni</span>
+                {result.expires_at && (
+                  <span className="text-slate-500 ml-2">
+                    (scade {new Date(result.expires_at).toLocaleDateString('it-IT')})
+                  </span>
+                )}
               </p>
             )}
           </>

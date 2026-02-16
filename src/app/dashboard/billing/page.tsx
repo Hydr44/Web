@@ -16,7 +16,6 @@ import {
   Calculator,
   Package,
 } from "lucide-react";
-import BillingTestArea from "@/components/billing/BillingTestArea";
 
 export const dynamic = "force-dynamic";
 
@@ -69,39 +68,12 @@ export default async function BillingPage({
     .eq("id", user.id)
     .single();
 
-  // 1) Piano da org_subscriptions (include simulate-plan, webhook Stripe)
-  let currentPlanName: string | null = null;
-  let renewalDate: string | null = null;
-  if (profile?.current_org) {
-    const { data: orgSub } = await supabase
-      .from("org_subscriptions")
-      .select("plan, status, current_period_end")
-      .eq("org_id", profile.current_org)
-      .in("status", ["active", "trialing"])
-      .maybeSingle();
-    if (orgSub?.plan) {
-      currentPlanName = orgSub.plan;
-      renewalDate = orgSub.current_period_end
-        ? new Date(orgSub.current_period_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
-        : null;
-    }
-  }
-
-  // 2) Fallback: tabella subscriptions (Stripe user-based)
-  if (!currentPlanName) {
-    const { data: subscription } = await supabase
-      .from("subscriptions")
-      .select("status, price_id, current_period_end")
-      .eq("user_id", user.id)
-      .in("status", ["active", "trialing"])
-      .single();
-    if (subscription?.price_id) {
-      currentPlanName = PLAN_MAPPING[subscription.price_id] || "Piano Attivo";
-      renewalDate = subscription.current_period_end
-        ? new Date(subscription.current_period_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
-        : null;
-    }
-  }
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("status, price_id, current_period_end")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
 
   // Carica moduli attivi per l'organizzazione
   let activeModules: string[] = [];
@@ -114,9 +86,17 @@ export default async function BillingPage({
     activeModules = (mods || []).map(m => m.module);
   }
 
+  const currentPlanName = subscription?.price_id 
+    ? PLAN_MAPPING[subscription.price_id] || "Piano Attivo"
+    : null;
+    
   const hasStripeCustomer = !!profile?.stripe_customer_id;
   const hasActivePlan = !!currentPlanName;
   const planDetail = currentPlanName ? PLAN_DETAILS[currentPlanName] : null;
+  
+  const renewalDate = subscription?.current_period_end 
+    ? new Date(subscription.current_period_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
+    : null;
 
   return (
     <div className="space-y-8">
@@ -250,10 +230,6 @@ export default async function BillingPage({
         <p className="text-xs text-slate-600 mt-3">
           Per attivare o modificare i moduli, contatta il supporto.
         </p>
-
-        <div className="mt-6">
-          <BillingTestArea />
-        </div>
       </div>
 
       {/* Portale fatturazione */}

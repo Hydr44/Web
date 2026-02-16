@@ -4,11 +4,11 @@ import { corsHeaders } from '@/lib/cors';
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const origin = request.headers.get('origin');
-    const { id: subscriptionId } = await params;
+    const subscriptionId = params.id;
     
     console.log(`Admin cancel subscription API called for: ${subscriptionId}`);
     

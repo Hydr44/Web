@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 
 export default function LoginPage() {
@@ -44,12 +44,8 @@ export default function LoginPage() {
 
       if (result.success && result.user) {
         setSuccess(true);
-        setError("✅ Accesso completato! Reindirizzamento...");
         
-        // Piccola pausa per permettere a Supabase di salvare la sessione
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Redirect
+        // Redirect immediato
         window.location.href = redirectTo;
       } else {
         console.error("Login failed:", result.error);
@@ -96,20 +92,11 @@ export default function LoginPage() {
             <p className="text-slate-400">Inserisci le tue credenziali per accedere</p>
           </div>
 
-          {/* Error/Success Messages */}
-          {error && (
+          {/* Error Messages */}
+          {error && !success && (
             <div
               className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
             >
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div
-              className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center gap-2"
-            >
-              <CheckCircle className="h-4 w-4" />
               {error}
             </div>
           )}

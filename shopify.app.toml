@@ -1,26 +1,30 @@
-# Shopify App Configuration - RescueManager Ricambi
-# Questo file serve SOLO per registrare i webhook compliance via CLI.
-# Non è un progetto Shopify CLI completo.
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-name = "RescueManager Ricambi"
 client_id = "ab5294b772a6d579851238c4f5a2aefa"
-
-[access_scopes]
-scopes = "read_products,write_products,read_inventory,write_inventory"
-
-[auth]
-redirect_urls = [
-  "https://rescuemanager.eu/api/auth/oauth/shopify/callback",
-  "http://localhost:5173/settings?tab=marketplace&oauth=shopify"
-]
+name = "RescueManager Ricambi"
+application_url = "https://rescuemanager.eu"
+embedded = false
 
 [webhooks]
 api_version = "2026-01"
 
   [[webhooks.subscriptions]]
-  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-  uri = "https://rescuemanager.eu/api/webhooks/shopify/compliance"
+  uri = "/api/webhooks/shopify/compliance"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
   [[webhooks.subscriptions]]
-  topics = ["app/uninstalled"]
-  uri = "https://rescuemanager.eu/api/webhooks/shopify/app-uninstalled"
+  topics = [ "app/uninstalled" ]
+  uri = "/api/webhooks/shopify/app-uninstalled"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,write_products,read_inventory,write_inventory"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "http://localhost:5173/settings?tab=marketplace&oauth=shopify",
+  "https://rescuemanager.eu/settings?tab=marketplace&oauth=shopify",
+  "https://rescuemanager.eu/api/auth/oauth/shopify/callback"
+]

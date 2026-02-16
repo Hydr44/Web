@@ -3,9 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string; action: string }> }
+  { params }: { params: { id: string, action: string } }
 ) {
-  const { id: orgId, action } = await params;
+  const { id: orgId, action } = params;
 
   try {
     console.log(`Organization action API called: ${action} for org ${orgId}`);
@@ -29,8 +29,7 @@ export async function POST(
             description,
             created_at,
             updated_at,
-            created_by,
-            is_active
+            created_by
           `)
           .eq('id', orgId)
           .single();
@@ -47,82 +46,11 @@ export async function POST(
           .select('*', { count: 'exact', head: true })
           .eq('org_id', orgId);
 
-        // 1) Abbonamento da org_subscriptions
-        let subscription: { plan: string; status: string; current_period_end: string | null } | null = null;
-        const { data: orgSub } = await supabaseAdmin
-          .from('org_subscriptions')
-          .select('plan, status, current_period_end')
-          .eq('org_id', orgId)
-          .maybeSingle();
-        if (orgSub) {
-          subscription = orgSub;
-        } else {
-          // 2) Fallback: subscription da tabella user-based (owner dell'org)
-          const { data: owner } = await supabaseAdmin
-            .from('org_members')
-            .select('user_id')
-            .eq('org_id', orgId)
-            .eq('role', 'owner')
-            .limit(1)
-            .maybeSingle();
-          if (owner?.user_id) {
-            const { data: profile } = await supabaseAdmin
-              .from('profiles')
-              .select('stripe_customer_id, current_plan')
-              .eq('id', owner.user_id)
-              .single();
-            if (profile?.stripe_customer_id || profile?.current_plan) {
-              let userSub: { status: string; current_period_end: string | null } | null = null;
-              const { data: subByUser } = await supabaseAdmin
-                .from('subscriptions')
-                .select('status, current_period_end')
-                .eq('user_id', owner.user_id)
-                .in('status', ['active', 'trialing'])
-                .limit(1)
-                .maybeSingle();
-              if (subByUser) userSub = subByUser;
-              else if (profile.stripe_customer_id) {
-                const { data: subByCust } = await supabaseAdmin
-                  .from('subscriptions')
-                  .select('status, current_period_end')
-                  .eq('stripe_customer_id', profile.stripe_customer_id)
-                  .in('status', ['active', 'trialing'])
-                  .limit(1)
-                  .maybeSingle();
-                if (subByCust) userSub = subByCust;
-              }
-              if (userSub && (profile.current_plan || userSub.status)) {
-                subscription = {
-                  plan: profile.current_plan || '—',
-                  status: userSub.status,
-                  current_period_end: userSub.current_period_end
-                };
-              } else if (profile.current_plan) {
-                subscription = {
-                  plan: profile.current_plan,
-                  status: 'active',
-                  current_period_end: null
-                };
-              }
-            }
-          }
-        }
-
-        // 3) company_code da company_settings
-        const { data: settings } = await supabaseAdmin
-          .from('company_settings')
-          .select('company_code')
-          .eq('org_id', orgId)
-          .maybeSingle();
-
         responseData = { 
           success: true, 
           organization: {
             ...org,
-            member_count: memberCount || 0,
-            status: (org as any).is_active !== false ? 'active' : 'inactive',
-            subscription,
-            company_code: settings?.company_code || null
+            member_count: memberCount || 0
           }
         };
         break;
@@ -172,7 +100,6 @@ export async function POST(
         const { data, error } = await supabaseAdmin
           .from('orgs')
           .update({
-            is_active: false,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId)
@@ -194,7 +121,6 @@ export async function POST(
         const { data, error } = await supabaseAdmin
           .from('orgs')
           .update({
-            is_active: true,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId)
@@ -213,15 +139,27 @@ export async function POST(
       }
 
       case 'delete': {
-        // Usa funzione SQL che fa cascade su tutte le tabelle collegate (FK senza ON DELETE CASCADE)
-        const { error: cascadeError } = await supabaseAdmin.rpc('delete_org_cascade', {
-          p_org_id: orgId,
-        });
+        const { error: membersError } = await supabaseAdmin
+          .from('org_members')
+          .delete()
+          .eq('org_id', orgId);
 
-        if (cascadeError) {
+        if (membersError) {
           return NextResponse.json({
             success: false,
-            error: `Impossibile eliminare: ci sono dati collegati. Esegui la migrazione 20260216_delete_org_cascade.sql su Supabase, poi riprova. (${cascadeError.message})`,
+            error: `Errore rimozione membri: ${membersError.message}`
+          }, { status: 500 });
+        }
+
+        const { error: orgError } = await supabaseAdmin
+          .from('orgs')
+          .delete()
+          .eq('id', orgId);
+
+        if (orgError) {
+          return NextResponse.json({
+            success: false,
+            error: `Errore eliminazione organizzazione: ${orgError.message}`
           }, { status: 500 });
         }
 

@@ -33,14 +33,13 @@ const PRODUCT_MAPPING: Record<string, string> = {
 
 async function updateUserSubscription(params: {
   userId: string;
-  orgId: string | null;
   customerId: string;
   subscriptionId: string;
   priceId: string | null;
   status: string;
   currentPeriodEnd: number;
 }) {
-  const { userId, orgId: orgIdParam, customerId, subscriptionId, priceId, status, currentPeriodEnd } = params;
+  const { userId, customerId, subscriptionId, priceId, status, currentPeriodEnd } = params;
   
   // Cerca prima per price_id, poi per product_id come fallback
   let planName = PLAN_MAPPING[priceId || ""] || "Unknown";
@@ -83,104 +82,7 @@ async function updateUserSubscription(params: {
     })
     .eq("id", userId);
 
-  // Risolvi org_id se non passato (da profile.current_org)
-  let orgId = orgIdParam;
-  if (!orgId) {
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("current_org")
-      .eq("id", userId)
-      .single();
-    orgId = profile?.current_org ?? null;
-  }
-
-  // Sincronizza org_subscriptions e org_modules per l'organizzazione
-  if (orgId) {
-    await syncOrgSubscriptionAndModules({
-      userId,
-      orgId,
-      planName,
-      status,
-      customerId,
-      subscriptionId,
-      currentPeriodEnd,
-    });
-  }
-
   console.log(`✅ Subscription updated for user ${userId}: ${planName} (${status})`);
-}
-
-// Moduli per piano (ordine default: sdi, rvfu, rentri — "a scelta" usa i primi N)
-const PLAN_MODULES: Record<string, string[]> = {
-  Starter: ["sdi"],
-  Professional: ["sdi", "rvfu"],
-  Business: ["sdi", "rvfu", "rentri"],
-  Full: ["sdi", "rvfu", "rentri"],
-};
-
-async function syncOrgSubscriptionAndModules(params: {
-  userId: string;
-  orgId: string;
-  planName: string;
-  status: string;
-  customerId: string;
-  subscriptionId: string;
-  currentPeriodEnd: number;
-}) {
-  const { orgId, planName, status, customerId, subscriptionId, currentPeriodEnd } = params;
-  if (!orgId) return;
-
-  // 1. Upsert org_subscriptions
-  const periodEndIso = new Date(currentPeriodEnd * 1000).toISOString();
-  await supabaseAdmin.from("org_subscriptions").upsert(
-    {
-      org_id: orgId,
-      plan: planName,
-      status: status,
-      stripe_customer_id: customerId,
-      stripe_subscription_id: subscriptionId,
-      current_period_end: periodEndIso,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "org_id" }
-  );
-
-  // 2. Aggiorna org_modules in base al piano (solo se status active o trialing)
-  if (status !== "active" && status !== "trialing") return;
-
-  const modulesToActivate = PLAN_MODULES[planName] || [];
-  const now = new Date().toISOString();
-
-  // Rimuovi moduli che non sono più nel piano
-  const { data: existing } = await supabaseAdmin
-    .from("org_modules")
-    .select("module")
-    .eq("org_id", orgId);
-
-  const toRemove = (existing || [])
-    .filter((m) => m.module !== "base" && !modulesToActivate.includes(m.module))
-    .map((m) => m.module);
-
-  for (const mod of toRemove) {
-    await supabaseAdmin.from("org_modules").delete().eq("org_id", orgId).eq("module", mod);
-  }
-
-  // Inserisci/aggiorna moduli del piano
-  for (const mod of modulesToActivate) {
-    await supabaseAdmin.from("org_modules").upsert(
-      {
-        org_id: orgId,
-        module: mod,
-        status: "active",
-        activated_at: now,
-        expires_at: null,
-        updated_at: now,
-      },
-      { onConflict: "org_id,module" }
-    );
-  }
-
-  console.log(`✅ org_subscriptions + org_modules synced for org ${orgId}: ${planName}`);
 }
 
 async function findUserByCustomerId(customerId: string): Promise<string | null> {
@@ -253,11 +155,9 @@ export async function POST(req: NextRequest) {
         // Recupera subscription details
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items?.data?.[0]?.price?.id ?? null;
-        const orgId = (session.metadata as Record<string, string> | null)?.org_id ?? null;
 
         await updateUserSubscription({
           userId: resolvedUserId,
-          orgId,
           customerId,
           subscriptionId,
           priceId,
@@ -283,11 +183,9 @@ export async function POST(req: NextRequest) {
         }
 
         const priceId = subscription.items?.data?.[0]?.price?.id ?? null;
-        const orgId = (subscription.metadata as Record<string, string> | null)?.org_id ?? null;
 
         await updateUserSubscription({
           userId: resolvedUserId,
-          orgId,
           customerId,
           subscriptionId: subscription.id,
           priceId,
@@ -325,42 +223,6 @@ export async function POST(req: NextRequest) {
             updated_at: new Date().toISOString(),
           })
           .eq("id", resolvedUserId);
-
-        // Aggiorna org_subscriptions e disattiva org_modules per l'org dell'utente
-        const { data: profile } = await supabaseAdmin
-          .from("profiles")
-          .select("current_org")
-          .eq("id", resolvedUserId)
-          .single();
-
-        const orgId = (subscription.metadata as Record<string, string> | null)?.org_id ?? profile?.current_org ?? null;
-        if (orgId) {
-          await supabaseAdmin
-            .from("org_subscriptions")
-            .update({
-              status: "canceled",
-              plan: "Free",
-              stripe_subscription_id: null,
-              current_period_end: null,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("org_id", orgId);
-
-          // Disattiva tutti i moduli tranne base
-          const { data: mods } = await supabaseAdmin
-            .from("org_modules")
-            .select("module")
-            .eq("org_id", orgId)
-            .neq("module", "base");
-
-          for (const m of mods || []) {
-            await supabaseAdmin
-              .from("org_modules")
-              .update({ status: "inactive", updated_at: new Date().toISOString() })
-              .eq("org_id", orgId)
-              .eq("module", m.module);
-          }
-        }
 
         console.log(`✅ Subscription deleted for user ${resolvedUserId}`);
         break;

@@ -28,10 +28,12 @@ export async function POST(
     const { id: orgId } = await params;
 
     const body = await request.json().catch(() => ({}));
+    const linkType = (body.link_type as string) === 'purchase' ? 'purchase' : 'trial';
     const plan = (body.plan as string) || 'Starter';
     const rawModules = Array.isArray(body.modules) ? body.modules : [];
     const modules = rawModules.filter((m: string) => VALID_MODULES.includes(m));
     const expiresDays = Math.min(30, Math.max(1, Number(body.expires_days) || 14));
+    const trialDays = linkType === 'trial' ? Math.min(90, Math.max(1, Number(body.trial_days) || 7)) : null;
 
     if (!VALID_PLANS.includes(plan)) {
       return NextResponse.json(
@@ -64,6 +66,8 @@ export async function POST(
         org_id: orgId,
         plan,
         modules: modules.length > 0 ? modules : [],
+        link_type: linkType,
+        trial_days: trialDays,
         expires_at: expiresAt.toISOString(),
       })
       .select('id, token, expires_at')
@@ -86,6 +90,8 @@ export async function POST(
         url,
         token,
         plan,
+        link_type: linkType,
+        trial_days: trialDays,
         modules: modules.length > 0 ? modules : null,
         expires_at: link.expires_at,
       },

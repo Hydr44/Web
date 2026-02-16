@@ -43,52 +43,69 @@ export async function GET(req: NextRequest) {
   try {
     const priceId = req.nextUrl.searchParams.get("price");
     const returnUrl = req.nextUrl.searchParams.get("return") || "/dashboard/billing";
-    
+    const orgOverride = req.nextUrl.searchParams.get("org");
+
     if (!priceId) {
       return NextResponse.redirect(
-        new URL(`/dashboard/billing?err=missing_price`, req.url), 
+        new URL(`/dashboard/billing?err=missing_price`, req.url),
         302
       );
     }
 
-    // Verifica autenticazione
+    const buildResumeUrl = () => {
+      let u = `/api/checkout?price=${encodeURIComponent(priceId)}&return=${encodeURIComponent(returnUrl)}`;
+      if (orgOverride) u += `&org=${encodeURIComponent(orgOverride)}`;
+      return u;
+    };
+
     const supabase = await supabaseServer();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      const resume = `/api/checkout?price=${encodeURIComponent(priceId)}&return=${encodeURIComponent(returnUrl)}`;
       const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("redirect", resume);
+      loginUrl.searchParams.set("redirect", buildResumeUrl());
       return NextResponse.redirect(loginUrl.toString(), 302);
     }
 
-    // Verifica organizzazione
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("current_org, stripe_customer_id")
-      .eq("id", user.id)
-      .single();
+    let orgId: string | null = null;
+    if (orgOverride) {
+      const { data: member } = await supabase
+        .from("org_members")
+        .select("org_id")
+        .eq("org_id", orgOverride)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (member) orgId = member.org_id;
+    }
+    if (!orgId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("current_org")
+        .eq("id", user.id)
+        .single();
+      orgId = profile?.current_org ?? null;
+    }
 
-    if (!profile?.current_org) {
+    if (!orgId) {
       return NextResponse.redirect(
-        new URL(`/dashboard/billing?err=missing_org`, req.url), 
+        new URL(`/dashboard/billing?err=missing_org`, req.url),
         302
       );
     }
 
-    // Crea o recupera customer Stripe
-    let customerId = profile.stripe_customer_id;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("id", user.id)
+      .single();
+
+    let customerId = profile?.stripe_customer_id;
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
-        metadata: { 
-          user_id: user.id, 
-          org_id: profile.current_org 
-        },
+        metadata: { user_id: user.id, org_id: orgId },
       });
       customerId = customer.id;
-      
-      // Salva customer_id nel profilo
       await supabase
         .from("profiles")
         .update({ stripe_customer_id: customerId })
@@ -96,25 +113,24 @@ export async function GET(req: NextRequest) {
     }
 
     const baseUrl = getBaseUrl(req);
-    
-    // Crea checkout session
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
       subscription_data: {
-        metadata: { 
-          user_id: user.id, 
-          org_id: profile.current_org,
+        metadata: {
+          user_id: user.id,
+          org_id: orgId,
           plan_name: PLAN_MAPPING[priceId] || "Unknown"
         },
       },
       success_url: `${baseUrl}${returnUrl}?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}${returnUrl}?status=cancel`,
-      metadata: { 
-        user_id: user.id, 
-        org_id: profile.current_org,
+      metadata: {
+        user_id: user.id,
+        org_id: orgId,
         price_id: priceId
       },
     });

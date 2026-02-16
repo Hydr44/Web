@@ -64,18 +64,25 @@ export async function POST(request: Request) {
       case 'delete': {
         for (const orgId of orgIds) {
           try {
-            const { error: cascadeError } = await supabaseAdmin.rpc('delete_org_cascade', {
-              p_org_id: orgId,
-            });
+            // First, remove all members from the organization
+            const { error: membersError } = await supabaseAdmin
+              .from('org_members')
+              .delete()
+              .eq('org_id', orgId);
 
-            if (cascadeError) {
-              results.push({
-                id: orgId,
-                success: false,
-                error: cascadeError.message?.includes('function') 
-                  ? 'Esegui la migrazione 20260216_delete_org_cascade.sql' 
-                  : cascadeError.message,
-              });
+            if (membersError) {
+              results.push({ id: orgId, success: false, error: `Errore rimozione membri: ${membersError.message}` });
+              continue;
+            }
+
+            // Then delete the organization
+            const { error: orgError } = await supabaseAdmin
+              .from('orgs')
+              .delete()
+              .eq('id', orgId);
+
+            if (orgError) {
+              results.push({ id: orgId, success: false, error: `Errore eliminazione: ${orgError.message}` });
             } else {
               results.push({ id: orgId, success: true });
             }

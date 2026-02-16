@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { 
   Users, 
-  Truck, 
-  FileText, 
   ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  Calendar,
-  Zap,
   Shield,
   BarChart3,
   Download,
@@ -19,21 +13,15 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 export default function DashboardPanoramica() {
-  const [userEmail, setUserEmail] = useState<string>("");
   const [currentOrg, setCurrentOrg] = useState<string>("RescueManager");
   const [loading, setLoading] = useState(true);
   const [hasOrganization, setHasOrganization] = useState<boolean>(true);
-  const [stats, setStats] = useState({
-    vehicles: 0,
-    drivers: 0,
-    transports: 0,
-    clients: 0,
-    invoices: 0,
-    quotes: 0
+  const [subscription, setSubscription] = useState({
+    status: "active",
+    plan: "Pro"
   });
   const animations = useOptimizedAnimations();
 
@@ -42,19 +30,13 @@ export default function DashboardPanoramica() {
       try {
         const supabase = supabaseBrowser();
         
-        // Ottieni l'utente corrente
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
-          console.error("Error getting user:", userError);
-          setUserEmail("Utente");
           setCurrentOrg("RescueManager");
           setLoading(false);
           return;
         }
         
-        setUserEmail(user.email || "");
-        
-        // Controlla se l'utente ha un'organizzazione
         const { data: profile } = await supabase
           .from("profiles")
           .select("current_org")
@@ -68,7 +50,6 @@ export default function DashboardPanoramica() {
           return;
         }
         
-        // Carica nome organizzazione
         const { data: org } = await supabase
           .from("orgs")
           .select("name")
@@ -77,43 +58,23 @@ export default function DashboardPanoramica() {
         
         setCurrentOrg(org?.name || "Organizzazione");
         
-        console.log("Loading stats for org:", profile.current_org, "org name:", org?.name);
+        // Carica info abbonamento
+        const { data: sub } = await supabase
+          .from("org_subscriptions")
+          .select("status, plan_name")
+          .eq("org_id", profile.current_org)
+          .single();
         
-        // Carica statistiche reali con gestione errori - FILTRATE PER ORG_ID
-        const [vehiclesResult, driversResult, transportsResult, clientsResult, invoicesResult, quotesResult] = await Promise.allSettled([
-          supabase.from("vehicles").select("id", { count: "exact" }).eq("org_id", profile.current_org),
-          supabase.from("drivers").select("id", { count: "exact" }).eq("org_id", profile.current_org),
-          supabase.from("transports").select("id", { count: "exact" }).eq("org_id", profile.current_org),
-          supabase.from("clients").select("id", { count: "exact" }).eq("org_id", profile.current_org),
-          supabase.from("invoices").select("id", { count: "exact" }).eq("org_id", profile.current_org),
-          supabase.from("quotes").select("id", { count: "exact" }).eq("org_id", profile.current_org)
-        ]);
-
-        // Estrai i risultati con gestione errori
-        const getCount = (result: PromiseSettledResult<any>) => {
-          if (result.status === 'fulfilled' && !result.value.error) {
-            return result.value.count || 0;
-          }
-          console.warn("Query failed:", result.status === 'rejected' ? result.reason : result.value.error);
-          return 0;
-        };
-
-        const finalStats = {
-          vehicles: getCount(vehiclesResult),
-          drivers: getCount(driversResult),
-          transports: getCount(transportsResult),
-          clients: getCount(clientsResult),
-          invoices: getCount(invoicesResult),
-          quotes: getCount(quotesResult)
-        };
-        
-        console.log("Final stats loaded:", finalStats);
-        setStats(finalStats);
+        if (sub) {
+          setSubscription({
+            status: sub.status || "active",
+            plan: sub.plan_name || "Pro"
+          });
+        }
         
         setLoading(false);
       } catch (error) {
         console.error("Error loading dashboard data:", error);
-        setUserEmail("Utente");
         setCurrentOrg("RescueManager");
         setLoading(false);
       }
@@ -187,22 +148,8 @@ export default function DashboardPanoramica() {
     );
   }
 
-  // Dati reali dal database
-  const subscription = {
-    status: "active",
-    plan: "Pro",
-    renewAt: "31/12/2024"
-  };
-
-  const counts = {
-    vehicles: stats.vehicles,
-    drivers: stats.drivers,
-    transportsOpen: stats.transports,
-    members: stats.clients
-  };
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -222,84 +169,75 @@ export default function DashboardPanoramica() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Veicoli", value: counts.vehicles, icon: Truck, color: "blue", border: "border-l-blue-500" },
-          { label: "Autisti", value: counts.drivers, icon: Users, color: "emerald", border: "border-l-emerald-500" },
-          { label: "Trasporti", value: counts.transportsOpen, icon: FileText, color: "amber", border: "border-l-amber-500" },
-          { label: "Clienti", value: counts.members, icon: Users, color: "purple", border: "border-l-purple-500" },
-        ].map((card) => (
-          <div key={card.label} className={`bg-[#1a2536] rounded-xl p-5 border border-[#243044] ${card.border} border-l-4 hover:border-l-4 transition-all duration-200`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{card.label}</p>
-                <p className="text-2xl font-semibold text-slate-100 mt-1">{card.value}</p>
-              </div>
-              <div className={`w-10 h-10 rounded-lg bg-${card.color}-500/15 flex items-center justify-center`}>
-                <card.icon className={`h-5 w-5 text-${card.color}-400`} />
-              </div>
-            </div>
+      {/* Info Card */}
+      <div className="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 rounded-xl p-6 border border-blue-500/20">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-blue-400" />
           </div>
-        ))}
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-slate-100 mb-1">{currentOrg}</h2>
+            <p className="text-sm text-slate-400 mb-3">
+              Tutte le funzionalità operative sono disponibili nell'app desktop. Da qui puoi gestire il tuo abbonamento e scaricare l'applicazione.
+            </p>
+            <Link
+              href="/dashboard/org"
+              className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Visualizza dettagli organizzazione
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
       <div className="bg-[#1a2536] rounded-xl p-6 border border-[#243044]">
-        <h2 className="text-base font-semibold text-slate-200 mb-4">Azioni Rapide</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center mr-3">
-              <Users className="h-4 w-4 text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Gestisci Team</p>
-              <p className="text-xs text-slate-500">Aggiungi o modifica membri</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-          </Link>
-
+        <h2 className="text-base font-semibold text-slate-200 mb-4">Gestione Account</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center mr-3">
               <BarChart3 className="h-4 w-4 text-emerald-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Fatturazione</p>
-              <p className="text-xs text-slate-500">Gestisci abbonamenti</p>
+              <p className="font-medium text-slate-200 text-sm">Abbonamento e Fatturazione</p>
+              <p className="text-xs text-slate-500">Gestisci piano e metodi di pagamento</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
           <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center mr-3">
-              <Download className="h-4 w-4 text-purple-400" />
+            <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center mr-3">
+              <Download className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Download</p>
-              <p className="text-xs text-slate-500">App e accessi</p>
+              <p className="font-medium text-slate-200 text-sm">Download Applicazione</p>
+              <p className="text-xs text-slate-500">Scarica app desktop e mobile</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
-        </div>
-      </div>
 
-      {/* Status */}
-      <div className="bg-[#1a2536] rounded-xl p-6 border border-[#243044]">
-        <h2 className="text-base font-semibold text-slate-200 mb-4">Stato Sistema</h2>
-        <div className="space-y-3">
-          {[
-            { label: "Sistema operativo", status: "Attivo" },
-            { label: "Database connesso", status: "Online" },
-            { label: "Abbonamento", status: subscription.plan },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                <span className="text-sm text-slate-300">{item.label}</span>
-              </div>
-              <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">{item.status}</span>
+          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+            <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center mr-3">
+              <Users className="h-4 w-4 text-purple-400" />
             </div>
-          ))}
+            <div className="flex-1">
+              <p className="font-medium text-slate-200 text-sm">Gestione Team</p>
+              <p className="text-xs text-slate-500">Invita e gestisci membri</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+          </Link>
+
+          <Link href="/dashboard/org" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center mr-3">
+              <Building2 className="h-4 w-4 text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-slate-200 text-sm">Organizzazione</p>
+              <p className="text-xs text-slate-500">Visualizza e modifica dati aziendali</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+          </Link>
         </div>
       </div>
     </div>
