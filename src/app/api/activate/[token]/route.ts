@@ -61,12 +61,12 @@ export async function GET(
     const rawModules = Array.isArray(link.modules) ? link.modules : [];
     const modules = rawModules.filter((m: string) => VALID_MODULES.includes(m));
     const PLAN_DEFAULT: Record<string, string[]> = {
-      Starter: ['sdi'],
-      Professional: ['sdi', 'rvfu'],
-      Business: ['sdi', 'rvfu', 'rentri'],
-      Full: ['sdi', 'rvfu', 'rentri', 'contabilita'],
+      starter: ['sdi'],
+      professional: ['sdi', 'rvfu'],
+      business: ['sdi', 'rvfu', 'rentri'],
+      full: ['sdi', 'rvfu', 'rentri', 'contabilita'],
     };
-    const modulesToActivate = modules.length > 0 ? modules : (PLAN_DEFAULT[plan] || PLAN_DEFAULT.Full);
+    const modulesToActivate = modules.length > 0 ? modules : (PLAN_DEFAULT[plan] || PLAN_DEFAULT.full);
     const isoNow = now.toISOString();
     const trialDays = Math.min(90, Math.max(1, Number(link.trial_days) || 7));
     const periodEnd = new Date(now.getTime() + trialDays * 24 * 60 * 60 * 1000).toISOString();
