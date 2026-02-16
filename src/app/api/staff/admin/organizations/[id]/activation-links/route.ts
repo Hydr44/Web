@@ -34,6 +34,7 @@ export async function POST(
     const modules = rawModules.filter((m: string) => VALID_MODULES.includes(m));
     const expiresDays = Math.min(30, Math.max(1, Number(body.expires_days) || 14));
     const trialDays = linkType === 'trial' ? Math.min(90, Math.max(1, Number(body.trial_days) || 7)) : null;
+    const billingPeriod = linkType === 'purchase' ? ((body.billing_period as string) === 'monthly' ? 'monthly' : 'annual') : null;
 
     if (!VALID_PLANS.includes(plan)) {
       return NextResponse.json(
@@ -55,6 +56,22 @@ export async function POST(
       );
     }
 
+    // Validazione: blocca trial se org ha già avuto un trial
+    if (linkType === 'trial') {
+      const { data: existingSub } = await supabaseAdmin
+        .from('org_subscriptions')
+        .select('status')
+        .eq('org_id', orgId)
+        .maybeSingle();
+      
+      if (existingSub && existingSub.status === 'trial') {
+        return NextResponse.json(
+          { success: false, error: 'Organizzazione ha già un trial attivo. Non può avere un secondo trial.' },
+          { status: 400, headers: corsHeaders(origin) }
+        );
+      }
+    }
+
     const token = generateToken();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiresDays);
@@ -68,6 +85,7 @@ export async function POST(
         modules: modules.length > 0 ? modules : [],
         link_type: linkType,
         trial_days: trialDays,
+        billing_period: billingPeriod,
         expires_at: expiresAt.toISOString(),
       })
       .select('id, token, expires_at')
@@ -92,6 +110,7 @@ export async function POST(
         plan,
         link_type: linkType,
         trial_days: trialDays,
+        billing_period: billingPeriod,
         modules: modules.length > 0 ? modules : null,
         expires_at: link.expires_at,
       },
