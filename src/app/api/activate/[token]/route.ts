@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
-const VALID_MODULES = ['sdi', 'rvfu', 'rentri'];
+const VALID_MODULES = ['sdi', 'rvfu', 'rentri', 'contabilita'];
 const VALID_PLANS = ['Starter', 'Professional', 'Business', 'Full'];
 
 export async function GET(
@@ -64,7 +64,7 @@ export async function GET(
       Starter: ['sdi'],
       Professional: ['sdi', 'rvfu'],
       Business: ['sdi', 'rvfu', 'rentri'],
-      Full: ['sdi', 'rvfu', 'rentri'],
+      Full: ['sdi', 'rvfu', 'rentri', 'contabilita'],
     };
     const modulesToActivate = modules.length > 0 ? modules : (PLAN_DEFAULT[plan] || PLAN_DEFAULT.Full);
     const isoNow = now.toISOString();
@@ -74,9 +74,11 @@ export async function GET(
     await supabaseAdmin.from('org_subscriptions').upsert(
       {
         org_id: link.org_id,
-        plan,
-        status: 'trialing',
+        plan: plan.toLowerCase(),
+        status: 'trial',
+        billing_type: 'trial',
         current_period_end: periodEnd,
+        trial_end: periodEnd,
         updated_at: isoNow,
       },
       { onConflict: 'org_id' }

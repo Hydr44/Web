@@ -2,99 +2,66 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
+// id = org_id (PK di org_subscriptions)
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const origin = request.headers.get('origin');
-    const subscriptionId = params.id;
-    
-    console.log(`Admin reactivate subscription API called for: ${subscriptionId}`);
-    
-    // Trova la subscription
-    const { data: subscription, error: fetchError } = await supabaseAdmin
-      .from('subscriptions')
+    const { id: orgId } = await params;
+
+    const { data: sub, error: fetchError } = await supabaseAdmin
+      .from('org_subscriptions')
       .select('*')
-      .eq('id', subscriptionId)
+      .eq('org_id', orgId)
       .single();
-    
-    if (fetchError || !subscription) {
-      return NextResponse.json({
-        success: false,
-        error: 'Abbonamento non trovato'
-      }, { 
-        status: 404,
-        headers: corsHeaders(origin)
-      });
+
+    if (fetchError || !sub) {
+      return NextResponse.json(
+        { success: false, error: 'Abbonamento non trovato' },
+        { status: 404, headers: corsHeaders(origin) }
+      );
     }
-    
-    if (subscription.status === 'active') {
-      return NextResponse.json({
-        success: false,
-        error: 'Abbonamento già attivo'
-      }, { 
-        status: 400,
-        headers: corsHeaders(origin)
-      });
+
+    if (sub.status === 'active') {
+      return NextResponse.json(
+        { success: false, error: 'Abbonamento già attivo' },
+        { status: 400, headers: corsHeaders(origin) }
+      );
     }
-    
-    // Calcola nuova data di scadenza (30 giorni da oggi)
+
+    // Riattiva con 1 anno da oggi
     const newPeriodEnd = new Date();
-    newPeriodEnd.setDate(newPeriodEnd.getDate() + 30);
-    
-    // TODO: Integrare con Stripe per riattivare l'abbonamento
-    // Per ora aggiorniamo solo il database
-    const { data: updatedSubscription, error: updateError } = await supabaseAdmin
-      .from('subscriptions')
+    newPeriodEnd.setFullYear(newPeriodEnd.getFullYear() + 1);
+
+    const { error: updateError } = await supabaseAdmin
+      .from('org_subscriptions')
       .update({
         status: 'active',
         current_period_end: newPeriodEnd.toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', subscriptionId)
-      .select()
-      .single();
-    
+      .eq('org_id', orgId);
+
     if (updateError) {
       console.error('Error reactivating subscription:', updateError);
-      return NextResponse.json({
-        success: false,
-        error: 'Errore durante la riattivazione'
-      }, { 
-        status: 500,
-        headers: corsHeaders(origin)
-      });
+      return NextResponse.json(
+        { success: false, error: 'Errore durante la riattivazione' },
+        { status: 500, headers: corsHeaders(origin) }
+      );
     }
-    
-    // Aggiorna anche il profilo utente
-    if (subscription.user_id) {
-      await supabaseAdmin
-        .from('profiles')
-        .update({
-          current_plan: subscription.price_id,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subscription.user_id);
-    }
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Abbonamento riattivato con successo',
-      subscription: updatedSubscription
-    }, {
-      headers: corsHeaders(origin)
-    });
-    
+
+    return NextResponse.json(
+      { success: true, message: 'Abbonamento riattivato con successo' },
+      { headers: corsHeaders(origin) }
+    );
   } catch (error: any) {
-    console.error('Admin reactivate subscription API error:', error);
+    console.error('Admin reactivate subscription error:', error);
     const origin = request.headers.get('origin');
-    return NextResponse.json({
-      success: false,
-      error: 'Errore interno del server'
-    }, { 
-      status: 500,
-      headers: corsHeaders(origin)
-    });
+    return NextResponse.json(
+      { success: false, error: 'Errore interno del server' },
+      { status: 500, headers: corsHeaders(origin) }
+    );
   }
 }

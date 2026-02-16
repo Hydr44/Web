@@ -5,99 +5,118 @@ import { corsHeaders } from '@/lib/cors';
 export async function GET(request: Request) {
   try {
     const origin = request.headers.get('origin');
-    
-    console.log('Admin subscriptions API called');
-    
-    // Recupera tutte le subscriptions
+
+    // Recupera abbonamenti da org_subscriptions (tabella reale)
     const { data: subscriptions, error } = await supabaseAdmin
-      .from('subscriptions')
-      .select(`
-        id,
-        user_id,
-        stripe_customer_id,
-        stripe_subscription_id,
-        price_id,
-        status,
-        current_period_end,
-        created_at,
-        updated_at
-      `)
-      .order('created_at', { ascending: false });
+      .from('org_subscriptions')
+      .select('*')
+      .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching subscriptions:', error);
-      return NextResponse.json({ 
-        success: false, 
+      console.error('Error fetching org_subscriptions:', error);
+      return NextResponse.json({
+        success: false,
         error: 'Errore nel recupero degli abbonamenti',
-        details: error.message 
-      }, { 
-        status: 500,
-        headers: corsHeaders(origin)
-      });
+        details: error.message,
+      }, { status: 500, headers: corsHeaders(origin) });
     }
 
-    // Recupera i profili per gli user_id unici
-    const userIds = [...new Set((subscriptions || []).map((s: any) => s.user_id).filter(Boolean))];
-    const profilesMap: Record<string, any> = {};
-    
-    if (userIds.length > 0) {
-      const { data: profiles, error: profilesError } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email, full_name')
-        .in('id', userIds);
-      
-      if (!profilesError && profiles) {
-        profiles.forEach((profile: any) => {
-          profilesMap[profile.id] = profile;
+    // Recupera nomi org
+    const orgIds = [...new Set((subscriptions || []).map((s: any) => s.org_id).filter(Boolean))];
+    const orgsMap: Record<string, any> = {};
+
+    if (orgIds.length > 0) {
+      const { data: orgs } = await supabaseAdmin
+        .from('orgs')
+        .select('id, name')
+        .in('id', orgIds);
+      if (orgs) {
+        orgs.forEach((o: any) => { orgsMap[o.id] = o; });
+      }
+    }
+
+    // Recupera owner di ogni org per mostrare email/nome
+    const ownersMap: Record<string, any> = {};
+    if (orgIds.length > 0) {
+      const { data: members } = await supabaseAdmin
+        .from('org_members')
+        .select('org_id, user_id, role')
+        .in('org_id', orgIds)
+        .eq('role', 'owner');
+
+      if (members && members.length > 0) {
+        const ownerUserIds = members.map((m: any) => m.user_id);
+        const { data: profiles } = await supabaseAdmin
+          .from('profiles')
+          .select('id, email, full_name')
+          .in('id', ownerUserIds);
+
+        if (profiles) {
+          const profileMap: Record<string, any> = {};
+          profiles.forEach((p: any) => { profileMap[p.id] = p; });
+          members.forEach((m: any) => {
+            ownersMap[m.org_id] = profileMap[m.user_id] || null;
+          });
+        }
+      }
+    }
+
+    // Recupera moduli attivi per ogni org
+    const modulesMap: Record<string, string[]> = {};
+    if (orgIds.length > 0) {
+      const { data: mods } = await supabaseAdmin
+        .from('org_modules')
+        .select('org_id, module, status')
+        .in('org_id', orgIds)
+        .eq('status', 'active');
+      if (mods) {
+        mods.forEach((m: any) => {
+          if (!modulesMap[m.org_id]) modulesMap[m.org_id] = [];
+          modulesMap[m.org_id].push(m.module);
         });
       }
     }
 
-    // Transform data to include user info
-    const transformedSubscriptions = (subscriptions || []).map((sub: any) => {
-      const profile = sub.user_id ? profilesMap[sub.user_id] : null;
-      
-      // Mappa price_id ai nomi dei piani
-      const PLAN_MAPPING: Record<string, string> = {
-        [process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER || ""]: "Starter",
-        [process.env.STRIPE_PRICE_FLEET || ""]: "Flotta", 
-        [process.env.STRIPE_PRICE_CONSORTIUM || ""]: "Azienda / Consorzio",
-      };
-      
-      const planName = PLAN_MAPPING[sub.price_id || ""] || sub.price_id || "Sconosciuto";
+    const PLAN_LABELS: Record<string, string> = {
+      starter: 'Starter', professional: 'Professional',
+      business: 'Business', full: 'Full',
+    };
 
+    const transformed = (subscriptions || []).map((sub: any) => {
+      const org = orgsMap[sub.org_id];
+      const owner = ownersMap[sub.org_id];
       return {
-        id: sub.id,
-        user_id: sub.user_id,
-        stripe_customer_id: sub.stripe_customer_id,
-        stripe_subscription_id: sub.stripe_subscription_id,
-        price_id: sub.price_id,
+        id: sub.org_id,
+        org_id: sub.org_id,
+        org_name: org?.name || '—',
+        plan: sub.plan,
+        plan_name: PLAN_LABELS[sub.plan] || sub.plan || '—',
         status: sub.status,
+        billing_type: sub.billing_type || 'manual',
         current_period_end: sub.current_period_end,
-        created_at: sub.created_at,
+        trial_end: sub.trial_end,
+        stripe_subscription_id: sub.stripe_subscription_id,
+        is_custom: sub.is_custom,
+        custom_notes: sub.custom_notes,
+        modules: modulesMap[sub.org_id] || [],
+        owner_email: owner?.email || null,
+        owner_name: owner?.full_name || null,
+        created_at: sub.created_at || sub.updated_at,
         updated_at: sub.updated_at,
-        plan_name: planName,
-        user_email: profile?.email || null,
-        user_name: profile?.full_name || null,
       };
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      subscriptions: transformedSubscriptions 
-    }, {
-      headers: corsHeaders(origin)
-    });
+    return NextResponse.json({
+      success: true,
+      subscriptions: transformed,
+    }, { headers: corsHeaders(origin) });
 
   } catch (error: any) {
     console.error('Admin subscriptions API error:', error);
     const origin = request.headers.get('origin');
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
-    }, { 
-      status: 500,
-      headers: corsHeaders(origin)
-    });
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server',
+    }, { status: 500, headers: corsHeaders(origin) });
   }
 }
