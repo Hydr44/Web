@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
-const VALID_PLANS = ['Starter', 'Professional', 'Business', 'Full'];
+const VALID_PLANS = ['starter', 'professional', 'business', 'full'];
 const PLAN_TO_PRICE: Record<string, string> = {
-  Starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL || '',
-  Professional: process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_ANNUAL || '',
-  Business: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_ANNUAL || '',
-  Full: process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_ANNUAL || '',
+  starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL || '',
+  professional: process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL_ANNUAL || '',
+  business: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_ANNUAL || '',
+  full: process.env.NEXT_PUBLIC_STRIPE_PRICE_FULL_ANNUAL || '',
 };
 
 function getBaseUrl(request: Request): string {

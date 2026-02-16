@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
 const VALID_MODULES = ['sdi', 'rvfu', 'rentri', 'contabilita'];
-const VALID_PLANS = ['Starter', 'Professional', 'Business', 'Full'];
+const VALID_PLANS = ['starter', 'professional', 'business', 'full'];
 
 export async function GET(
   request: Request,

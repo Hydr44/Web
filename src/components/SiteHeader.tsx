@@ -185,50 +185,92 @@ export default function SiteHeader() {
               </button>
 
               {prodottoOpen && (
-                <div className="absolute top-full left-0 mt-2 w-80 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-3 z-50">
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 px-2">Moduli Disponibili</div>
-                  <Link
-                    href="/moduli/trasporti"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">Trasporti</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Gestione completa trasporti e tracking GPS</div>
-                  </Link>
-                  <Link
-                    href="/moduli/rentri"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">RENTRI</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Registro Elettronico Nazionale Tracciabilità Rifiuti</div>
-                  </Link>
-                  <Link
-                    href="/moduli/ricambi"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">Ricambi TecDoc</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Magazzino ricambi con integrazione TecDoc</div>
-                  </Link>
-                  <Link
-                    href="/moduli/sdi"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">SDI - Fatturazione Elettronica</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Fatturazione elettronica via Sistema di Interscambio</div>
-                  </Link>
-                  <Link
-                    href="/moduli/contabilita"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">Contabilità</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Prima nota e piano dei conti</div>
-                  </Link>
-                  <Link
-                    href="/moduli/rvfu"
-                    className="block px-3 py-2.5 rounded-lg hover:bg-[#243044] transition-colors"
-                  >
-                    <div className="text-sm font-medium text-slate-200">RVFU</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Registro Veicoli Fuori Uso MIT</div>
-                  </Link>
+                <div className="absolute top-full left-0 mt-2 w-96 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-4 z-50">
+                  {/* App Base */}
+                  <div className="mb-4">
+                    <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2 px-2">App Base</div>
+                    <div className="text-xs text-slate-500 px-2 mb-3">Incluso in tutti i piani</div>
+                    <Link
+                      href="/moduli/trasporti"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">Trasporti</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Soccorso, dispatch e tracking GPS</div>
+                    </Link>
+                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                      <div className="text-sm font-medium text-slate-200">Piazzale</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Gestione veicoli in deposito</div>
+                    </div>
+                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                      <div className="text-sm font-medium text-slate-200">Clienti & CRM</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Anagrafica clienti e pipeline vendite</div>
+                    </div>
+                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                      <div className="text-sm font-medium text-slate-200">Mezzi & Autisti</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Gestione flotta e personale</div>
+                    </div>
+                    <Link
+                      href="/moduli/ricambi"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">Ricambi TecDoc</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Magazzino con integrazione TecDoc</div>
+                    </Link>
+                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                      <div className="text-sm font-medium text-slate-200">Preventivi</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Creazione preventivi e offerte</div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-[#243044] my-3"></div>
+
+                  {/* Moduli Specializzati */}
+                  <div className="mb-4">
+                    <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-2 px-2">Moduli Specializzati</div>
+                    <div className="text-xs text-slate-500 px-2 mb-3">A scelta nei piani</div>
+                    <Link
+                      href="/moduli/rvfu"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">RVFU</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Registro Veicoli Fuori Uso MIT</div>
+                    </Link>
+                    <Link
+                      href="/moduli/rentri"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">RENTRI</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Registro Elettronico Tracciabilità Rifiuti</div>
+                    </Link>
+                    <Link
+                      href="/moduli/sdi"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">SDI - Fatturazione Elettronica</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Fatturazione via Sistema di Interscambio</div>
+                    </Link>
+                    <Link
+                      href="/moduli/contabilita"
+                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                    >
+                      <div className="text-sm font-medium text-slate-200">Contabilità</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Prima nota e piano dei conti</div>
+                    </Link>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-[#243044] my-3"></div>
+
+                  {/* App Mobile */}
+                  <div>
+                    <div className="text-xs font-semibold text-purple-400 uppercase tracking-wide mb-2 px-2">App Mobile</div>
+                    <div className="text-xs text-slate-500 px-2 mb-3">Per autisti e operatori</div>
+                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                      <div className="text-sm font-medium text-slate-200">RescueMobile</div>
+                      <div className="text-xs text-slate-500 mt-0.5">App iOS/Android per gestione trasporti in mobilità</div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
