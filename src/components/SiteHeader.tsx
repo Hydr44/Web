@@ -11,6 +11,8 @@ type NavItem = { label: string; href: string; match?: (path: string) => boolean 
 
 const NAV: NavItem[] = [
   { label: "Home", href: "/", match: (p) => p === "/" },
+  { label: "Contatti", href: "/contatti", match: (p) => p === "/contatti" },
+  { label: "Documentazione", href: "/docs", match: (p) => p.startsWith("/docs") },
 ];
 
 const PRODOTTO_MODULES = [
@@ -185,84 +187,84 @@ export default function SiteHeader() {
               </button>
 
               {prodottoOpen && (
-                <div className="absolute top-full left-0 mt-2 w-96 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-4 z-50">
-                  {/* App Base */}
-                  <div className="mb-4">
-                    <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2 px-2">App Base</div>
-                    <div className="text-xs text-slate-500 px-2 mb-3">Incluso in tutti i piani</div>
-                    <Link
-                      href="/moduli/trasporti"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">Trasporti</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Soccorso, dispatch e tracking GPS</div>
-                    </Link>
-                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                      <div className="text-sm font-medium text-slate-200">Piazzale</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Gestione veicoli in deposito</div>
+                <div className="absolute top-full left-0 mt-2 w-[720px] rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-4 z-50">
+                  {/* Layout a 2 colonne */}
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Colonna sinistra: App Base */}
+                    <div>
+                      <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2 px-2">App Base</div>
+                      <div className="text-xs text-slate-500 px-2 mb-3">Incluso in tutti i piani</div>
+                      <Link
+                        href="/moduli/trasporti"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">Trasporti</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Soccorso, dispatch e tracking GPS</div>
+                      </Link>
+                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                        <div className="text-sm font-medium text-slate-200">Piazzale</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Gestione veicoli in deposito</div>
+                      </div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                        <div className="text-sm font-medium text-slate-200">Clienti & CRM</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Anagrafica clienti e pipeline vendite</div>
+                      </div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                        <div className="text-sm font-medium text-slate-200">Mezzi & Autisti</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Gestione flotta e personale</div>
+                      </div>
+                      <Link
+                        href="/moduli/ricambi"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">Ricambi TecDoc</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Magazzino con integrazione TecDoc</div>
+                      </Link>
+                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
+                        <div className="text-sm font-medium text-slate-200">Preventivi</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Creazione preventivi e offerte</div>
+                      </div>
                     </div>
-                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                      <div className="text-sm font-medium text-slate-200">Clienti & CRM</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Anagrafica clienti e pipeline vendite</div>
-                    </div>
-                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                      <div className="text-sm font-medium text-slate-200">Mezzi & Autisti</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Gestione flotta e personale</div>
-                    </div>
-                    <Link
-                      href="/moduli/ricambi"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">Ricambi TecDoc</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Magazzino con integrazione TecDoc</div>
-                    </Link>
-                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                      <div className="text-sm font-medium text-slate-200">Preventivi</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Creazione preventivi e offerte</div>
+
+                    {/* Colonna destra: Moduli Specializzati */}
+                    <div>
+                      <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-2 px-2">Moduli Specializzati</div>
+                      <div className="text-xs text-slate-500 px-2 mb-3">A scelta nei piani</div>
+                      <Link
+                        href="/moduli/rvfu"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">RVFU</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Registro Veicoli Fuori Uso MIT</div>
+                      </Link>
+                      <Link
+                        href="/moduli/rentri"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">RENTRI</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Registro Elettronico Tracciabilità Rifiuti</div>
+                      </Link>
+                      <Link
+                        href="/moduli/sdi"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">SDI - Fatturazione Elettronica</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Fatturazione via Sistema di Interscambio</div>
+                      </Link>
+                      <Link
+                        href="/moduli/contabilita"
+                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
+                      >
+                        <div className="text-sm font-medium text-slate-200">Contabilità</div>
+                        <div className="text-xs text-slate-500 mt-0.5">Prima nota e piano dei conti</div>
+                      </Link>
                     </div>
                   </div>
 
                   {/* Divider */}
-                  <div className="h-px bg-[#243044] my-3"></div>
+                  <div className="h-px bg-[#243044] my-4"></div>
 
-                  {/* Moduli Specializzati */}
-                  <div className="mb-4">
-                    <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-2 px-2">Moduli Specializzati</div>
-                    <div className="text-xs text-slate-500 px-2 mb-3">A scelta nei piani</div>
-                    <Link
-                      href="/moduli/rvfu"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">RVFU</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Registro Veicoli Fuori Uso MIT</div>
-                    </Link>
-                    <Link
-                      href="/moduli/rentri"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">RENTRI</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Registro Elettronico Tracciabilità Rifiuti</div>
-                    </Link>
-                    <Link
-                      href="/moduli/sdi"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">SDI - Fatturazione Elettronica</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Fatturazione via Sistema di Interscambio</div>
-                    </Link>
-                    <Link
-                      href="/moduli/contabilita"
-                      className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                    >
-                      <div className="text-sm font-medium text-slate-200">Contabilità</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Prima nota e piano dei conti</div>
-                    </Link>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-[#243044] my-3"></div>
-
-                  {/* App Mobile */}
+                  {/* App Mobile - full width sotto */}
                   <div>
                     <div className="text-xs font-semibold text-purple-400 uppercase tracking-wide mb-2 px-2">App Mobile</div>
                     <div className="text-xs text-slate-500 px-2 mb-3">Per autisti e operatori</div>
@@ -274,6 +276,38 @@ export default function SiteHeader() {
                 </div>
               )}
             </div>
+
+            {/* Contatti */}
+            <Link
+              href="/contatti"
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
+                pathname === "/contatti" ? "text-emerald-400" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Contatti
+              <span
+                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
+                  pathname === "/contatti" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+            </Link>
+
+            {/* Documentazione */}
+            <Link
+              href="/docs"
+              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
+                pathname.startsWith("/docs") ? "text-emerald-400" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              Documentazione
+              <span
+                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
+                  pathname.startsWith("/docs") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+            </Link>
           </nav>
 
           {/* Right actions */}
