@@ -4,7 +4,7 @@ import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest } from '@/lib/staff-auth';
 import { randomBytes } from 'crypto';
 
-const VALID_PLANS = ['Starter', 'Professional', 'Business', 'Full'];
+const VALID_PLANS = ['starter', 'professional', 'business', 'full'];
 const VALID_MODULES = ['sdi', 'rvfu', 'rentri', 'contabilita'];
 
 function generateToken(): string {
@@ -29,7 +29,7 @@ export async function POST(
 
     const body = await request.json().catch(() => ({}));
     const linkType = (body.link_type as string) === 'purchase' ? 'purchase' : 'trial';
-    const plan = (body.plan as string) || 'Starter';
+    const plan = ((body.plan as string) || 'starter').toLowerCase();
     const rawModules = Array.isArray(body.modules) ? body.modules : [];
     const modules = rawModules.filter((m: string) => VALID_MODULES.includes(m));
     const expiresDays = Math.min(30, Math.max(1, Number(body.expires_days) || 14));
