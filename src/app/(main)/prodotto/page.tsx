@@ -33,7 +33,7 @@ const MODULES = [
   {
     title: "Radiazioni RVFU",
     icon: Car,
-    color: "orange",
+    color: "blue",
     desc: "Demolizione veicoli e radiazione integrata.",
     points: [
       "Ricerca veicoli tramite PRA",
@@ -60,7 +60,7 @@ const MODULES = [
   {
     title: "Registro RENTRI",
     icon: Recycle,
-    color: "purple",
+    color: "green",
     desc: "Tracciabilità rifiuti a norma di legge.",
     points: [
       "Registro carico/scarico",
@@ -72,7 +72,7 @@ const MODULES = [
   {
     title: "App Mobile Autisti",
     icon: Smartphone,
-    color: "slate",
+    color: "gray",
     desc: "App dedicata per chi è in strada.",
     points: [
       "Interventi assegnati in tempo reale",
@@ -85,7 +85,7 @@ const MODULES = [
   {
     title: "Analytics & Report",
     icon: BarChart3,
-    color: "emerald",
+    color: "green",
     desc: "Numeri e performance della tua attività.",
     points: [
       "Dashboard in tempo reale",
@@ -111,13 +111,9 @@ const MODULES = [
 ];
 
 const COLOR_MAP: Record<string, { bg: string; icon: string; check: string }> = {
-  blue:    { bg: "bg-blue-50",    icon: "bg-blue-600",    check: "text-blue-600" },
-  orange:  { bg: "bg-orange-50",  icon: "bg-orange-600",  check: "text-orange-600" },
-  green:   { bg: "bg-green-50",   icon: "bg-green-600",   check: "text-green-600" },
-  purple:  { bg: "bg-purple-50",  icon: "bg-purple-600",  check: "text-purple-600" },
-  slate:   { bg: "bg-slate-50",   icon: "bg-slate-600",   check: "text-slate-600" },
-  emerald: { bg: "bg-emerald-50", icon: "bg-emerald-600", check: "text-emerald-600" },
-  gray:    { bg: "bg-gray-50",    icon: "bg-gray-600",    check: "text-gray-600" },
+  blue:  { bg: "bg-blue-50",  icon: "bg-[#2563EB]",  check: "text-[#2563EB]" },
+  green: { bg: "bg-green-50", icon: "bg-[#10B981]", check: "text-[#10B981]" },
+  gray:  { bg: "bg-gray-50",  icon: "bg-gray-600",   check: "text-gray-600" },
 };
 
 export default function Prodotto() {

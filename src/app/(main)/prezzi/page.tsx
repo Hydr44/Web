@@ -37,7 +37,7 @@ export default function PrezziPage() {
       name: "Registro RENTRI",
       desc: "Registro nazionale tracciabilità rifiuti, formulari, registri di carico e scarico.",
       icon: Recycle,
-      color: "purple",
+      color: "green",
     },
   ];
 
@@ -111,14 +111,12 @@ export default function PrezziPage() {
                 key={mod.id}
                 className={`rounded-2xl border p-6 bg-white ${
                   mod.color === "blue" ? "border-blue-200" :
-                  mod.color === "green" ? "border-green-200" :
-                  "border-purple-200"
+                  "border-green-200"
                 }`}
               >
                 <div className={`p-2.5 rounded-xl w-fit mb-4 text-white ${
                   mod.color === "blue" ? "bg-blue-600" :
-                  mod.color === "green" ? "bg-green-600" :
-                  "bg-purple-600"
+                  "bg-green-600"
                 }`}>
                   <mod.icon className="h-5 w-5" />
                 </div>
