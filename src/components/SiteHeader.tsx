@@ -126,44 +126,34 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? "bg-[#2563EB]/98 backdrop-blur-md shadow-lg shadow-black/20" : "bg-[#2563EB]/95 backdrop-blur-sm"
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+      scrolled ? "bg-white shadow-md" : "bg-white"
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-14 h-14">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="relative w-10 h-10">
               <Image
                 src="/logoufficiale_1024.png"
                 alt="RescueManager"
                 fill
-                className="object-contain transition-transform duration-300 group-hover:scale-105"
+                className="object-contain"
                 priority
               />
             </div>
-            <div className="hidden sm:block">
-              <div className="text-xl font-bold text-white">RescueManager</div>
-              <div className="text-xs text-slate-400 -mt-1">Autodemolizioni & Soccorso</div>
-            </div>
+            <span className="hidden sm:block text-lg font-bold text-gray-900">RescueManager</span>
           </Link>
 
           {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {/* Home */}
             <Link
               href="/"
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
-                pathname === "/" ? "text-emerald-400" : "text-slate-300 hover:text-white"
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               Home
-              <span
-                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
-                  pathname === "/" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                }`}
-                aria-hidden
-              />
             </Link>
 
             {/* Prodotto dropdown */}
@@ -173,199 +163,146 @@ export default function SiteHeader() {
               onMouseLeave={() => setProdottoOpen(false)}
             >
               <button
-                className="relative px-4 py-2 text-sm font-medium transition-all duration-300 group text-slate-300 hover:text-white flex items-center gap-1"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-1"
               >
                 Prodotto
                 <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${prodottoOpen ? 'rotate-180' : ''}`} />
-                <span
-                  className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
-                    prodottoOpen ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                  }`}
-                  aria-hidden
-                />
               </button>
 
               {prodottoOpen && (
-                <div className="absolute top-full left-0 mt-2 w-[720px] rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-4 z-50">
-                  {/* Layout a 2 colonne */}
-                  <div className="grid grid-cols-2 gap-6">
-                    {/* Colonna sinistra: App Base */}
+                <div className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-white shadow-xl border border-gray-200 p-4 z-50">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2 px-2">App Base</div>
-                      <div className="text-xs text-slate-500 px-2 mb-3">Incluso in tutti i piani</div>
-                      <Link
-                        href="/moduli/trasporti"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">Trasporti</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Soccorso, dispatch e tracking GPS</div>
+                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
+                      <Link href="/moduli/trasporti" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">Trasporti</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch e tracking</div>
                       </Link>
-                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                        <div className="text-sm font-medium text-slate-200">Piazzale</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Gestione veicoli in deposito</div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-default">
+                        <div className="text-sm font-medium text-gray-900">Piazzale</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Gestione veicoli in deposito</div>
                       </div>
-                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                        <div className="text-sm font-medium text-slate-200">Clienti & CRM</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Anagrafica clienti e pipeline vendite</div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-default">
+                        <div className="text-sm font-medium text-gray-900">Clienti</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Anagrafica e storico</div>
                       </div>
-                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                        <div className="text-sm font-medium text-slate-200">Mezzi & Autisti</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Gestione flotta e personale</div>
-                      </div>
-                      <Link
-                        href="/moduli/ricambi"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">Ricambi TecDoc</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Magazzino con integrazione TecDoc</div>
-                      </Link>
-                      <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                        <div className="text-sm font-medium text-slate-200">Preventivi</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Creazione preventivi e offerte</div>
-                      </div>
-                    </div>
-
-                    {/* Colonna destra: Moduli Specializzati */}
-                    <div>
-                      <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wide mb-2 px-2">Moduli Specializzati</div>
-                      <div className="text-xs text-slate-500 px-2 mb-3">A scelta nei piani</div>
-                      <Link
-                        href="/moduli/rvfu"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">RVFU</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Registro Veicoli Fuori Uso MIT</div>
-                      </Link>
-                      <Link
-                        href="/moduli/rentri"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">RENTRI</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Registro Elettronico Tracciabilità Rifiuti</div>
-                      </Link>
-                      <Link
-                        href="/moduli/sdi"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">SDI - Fatturazione Elettronica</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Fatturazione via Sistema di Interscambio</div>
-                      </Link>
-                      <Link
-                        href="/moduli/contabilita"
-                        className="block px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors"
-                      >
-                        <div className="text-sm font-medium text-slate-200">Contabilità</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Prima nota e piano dei conti</div>
+                      <Link href="/moduli/ricambi" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">Ricambi TecDoc</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Magazzino ricambi</div>
                       </Link>
                     </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-[#243044] my-4"></div>
-
-                  {/* App Mobile - full width sotto */}
-                  <div>
-                    <div className="text-xs font-semibold text-purple-400 uppercase tracking-wide mb-2 px-2">App Mobile</div>
-                    <div className="text-xs text-slate-500 px-2 mb-3">Per autisti e operatori</div>
-                    <div className="px-3 py-2 rounded-lg hover:bg-[#243044] transition-colors cursor-pointer">
-                      <div className="text-sm font-medium text-slate-200">RescueMobile</div>
-                      <div className="text-xs text-slate-500 mt-0.5">App iOS/Android per gestione trasporti in mobilità</div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-2">Moduli specializzati</div>
+                      <Link href="/moduli/rvfu" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">RVFU</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Radiazioni veicoli MIT</div>
+                      </Link>
+                      <Link href="/moduli/rentri" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">RENTRI</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Registro rifiuti</div>
+                      </Link>
+                      <Link href="/moduli/sdi" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">Fatturazione SDI</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Fatture elettroniche</div>
+                      </Link>
+                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="text-sm font-medium text-gray-900">Contabilità</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Prima nota e piano dei conti</div>
+                      </Link>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Contatti */}
+            <Link
+              href="/prezzi"
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/prezzi" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              Prezzi
+            </Link>
+
             <Link
               href="/contatti"
-              className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 group ${
-                pathname === "/contatti" ? "text-emerald-400" : "text-slate-300 hover:text-white"
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/contatti" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               Contatti
-              <span
-                className={`absolute left-0 -bottom-1 h-0.5 w-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300 ${
-                  pathname === "/contatti" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                }`}
-                aria-hidden
-              />
             </Link>
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {user ? (
               <>
-                {/* Dashboard link */}
                 <Link
                   href="/dashboard"
-                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-colors font-medium"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-[#2563EB] text-white hover:bg-blue-700 transition-colors font-medium"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Link>
 
-                
                 {/* User dropdown */}
                 <div className="relative" data-dropdown>
                   <button
                     onClick={handleMenuToggle}
-                    className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 ring-1 transition-all duration-300 group max-w-[200px] sm:max-w-[240px] ${
+                    className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 border transition-colors max-w-[200px] sm:max-w-[240px] ${
                       menuOpen 
-                        ? 'ring-blue-500 bg-blue-500/10' 
-                        : 'ring-slate-600 hover:bg-[#1a2536] hover:ring-blue-500/40'
+                        ? 'border-[#2563EB] bg-blue-50' 
+                        : 'border-gray-200 hover:bg-gray-50'
                     }`}
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-[#2563EB] flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] md:max-w-[160px] truncate font-medium flex-shrink-0" title={user.email}>
+                    <span className="text-xs text-gray-600 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={user.email}>
                       {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
                     </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-[#1a2536] shadow-lg shadow-black/30 border border-[#243044] p-2 z-[9999]"
+                      className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white shadow-xl border border-gray-200 p-1.5 z-[9999]"
                     >
-                      <div className="p-3 border-b border-[#243044]">
-                        <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Account</div>
-                        <div className="text-sm font-medium text-slate-200 break-all max-w-full overflow-hidden">
-                          <span className="block truncate" title={user.email}>{user.email}</span>
-                        </div>
-                        <div className="text-xs text-slate-500 mt-1">
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="text-xs text-gray-400 uppercase tracking-wide">Account</div>
+                        <div className="text-sm font-medium text-gray-900 truncate" title={user.email}>{user.email}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">
                           {user.isGoogle ? "Google Account" : "Email Account"}
                         </div>
                       </div>
                       
                       <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-[#243044] transition-colors duration-200"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setMenuOpen(false)}
                       >
                         <User2 className="h-4 w-4" />
                         Impostazioni
                       </Link>
                       
-                      <div className="border-t border-[#243044] my-1"></div>
+                      <div className="border-t border-gray-100 my-1"></div>
                       
                       <button
-                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors duration-200 ${
+                        className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                           isLoggingOut 
-                            ? 'text-slate-500 bg-[#243044] cursor-not-allowed' 
-                            : 'text-red-400 hover:bg-red-500/10'
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-red-600 hover:bg-red-50'
                         }`}
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
                         {isLoggingOut ? (
                           <>
-                            <div className="h-4 w-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="h-4 w-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
                             Disconnessione...
                           </>
                         ) : (
@@ -382,7 +319,7 @@ export default function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-colors font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563EB] text-white hover:bg-blue-700 transition-colors text-sm font-medium"
               >
                 <LogIn className="h-4 w-4" />
                 Accedi
@@ -391,7 +328,7 @@ export default function SiteHeader() {
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 rounded-xl hover:bg-white/10 transition-colors duration-200 text-white"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -401,18 +338,18 @@ export default function SiteHeader() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="lg:hidden border-t border-[#243044] py-4">
-            <div className="flex flex-col gap-2">
+          <div className="lg:hidden border-t border-gray-200 py-3">
+            <div className="flex flex-col gap-1">
               {NAV.map((item) => {
                 const active = item.match ? item.match(pathname) : pathname === item.href;
                 return (
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       active
-                        ? "text-emerald-400 bg-emerald-500/10"
-                        : "text-slate-300 hover:text-white hover:bg-white/5"
+                        ? "text-[#2563EB] bg-blue-50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     }`}
                   >
                     {item.label}
