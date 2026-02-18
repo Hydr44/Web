@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { generateStaffToken } from '@/lib/staff-auth';
+import { checkRateLimit, getRateLimitIdentifier, logSecurityEvent, validateEmail } from '@/lib/security';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +15,9 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const userAgent = req.headers.get('user-agent') || '';
+
   try {
     const { email, password } = await req.json();
 
@@ -21,6 +25,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Email e password sono obbligatori' },
         { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Validate email format
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return NextResponse.json(
+        { success: false, error: emailValidation.errors[0] },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Rate limiting - max 5 tentativi per IP in 15 minuti
+    const rateLimitId = getRateLimitIdentifier(req, 'combined', email);
+    const rateLimit = await checkRateLimit(rateLimitId, 5, 15 * 60 * 1000);
+    
+    if (!rateLimit.allowed) {
+      const minutesRemaining = Math.ceil((rateLimit.resetAt - Date.now()) / 60000);
+      
+      await logSecurityEvent({
+        type: 'rate_limit_exceeded',
+        email,
+        ip_address: ip,
+        user_agent: userAgent,
+        metadata: { endpoint: 'staff_login', remaining_minutes: minutesRemaining },
+      });
+
+      return NextResponse.json(
+        { success: false, error: `Troppi tentativi. Riprova tra ${minutesRemaining} minuti.` },
+        { status: 429, headers: corsHeaders }
       );
     }
 
@@ -48,6 +82,15 @@ export async function POST(req: NextRequest) {
     // Verify password
     const passwordValid = await bcrypt.compare(password, staff.password_hash);
     if (!passwordValid) {
+      // Log failed attempt
+      await logSecurityEvent({
+        type: 'login_failed',
+        email: staff.email,
+        ip_address: ip,
+        user_agent: userAgent,
+        metadata: { reason: 'invalid_password', endpoint: 'staff_login' },
+      });
+
       return NextResponse.json(
         { success: false, error: 'Credenziali non valide' },
         { status: 401, headers: corsHeaders }
@@ -62,8 +105,17 @@ export async function POST(req: NextRequest) {
       full_name: staff.full_name,
     });
 
+    // Log successful login
+    await logSecurityEvent({
+      type: 'login_success',
+      user_id: staff.id,
+      email: staff.email,
+      ip_address: ip,
+      user_agent: userAgent,
+      metadata: { role: staff.role, endpoint: 'staff_login' },
+    });
+
     // Update last login
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     await supabaseAdmin
       .from('staff')
       .update({ last_login_at: new Date().toISOString(), last_login_ip: ip })

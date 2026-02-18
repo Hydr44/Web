@@ -132,25 +132,6 @@ export default function StaffLoginPage() {
               Accedi
             </button>
           </form>
-
-              {/* Staff Credentials */}
-              <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-200">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Credenziali Staff:</h3>
-                <div className="space-y-2 text-xs text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600" />
-                    <span><strong>Admin:</strong> haxiesz@gmail.com / AdminStaff2024!</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-gray-400" />
-                    <span><strong>Marketing:</strong> marketing@rescuemanager.eu / MarketingStaff2024!</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-gray-400" />
-                    <span><strong>Support:</strong> support@rescuemanager.eu / SupportStaff2024!</span>
-                  </div>
-                </div>
-              </div>
         </div>
 
         {/* Footer */}
