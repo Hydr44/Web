@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Design Systems Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .design-1 { font-family: 'Inter', sans-serif; }
+        .design-2 { font-family: 'Space Grotesk', sans-serif; }
+        .design-3 { font-family: 'DM Sans', sans-serif; }
+        .design-4 { font-family: 'Outfit', sans-serif; }
+        .design-5 { font-family: 'Inter', sans-serif; }
+        .design-6 { font-family: 'Space Grotesk', sans-serif; }
+        
+        .nav-fixed { position: sticky; top: 0; z-index: 50; background: white; border-bottom: 1px solid #e5e7eb; }
+        .preview-section { min-height: 100vh; padding: 4rem 2rem; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Navigation -->
+    <nav class="nav-fixed">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold text-gray-900">RescueManager Design Systems</h1>
+                <div class="flex gap-2">
+                    <a href="#design1" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D1</a>
+                    <a href="#design2" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D2</a>
+                    <a href="#design3" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D3</a>
+                    <a href="#design4" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D4</a>
+                    <a href="#design5" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D5</a>
+                    <a href="#design6" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D6</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DESIGN 1: Modern Automotive (Bold & Clean) -->
+    <section id="design1" class="preview-section design-1 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-4 bg-white rounded-xl shadow-sm border border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Design 1: Modern Automotive</h2>
+                <p class="text-gray-600 mb-3">Bold, pulito, professionale. Font Inter, spaziatura generosa, cards con ombre soft.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">Blu #2563eb</span>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">Arancione #ea580c</span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium">Font: Inter</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-white rounded-3xl shadow-2xl p-12 mb-8">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold mb-6 border border-blue-200">
+                    <span>⚡</span> Software per autodemolizioni e soccorso stradale
+                </div>
+                <h1 class="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+                    Gestisci tutto<br/>
+                    <span class="text-blue-600">dal primo soccorso</span><br/>
+                    alla radiazione
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl leading-relaxed">
+                    RVFU, SDI, RENTRI integrati. Dispatch, fatturazione, registro rifiuti. Un solo gestionale per tutta la tua attività.
+                </p>
+                <div class="flex gap-4">
+                    <button class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-2xl shadow-lg shadow-blue-600/30 transition-all hover:scale-105">
+                        Richiedi demo →
+                    </button>
+                    <button class="px-8 py-4 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-bold rounded-2xl transition-all">
+                        Scopri i moduli
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-4">🚗</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Soccorso Stradale</h3>
+                    <p class="text-gray-600 mb-4">Dispatch in tempo reale, GPS tracking, app mobile per autisti</p>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center gap-2"><span class="text-blue-600 font-bold">✓</span> Mappa in tempo reale</li>
+                        <li class="flex items-center gap-2"><span class="text-blue-600 font-bold">✓</span> Rapportini digitali</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="w-14 h-14 bg-orange-600 rounded-2xl flex items-center justify-center text-3xl mb-4">📄</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Demolizioni RVFU</h3>
+                    <p class="text-gray-600 mb-4">Radiazioni certificate, fascicolo digitale, invio automatico</p>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center gap-2"><span class="text-orange-600 font-bold">✓</span> Certificati demolizione</li>
+                        <li class="flex items-center gap-2"><span class="text-orange-600 font-bold">✓</span> Integrazione ACI</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center text-3xl mb-4">💰</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Fatturazione SDI</h3>
+                    <p class="text-gray-600 mb-4">XML automatico, invio SDI, gestione incassi e solleciti</p>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> FatturaPA compliant</li>
+                        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Bollo e ritenute</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 2: Tech Industrial (Angular & Strong) -->
+    <section id="design2" class="preview-section design-2 bg-gradient-to-br from-gray-900 to-slate-800 text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <h2 class="text-2xl font-bold mb-2">Design 2: Tech Industrial</h2>
+                <p class="text-slate-300 mb-3">Dark mode, angoli vivi, font Space Grotesk, stile tech/automotive forte.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-cyan-900 text-cyan-300 rounded font-medium">Cyan #06b6d4</span>
+                    <span class="px-3 py-1 bg-yellow-900 text-yellow-300 rounded font-medium">Giallo #eab308</span>
+                    <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded font-medium">Font: Space Grotesk</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-slate-800 border-2 border-cyan-500 rounded-none p-12 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500 text-sm font-bold mb-6 uppercase tracking-wider">
+                        SISTEMA INTEGRATO
+                    </div>
+                    <h1 class="text-6xl font-bold mb-6 leading-tight uppercase tracking-tight">
+                        RESCUE<br/>
+                        <span class="text-cyan-400">MANAGER</span><br/>
+                        PRO
+                    </h1>
+                    <p class="text-xl text-slate-300 mb-8 max-w-2xl font-medium">
+                        Piattaforma completa per autodemolizioni. RVFU + SDI + RENTRI. Zero carta, massima efficienza.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-gray-900 text-lg font-bold uppercase tracking-wide transition-all">
+                            DEMO GRATUITA
+                        </button>
+                        <button class="px-8 py-4 border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 text-lg font-bold uppercase tracking-wide transition-all">
+                            DOCUMENTAZIONE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-slate-800 border-l-4 border-cyan-500 p-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-cyan-500 flex items-center justify-center text-2xl font-bold text-gray-900">01</div>
+                        <h3 class="text-2xl font-bold uppercase">Dispatch</h3>
+                    </div>
+                    <p class="text-slate-300">Gestione chiamate, assegnazione autisti, tracking GPS in tempo reale</p>
+                </div>
+                <div class="bg-slate-800 border-l-4 border-yellow-500 p-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-yellow-500 flex items-center justify-center text-2xl font-bold text-gray-900">02</div>
+                        <h3 class="text-2xl font-bold uppercase">Radiazioni</h3>
+                    </div>
+                    <p class="text-slate-300">Certificati demolizione, fascicolo digitale, integrazione RVFU</p>
+                </div>
+                <div class="bg-slate-800 border-l-4 border-green-500 p-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-green-500 flex items-center justify-center text-2xl font-bold text-gray-900">03</div>
+                        <h3 class="text-2xl font-bold uppercase">Fatture</h3>
+                    </div>
+                    <p class="text-slate-300">FatturaPA XML, invio automatico SDI, gestione pagamenti</p>
+                </div>
+                <div class="bg-slate-800 border-l-4 border-purple-500 p-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-purple-500 flex items-center justify-center text-2xl font-bold text-gray-900">04</div>
+                        <h3 class="text-2xl font-bold uppercase">Rifiuti</h3>
+                    </div>
+                    <p class="text-slate-300">Registro RENTRI, formulari digitali, tracciabilità completa</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 3: Minimal Elegant (Light & Airy) -->
+    <section id="design3" class="preview-section design-3 bg-white">
+        <div class="max-w-5xl mx-auto">
+            <div class="mb-12 pb-6 border-b-2 border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Design 3: Minimal Elegant</h2>
+                <p class="text-gray-600 mb-3">Minimalista, elegante, molto spazio bianco. Font DM Sans, linee sottili.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full">Indigo #4f46e5</span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">Font: DM Sans</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="mb-20 text-center">
+                <p class="text-sm text-indigo-600 font-medium mb-4 tracking-wider uppercase">Software per autodemolizioni</p>
+                <h1 class="text-7xl font-light text-gray-900 mb-8 leading-tight tracking-tight">
+                    Semplifica<br/>
+                    <span class="font-semibold text-indigo-600">ogni processo</span>
+                </h1>
+                <p class="text-lg text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    Dal soccorso alla radiazione, dalla fattura al registro rifiuti.<br/>Un gestionale pensato per te.
+                </p>
+                <div class="flex gap-6 justify-center">
+                    <button class="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-full transition-colors">
+                        Inizia ora
+                    </button>
+                    <button class="px-10 py-4 text-gray-700 hover:text-gray-900 font-medium underline underline-offset-4">
+                        Scopri di più
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">🚗</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Soccorso</h3>
+                    <p class="text-gray-500 leading-relaxed">Dispatch intelligente e tracking GPS</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">📄</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Demolizioni</h3>
+                    <p class="text-gray-500 leading-relaxed">Radiazioni RVFU certificate</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">💰</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Fatturazione</h3>
+                    <p class="text-gray-500 leading-relaxed">SDI automatico e compliant</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 4: Vibrant Energy (Colorful & Dynamic) -->
+    <section id="design4" class="preview-section design-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-4 bg-white rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Design 4: Vibrant Energy</h2>
+                <p class="text-gray-600 mb-3">Colorato, dinamico, giovane. Font Outfit, gradienti vivaci, energia.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium">Gradiente</span>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">Arancione</span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium">Font: Outfit</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-600 rounded-3xl p-12 mb-8 text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-bold mb-6">
+                        ⚡ INNOVAZIONE AUTOMOTIVE
+                    </div>
+                    <h1 class="text-6xl font-extrabold mb-6 leading-tight">
+                        Il futuro della<br/>
+                        gestione<br/>
+                        <span class="text-yellow-300">autodemolizioni</span>
+                    </h1>
+                    <p class="text-xl text-white/90 mb-8 max-w-2xl font-medium">
+                        Tecnologia all'avanguardia per soccorso, demolizioni e fatturazione. Tutto integrato, tutto semplice.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-4 bg-white text-purple-600 text-lg font-bold rounded-2xl shadow-xl hover:scale-105 transition-transform">
+                            Prova gratis 30 giorni
+                        </button>
+                        <button class="px-8 py-4 bg-white/20 backdrop-blur-sm border-2 border-white text-white text-lg font-bold rounded-2xl hover:bg-white/30 transition-all">
+                            Guarda il video
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow">
+                    <div class="text-4xl mb-4">🚨</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Soccorso 24/7</h3>
+                    <p class="text-sm text-gray-600">Dispatch e tracking</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow">
+                    <div class="text-4xl mb-4">🔧</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Demolizioni</h3>
+                    <p class="text-sm text-gray-600">RVFU integrato</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Fatturazione</h3>
+                    <p class="text-sm text-gray-600">SDI automatico</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow">
+                    <div class="text-4xl mb-4">♻️</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">RENTRI</h3>
+                    <p class="text-sm text-gray-600">Registro rifiuti</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 5: Corporate Professional (Blue Trust) -->
+    <section id="design5" class="preview-section design-5 bg-gradient-to-br from-blue-900 to-slate-900 text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-4 bg-blue-800/50 backdrop-blur-sm rounded-xl border border-blue-700">
+                <h2 class="text-2xl font-bold mb-2">Design 5: Corporate Professional</h2>
+                <p class="text-blue-200 mb-3">Istituzionale, affidabile, corporate. Blu navy, struttura solida.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-blue-700 text-blue-100 rounded-full font-medium">Navy #1e3a8a</span>
+                    <span class="px-3 py-1 bg-sky-700 text-sky-100 rounded-full font-medium">Sky #0284c7</span>
+                    <span class="px-3 py-1 bg-blue-800 text-blue-200 rounded-full font-medium">Font: Inter</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-gradient-to-r from-blue-800 to-blue-900 rounded-2xl p-12 mb-8 border border-blue-700">
+                <div class="max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 text-sky-300 border border-sky-500 rounded-lg text-sm font-semibold mb-6">
+                        SOLUZIONE ENTERPRISE
+                    </div>
+                    <h1 class="text-5xl font-bold mb-6 leading-tight">
+                        La piattaforma completa<br/>
+                        per <span class="text-sky-400">autodemolizioni</span><br/>
+                        e soccorso stradale
+                    </h1>
+                    <p class="text-xl text-blue-200 mb-8 leading-relaxed">
+                        Integrazioni governative certificate. RVFU, SDI, RENTRI. Conforme alle normative italiane. Supporto dedicato.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white text-lg font-semibold rounded-xl transition-colors">
+                            Richiedi preventivo
+                        </button>
+                        <button class="px-8 py-4 border-2 border-sky-500 text-sky-400 hover:bg-sky-500/10 text-lg font-semibold rounded-xl transition-all">
+                            Documentazione tecnica
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-blue-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-700">
+                    <div class="text-4xl font-bold text-sky-400 mb-2">RVFU</div>
+                    <p class="text-blue-200 text-sm">Radiazioni certificate</p>
+                </div>
+                <div class="bg-blue-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-700">
+                    <div class="text-4xl font-bold text-sky-400 mb-2">SDI</div>
+                    <p class="text-blue-200 text-sm">Fatturazione elettronica</p>
+                </div>
+                <div class="bg-blue-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-700">
+                    <div class="text-4xl font-bold text-sky-400 mb-2">RENTRI</div>
+                    <p class="text-blue-200 text-sm">Registro rifiuti</p>
+                </div>
+                <div class="bg-blue-800/50 backdrop-blur-sm rounded-xl p-6 border border-blue-700">
+                    <div class="text-4xl font-bold text-sky-400 mb-2">24/7</div>
+                    <p class="text-blue-200 text-sm">Cloud sicuro</p>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-blue-800/30 backdrop-blur-sm rounded-xl p-8 border border-blue-700">
+                    <h3 class="text-2xl font-bold mb-4">Gestione Operativa</h3>
+                    <ul class="space-y-3 text-blue-200">
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> Dispatch e tracking GPS</li>
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> App mobile autisti</li>
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> Calendario turni</li>
+                    </ul>
+                </div>
+                <div class="bg-blue-800/30 backdrop-blur-sm rounded-xl p-8 border border-blue-700">
+                    <h3 class="text-2xl font-bold mb-4">Conformità Normativa</h3>
+                    <ul class="space-y-3 text-blue-200">
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> Certificati demolizione RVFU</li>
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> FatturaPA XML validato</li>
+                        <li class="flex items-center gap-3"><span class="text-sky-400">✓</span> Formulari RENTRI digitali</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 6: Rescue Emergency (Red Action) -->
+    <section id="design6" class="preview-section design-6 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Design 6: Rescue Emergency</h2>
+                <p class="text-gray-600 mb-3">Urgenza, azione, soccorso. Rosso dominante, font Space Grotesk, call-to-action forte.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-red-600 text-white rounded-full font-medium">Rosso #dc2626</span>
+                    <span class="px-3 py-1 bg-yellow-400 text-gray-900 rounded-full font-medium">Giallo #facc15</span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium">Font: Space Grotesk</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-gradient-to-br from-red-600 to-red-700 rounded-3xl p-12 mb-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 text-[20rem] font-bold text-white/5 leading-none">911</div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 text-gray-900 rounded-full text-sm font-bold mb-6 uppercase tracking-wide">
+                        🚨 SISTEMA EMERGENZA
+                    </div>
+                    <h1 class="text-6xl font-extrabold mb-6 leading-tight uppercase">
+                        SOCCORSO<br/>
+                        DEMOLIZIONI<br/>
+                        <span class="text-yellow-400">GESTIONALE</span>
+                    </h1>
+                    <p class="text-xl text-white/90 mb-8 max-w-2xl font-semibold">
+                        Risposta rapida. Gestione efficiente. Tutto sotto controllo. RVFU, SDI, RENTRI integrati.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-lg font-bold rounded-xl uppercase tracking-wide transition-colors shadow-xl">
+                            ATTIVA ORA
+                        </button>
+                        <button class="px-8 py-4 border-2 border-white text-white hover:bg-white/10 text-lg font-bold rounded-xl uppercase tracking-wide transition-all">
+                            INFO
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="border-4 border-red-600 rounded-2xl p-8 hover:bg-red-50 transition-colors">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-xl flex items-center justify-center text-3xl font-bold mb-4">1</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 uppercase">Dispatch</h3>
+                    <p class="text-gray-700 font-medium">Chiamate, assegnazione immediata, GPS tracking live</p>
+                </div>
+                <div class="border-4 border-yellow-400 rounded-2xl p-8 hover:bg-yellow-50 transition-colors">
+                    <div class="w-16 h-16 bg-yellow-400 text-gray-900 rounded-xl flex items-center justify-center text-3xl font-bold mb-4">2</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 uppercase">Radiazioni</h3>
+                    <p class="text-gray-700 font-medium">RVFU certificato, demolizioni veloci, zero errori</p>
+                </div>
+                <div class="border-4 border-gray-900 rounded-2xl p-8 hover:bg-gray-50 transition-colors">
+                    <div class="w-16 h-16 bg-gray-900 text-white rounded-xl flex items-center justify-center text-3xl font-bold mb-4">3</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 uppercase">Fatture</h3>
+                    <p class="text-gray-700 font-medium">SDI automatico, XML validato, incassi tracciati</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="bg-gray-900 text-white py-8">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-gray-400">Quale design ti piace di più? Comunica il numero e lo applicheremo al sito.</p>
+        </div>
+    </div>
+
+</body>
+</html>

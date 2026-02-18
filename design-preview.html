@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Design Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .design-card { transition: all 0.3s ease; }
+        .design-card:hover { transform: translateY(-4px); }
+        .active-design { border: 3px solid #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">RescueManager - Design System Preview</h1>
+        <p class="text-gray-600 mb-8">Clicca su un design per vedere l'anteprima completa</p>
+        
+        <!-- Design Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            
+            <!-- Design 1: Ocean Blue (Professionale) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(1)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">1. Ocean Blue</h3>
+                    <p class="text-sm text-gray-600">Professionale e affidabile</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-blue-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#2563eb</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-cyan-500"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#06b6d4</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-slate-800"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#1e293b</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design 2: Emerald Fresh (Moderno) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(2)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">2. Emerald Fresh</h3>
+                    <p class="text-sm text-gray-600">Fresco e innovativo</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-emerald-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#059669</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-teal-500"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#14b8a6</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-gray-900"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#111827</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design 3: Sunset Orange (Energico) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(3)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">3. Sunset Orange</h3>
+                    <p class="text-sm text-gray-600">Energico e dinamico</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-orange-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#ea580c</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-amber-500"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#f59e0b</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-slate-900"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#0f172a</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design 4: Purple Tech (Tech-forward) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(4)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">4. Purple Tech</h3>
+                    <p class="text-sm text-gray-600">Tecnologico e premium</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-purple-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#9333ea</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-indigo-500"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#6366f1</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-slate-900"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#0f172a</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design 5: Red Power (Forte e deciso) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(5)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">5. Red Power</h3>
+                    <p class="text-sm text-gray-600">Forte e d'impatto</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-red-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#dc2626</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-rose-500"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#f43f5e</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-gray-900"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#111827</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design 6: Navy Corporate (Istituzionale) -->
+            <div class="design-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="showDesign(6)">
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">6. Navy Corporate</h3>
+                    <p class="text-sm text-gray-600">Istituzionale e solido</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg" style="background: #1e3a8a"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Primary</div>
+                            <div class="text-sm font-medium">#1e3a8a</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-sky-600"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Accent</div>
+                            <div class="text-sm font-medium">#0284c7</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg" style="background: #0c1929"></div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500">Dark</div>
+                            <div class="text-sm font-medium">#0c1929</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Area -->
+        <div id="preview-area" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Anteprima Design <span id="design-number"></span></h2>
+                    <button onclick="hidePreview()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium">Chiudi</button>
+                </div>
+                <div id="preview-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const designs = {
+            1: {
+                name: 'Ocean Blue',
+                primary: 'bg-blue-600',
+                primaryHover: 'hover:bg-blue-700',
+                accent: 'bg-cyan-500',
+                accentLight: 'bg-cyan-50',
+                dark: 'bg-slate-800',
+                badge: 'bg-blue-100 text-blue-700 border-blue-200',
+                card: 'bg-blue-50 border-blue-200',
+                icon: 'bg-blue-600 text-white'
+            },
+            2: {
+                name: 'Emerald Fresh',
+                primary: 'bg-emerald-600',
+                primaryHover: 'hover:bg-emerald-700',
+                accent: 'bg-teal-500',
+                accentLight: 'bg-teal-50',
+                dark: 'bg-gray-900',
+                badge: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                card: 'bg-emerald-50 border-emerald-200',
+                icon: 'bg-emerald-600 text-white'
+            },
+            3: {
+                name: 'Sunset Orange',
+                primary: 'bg-orange-600',
+                primaryHover: 'hover:bg-orange-700',
+                accent: 'bg-amber-500',
+                accentLight: 'bg-orange-50',
+                dark: 'bg-slate-900',
+                badge: 'bg-orange-100 text-orange-700 border-orange-200',
+                card: 'bg-orange-50 border-orange-200',
+                icon: 'bg-orange-600 text-white'
+            },
+            4: {
+                name: 'Purple Tech',
+                primary: 'bg-purple-600',
+                primaryHover: 'hover:bg-purple-700',
+                accent: 'bg-indigo-500',
+                accentLight: 'bg-purple-50',
+                dark: 'bg-slate-900',
+                badge: 'bg-purple-100 text-purple-700 border-purple-200',
+                card: 'bg-purple-50 border-purple-200',
+                icon: 'bg-purple-600 text-white'
+            },
+            5: {
+                name: 'Red Power',
+                primary: 'bg-red-600',
+                primaryHover: 'hover:bg-red-700',
+                accent: 'bg-rose-500',
+                accentLight: 'bg-red-50',
+                dark: 'bg-gray-900',
+                badge: 'bg-red-100 text-red-700 border-red-200',
+                card: 'bg-red-50 border-red-200',
+                icon: 'bg-red-600 text-white'
+            },
+            6: {
+                name: 'Navy Corporate',
+                primary: 'bg-blue-900',
+                primaryHover: 'hover:bg-blue-950',
+                accent: 'bg-sky-600',
+                accentLight: 'bg-blue-50',
+                dark: 'bg-slate-900',
+                badge: 'bg-blue-100 text-blue-900 border-blue-200',
+                card: 'bg-blue-50 border-blue-200',
+                icon: 'bg-blue-900 text-white'
+            }
+        };
+
+        function showDesign(num) {
+            const design = designs[num];
+            document.getElementById('design-number').textContent = num;
+            document.getElementById('preview-area').classList.remove('hidden');
+            
+            const content = `
+                <!-- Hero Section -->
+                <div class="mb-8">
+                    <div class="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-4 ${design.badge} font-medium border">
+                        ⚡ Il gestionale per chi demolisce e soccorre
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                        Dalla confisca alla radiazione, <span class="text-transparent bg-clip-text bg-gradient-to-r from-${design.primary.replace('bg-', '')} to-${design.accent.replace('bg-', '')}">tutto in un click</span>
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Soccorso stradale, demolizioni, radiazioni RVFU, fatturazione elettronica SDI e registro RENTRI — un unico software che ti segue dalla chiamata fino all'ultimo documento.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="${design.primary} ${design.primaryHover} text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                            Richiedi demo gratuita →
+                        </button>
+                        <button class="border-2 border-gray-300 hover:border-gray-400 px-6 py-3 rounded-xl font-semibold transition-colors">
+                            Scopri i moduli
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feature Cards -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="p-6 rounded-2xl border ${design.card} hover:shadow-lg transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 rounded-xl ${design.icon}">
+                                🚗
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900">Soccorso & Trasporti</h3>
+                                <p class="text-sm text-gray-600">Dispatch in tempo reale</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-center gap-2">✓ App mobile autisti</li>
+                            <li class="flex items-center gap-2">✓ Rapportini digitali</li>
+                            <li class="flex items-center gap-2">✓ Calendario turni</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 rounded-2xl border ${design.card} hover:shadow-lg transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 rounded-xl ${design.icon}">
+                                📄
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900">Demolizioni & RVFU</h3>
+                                <p class="text-sm text-gray-600">Radiazioni certificate</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-center gap-2">✓ Radiazione veicoli</li>
+                            <li class="flex items-center gap-2">✓ Certificato demolizione</li>
+                            <li class="flex items-center gap-2">✓ Invio a STA</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 rounded-2xl border ${design.card} hover:shadow-lg transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 rounded-xl ${design.icon}">
+                                💰
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900">Fatture & SDI</h3>
+                                <p class="text-sm text-gray-600">Fatturazione automatica</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-center gap-2">✓ FatturaPA XML</li>
+                            <li class="flex items-center gap-2">✓ Invio automatico SDI</li>
+                            <li class="flex items-center gap-2">✓ Gestione incassi</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="p-4 rounded-xl border ${design.card} text-center">
+                        <div class="text-2xl font-bold text-gray-900 mb-1">RVFU</div>
+                        <div class="text-sm text-gray-600">Radiazioni integrate</div>
+                    </div>
+                    <div class="p-4 rounded-xl border ${design.card} text-center">
+                        <div class="text-2xl font-bold text-gray-900 mb-1">SDI</div>
+                        <div class="text-sm text-gray-600">Fatture elettroniche</div>
+                    </div>
+                    <div class="p-4 rounded-xl border ${design.card} text-center">
+                        <div class="text-2xl font-bold text-gray-900 mb-1">RENTRI</div>
+                        <div class="text-sm text-gray-600">Registro rifiuti</div>
+                    </div>
+                    <div class="p-4 rounded-xl border ${design.card} text-center">
+                        <div class="text-2xl font-bold text-gray-900 mb-1">24/7</div>
+                        <div class="text-sm text-gray-600">Cloud sempre attivo</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('preview-content').innerHTML = content;
+            document.getElementById('preview-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hidePreview() {
+            document.getElementById('preview-area').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
