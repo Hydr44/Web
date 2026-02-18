@@ -3,17 +3,17 @@ import { FileText, Shield, CreditCard, Users, AlertTriangle, Scale, Phone } from
 
 export default function TermsOfUsePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-blue-200 px-4 py-2 mb-6 bg-blue-50 text-[#2563EB] font-medium">
             <FileText className="h-4 w-4" />
             Termini d'Uso
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Termini d'Uso</span>
+            <span className="text-gray-900">Termini d'Uso</span>
           </h1>
           
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -27,13 +27,13 @@ export default function TermsOfUsePage() {
 
         {/* Contenuto */}
         <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8">
             
             {/* 1. Accettazione dei termini */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <FileText className="h-4 w-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-[#2563EB]" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">1. Accettazione dei Termini</h2>
               </div>
@@ -217,7 +217,7 @@ export default function TermsOfUsePage() {
               </div>
               <div className="text-gray-700 space-y-4">
                 <p>
-                  La raccolta e l'utilizzo delle tue informazioni personali sono regolati dalla nostra <a href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</a>, che fa parte integrante di questi Termini.
+                  La raccolta e l'utilizzo delle tue informazioni personali sono regolati dalla nostra <a href="/privacy-policy" className="text-[#2563EB] hover:underline">Privacy Policy</a>, che fa parte integrante di questi Termini.
                 </p>
                 <p>
                   Ci impegniamo a proteggere i tuoi dati secondo il GDPR e le normative italiane sulla privacy.
@@ -332,7 +332,7 @@ export default function TermsOfUsePage() {
               <div className="text-gray-700 space-y-4">
                 <p>Per domande riguardo a questi Termini d'Uso, contattaci:</p>
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p><strong>Email:</strong> <a href="mailto:legal@rescuemanager.it" className="text-primary hover:underline">legal@rescuemanager.it</a></p>
+                  <p><strong>Email:</strong> <a href="mailto:legal@rescuemanager.it" className="text-[#2563EB] hover:underline">legal@rescuemanager.it</a></p>
                   <p><strong>Telefono:</strong> +39 02 1234 5678</p>
                   <p><strong>Indirizzo:</strong> Via Roma 123, 20100 Milano, Italia</p>
                 </div>

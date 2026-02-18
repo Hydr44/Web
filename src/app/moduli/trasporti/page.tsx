@@ -3,12 +3,12 @@ import { ArrowLeft, Truck, MapPin, Calendar, Users, BarChart3, CheckCircle2 } fr
 
 export default function TrasportiPage() {
   return (
-    <main className="min-h-screen bg-[#141c27] pt-24 pb-16">
+    <main className="min-h-screen bg-white pt-24 pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back button */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Torna alla home
@@ -16,91 +16,91 @@ export default function TrasportiPage() {
 
         {/* Header */}
         <div className="mb-12">
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/30 mb-6">
-            <Truck className="h-5 w-5 text-blue-400" />
-            <span className="text-sm font-medium text-blue-400">App Base</span>
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-blue-50 border border-blue-200 mb-6">
+            <Truck className="h-5 w-5 text-[#2563EB]" />
+            <span className="text-sm font-medium text-[#2563EB]">App Base</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Gestione Trasporti
           </h1>
-          <p className="text-lg text-slate-400 max-w-3xl">
+          <p className="text-lg text-gray-600 max-w-3xl">
             Sistema completo per la gestione dei trasporti di soccorso stradale e demolizioni, con tracking GPS in tempo reale e dispatch automatico.
           </p>
         </div>
 
         {/* Features grid */}
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="p-6 rounded-xl bg-[#1a2536] border border-[#243044]">
-            <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
-              <MapPin className="h-6 w-6 text-blue-400" />
+          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
+              <MapPin className="h-6 w-6 text-[#2563EB]" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-2">Tracking GPS Live</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Tracking GPS Live</h3>
+            <p className="text-sm text-gray-600">
               Monitora in tempo reale la posizione dei mezzi di soccorso con aggiornamenti automatici ogni 30 secondi. Supporto dispositivi Teltonika, Queclink, Concox e OBD2.
             </p>
           </div>
 
-          <div className="p-6 rounded-xl bg-[#1a2536] border border-[#243044]">
-            <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
-              <Calendar className="h-6 w-6 text-emerald-400" />
+          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center mb-4">
+              <Calendar className="h-6 w-6 text-[#10B981]" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-2">Pianificazione Avanzata</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Pianificazione Avanzata</h3>
+            <p className="text-sm text-gray-600">
               Calendario integrato con vista settimana/mese, assegnazione automatica autisti e mezzi, gestione priorità e ottimizzazione percorsi.
             </p>
           </div>
 
-          <div className="p-6 rounded-xl bg-[#1a2536] border border-[#243044]">
-            <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-purple-400" />
+          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
+              <Users className="h-6 w-6 text-[#2563EB]" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-2">Dispatch Intelligente</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Dispatch Intelligente</h3>
+            <p className="text-sm text-gray-600">
               Assegnazione automatica basata su disponibilità autisti, posizione GPS e tipo di mezzo. Notifiche push istantanee all'app mobile.
             </p>
           </div>
 
-          <div className="p-6 rounded-xl bg-[#1a2536] border border-[#243044]">
-            <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center mb-4">
-              <BarChart3 className="h-6 w-6 text-amber-400" />
+          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
+            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mb-4">
+              <BarChart3 className="h-6 w-6 text-gray-700" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-2">Report e Analytics</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Report e Analytics</h3>
+            <p className="text-sm text-gray-600">
               KPI in tempo reale, statistiche per autista/mezzo, analisi percorsi, tempi medi di intervento e export CSV per analisi avanzate.
             </p>
           </div>
         </div>
 
         {/* Stati trasporto */}
-        <div className="p-6 rounded-xl bg-[#1a2536] border border-[#243044] mb-12">
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">Stati Trasporto</h3>
+        <div className="p-6 rounded-xl bg-gray-50 border border-gray-200 mb-12">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Stati Trasporto</h3>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-              <span className="text-sm text-slate-300">Da Fare</span>
+              <span className="text-sm text-gray-700">Da Fare</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-slate-300">In Corso</span>
+              <span className="text-sm text-gray-700">In Corso</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-              <span className="text-sm text-slate-300">Completato</span>
+              <span className="text-sm text-gray-700">Completato</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-slate-500"></div>
-              <span className="text-sm text-slate-300">In Attesa</span>
+              <span className="text-sm text-gray-700">In Attesa</span>
             </div>
           </div>
         </div>
 
         {/* Incluso in */}
-        <div className="p-6 rounded-xl bg-blue-500/10 border border-blue-500/30">
+        <div className="p-6 rounded-xl bg-blue-50 border border-blue-200">
           <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-blue-400 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-[#2563EB] mt-0.5" />
             <div>
-              <h3 className="text-base font-semibold text-slate-100 mb-2">Incluso in tutti i piani</h3>
-              <p className="text-sm text-slate-400">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Incluso in tutti i piani</h3>
+              <p className="text-sm text-gray-600">
                 Il modulo Trasporti fa parte dell'App Base ed è incluso in tutti i piani: Starter, Professional, Business e Full.
               </p>
             </div>
@@ -117,7 +117,7 @@ export default function TrasportiPage() {
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#243044] bg-[#1a2536] text-slate-300 font-medium hover:bg-[#243044] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
           >
             Scopri altri moduli
           </Link>

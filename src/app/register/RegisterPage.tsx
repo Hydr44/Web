@@ -78,7 +78,7 @@ export default function RegisterPage() {
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-blue-50 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
         
         <div className="rm-container relative z-10">
@@ -94,7 +94,7 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-blue-400 font-medium"
+                className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-blue-200 px-3 py-1.5 mb-6 bg-blue-50 text-blue-400 font-medium"
               >
                 <UserPlus className="h-3 w-3" />
                 Registrazione Gratuita
@@ -134,7 +134,7 @@ export default function RegisterPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-[#1a2536] rounded-3xl p-8 shadow-xl border border-[#243044]"
+              className="bg-[#1a2536] rounded-lg p-8 shadow-xl border border-[#243044]"
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-slate-100 mb-2">

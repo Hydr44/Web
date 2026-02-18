@@ -3,17 +3,17 @@ import { Cookie, Settings, Shield, Eye, Database, Clock, Users } from "lucide-re
 
 export default function CookiePolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-blue-200 px-4 py-2 mb-6 bg-blue-50 text-[#2563EB] font-medium">
             <Cookie className="h-4 w-4" />
             Cookie Policy
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Cookie Policy</span>
+            <span className="text-gray-900">Cookie Policy</span>
           </h1>
           
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -27,13 +27,13 @@ export default function CookiePolicyPage() {
 
         {/* Contenuto */}
         <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8">
             
             {/* 1. Cosa sono i cookie */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Cookie className="h-4 w-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
+                  <Cookie className="h-4 w-4 text-[#2563EB]" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">1. Cosa Sono i Cookie</h2>
               </div>
@@ -186,7 +186,7 @@ export default function CookiePolicyPage() {
                   <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
                     <li><strong>Finalità:</strong> Analisi del traffico e comportamento utenti</li>
                     <li><strong>Durata:</strong> Fino a 2 anni</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://policies.google.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a></li>
+                    <li><strong>Privacy Policy:</strong> <a href="https://policies.google.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a></li>
                   </ul>
                 </div>
 
@@ -196,7 +196,7 @@ export default function CookiePolicyPage() {
                   <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
                     <li><strong>Finalità:</strong> Processamento pagamenti sicuro</li>
                     <li><strong>Durata:</strong> Variabile</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://stripe.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Stripe Privacy Policy</a></li>
+                    <li><strong>Privacy Policy:</strong> <a href="https://stripe.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Stripe Privacy Policy</a></li>
                   </ul>
                 </div>
 
@@ -206,7 +206,7 @@ export default function CookiePolicyPage() {
                   <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
                     <li><strong>Finalità:</strong> Gestione utenti e dati</li>
                     <li><strong>Durata:</strong> Sessione</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://supabase.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a></li>
+                    <li><strong>Privacy Policy:</strong> <a href="https://supabase.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a></li>
                   </ul>
                 </div>
               </div>
@@ -243,8 +243,8 @@ export default function CookiePolicyPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mt-6">5.3 Strumenti di Opt-out</h3>
                 <p>Puoi utilizzare questi strumenti per disabilitare specifici cookie:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Google Analytics:</strong> <a href="https://tools.google.com/dlpage/gaoptout" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out</a></li>
-                  <li><strong>Network Advertising Initiative:</strong> <a href="http://www.networkadvertising.org/choices/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">NAI Opt-out</a></li>
+                  <li><strong>Google Analytics:</strong> <a href="https://tools.google.com/dlpage/gaoptout" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out</a></li>
+                  <li><strong>Network Advertising Initiative:</strong> <a href="http://www.networkadvertising.org/choices/" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">NAI Opt-out</a></li>
                 </ul>
               </div>
             </section>
@@ -299,7 +299,7 @@ export default function CookiePolicyPage() {
               <div className="text-gray-700 space-y-4">
                 <p>Per domande riguardo a questa Cookie Policy, contattaci:</p>
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p><strong>Email:</strong> <a href="mailto:cookies@rescuemanager.it" className="text-primary hover:underline">cookies@rescuemanager.it</a></p>
+                  <p><strong>Email:</strong> <a href="mailto:cookies@rescuemanager.it" className="text-[#2563EB] hover:underline">cookies@rescuemanager.it</a></p>
                   <p><strong>Telefono:</strong> +39 02 1234 5678</p>
                   <p><strong>Indirizzo:</strong> Via Roma 123, 20100 Milano, Italia</p>
                 </div>

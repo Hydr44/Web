@@ -3,17 +3,17 @@ import { Shield, Eye, Lock, Database, Users, Mail, Phone } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-blue-200 px-4 py-2 mb-6 bg-blue-50 text-[#2563EB] font-medium">
             <Shield className="h-4 w-4" />
             Privacy Policy
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Privacy Policy</span>
+            <span className="text-gray-900">Privacy Policy</span>
           </h1>
           
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -27,13 +27,13 @@ export default function PrivacyPolicyPage() {
 
         {/* Contenuto */}
         <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8">
             
             {/* 1. Introduzione */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Eye className="h-4 w-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
+                  <Eye className="h-4 w-4 text-[#2563EB]" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">1. Introduzione</h2>
               </div>
@@ -167,7 +167,7 @@ export default function PrivacyPolicyPage() {
                   <li><strong>Opposizione:</strong> Opporti all'elaborazione delle tue informazioni</li>
                 </ul>
                 <p className="mt-4">
-                  Per esercitare questi diritti, contattaci all'indirizzo: <a href="mailto:privacy@rescuemanager.it" className="text-primary hover:underline">privacy@rescuemanager.it</a>
+                  Per esercitare questi diritti, contattaci all'indirizzo: <a href="mailto:privacy@rescuemanager.it" className="text-[#2563EB] hover:underline">privacy@rescuemanager.it</a>
                 </p>
               </div>
             </section>
@@ -182,7 +182,7 @@ export default function PrivacyPolicyPage() {
               </div>
               <div className="text-gray-700 space-y-4">
                 <p>
-                  Utilizziamo cookie e tecnologie simili per migliorare la tua esperienza. Per maggiori dettagli, consulta la nostra <a href="/cookie-policy" className="text-primary hover:underline">Cookie Policy</a>.
+                  Utilizziamo cookie e tecnologie simili per migliorare la tua esperienza. Per maggiori dettagli, consulta la nostra <a href="/cookie-policy" className="text-[#2563EB] hover:underline">Cookie Policy</a>.
                 </p>
               </div>
             </section>
@@ -213,7 +213,7 @@ export default function PrivacyPolicyPage() {
               <div className="text-gray-700 space-y-4">
                 <p>Per domande riguardo a questa Privacy Policy, contattaci:</p>
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p><strong>Email:</strong> <a href="mailto:privacy@rescuemanager.it" className="text-primary hover:underline">privacy@rescuemanager.it</a></p>
+                  <p><strong>Email:</strong> <a href="mailto:privacy@rescuemanager.it" className="text-[#2563EB] hover:underline">privacy@rescuemanager.it</a></p>
                   <p><strong>Telefono:</strong> +39 02 1234 5678</p>
                   <p><strong>Indirizzo:</strong> Via Roma 123, 20100 Milano, Italia</p>
                 </div>

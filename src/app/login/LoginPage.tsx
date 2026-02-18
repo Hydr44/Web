@@ -85,7 +85,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div
-          className="bg-[#1a2536] rounded-2xl border border-[#243044] p-8"
+          className="bg-[#1a2536] rounded-lg border border-[#243044] p-8"
         >
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-slate-100 mb-2">Accedi al tuo account</h1>
@@ -162,11 +162,11 @@ export default function LoginPage() {
               />
               <label htmlFor="acceptTerms" className="text-sm text-slate-400">
                 Accetto i{" "}
-                <Link href="/terms-of-use" className="text-primary hover:underline">
+                <Link href="/terms-of-use" className="text-[#2563EB] hover:underline">
                   Termini d'Uso
                 </Link>{" "}
                 e la{" "}
-                <Link href="/privacy-policy" className="text-primary hover:underline">
+                <Link href="/privacy-policy" className="text-[#2563EB] hover:underline">
                   Privacy Policy
                 </Link>
               </label>
