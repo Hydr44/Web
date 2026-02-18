@@ -127,7 +127,7 @@ export default function SiteHeader() {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? "bg-[#0c1929]/98 backdrop-blur-md shadow-lg shadow-black/20" : "bg-[#0c1929]/95 backdrop-blur-sm"
+      scrolled ? "bg-[#2563EB]/98 backdrop-blur-md shadow-lg shadow-black/20" : "bg-[#2563EB]/95 backdrop-blur-sm"
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
