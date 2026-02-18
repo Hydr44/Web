@@ -197,8 +197,8 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               className="max-w-2xl"
             >
-              <div className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-blue-50 text-blue-600 font-medium border border-blue-200">
-                <Zap className="h-3 w-3" />
+              <div className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-slate-100 text-slate-700 font-medium border border-slate-200">
+                <Zap className="h-3.5 w-3.5" />
               Il gestionale per chi demolisce e soccorre
               </div>
               
@@ -225,7 +225,7 @@ function HomeContent() {
                     key={bullet.text}
                     className="flex items-center gap-3 text-sm text-gray-700"
                   >
-                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                    <div className="p-1.5 rounded-lg bg-slate-100 text-slate-600">
                       <bullet.icon className="h-4 w-4" />
                     </div>
                     <span>{bullet.text}</span>
@@ -312,9 +312,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-slate-200 hover:border-slate-300 transition-colors"
             >
-              <div className="w-20 h-20 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-200 p-3">
+              <div className="w-20 h-20 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200 p-3">
                 <Image 
                   src="/21-9_1320x566_1977.jpg" 
                   alt="ACI Automobile Club Italia" 
@@ -335,9 +335,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-slate-200 hover:border-slate-300 transition-colors"
             >
-              <div className="w-20 h-20 rounded-xl bg-green-50 flex items-center justify-center border border-green-200 p-3">
+              <div className="w-20 h-20 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200 p-3">
                 <Image 
                   src="/logo-rentri.png" 
                   alt="Registro Rentri" 
@@ -358,9 +358,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.3 }}
-              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-slate-200 hover:border-slate-300 transition-colors"
             >
-              <div className="w-20 h-20 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-200 p-3">
+              <div className="w-20 h-20 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200 p-3">
                 <Image 
                   src="/download.jpg" 
                   alt="Agenzia delle Entrate" 
@@ -381,9 +381,9 @@ function HomeContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.4 }}
-              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-gray-100"
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white shadow-sm border border-slate-200 hover:border-slate-300 transition-colors"
             >
-              <div className="w-20 h-20 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200">
+              <div className="w-20 h-20 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200">
                 <svg width="40" height="40" viewBox="0 0 40 40" className="text-gray-400">
                   <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="2"/>
                   <path d="M20 12 L20 28 M12 20 L28 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -420,21 +420,18 @@ function HomeContent() {
                 icon: Clock, 
                 title: "Soccorso & Trasporti", 
                 desc: "Dispatch su mappa, autisti, rapportini con foto e firma, GPS.",
-                color: "blue",
                 features: ["Dispatch in tempo reale", "App mobile autisti", "Rapportini digitali", "Calendario turni"]
               },
               { 
                 icon: FileText, 
                 title: "Demolizioni & RVFU", 
                 desc: "Radiazioni, certificati di demolizione, fascicolo digitale del veicolo.",
-                color: "green",
                 features: ["Radiazione veicoli", "Certificato demolizione", "Ricerca PRA", "Invio a STA"]
               },
               { 
                 icon: BarChart3, 
                 title: "Fatture & SDI", 
                 desc: "Fatturazione elettronica XML, invio SDI, incassi e solleciti.",
-                color: "purple",
                 features: ["FatturaPA XML", "Invio automatico SDI", "Gestione incassi", "Bollo e ritenute"]
               },
             ].map((feature, i) => (
@@ -444,18 +441,10 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`p-8 rounded-2xl border ${
-                  feature.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
-                  feature.color === 'green' ? 'bg-green-50/50 border-green-200' :
-                  'bg-purple-50/50 border-purple-200'
-                }`}
+                className="p-8 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg transition-all"
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`p-3 rounded-xl text-white ${
-                    feature.color === 'blue' ? 'bg-blue-600' :
-                    feature.color === 'green' ? 'bg-green-600' :
-                    'bg-purple-600'
-                  }`}>
+                  <div className="p-3 rounded-xl bg-slate-900 text-white">
                     <feature.icon className="h-6 w-6" />
                   </div>
                   <div>
@@ -467,11 +456,7 @@ function HomeContent() {
                 <ul className="space-y-3">
                   {feature.features.map((item) => (
                     <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
-                      <CheckCircle2 className={`h-4 w-4 shrink-0 ${
-                        feature.color === 'blue' ? 'text-blue-500' :
-                        feature.color === 'green' ? 'text-green-500' :
-                        'text-purple-500'
-                      }`} />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-slate-600" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -508,15 +493,15 @@ function HomeContent() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-blue-50 text-blue-600 font-medium border border-blue-200"
+                  className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 mb-6 bg-slate-100 text-slate-700 font-medium border border-slate-200"
                 >
-                  <Shield className="h-3 w-3" />
+                  <Shield className="h-3.5 w-3.5" />
                   Tutto il ciclo, zero carta
                 </motion.div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Confische, sequestri e deposito{" "}
-                  <span className="text-blue-600">
+                  <span className="text-primary">
                     sotto controllo
                   </span>
                 </h2>
@@ -540,7 +525,7 @@ function HomeContent() {
                       transition={{ duration: 0.3, delay: 0.4 + i * 0.1 }}
                       className="flex items-center gap-3 text-gray-700"
                     >
-                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                      <div className="p-2 rounded-lg bg-slate-100 text-slate-600">
                         <item.icon className="h-4 w-4" />
                       </div>
                       <span>{item.text}</span>
@@ -557,7 +542,7 @@ function HomeContent() {
                 >
                   <SmoothScrollLink 
                     href="#product" 
-                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-all duration-300"
+                    className="group inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all duration-300"
                   >
                   Vedi i moduli
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -618,28 +603,24 @@ function HomeContent() {
                 value: "RVFU", 
                 label: "Radiazioni integrate", 
                 Icon: Car,
-                color: "red",
                 description: "Radia i veicoli direttamente dal gestionale"
               },
               { 
                 value: "SDI", 
                 label: "Fatture elettroniche", 
                 Icon: Receipt,
-                color: "green",
                 description: "Invio automatico all'Agenzia delle Entrate"
               },
               { 
                 value: "RENTRI", 
                 label: "Registro rifiuti", 
                 Icon: Recycle,
-                color: "blue",
                 description: "Tracciabilità rifiuti a norma di legge"
               },
               { 
                 value: "24/7", 
                 label: "Sempre disponibile", 
                 Icon: Cloud,
-                color: "purple",
                 description: "Cloud, accessibile da qualsiasi dispositivo"
               },
             ].map((stat, i) => (
@@ -649,33 +630,13 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`p-6 rounded-2xl border ${
-                  stat.color === 'red' ? 'bg-red-50 border-red-200' :
-                  stat.color === 'green' ? 'bg-green-50 border-green-200' :
-                  stat.color === 'blue' ? 'bg-blue-50 border-blue-200' :
-                  'bg-purple-50 border-purple-200'
-                }`}
+                className="p-6 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg transition-all"
               >
                 <div className="text-center">
-                  <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${
-                    stat.color === 'red' ? 'bg-red-100' :
-                    stat.color === 'green' ? 'bg-green-100' :
-                    stat.color === 'blue' ? 'bg-blue-100' :
-                    'bg-purple-100'
-                  }`}>
-                    <stat.Icon className={`h-6 w-6 ${
-                      stat.color === 'red' ? 'text-red-600' :
-                      stat.color === 'green' ? 'text-green-600' :
-                      stat.color === 'blue' ? 'text-blue-600' :
-                      'text-purple-600'
-                    }`} />
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center bg-slate-100">
+                    <stat.Icon className="h-6 w-6 text-slate-700" />
                   </div>
-                  <div className={`text-2xl font-bold mb-1 ${
-                    stat.color === 'red' ? 'text-red-600' :
-                    stat.color === 'green' ? 'text-green-600' :
-                    stat.color === 'blue' ? 'text-blue-600' :
-                    'text-purple-600'
-                  }`}>
+                  <div className="text-2xl font-bold mb-1 text-gray-900">
                     {stat.value}
                   </div>
                   <div className="text-sm font-semibold text-gray-900 mb-1">{stat.label}</div>
@@ -742,10 +703,10 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="rounded-2xl border border-gray-200 p-6 bg-white"
+                className="rounded-2xl border border-slate-200 p-6 bg-white hover:border-slate-300 hover:shadow-md transition-all"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <div className="p-2 rounded-lg bg-slate-100 text-slate-600">
                     <faq.icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -796,20 +757,17 @@ function HomeContent() {
               {
                 title: "Modulo RVFU",
                 desc: "Radiazioni veicoli, certificati di demolizione, fascicolo digitale, invio a STA.",
-                icon: Shield,
-                color: "blue"
+                icon: Shield
               },
               {
                 title: "Modulo Fatturazione SDI",
                 desc: "Fatture elettroniche XML, invio automatico SDI, incassi, bollo e ritenute.",
-                icon: FileText,
-                color: "green"
+                icon: FileText
               },
               {
                 title: "Modulo RENTRI",
                 desc: "Registro nazionale tracciabilità rifiuti, formulari, registri di carico/scarico.",
-                icon: BarChart3,
-                color: "purple"
+                icon: BarChart3
               }
             ].map((mod, i) => (
               <motion.div
@@ -818,17 +776,9 @@ function HomeContent() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`p-8 rounded-2xl border ${
-                  mod.color === 'blue' ? 'bg-blue-50/50 border-blue-200' :
-                  mod.color === 'green' ? 'bg-green-50/50 border-green-200' :
-                  'bg-purple-50/50 border-purple-200'
-                }`}
+                className="p-8 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-lg transition-all"
               >
-                <div className={`p-3 rounded-xl w-fit mb-4 ${
-                  mod.color === 'blue' ? 'bg-blue-600' :
-                  mod.color === 'green' ? 'bg-green-600' :
-                  'bg-purple-600'
-                } text-white`}>
+                <div className="p-3 rounded-xl w-fit mb-4 bg-slate-900 text-white">
                   <mod.icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{mod.title}</h3>
@@ -888,7 +838,7 @@ function HomeContent() {
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">
                   Pronto a iniziare?
                 </h3>
-                <p className="text-lg text-blue-100 mb-6">
+                <p className="text-lg text-white/90 mb-6">
                   Scopri come RescueManager può semplificare la gestione della tua attività, dalla prima chiamata all'ultimo documento.
                 </p>
                 
@@ -908,7 +858,7 @@ function HomeContent() {
                   </Link>
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm text-blue-100 mt-4">
+                <div className="flex items-center gap-4 text-sm text-white/80 mt-4">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
                     <span>Demo gratuita</span>
