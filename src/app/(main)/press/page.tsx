@@ -1,244 +1,93 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { 
-  Newspaper, 
-  Calendar, 
-  Download, 
-  ExternalLink,
-  FileText,
-  Users,
-  Award,
-  TrendingUp
-} from "lucide-react";
+import Link from "next/link";
+import { Calendar, Download, FileText, Users } from "lucide-react";
 
 export default function PressPage() {
   const pressReleases = [
-    {
-      date: "2024-12-23",
-      title: "RescueManager lancia la nuova versione 2.0",
-      description: "Miglioramenti significativi per la gestione delle officine di soccorso stradale",
-      category: "Product Launch"
-    },
-    {
-      date: "2024-11-15",
-      title: "Partnership strategica con i principali operatori del settore",
-      description: "Nuove collaborazioni per espandere la rete di servizi",
-      category: "Partnership"
-    },
-    {
-      date: "2024-10-08",
-      title: "RescueManager raggiunge 1000 officine attive",
-      description: "Traguardo importante per la piattaforma di gestione",
-      category: "Milestone"
-    }
+    { date: "2024-12-23", title: "RescueManager lancia la nuova versione 2.0", description: "Miglioramenti significativi per la gestione delle autodemolizioni e soccorso stradale", category: "Prodotto" },
+    { date: "2024-11-15", title: "Partnership strategica con operatori del settore", description: "Nuove collaborazioni per espandere la rete di servizi", category: "Partnership" },
+    { date: "2024-10-08", title: "Integrazione RENTRI completata", description: "RescueManager è tra i primi gestionali a integrare il registro nazionale rifiuti", category: "Integrazione" },
   ];
 
   const mediaKit = [
-    {
-      title: "Logo RescueManager",
-      description: "Logo ufficiale in formato SVG e PNG",
-      format: "SVG, PNG",
-      size: "2.1 MB"
-    },
-    {
-      title: "Immagini prodotto",
-      description: "Screenshot e mockup dell'applicazione",
-      format: "JPG, PNG",
-      size: "15.3 MB"
-    },
-    {
-      title: "Brand Guidelines",
-      description: "Linee guida per l'uso del brand",
-      format: "PDF",
-      size: "3.2 MB"
-    }
+    { title: "Logo RescueManager", description: "Logo ufficiale in formato SVG e PNG", format: "SVG, PNG", size: "2.1 MB" },
+    { title: "Immagini prodotto", description: "Screenshot e mockup dell'applicazione", format: "JPG, PNG", size: "15.3 MB" },
+    { title: "Brand Guidelines", description: "Linee guida per l'uso del brand", format: "PDF", size: "3.2 MB" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30">
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-        
-        <div className="rm-container relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
-            >
-              <Newspaper className="h-3 w-3" />
-              Sala Stampa
-            </motion.div>
-            
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Sala <span className="text-primary">Stampa</span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
-              Tutte le informazioni, i comunicati stampa e i materiali per i media su RescueManager
-            </p>
-          </motion.div>
+    <div className="bg-white">
+      <section className="pt-28 pb-10 bg-gray-50 border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Sala Stampa</h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Comunicati stampa, materiali per i media e informazioni su RescueManager.
+          </p>
         </div>
       </section>
 
-      {/* Press Releases */}
-      <section className="py-16">
-        <div className="rm-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Comunicati Stampa
-            </h2>
-            
-            <div className="space-y-6">
-              {pressReleases.map((release, i) => (
-                <motion.div
-                  key={release.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.1 }}
-                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm font-medium text-primary">{release.category}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(release.date).toLocaleDateString('it-IT')}
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {release.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 mb-4">
-                    {release.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
-                      <FileText className="h-4 w-4" />
-                      Leggi comunicato
-                    </button>
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-gray-700 transition-colors">
-                      <Download className="h-4 w-4" />
-                      Scarica PDF
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Media Kit */}
-      <section className="py-16 bg-gray-50">
-        <div className="rm-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Media Kit
-            </h2>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              {mediaKit.map((item, i) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                    <FileText className="h-6 w-6 text-primary" />
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {item.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 text-sm mb-4">
-                    {item.description}
-                  </p>
-                  
-                  <div className="space-y-2 text-sm text-gray-500">
-                    <div className="flex justify-between">
-                      <span>Formato:</span>
-                      <span className="font-medium">{item.format}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Dimensione:</span>
-                      <span className="font-medium">{item.size}</span>
-                    </div>
-                  </div>
-                  
-                  <button className="w-full mt-4 py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
-                    <Download className="h-4 w-4" />
-                    Scarica
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact */}
-      <section className="py-16">
-        <div className="rm-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              Contatti Stampa
-            </h2>
-            
-            <p className="text-lg text-gray-600 mb-8">
-              Per richieste di informazioni, interviste o materiali aggiuntivi
-            </p>
-            
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Users className="h-6 w-6 text-primary" />
-                <span className="text-lg font-semibold text-gray-900">Ufficio Stampa</span>
+      <section className="py-14">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Comunicati stampa</h2>
+          <div className="space-y-5">
+            {pressReleases.map((r) => (
+              <div key={r.title} className="rounded-lg p-6 border border-gray-200 hover:shadow-sm transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-medium text-[#2563EB] bg-blue-50 px-2 py-1 rounded">{r.category}</span>
+                  <span className="text-xs text-gray-500 flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {new Date(r.date).toLocaleDateString('it-IT')}</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{r.title}</h3>
+                <p className="text-sm text-gray-600 mb-3">{r.description}</p>
+                <div className="flex items-center gap-4 text-sm">
+                  <button className="flex items-center gap-1.5 text-[#2563EB] hover:underline"><FileText className="h-4 w-4" /> Leggi</button>
+                  <button className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700"><Download className="h-4 w-4" /> PDF</button>
+                </div>
               </div>
-              
-              <div className="space-y-3 text-gray-600">
-                <p>Email: press@rescuemanager.eu</p>
-                <p>Telefono: +39 02 1234 5678</p>
-                <p>Orari: Lun-Ven 9:00-18:00</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 bg-gray-50 border-y border-gray-200">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Media Kit</h2>
+          <div className="grid md:grid-cols-3 gap-5">
+            {mediaKit.map((item) => (
+              <div key={item.title} className="bg-white rounded-lg p-5 border border-gray-200">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                  <FileText className="h-5 w-5 text-gray-700" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1 text-sm">{item.title}</h3>
+                <p className="text-xs text-gray-600 mb-3">{item.description}</p>
+                <div className="text-xs text-gray-500 space-y-1 mb-3">
+                  <div className="flex justify-between"><span>Formato:</span><span className="font-medium">{item.format}</span></div>
+                  <div className="flex justify-between"><span>Dimensione:</span><span className="font-medium">{item.size}</span></div>
+                </div>
+                <button className="w-full py-2 px-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5 text-sm">
+                  <Download className="h-3.5 w-3.5" /> Scarica
+                </button>
               </div>
-              
-              <button className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors">
-                <ExternalLink className="h-4 w-4" />
-                Contatta ora
-              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14">
+        <div className="max-w-2xl mx-auto px-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Contatti stampa</h2>
+          <div className="rounded-lg p-6 border border-gray-200">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Users className="h-5 w-5 text-gray-400" />
+              <span className="font-semibold text-gray-900">Ufficio Stampa</span>
             </div>
-          </motion.div>
+            <div className="space-y-1 text-sm text-gray-600 mb-4">
+              <p>Email: info@rescuemanager.eu</p>
+              <p>Telefono: 392 172 3028</p>
+              <p>Orari: Lun-Ven 9:00-18:00</p>
+            </div>
+            <Link href="/contatti" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              Contattaci
+            </Link>
+          </div>
         </div>
       </section>
     </div>
