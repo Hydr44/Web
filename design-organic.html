@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Design Organico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Colori dal logo */
+        :root {
+            --primary-blue: #2563EB;
+            --accent-green: #10B981;
+            --dark: #1F2937;
+        }
+        
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: 2px solid #E5E7EB;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        
+        .feature-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #EFF6FF;
+            color: var(--primary-blue);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header semplice -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 relative">
+                        <!-- Simbolo volante + fulmine semplificato -->
+                        <svg viewBox="0 0 40 40" class="w-full h-full">
+                            <circle cx="20" cy="20" r="18" fill="none" stroke="#2563EB" stroke-width="3"/>
+                            <circle cx="20" cy="20" r="4" fill="#2563EB"/>
+                            <path d="M24 16 L18 24 L20 24 L16 28" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-blue-600">Rescue</span>
+                        <span class="text-xl font-bold text-gray-900">Manager</span>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#funzioni" class="text-gray-600 hover:text-gray-900 font-medium">Funzioni</a>
+                    <a href="#moduli" class="text-gray-600 hover:text-gray-900 font-medium">Moduli</a>
+                    <a href="#prezzi" class="text-gray-600 hover:text-gray-900 font-medium">Prezzi</a>
+                    <a href="#contatti" class="btn-primary text-sm">Richiedi demo</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero - Semplice e diretto -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-3xl">
+                <div class="badge mb-6">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 0L10 6H16L11 10L13 16L8 12L3 16L5 10L0 6H6L8 0Z"/>
+                    </svg>
+                    Software per autodemolizioni e soccorso stradale
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                    Gestisci tutto,<br/>
+                    dalla chiamata<br/>
+                    alla radiazione
+                </h1>
+                
+                <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                    Soccorso stradale, demolizioni RVFU, fatturazione SDI e registro RENTRI.<br/>
+                    Un solo gestionale, zero complicazioni.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn-primary">
+                        Prova gratis 30 giorni
+                    </button>
+                    <button class="btn-secondary">
+                        Guarda come funziona
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-6 mt-8 text-sm text-gray-500">
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                            <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                        </svg>
+                        Nessuna carta di credito
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                            <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                        </svg>
+                        Setup gratuito
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integrazioni - Semplice -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Integrato con</p>
+                <h2 class="text-2xl font-bold text-gray-900">I sistemi governativi italiani</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-white rounded-xl border border-gray-200 flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl font-bold text-blue-600">ACI</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">RVFU</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-white rounded-xl border border-gray-200 flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl font-bold text-green-600">SDI</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">Fatturazione</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-white rounded-xl border border-gray-200 flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl font-bold text-purple-600">REN</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">RENTRI</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-white rounded-xl border border-gray-200 flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl font-bold text-gray-400">+</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">Altri</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Funzioni principali - Card semplici -->
+    <section id="funzioni" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-2xl mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Tre moduli, un solo software
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Tutto quello che ti serve per gestire soccorso, demolizioni e amministrazione.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Soccorso stradale</h3>
+                    <p class="text-gray-600 mb-4">
+                        Dispatch su mappa, assegnazione autisti, tracking GPS, rapportini digitali.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Gestione chiamate
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> App mobile autisti
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Calendario turni
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Demolizioni RVFU</h3>
+                    <p class="text-gray-600 mb-4">
+                        Radiazioni certificate, fascicolo digitale, invio automatico a STA.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Certificati demolizione
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Ricerca PRA
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Integrazione ACI
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="feature-card">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/>
+                            <line x1="2" y1="10" x2="22" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Fatturazione SDI</h3>
+                    <p class="text-gray-600 mb-4">
+                        FatturaPA XML, invio automatico SDI, gestione incassi e solleciti.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> XML validato
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Invio automatico
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-green-500">✓</span> Bollo e ritenute
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA semplice -->
+    <section class="py-20 bg-blue-600">
+        <div class="max-w-4xl mx-auto px-6 text-center text-white">
+            <h2 class="text-4xl font-bold mb-4">
+                Pronto a semplificare il tuo lavoro?
+            </h2>
+            <p class="text-xl text-blue-100 mb-8">
+                Prova RescueManager gratis per 30 giorni. Nessuna carta di credito richiesta.
+            </p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="px-8 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+                    Inizia gratis
+                </button>
+                <button class="px-8 py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 transition-colors">
+                    Parla con noi
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer semplice -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg font-bold text-blue-500">Rescue</span>
+                    <span class="text-lg font-bold text-white">Manager</span>
+                </div>
+                <p class="text-sm">© 2026 RescueManager. Made in Italy.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Design con Identità</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Colori identitari */
+        :root {
+            --primary-blue: #2563EB;
+            --accent-green: #10B981;
+            --dark-navy: #0F172A;
+            --surface-dark: #1E293B;
+        }
+        
+        /* Pattern sottile per dare texture */
+        .pattern-dots {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .pattern-grid {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        /* Accent bar - elemento distintivo */
+        .accent-bar {
+            position: relative;
+        }
+        
+        .accent-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-blue), var(--accent-green));
+        }
+        
+        /* Card con personalità */
+        .feature-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-green));
+            border-radius: 0.75rem 0.75rem 0 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.12);
+        }
+        
+        /* Badge con identità */
+        .badge-rescue {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+        
+        /* Stats con carattere */
+        .stat-card {
+            background: var(--surface-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header con identità - Navy scuro -->
+    <header class="bg-[#0F172A] border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <!-- Logo con più presenza -->
+                    <div class="w-11 h-11 relative">
+                        <svg viewBox="0 0 44 44" class="w-full h-full">
+                            <circle cx="22" cy="22" r="20" fill="none" stroke="#2563EB" stroke-width="3"/>
+                            <circle cx="22" cy="22" r="5" fill="#2563EB"/>
+                            <path d="M26 18 L20 26 L22 26 L18 30" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xl font-bold text-blue-500">Rescue</span>
+                            <span class="text-xl font-bold text-white">Manager</span>
+                        </div>
+                        <div class="text-[10px] text-gray-400 font-medium tracking-wider uppercase">Software Autodemolizioni</div>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="#funzioni" class="text-gray-300 hover:text-white font-medium transition-colors">Funzioni</a>
+                    <a href="#moduli" class="text-gray-300 hover:text-white font-medium transition-colors">Moduli</a>
+                    <a href="#prezzi" class="text-gray-300 hover:text-white font-medium transition-colors">Prezzi</a>
+                    <a href="#contatti" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                        Richiedi demo
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero con personalità - Sfondo navy con pattern -->
+    <section class="bg-[#0F172A] pattern-grid relative overflow-hidden">
+        <!-- Elementi decorativi sottili -->
+        <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-green-600/5 rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 py-24 relative z-10">
+            <div class="max-w-3xl">
+                <div class="badge-rescue mb-8">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                        <path d="M7 0L8.5 5H14L9.5 8.5L11 14L7 10.5L3 14L4.5 8.5L0 5H5.5L7 0Z"/>
+                    </svg>
+                    Integrazioni governative certificate
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                    Dal soccorso<br/>
+                    alla radiazione,<br/>
+                    <span class="bg-gradient-to-r from-blue-500 to-green-500 text-transparent bg-clip-text">tutto sotto controllo</span>
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-10 leading-relaxed">
+                    Gestionale completo per autodemolizioni e soccorso stradale.<br/>
+                    <span class="text-white font-semibold">RVFU, SDI, RENTRI</span> integrati in un'unica piattaforma professionale.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 mb-12">
+                    <button class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all hover:scale-105 shadow-lg shadow-blue-600/20">
+                        Prova gratis 30 giorni
+                    </button>
+                    <button class="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg transition-all">
+                        Guarda demo
+                    </button>
+                </div>
+                
+                <!-- Stats inline -->
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="stat-card">
+                        <div class="relative z-10">
+                            <div class="text-3xl font-bold text-white mb-1">RVFU</div>
+                            <div class="text-sm text-gray-400">Radiazioni ACI</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="relative z-10">
+                            <div class="text-3xl font-bold text-white mb-1">SDI</div>
+                            <div class="text-sm text-gray-400">Fatture elettroniche</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="relative z-10">
+                            <div class="text-3xl font-bold text-white mb-1">RENTRI</div>
+                            <div class="text-sm text-gray-400">Registro rifiuti</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Funzioni con identità -->
+    <section id="funzioni" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-2xl mb-16">
+                <div class="inline-block px-4 py-1 bg-blue-50 text-blue-600 text-sm font-semibold rounded-full mb-4">
+                    Moduli integrati
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Tre anime, un solo gestionale
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Soccorso, demolizioni e amministrazione lavorano insieme. Zero doppioni, massima efficienza.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 - Soccorso -->
+                <div class="feature-card group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">Soccorso</h3>
+                            <p class="text-sm text-gray-500">Dispatch & GPS</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Gestione chiamate, assegnazione autisti, tracking in tempo reale. App mobile dedicata per i conducenti.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Mappa dispatch live</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Rapportini digitali</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Calendario turni</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 - Demolizioni -->
+                <div class="feature-card group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">Demolizioni</h3>
+                            <p class="text-sm text-gray-500">RVFU certificato</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Radiazioni veicoli, certificati di demolizione, fascicolo digitale. Integrazione diretta con ACI.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Certificati automatici</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Ricerca PRA</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Invio a STA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 - Fatture -->
+                <div class="feature-card group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                <line x1="2" y1="10" x2="22" y2="10"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">Fatturazione</h3>
+                            <p class="text-sm text-gray-500">SDI automatico</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        FatturaPA XML, invio automatico SDI, gestione incassi. Bollo virtuale e ritenute d'acconto.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">XML validato</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Invio Agenzia Entrate</div>
+                        </div>
+                        <div class="accent-bar pl-4">
+                            <div class="text-sm font-medium text-gray-700">Solleciti automatici</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA con identità - Navy -->
+    <section class="bg-[#0F172A] pattern-dots py-20 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <div class="inline-block px-4 py-1 bg-blue-500/20 text-blue-400 text-sm font-semibold rounded-full mb-6 border border-blue-500/30">
+                Prova gratuita
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Pronto a semplificare<br/>la tua attività?
+            </h2>
+            <p class="text-xl text-gray-300 mb-10">
+                30 giorni di prova gratuita. Setup incluso. Nessuna carta di credito richiesta.
+            </p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all hover:scale-105 shadow-xl shadow-blue-600/30">
+                    Inizia gratis ora
+                </button>
+                <button class="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-bold rounded-lg transition-all">
+                    Parla con un esperto
+                </button>
+            </div>
+            
+            <div class="flex items-center justify-center gap-8 mt-10 text-sm text-gray-400">
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    Setup gratuito
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    Supporto dedicato
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    Disdici quando vuoi
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer con identità -->
+    <footer class="bg-[#0A0F1A] border-t border-white/10 py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9">
+                        <svg viewBox="0 0 36 36" class="w-full h-full">
+                            <circle cx="18" cy="18" r="16" fill="none" stroke="#2563EB" stroke-width="2.5"/>
+                            <circle cx="18" cy="18" r="4" fill="#2563EB"/>
+                            <path d="M21 15 L17 21 L18.5 21 L15 25" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-base font-bold text-blue-500">Rescue</span>
+                            <span class="text-base font-bold text-white">Manager</span>
+                        </div>
+                        <div class="text-[9px] text-gray-500 font-medium tracking-wider uppercase">Made in Italy</div>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500">© 2026 RescueManager. Tutti i diritti riservati.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

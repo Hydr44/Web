@@ -9,10 +9,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateRentriJWTDynamic } from "@/lib/rentri/jwt-dynamic";
 import { handleCors, corsHeaders } from "@/lib/cors";
+import { getActiveCert, getAudience, getGatewayUrl } from "@/lib/rentri/cert-helper";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const RENTRI_BASE_URL = process.env.RENTRI_GATEWAY_URL || 'https://rentri-test.rescuemanager.eu';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request);
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   const headers = corsHeaders(origin);
   
   try {
-    const { org_id, num_iscr_sito } = await request.json();
+    const { org_id, num_iscr_sito, environment } = await request.json();
     
     if (!org_id) {
       return NextResponse.json(
@@ -41,22 +41,17 @@ export async function POST(request: NextRequest) {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // 1. Recupera certificato RENTRI per l'organizzazione
-    const { data: cert, error: certError } = await supabase
-      .from("rentri_org_certificates")
-      .select("*")
-      .eq("org_id", org_id)
-      .eq("environment", "demo")
-      .eq("is_active", true)
-      .eq("is_default", true)
-      .single();
+    // 1. Recupera certificato RENTRI per l'organizzazione (ambiente dinamico)
+    const { cert, error: certErr } = await getActiveCert(org_id, environment);
     
-    if (certError || !cert) {
+    if (certErr || !cert) {
       return NextResponse.json(
-        { error: "Certificato RENTRI non trovato per questa organizzazione" },
+        { error: certErr || "Certificato RENTRI non trovato per questa organizzazione" },
         { status: 404, headers }
       );
     }
+    
+    const RENTRI_BASE_URL = getGatewayUrl(cert.environment);
     
     // Estrai num_iscr dal num_iscr_sito (formato: OP123XXXXXXXX00-PD00001)
     const num_iscr = num_iscr_sito.split('-')[0];
@@ -73,7 +68,7 @@ export async function POST(request: NextRequest) {
       issuer: cert.cf_operatore,
       certificatePem: cert.certificate_pem,
       privateKeyPem: cert.private_key_pem,
-      audience: 'rentrigov.demo.api',
+      audience: getAudience(cert.environment),
     });
     
     // 3. Chiama RENTRI per recuperare registri
@@ -151,7 +146,7 @@ export async function POST(request: NextRequest) {
           sync_status: "synced",
           sync_at: new Date().toISOString(),
           sync_error: null,
-          environment: "demo",
+          environment: cert.environment,
           certificate_id: cert.id,
           updated_at: new Date().toISOString()
         };

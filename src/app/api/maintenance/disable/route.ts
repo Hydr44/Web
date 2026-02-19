@@ -5,11 +5,19 @@ export const runtime = "nodejs";
 
 /**
  * POST /api/maintenance/disable
- * Disattiva modalità manutenzione (admin only)
+ * Disattiva modalità manutenzione (admin only — richiede ADMIN_SECRET_KEY)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Recupera l'ID del record esistente
+    // Auth check: richiede header x-admin-secret
+    const secret = request.headers.get("x-admin-secret");
+    if (!secret || secret !== process.env.ADMIN_SECRET_KEY) {
+      return NextResponse.json(
+        { error: "Non autorizzato" },
+        { status: 401 }
+      );
+    }
+
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from('maintenance_mode')
       .select('id')
@@ -22,11 +30,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!existing) {
-      // Nessun record esistente, quindi è già disattivato
       return NextResponse.json({ success: true });
     }
 
-    // Update existing record
     const { error } = await supabaseAdmin
       .from('maintenance_mode')
       .update({
@@ -51,4 +57,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

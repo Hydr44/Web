@@ -6,7 +6,8 @@ import SiteHeader from "@/components/SiteHeader";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-export const dynamic = "force-dynamic";
+// Revalida lo stato manutenzione ogni 60 secondi (invece di force-dynamic su tutto il sito)
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "RescueManager — Gestionale soccorso stradale",

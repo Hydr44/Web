@@ -16,13 +16,14 @@ const ALLOWED_ORIGINS = [
 ];
 
 export function corsHeaders(origin?: string | null) {
+  const isDev = process.env.NODE_ENV === 'development';
   const isAllowed = origin && (
     ALLOWED_ORIGINS.includes(origin) ||
-    origin.startsWith('http://localhost:') ||
-    origin.startsWith('http://127.0.0.1:') ||
+    (isDev && origin.startsWith('http://localhost:')) ||
+    (isDev && origin.startsWith('http://127.0.0.1:')) ||
     origin.startsWith('app://')
   );
-  
+
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -34,7 +35,7 @@ export function corsHeaders(origin?: string | null) {
 
 export function handleCors(request: Request) {
   const origin = request.headers.get('origin');
-  
+
   // Handle preflight
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
@@ -42,7 +43,7 @@ export function handleCors(request: Request) {
       headers: corsHeaders(origin)
     });
   }
-  
+
   return corsHeaders(origin);
 }
 

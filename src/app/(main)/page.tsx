@@ -9,7 +9,6 @@ import {
   Shield,
   Monitor,
   Headphones,
-  FileCheck,
   Receipt,
   Recycle,
   Clock,
@@ -222,7 +221,12 @@ function HomeContent() {
           <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-14">
             <span className="text-sm text-gray-400 uppercase tracking-wider font-medium">Integrazioni certificate:</span>
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-[#2563EB]" />
+              <Image
+                src="/icons/icons8/icons8-auto-50-10.png"
+                alt="RVFU"
+                width={20}
+                height={20}
+              />
               <span className="font-semibold text-gray-800">RVFU</span>
               <span className="text-xs text-gray-500">Ministero Trasporti</span>
             </div>
@@ -422,7 +426,12 @@ function HomeContent() {
             {/* RVFU */}
             <div className="bg-white rounded-xl border border-gray-200 p-7 hover:shadow-md transition-shadow">
               <div className="w-11 h-11 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
-                <FileCheck className="h-5 w-5 text-[#2563EB]" />
+                <Image
+                  src="/icons/icons8/icons8-auto-50-10.png"
+                  alt="RVFU"
+                  width={20}
+                  height={20}
+                />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Radiazioni RVFU</h3>
               <p className="text-sm text-gray-600 mb-4">

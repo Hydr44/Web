@@ -11,10 +11,10 @@ import { createClient } from "@supabase/supabase-js";
 import { generateRentriJWTDynamic } from "@/lib/rentri/jwt-dynamic";
 import { mapRentriEsitoToLocal } from "@/lib/rentri/movimento-builder";
 import { handleCors, corsHeaders } from "@/lib/cors";
+import { getActiveCert, getAudience, getGatewayUrl } from "@/lib/rentri/cert-helper";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const RENTRI_BASE_URL = process.env.RENTRI_GATEWAY_URL || 'https://rentri-test.rescuemanager.eu';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCors(request);
@@ -40,15 +40,7 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("org_id");
     const registroId = searchParams.get("registro_id");
-    const environment = searchParams.get("environment") || "demo";
-    
-    console.log(`[RENTRI-RESULT] DEBUG - Parametri ricevuti:`, {
-      transazioneId,
-      orgId,
-      environment,
-      registroId,
-      queryParams: Object.fromEntries(searchParams.entries())
-    });
+    const environment = searchParams.get("environment") || undefined;
     
     if (!orgId || !registroId) {
       return NextResponse.json(
@@ -59,149 +51,49 @@ export async function GET(
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Recupera org_id/environment dal registro (più affidabile)
-    let finalOrgId = orgId;
-    let finalEnvironment = environment;
-    
-    console.log(`[RENTRI-RESULT] DEBUG - Recupero registro per ottenere org_id/environment corretti`);
-    const { data: registro, error: registroError } = await supabase
-      .from("rentri_registri")
-      .select("org_id, environment")
-      .eq("id", registroId)
-      .maybeSingle();
-    
-    if (registroError) {
-      console.error(`[RENTRI-RESULT] DEBUG - Errore recupero registro:`, registroError);
-    } else if (registro) {
-      finalOrgId = registro.org_id || orgId;
-      finalEnvironment = registro.environment || environment;
-      console.log(`[RENTRI-RESULT] DEBUG - Valori dal registro:`, {
-        registro_org_id: registro.org_id,
-        registro_environment: registro.environment,
-        finalOrgId,
-        finalEnvironment
-      });
-    } else {
-      console.warn(`[RENTRI-RESULT] DEBUG - Registro ${registroId} non trovato, uso valori query params`);
-    }
-    
-    console.log(`[RENTRI-RESULT] DEBUG - Valori finali per ricerca certificato:`, {
-      finalOrgId,
-      finalEnvironment
-    });
-    
-    // 1. Carica certificato RENTRI (prima prova con is_default, poi senza)
-    let cert = null;
-    let certError = null;
-    
-    // Prova prima con is_default = true
-    console.log(`[RENTRI-RESULT] DEBUG - Ricerca certificato con is_default=true`);
-    const { data: certDefault, error: errorDefault } = await supabase
-      .from("rentri_org_certificates")
-      .select("*")
-      .eq("org_id", finalOrgId)
-      .eq("environment", finalEnvironment)
-      .eq("is_active", true)
-      .eq("is_default", true)
-      .maybeSingle();
-    
-    console.log(`[RENTRI-RESULT] DEBUG - Certificato con is_default:`, {
-      trovato: !!certDefault,
-      error: errorDefault?.message,
-      cert_id: certDefault?.id
-    });
-    
-    if (certDefault) {
-      cert = certDefault;
-      console.log(`[RENTRI-RESULT] DEBUG - Usando certificato con is_default=true`);
-    } else {
-      // Se non trovato, prendi il primo certificato attivo
-      console.log(`[RENTRI-RESULT] DEBUG - Ricerca certificato attivo (senza is_default)`);
-      const { data: certActive, error: errorActive } = await supabase
-        .from("rentri_org_certificates")
-        .select("*")
-        .eq("org_id", finalOrgId)
-        .eq("environment", finalEnvironment)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
+    // Recupera environment dal registro se non specificato
+    let envOverride = environment;
+    if (!envOverride) {
+      const { data: registro } = await supabase
+        .from("rentri_registri")
+        .select("environment")
+        .eq("id", registroId)
         .maybeSingle();
-      
-      console.log(`[RENTRI-RESULT] DEBUG - Certificato attivo:`, {
-        trovato: !!certActive,
-        error: errorActive?.message,
-        cert_id: certActive?.id
-      });
-      
-      if (certActive) {
-        cert = certActive;
-        console.log(`[RENTRI-RESULT] DEBUG - Usando certificato attivo (senza is_default)`);
-      } else {
-        certError = errorActive || errorDefault;
-        console.error(`[RENTRI-RESULT] DEBUG - Nessun certificato trovato:`, {
-          errorDefault: errorDefault?.message,
-          errorActive: errorActive?.message,
-          org_id_cercato: finalOrgId,
-          environment_cercato: finalEnvironment
-        });
-      }
+      if (registro?.environment) envOverride = registro.environment;
     }
     
-    if (certError || !cert) {
-      // Log dettagliato per debug
-      const { data: allCerts, error: allCertsError } = await supabase
-        .from("rentri_org_certificates")
-        .select("id, org_id, environment, is_active, is_default, cf_operatore")
-        .eq("org_id", finalOrgId);
-      
-      console.error(`[RENTRI-RESULT] DEBUG - Certificati disponibili per org_id ${finalOrgId}:`, {
-        count: allCerts?.length || 0,
-        certificati: allCerts,
-        error: allCertsError?.message
-      });
-      
+    // 1. Recupera certificato RENTRI (ambiente dinamico)
+    const { cert, error: certErr } = await getActiveCert(orgId, envOverride);
+    
+    if (certErr || !cert) {
       return NextResponse.json(
-        { 
-          error: "Certificato RENTRI non trovato",
-          debug: {
-            org_id_cercato: finalOrgId,
-            environment_cercato: finalEnvironment,
-            certificati_disponibili: allCerts?.length || 0
-          }
-        },
+        { error: certErr || "Certificato RENTRI non trovato" },
         { status: 404, headers }
       );
     }
     
-    console.log(`[RENTRI-RESULT] DEBUG - Certificato trovato:`, {
-      cert_id: cert.id,
-      cf_operatore: cert.cf_operatore,
-      is_default: cert.is_default,
-      is_active: cert.is_active
-    });
+    const RENTRI_BASE_URL = getGatewayUrl(cert.environment);
     
     // 2. Genera JWT per autenticazione
     const jwtAuth = await generateRentriJWTDynamic({
       issuer: cert.cf_operatore,
       certificatePem: cert.certificate_pem,
       privateKeyPem: cert.private_key_pem,
-      audience: environment === "demo" ? "rentrigov.demo.api" : "rentrigov.api"
+      audience: getAudience(cert.environment)
     });
     
     // 3. GET result transazione
     const rentriUrl = `${RENTRI_BASE_URL}/dati-registri/v1.0/${transazioneId}/result`;
     
-    // Usa Record come oggetto semplice (come POST movimenti che funziona)
-    // Headers object potrebbe non funzionare correttamente su Vercel
-    const fetchHeaders: Record<string, string> = {
-      "Authorization": `Bearer ${jwtAuth}`,
-      "Content-Type": "application/json"
-    };
+    console.log(`[RENTRI-RESULT] Recupero esito transazione ${transazioneId} su ${cert.environment}...`);
     
     const rentriResponse = await fetch(rentriUrl, {
       method: "GET",
-      headers: fetchHeaders,
-      cache: 'no-store', // Evita caching che potrebbe interferire con Authorization header
+      headers: {
+        "Authorization": `Bearer ${jwtAuth}`,
+        "Content-Type": "application/json"
+      },
+      cache: 'no-store',
       signal: AbortSignal.timeout(30000)
     });
     

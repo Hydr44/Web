@@ -1,13 +1,9 @@
 // src/app/api/checkout/route.ts - Sistema checkout unificato e robusto
 import { NextResponse, type NextRequest } from "next/server";
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 import { supabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20",
-});
 
 // Mappa price_id ai nomi dei piani
 const PLAN_MAPPING: Record<string, string> = {
@@ -137,7 +133,7 @@ export async function GET(req: NextRequest) {
 
     if (!session.url) {
       return NextResponse.redirect(
-        new URL(`/dashboard/billing?err=session_creation_failed`, req.url), 
+        new URL(`/dashboard/billing?err=session_creation_failed`, req.url),
         302
       );
     }
@@ -148,7 +144,7 @@ export async function GET(req: NextRequest) {
     console.error("Checkout error:", error);
     const errorMsg = encodeURIComponent((error as Error)?.message ?? "checkout_error");
     return NextResponse.redirect(
-      new URL(`/dashboard/billing?err=${errorMsg}`, req.url), 
+      new URL(`/dashboard/billing?err=${errorMsg}`, req.url),
       302
     );
   }

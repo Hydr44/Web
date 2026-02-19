@@ -5,14 +5,23 @@ export const runtime = "nodejs";
 
 /**
  * POST /api/maintenance/enable
- * Attiva modalità manutenzione (admin only)
+ * Attiva modalità manutenzione (admin only — richiede ADMIN_SECRET_KEY)
  */
 export async function POST(request: NextRequest) {
   try {
+    // Auth check: richiede header x-admin-secret
+    const secret = request.headers.get("x-admin-secret");
+    if (!secret || secret !== process.env.ADMIN_SECRET_KEY) {
+      return NextResponse.json(
+        { error: "Non autorizzato" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { message } = body;
 
-    // Recupera l'ID del record esistente
+    // Recupera il record esistente
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from('maintenance_mode')
       .select('id')
@@ -24,9 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch maintenance record' }, { status: 500 });
     }
 
-    let result;
     if (existing) {
-      // Update existing record
       const { error } = await supabaseAdmin
         .from('maintenance_mode')
         .update({
@@ -40,9 +47,7 @@ export async function POST(request: NextRequest) {
         console.error('Error updating maintenance:', error);
         return NextResponse.json({ error: 'Failed to update maintenance' }, { status: 500 });
       }
-      result = { success: true };
     } else {
-      // Insert new record
       const { error } = await supabaseAdmin
         .from('maintenance_mode')
         .insert({
@@ -55,10 +60,9 @@ export async function POST(request: NextRequest) {
         console.error('Error inserting maintenance:', error);
         return NextResponse.json({ error: 'Failed to insert maintenance' }, { status: 500 });
       }
-      result = { success: true };
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true });
 
   } catch (error) {
     console.error('Maintenance enable error:', error);
@@ -68,4 +72,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

@@ -1,3 +1,10 @@
+# Environment variables (contengono chiavi segrete live)
+.env
+.env.*
+.env.local
+.env.production
+.env.staging
+
 # Certificati SDI (non committare su Git pubblicamente)
 certificati/**/*.cer
 certificati/**/*.key

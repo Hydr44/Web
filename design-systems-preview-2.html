@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Design Systems Preview 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .design-7 { font-family: 'Poppins', sans-serif; }
+        .design-8 { font-family: 'Montserrat', sans-serif; }
+        .design-9 { font-family: 'Raleway', sans-serif; }
+        .design-10 { font-family: 'Work Sans', sans-serif; }
+        .design-11 { font-family: 'Rubik', sans-serif; }
+        .design-12 { font-family: 'Manrope', sans-serif; }
+        
+        .nav-fixed { position: sticky; top: 0; z-index: 50; background: white; border-bottom: 1px solid #e5e7eb; }
+        .preview-section { min-height: 100vh; padding: 4rem 2rem; }
+        
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .glassmorphism { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .neumorphism { box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Navigation -->
+    <nav class="nav-fixed">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold text-gray-900">RescueManager Design Systems - Set 2</h1>
+                <div class="flex gap-2">
+                    <a href="#design7" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D7</a>
+                    <a href="#design8" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D8</a>
+                    <a href="#design9" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D9</a>
+                    <a href="#design10" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D10</a>
+                    <a href="#design11" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D11</a>
+                    <a href="#design12" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">D12</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DESIGN 7: Glassmorphism Modern (Frosted Glass) -->
+    <section id="design7" class="preview-section design-7 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
+        <div class="max-w-6xl mx-auto">
+            <div class="glassmorphism mb-8 p-6 rounded-2xl text-white">
+                <h2 class="text-2xl font-bold mb-2">Design 7: Glassmorphism Modern</h2>
+                <p class="text-white/90 mb-3">Effetto vetro smerigliato, trasparenze, sfondo gradiente vivace. Stile iOS/macOS.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full font-medium">Glassmorphism</span>
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full font-medium">Font: Poppins</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="glassmorphism rounded-3xl p-12 mb-8 text-white">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-6">
+                    ✨ NEXT-GEN PLATFORM
+                </div>
+                <h1 class="text-6xl font-bold mb-6 leading-tight">
+                    Il gestionale<br/>
+                    del <span class="text-yellow-300">futuro</span>
+                </h1>
+                <p class="text-xl text-white/90 mb-8 max-w-2xl">
+                    Design moderno, tecnologia avanzata. RVFU, SDI, RENTRI in un'interfaccia elegante e intuitiva.
+                </p>
+                <div class="flex gap-4">
+                    <button class="px-8 py-4 bg-white text-purple-600 font-bold rounded-2xl hover:scale-105 transition-transform shadow-xl">
+                        Inizia gratis
+                    </button>
+                    <button class="px-8 py-4 glassmorphism text-white font-bold rounded-2xl hover:bg-white/20 transition-all">
+                        Guarda demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glassmorphism rounded-2xl p-8 text-white hover:bg-white/20 transition-all">
+                    <div class="text-5xl mb-4">🚗</div>
+                    <h3 class="text-2xl font-bold mb-3">Soccorso</h3>
+                    <p class="text-white/80">Dispatch intelligente con AI</p>
+                </div>
+                <div class="glassmorphism rounded-2xl p-8 text-white hover:bg-white/20 transition-all">
+                    <div class="text-5xl mb-4">📱</div>
+                    <h3 class="text-2xl font-bold mb-3">Mobile First</h3>
+                    <p class="text-white/80">App native per iOS e Android</p>
+                </div>
+                <div class="glassmorphism rounded-2xl p-8 text-white hover:bg-white/20 transition-all">
+                    <div class="text-5xl mb-4">☁️</div>
+                    <h3 class="text-2xl font-bold mb-3">Cloud Sync</h3>
+                    <p class="text-white/80">Sincronizzazione real-time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 8: Brutalist Bold (Raw & Powerful) -->
+    <section id="design8" class="preview-section design-8 bg-black text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-6 bg-yellow-400 text-black rounded-none">
+                <h2 class="text-2xl font-black mb-2 uppercase">Design 8: Brutalist Bold</h2>
+                <p class="font-bold mb-3">Crudo, potente, senza compromessi. Montserrat black, angoli a 90°, contrasti forti.</p>
+                <div class="flex gap-4 text-sm font-bold">
+                    <span class="px-3 py-1 bg-black text-yellow-400 uppercase">Giallo #facc15</span>
+                    <span class="px-3 py-1 bg-black text-white uppercase">Font: Montserrat</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="border-8 border-yellow-400 p-12 mb-8">
+                <div class="inline-block px-6 py-3 bg-yellow-400 text-black text-sm font-black mb-6 uppercase tracking-widest">
+                    SISTEMA COMPLETO
+                </div>
+                <h1 class="text-7xl font-black mb-6 leading-none uppercase tracking-tighter">
+                    RESCUE<br/>
+                    MANAGER
+                </h1>
+                <div class="w-32 h-2 bg-yellow-400 mb-6"></div>
+                <p class="text-2xl font-bold mb-8 max-w-2xl uppercase tracking-wide">
+                    NIENTE FRONZOLI. SOLO RISULTATI. RVFU. SDI. RENTRI.
+                </p>
+                <div class="flex gap-0">
+                    <button class="px-10 py-5 bg-yellow-400 text-black text-xl font-black uppercase tracking-wider hover:bg-yellow-300 transition-colors">
+                        ATTIVA
+                    </button>
+                    <button class="px-10 py-5 border-4 border-yellow-400 text-yellow-400 text-xl font-black uppercase tracking-wider hover:bg-yellow-400 hover:text-black transition-all">
+                        INFO
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-2 gap-0">
+                <div class="border-4 border-yellow-400 p-8">
+                    <div class="text-6xl font-black text-yellow-400 mb-4">01</div>
+                    <h3 class="text-3xl font-black uppercase mb-3">DISPATCH</h3>
+                    <p class="font-bold text-gray-300">CHIAMATE / GPS / AUTISTI</p>
+                </div>
+                <div class="border-4 border-yellow-400 border-l-0 p-8">
+                    <div class="text-6xl font-black text-yellow-400 mb-4">02</div>
+                    <h3 class="text-3xl font-black uppercase mb-3">RVFU</h3>
+                    <p class="font-bold text-gray-300">RADIAZIONI / CERTIFICATI</p>
+                </div>
+                <div class="border-4 border-yellow-400 border-t-0 p-8">
+                    <div class="text-6xl font-black text-yellow-400 mb-4">03</div>
+                    <h3 class="text-3xl font-black uppercase mb-3">FATTURE</h3>
+                    <p class="font-bold text-gray-300">SDI / XML / INCASSI</p>
+                </div>
+                <div class="border-4 border-yellow-400 border-l-0 border-t-0 p-8">
+                    <div class="text-6xl font-black text-yellow-400 mb-4">04</div>
+                    <h3 class="text-3xl font-black uppercase mb-3">RENTRI</h3>
+                    <p class="font-bold text-gray-300">RIFIUTI / FORMULARI</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 9: Soft Pastel (Gentle & Friendly) -->
+    <section id="design9" class="preview-section design-9 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-6 bg-white rounded-3xl shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Design 9: Soft Pastel</h2>
+                <p class="text-gray-600 mb-3">Delicato, amichevole, accessibile. Colori pastello, forme morbide, font Raleway.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full font-medium">Rosa pastello</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">Viola pastello</span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">Font: Raleway</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-white rounded-[3rem] p-12 mb-8 shadow-xl">
+                <div class="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-pink-200 to-purple-200 text-purple-800 rounded-full text-sm font-semibold mb-6">
+                    💜 Fatto con cura
+                </div>
+                <h1 class="text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                    Gestisci con<br/>
+                    <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">serenità</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl leading-relaxed">
+                    Un gestionale pensato per semplificarti la vita. Soccorso, demolizioni, fatture. Tutto fluido e intuitivo.
+                </p>
+                <div class="flex gap-4">
+                    <button class="px-8 py-4 bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white text-lg font-semibold rounded-full shadow-lg transition-all">
+                        Prova gratis
+                    </button>
+                    <button class="px-8 py-4 bg-white border-2 border-purple-300 text-purple-700 hover:border-purple-400 text-lg font-semibold rounded-full transition-all">
+                        Scopri di più
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-3xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-200 to-pink-300 rounded-2xl flex items-center justify-center text-3xl mb-4">🚗</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Soccorso Stradale</h3>
+                    <p class="text-gray-600">Gestione chiamate semplice e veloce</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-200 to-purple-300 rounded-2xl flex items-center justify-center text-3xl mb-4">📄</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Demolizioni RVFU</h3>
+                    <p class="text-gray-600">Radiazioni certificate in pochi click</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 shadow-lg">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl flex items-center justify-center text-3xl mb-4">💰</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Fatturazione SDI</h3>
+                    <p class="text-gray-600">Invio automatico all'Agenzia Entrate</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 10: Neumorphism Soft (3D Soft UI) -->
+    <section id="design10" class="preview-section design-10 bg-[#e0e5ec]">
+        <div class="max-w-6xl mx-auto">
+            <div class="neumorphism mb-8 p-6 rounded-3xl bg-[#e0e5ec]">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Design 10: Neumorphism Soft</h2>
+                <p class="text-gray-600 mb-3">Soft UI 3D, ombre interne/esterne, effetto rilievo. Font Work Sans.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 neumorphism rounded-full font-medium text-gray-700">Neumorphism</span>
+                    <span class="px-3 py-1 neumorphism rounded-full font-medium text-gray-700">Font: Work Sans</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="neumorphism rounded-[3rem] p-12 mb-8 bg-[#e0e5ec]">
+                <div class="inline-flex items-center gap-2 px-5 py-2 neumorphism rounded-full text-sm font-semibold mb-6 text-blue-600">
+                    ⚡ Soft Interface
+                </div>
+                <h1 class="text-6xl font-bold text-gray-800 mb-6 leading-tight">
+                    Design che<br/>
+                    <span class="text-blue-600">si tocca</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl">
+                    Interfaccia morbida e tattile. RVFU, SDI, RENTRI con un design che invita all'interazione.
+                </p>
+                <div class="flex gap-4">
+                    <button class="px-8 py-4 neumorphism text-blue-600 text-lg font-semibold rounded-2xl hover:shadow-inner transition-all">
+                        Prova ora
+                    </button>
+                    <button class="px-8 py-4 neumorphism text-gray-700 text-lg font-semibold rounded-2xl hover:shadow-inner transition-all">
+                        Info
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="neumorphism rounded-3xl p-8 bg-[#e0e5ec]">
+                    <div class="w-16 h-16 neumorphism rounded-2xl flex items-center justify-center text-3xl mb-4 bg-[#e0e5ec]">🚗</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Dispatch</h3>
+                    <p class="text-gray-600">Gestione chiamate e autisti</p>
+                </div>
+                <div class="neumorphism rounded-3xl p-8 bg-[#e0e5ec]">
+                    <div class="w-16 h-16 neumorphism rounded-2xl flex items-center justify-center text-3xl mb-4 bg-[#e0e5ec]">📄</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">RVFU</h3>
+                    <p class="text-gray-600">Radiazioni certificate</p>
+                </div>
+                <div class="neumorphism rounded-3xl p-8 bg-[#e0e5ec]">
+                    <div class="w-16 h-16 neumorphism rounded-2xl flex items-center justify-center text-3xl mb-4 bg-[#e0e5ec]">💰</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">SDI</h3>
+                    <p class="text-gray-600">Fatturazione automatica</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 11: Gradient Mesh (Fluid & Organic) -->
+    <section id="design11" class="preview-section design-11 bg-gradient-to-br from-orange-400 via-red-400 to-pink-500">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white/10 backdrop-blur-md mb-8 p-6 rounded-3xl border border-white/20 text-white">
+                <h2 class="text-2xl font-bold mb-2">Design 11: Gradient Mesh</h2>
+                <p class="text-white/90 mb-3">Gradienti fluidi, mesh organiche, colori caldi. Font Rubik, forme morbide.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-white/20 rounded-full font-medium">Arancio-Rosso-Rosa</span>
+                    <span class="px-3 py-1 bg-white/20 rounded-full font-medium">Font: Rubik</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="bg-white rounded-[3rem] p-12 mb-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full blur-3xl opacity-30"></div>
+                <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-tr from-red-300 to-orange-300 rounded-full blur-3xl opacity-30"></div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-full text-sm font-bold mb-6">
+                        🔥 Hot & Fresh
+                    </div>
+                    <h1 class="text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                        Energia per<br/>
+                        il tuo <span class="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-transparent bg-clip-text">business</span>
+                    </h1>
+                    <p class="text-xl text-gray-700 mb-8 max-w-2xl">
+                        Gestionale dinamico e potente. RVFU, SDI, RENTRI con un'interfaccia che ti dà la carica.
+                    </p>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-lg font-bold rounded-2xl shadow-lg transition-all">
+                            Inizia subito
+                        </button>
+                        <button class="px-8 py-4 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-900 text-lg font-bold rounded-2xl transition-all">
+                            Scopri
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-400 rounded-2xl flex items-center justify-center text-3xl mb-4 text-white font-bold">S</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Soccorso</h3>
+                    <p class="text-gray-600">Risposta rapida e efficiente</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-pink-400 rounded-2xl flex items-center justify-center text-3xl mb-4 text-white font-bold">D</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Demolizioni</h3>
+                    <p class="text-gray-600">RVFU certificato e veloce</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-orange-400 rounded-2xl flex items-center justify-center text-3xl mb-4 text-white font-bold">F</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Fatture</h3>
+                    <p class="text-gray-600">SDI automatico e preciso</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN 12: Monochrome Elegant (Black & White) -->
+    <section id="design12" class="preview-section design-12 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 p-6 bg-black text-white rounded-none">
+                <h2 class="text-2xl font-bold mb-2">Design 12: Monochrome Elegant</h2>
+                <p class="text-gray-300 mb-3">Solo bianco e nero, eleganza assoluta. Font Manrope, tipografia forte, contrasti netti.</p>
+                <div class="flex gap-4 text-sm">
+                    <span class="px-3 py-1 bg-white text-black font-medium">Bianco & Nero</span>
+                    <span class="px-3 py-1 bg-white text-black font-medium">Font: Manrope</span>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="border-4 border-black p-12 mb-8">
+                <div class="inline-block px-6 py-2 bg-black text-white text-xs font-bold mb-6 uppercase tracking-widest">
+                    Essenziale
+                </div>
+                <h1 class="text-7xl font-bold text-black mb-6 leading-none">
+                    Meno è<br/>
+                    <span class="italic">più</span>
+                </h1>
+                <div class="w-24 h-1 bg-black mb-6"></div>
+                <p class="text-2xl text-gray-700 mb-8 max-w-2xl font-medium">
+                    Design minimalista, funzionalità massima. RVFU, SDI, RENTRI senza distrazioni.
+                </p>
+                <div class="flex gap-0">
+                    <button class="px-10 py-5 bg-black text-white text-lg font-bold hover:bg-gray-800 transition-colors">
+                        Inizia
+                    </button>
+                    <button class="px-10 py-5 border-4 border-black text-black text-lg font-bold hover:bg-black hover:text-white transition-all">
+                        Esplora
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-0 border-4 border-black">
+                <div class="p-8 border-r-4 border-black">
+                    <div class="text-6xl font-bold text-black mb-4">01</div>
+                    <h3 class="text-2xl font-bold text-black mb-3">Soccorso</h3>
+                    <p class="text-gray-600">Dispatch e tracking GPS in tempo reale</p>
+                </div>
+                <div class="p-8 border-r-4 border-black">
+                    <div class="text-6xl font-bold text-black mb-4">02</div>
+                    <h3 class="text-2xl font-bold text-black mb-3">RVFU</h3>
+                    <p class="text-gray-600">Radiazioni certificate e veloci</p>
+                </div>
+                <div class="p-8">
+                    <div class="text-6xl font-bold text-black mb-4">03</div>
+                    <h3 class="text-2xl font-bold text-black mb-3">SDI</h3>
+                    <p class="text-gray-600">Fatturazione elettronica automatica</p>
+                </div>
+            </div>
+
+            <!-- Quote -->
+            <div class="mt-12 p-8 border-l-8 border-black">
+                <p class="text-3xl font-bold text-black italic mb-4">
+                    "La semplicità è la massima sofisticazione."
+                </p>
+                <p class="text-gray-600 font-medium">— Leonardo da Vinci</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="bg-gray-900 text-white py-8">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-gray-400 mb-2">Design 7-12 | Quale preferisci?</p>
+            <p class="text-sm text-gray-500">Comunica il numero (7-12) per applicarlo al sito</p>
+        </div>
+    </div>
+
+</body>
+</html>

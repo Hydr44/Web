@@ -31,7 +31,7 @@ export class AuthManager {
   private currentUser: AuthUser | null = null;
   private readonly listeners: Set<(user: AuthUser | null) => void> = new Set();
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): AuthManager {
     if (!AuthManager.instance) {
@@ -46,48 +46,43 @@ export class AuthManager {
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
-    console.log("=== AUTH MANAGER INIT ===");
-    
+    // AuthManager initialized
+
     const supabase = supabaseBrowser();
-    
+
     // Carica stato iniziale
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
       console.error("Auth init error:", error);
     } else if (user) {
       this.currentUser = this.transformUser(user);
-      console.log("Initial user loaded:", this.currentUser.email);
+      // User loaded
     }
 
     // Listener per cambiamenti di autenticazione
     supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, session?.user?.email);
-      
+
       if (event === 'SIGNED_IN' && session?.user) {
         this.currentUser = this.transformUser(session.user);
         this.notifyListeners();
-        console.log("User signed in:", this.currentUser.email);
       } else if (event === 'SIGNED_OUT') {
         this.currentUser = null;
         this.notifyListeners();
-        console.log("User signed out");
       }
     });
 
     this.isInitialized = true;
-    console.log("=== AUTH MANAGER INIT COMPLETE ===");
   }
 
   /**
    * Login con email e password
    */
   async loginWithPassword(email: string, password: string): Promise<LoginResult> {
-    console.log("=== LOGIN WITH PASSWORD ===");
-    console.log("Email:", email);
+
 
     try {
       const supabase = supabaseBrowser();
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -102,8 +97,7 @@ export class AuthManager {
         const user = this.transformUser(data.user);
         this.currentUser = user;
         this.notifyListeners();
-        
-        console.log("Login successful:", user.email);
+
         return { success: true, user };
       }
 
@@ -118,11 +112,11 @@ export class AuthManager {
    * Login con Google OAuth
    */
   async loginWithGoogle(): Promise<LoginResult> {
-    console.log("=== LOGIN WITH GOOGLE ===");
+
 
     try {
       const supabase = supabaseBrowser();
-      
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -151,56 +145,40 @@ export class AuthManager {
    * Logout completo
    */
   async logout(): Promise<LogoutResult> {
-    console.log("=== LOGOUT START ===");
+
 
     try {
       const supabase = supabaseBrowser();
-      
+
       // Verifica utente corrente
       const { data: { user } } = await supabase.auth.getUser();
       const isGoogleUser = user?.app_metadata?.provider === 'google';
-      
-      console.log("Current user:", user?.email, "Provider:", user?.app_metadata?.provider);
 
       // Logout da Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Supabase logout error:", error);
-      } else {
-        console.log("Supabase logout successful");
       }
 
       // Pulisci stato locale
       this.currentUser = null;
       this.notifyListeners();
 
-      // Pulisci storage
-      localStorage.clear();
+      // Pulisci storage (solo auth-related)
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key === 'rescuemanager-auth')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
       sessionStorage.clear();
 
       // Pulisci cookie
       this.clearCookies();
 
-      // Gestione Google OAuth logout
-      if (isGoogleUser) {
-        console.log("Google OAuth logout - using simplified approach");
-        
-        // Per Google OAuth, usiamo un approccio semplificato
-        // Non proviamo a revocare il token o redirect a Google
-        // perché Google ha cambiato le sue API
-        
-        console.log("Google OAuth user - performing local logout only");
-        console.log("Note: User will need to logout from Google manually if needed");
-        
-        // Per Google OAuth, facciamo solo logout locale
-        // L'utente può fare logout da Google manualmente se necessario
-        console.log("Local logout completed for Google user");
-        globalThis.location.href = "/";
-        return { success: true };
-      }
-
-      // Logout standard
-      console.log("Standard logout - redirecting to home");
+      // Redirect alla home (sia per Google OAuth che standard)
       globalThis.location.href = "/";
       return { success: true };
 
@@ -285,20 +263,20 @@ export class AuthManager {
 export const authManager = AuthManager.getInstance();
 
 // Export convenience functions
-export const loginWithPassword = (email: string, password: string) => 
+export const loginWithPassword = (email: string, password: string) =>
   authManager.loginWithPassword(email, password);
 
-export const loginWithGoogle = () => 
+export const loginWithGoogle = () =>
   authManager.loginWithGoogle();
 
-export const logout = () => 
+export const logout = () =>
   authManager.logout();
 
-export const getCurrentUser = () => 
+export const getCurrentUser = () =>
   authManager.getCurrentUser();
 
-export const isAuthenticated = () => 
+export const isAuthenticated = () =>
   authManager.isAuthenticated();
 
-export const addAuthListener = (listener: (user: AuthUser | null) => void) => 
+export const addAuthListener = (listener: (user: AuthUser | null) => void) =>
   authManager.addListener(listener);

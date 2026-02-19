@@ -5,12 +5,9 @@ const nextConfig: NextConfig = {
     // Imposta esplicitamente la root per evitare warning su lockfiles multipli
     root: __dirname,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // eslint e typescript errors bloccano il build in produzione
+  // eslint: { ignoreDuringBuilds: false },
+  // typescript: { ignoreBuildErrors: false },
   // Ottimizzazioni performance
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -35,7 +32,7 @@ const nextConfig: NextConfig = {
       {
         source: "/api/staff/:path*",
         headers: [
-          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Origin", value: "https://admin.rescuemanager.eu" },
           { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, PATCH, OPTIONS" },
           { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" },
           { key: "Access-Control-Max-Age", value: "86400" },

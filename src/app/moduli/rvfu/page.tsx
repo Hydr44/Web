@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, FileText, Shield, CheckCircle2, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function RVFUPage() {
   return (
@@ -15,7 +16,12 @@ export default function RVFUPage() {
 
         <div className="mb-12">
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-green-50 border border-green-200 mb-6">
-            <Shield className="h-5 w-5 text-[#10B981]" />
+            <Image
+              src="/icons/icons8/icons8-auto-50-10.png"
+              alt="RVFU"
+              width={20}
+              height={20}
+            />
             <span className="text-sm font-medium text-[#10B981]">Modulo Specializzato</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -50,7 +56,12 @@ export default function RVFUPage() {
 
           <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
             <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center mb-4">
-              <Shield className="h-6 w-6 text-[#10B981]" />
+              <Image
+                src="/icons/icons8/icons8-auto-50-10.png"
+                alt="RVFU"
+                width={24}
+                height={24}
+              />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Certificato Demolizione</h3>
             <p className="text-sm text-gray-600">

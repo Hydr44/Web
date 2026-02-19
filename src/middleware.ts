@@ -9,12 +9,23 @@ export function middleware(request: NextRequest) {
 
   // CORS for staff admin API routes (admin panel calls from different origin)
   if (pathname.startsWith('/api/staff/')) {
+    const origin = request.headers.get('origin') || '';
+    const STAFF_ALLOWED_ORIGINS = [
+      'https://admin.rescuemanager.eu',
+      'https://staff.rescuemanager.eu',
+      'http://localhost:8081',        // Admin panel dev
+      'http://localhost:3001',        // Admin panel dev alt
+    ];
+    const isAllowedOrigin = STAFF_ALLOWED_ORIGINS.includes(origin) ||
+      (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost:'));
+    const corsOrigin = isAllowedOrigin ? origin : STAFF_ALLOWED_ORIGINS[0];
+
     // Handle preflight OPTIONS
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': corsOrigin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           'Access-Control-Max-Age': '86400',
@@ -24,7 +35,7 @@ export function middleware(request: NextRequest) {
 
     // For actual requests, clone the response and add CORS headers
     const response = NextResponse.next();
-    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Origin', corsOrigin);
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     return response;

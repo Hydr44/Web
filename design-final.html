@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Software Autodemolizioni Certificato</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Colori brand */
+        :root {
+            --primary: #2563EB;
+            --accent: #10B981;
+        }
+        
+        /* Screenshot placeholder */
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px dashed #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-weight: 600;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+        }
+        
+        /* Badge certificazione */
+        .cert-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* Hover card professionale */
+        .feature-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        /* Tabella prezzi */
+        .price-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .price-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+            transform: scale(1.05);
+        }
+        
+        .price-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header brand blu -->
+    <header class="bg-[#2563EB] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10">
+                        <!-- LOGO: Carica qui il logo SVG o PNG -->
+                        <svg viewBox="0 0 40 40" class="w-full h-full">
+                            <circle cx="20" cy="20" r="18" fill="none" stroke="white" stroke-width="3"/>
+                            <circle cx="20" cy="20" r="4" fill="white"/>
+                            <path d="M24 16 L18 24 L20 24 L16 28" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-white">Rescue</span>
+                        <span class="text-xl font-bold text-white">Manager</span>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#funzioni" class="text-white/90 hover:text-white font-medium">Funzioni</a>
+                    <a href="#integrazioni" class="text-white/90 hover:text-white font-medium">Integrazioni</a>
+                    <a href="#prezzi" class="text-white/90 hover:text-white font-medium">Prezzi</a>
+                    <a href="#contatti" class="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg transition-colors">
+                        Richiedi demo
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero con screenshot -->
+    <section class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Testo -->
+                <div>
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold mb-6 border border-blue-200">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0L10 6H16L11 10L13 16L8 12L3 16L5 10L0 6H6L8 0Z"/>
+                        </svg>
+                        Integrazioni governative certificate
+                    </div>
+                    
+                    <h1 class="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                        Software completo per autodemolizioni
+                    </h1>
+                    
+                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                        Gestionale cloud con <strong>RVFU, SDI e RENTRI</strong> integrati.<br/>
+                        Desktop, web e mobile. Tutto sincronizzato in tempo reale.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 mb-10">
+                        <button class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-600/30">
+                            Prova gratis 30 giorni
+                        </button>
+                        <button class="px-8 py-4 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-900 font-semibold rounded-lg transition-colors">
+                            Guarda la demo
+                        </button>
+                    </div>
+                    
+                    <!-- Trust indicators -->
+                    <div class="flex items-center gap-6 text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                            </svg>
+                            Nessuna carta richiesta
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                            </svg>
+                            Setup incluso
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                            </svg>
+                            Supporto dedicato
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Screenshot principale -->
+                <div>
+                    <div class="screenshot-placeholder" style="min-height: 500px;">
+                        <div>
+                            <div class="text-lg mb-2">📸 SCREENSHOT PRINCIPALE</div>
+                            <div class="text-sm text-gray-500">Carica qui lo screenshot della dashboard principale</div>
+                            <div class="text-xs text-gray-400 mt-2">Percorso: /public/screenshots/hero-dashboard.png</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Badge certificazioni - DIFFERENZIATORE CHIAVE -->
+    <section class="bg-gray-50 py-12 border-y border-gray-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-8">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Integrazioni certificate</h3>
+                <p class="text-lg text-gray-700">Conformi alle normative italiane</p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-6">
+                <div class="cert-badge">
+                    <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center text-blue-600 font-bold text-sm">ACI</div>
+                    <div>
+                        <div class="text-xs text-gray-500">Registro</div>
+                        <div class="font-bold text-gray-900">RVFU</div>
+                    </div>
+                </div>
+                
+                <div class="cert-badge">
+                    <div class="w-8 h-8 bg-green-100 rounded flex items-center justify-center text-green-600 font-bold text-sm">SDI</div>
+                    <div>
+                        <div class="text-xs text-gray-500">Agenzia Entrate</div>
+                        <div class="font-bold text-gray-900">FatturaPA</div>
+                    </div>
+                </div>
+                
+                <div class="cert-badge">
+                    <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center text-blue-600 font-bold text-sm">REN</div>
+                    <div>
+                        <div class="text-xs text-gray-500">Ministero</div>
+                        <div class="font-bold text-gray-900">RENTRI</div>
+                    </div>
+                </div>
+                
+                <div class="cert-badge">
+                    <div class="w-8 h-8 bg-green-100 rounded flex items-center justify-center text-green-600 font-bold text-sm">MIT</div>
+                    <div>
+                        <div class="text-xs text-gray-500">Trasporti</div>
+                        <div class="font-bold text-gray-900">Certificato</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Funzioni con screenshot -->
+    <section id="funzioni" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Tre moduli, un solo gestionale
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Soccorso, demolizioni e amministrazione lavorano insieme. Zero doppioni, massima efficienza.
+                </p>
+            </div>
+            
+            <!-- Modulo 1: Soccorso -->
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <div class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4">
+                        Modulo Soccorso
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-4">
+                        Dispatch e GPS in tempo reale
+                    </h3>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Gestione chiamate, assegnazione autisti, tracking live. App mobile dedicata per i conducenti con rapportini digitali.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-blue-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Mappa dispatch live</strong>
+                                <p class="text-sm text-gray-600">Visualizza tutti i mezzi sulla mappa in tempo reale</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-blue-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">App mobile autisti</strong>
+                                <p class="text-sm text-gray-600">iOS e Android con navigazione integrata</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-blue-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Rapportini digitali</strong>
+                                <p class="text-sm text-gray-600">Firma cliente, foto, note vocali</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="screenshot-placeholder" style="min-height: 400px;">
+                        <div>
+                            <div class="text-lg mb-2">📸 SCREENSHOT DISPATCH</div>
+                            <div class="text-sm text-gray-500">Mappa con mezzi in tempo reale</div>
+                            <div class="text-xs text-gray-400 mt-2">Percorso: /public/screenshots/dispatch-map.png</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modulo 2: Demolizioni -->
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
+                <div class="order-2 lg:order-1">
+                    <div class="screenshot-placeholder" style="min-height: 400px;">
+                        <div>
+                            <div class="text-lg mb-2">📸 SCREENSHOT RVFU</div>
+                            <div class="text-sm text-gray-500">Schermata radiazione veicolo</div>
+                            <div class="text-xs text-gray-400 mt-2">Percorso: /public/screenshots/rvfu-radiazione.png</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-4">
+                        Modulo Demolizioni
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-4">
+                        Radiazioni RVFU certificate
+                    </h3>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Certificati di demolizione automatici, fascicolo digitale completo, integrazione diretta con ACI e invio a STA.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-green-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Certificati automatici</strong>
+                                <p class="text-sm text-gray-600">Generazione PDF conforme normativa</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-green-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Ricerca PRA integrata</strong>
+                                <p class="text-sm text-gray-600">Dati veicolo automatici da targa</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-green-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Invio automatico STA</strong>
+                                <p class="text-sm text-gray-600">Comunicazione telematica certificata</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Modulo 3: Fatturazione -->
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold mb-4">
+                        Modulo Fatturazione
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-4">
+                        FatturaPA e SDI automatico
+                    </h3>
+                    <p class="text-lg text-gray-600 mb-6">
+                        XML validato, invio automatico all'Agenzia delle Entrate, gestione incassi e solleciti. Bollo virtuale e ritenute d'acconto.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-purple-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">XML validato e conforme</strong>
+                                <p class="text-sm text-gray-600">Controllo automatico prima dell'invio</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-purple-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Invio SDI automatico</strong>
+                                <p class="text-sm text-gray-600">Trasmissione sicura via SFTP certificato</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" class="text-purple-600 mt-0.5 flex-shrink-0">
+                                <path d="M16.7 4.3L7.5 13.5L3.3 9.3L1.7 10.9L7.5 16.7L18.3 5.9L16.7 4.3Z"/>
+                            </svg>
+                            <div>
+                                <strong class="text-gray-900">Gestione incassi</strong>
+                                <p class="text-sm text-gray-600">Scadenzario, solleciti automatici, prima nota</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="screenshot-placeholder" style="min-height: 400px;">
+                        <div>
+                            <div class="text-lg mb-2">📸 SCREENSHOT FATTURE</div>
+                            <div class="text-sm text-gray-500">Lista fatture con stato SDI</div>
+                            <div class="text-xs text-gray-400 mt-2">Percorso: /public/screenshots/fatture-sdi.png</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vantaggi vs competitor -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Perché scegliere RescueManager
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Non il solito gestionale desktop. Una piattaforma moderna e completa.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="feature-card text-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Multi-piattaforma</h3>
+                    <p class="text-sm text-gray-600">Desktop Windows, Web browser, App iOS/Android</p>
+                </div>
+                
+                <div class="feature-card text-center">
+                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Cloud sicuro</h3>
+                    <p class="text-sm text-gray-600">Backup automatici, accesso ovunque, sempre aggiornato</p>
+                </div>
+                
+                <div class="feature-card text-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Certificato</h3>
+                    <p class="text-sm text-gray-600">Integrazioni governative validate e conformi</p>
+                </div>
+                
+                <div class="feature-card text-center">
+                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Supporto dedicato</h3>
+                    <p class="text-sm text-gray-600">Onboarding incluso, assistenza telefonica e remota</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prezzi -->
+    <section id="prezzi" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Piani chiari e trasparenti
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Scegli il piano adatto alla tua attività. Puoi cambiare o disdire in qualsiasi momento.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                <!-- Starter -->
+                <div class="price-card">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Starter</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-1">€179</div>
+                        <div class="text-sm text-gray-500">al mese</div>
+                        <div class="text-xs text-gray-400 mt-1">€1.800/anno (risparmi €348)</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">Base + 1 modulo</div>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Soccorso & Dispatch
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                1 modulo a scelta
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                App mobile
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-lg transition-colors">
+                        Inizia gratis
+                    </button>
+                </div>
+
+                <!-- Professional -->
+                <div class="price-card">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Professional</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-1">€279</div>
+                        <div class="text-sm text-gray-500">al mese</div>
+                        <div class="text-xs text-gray-400 mt-1">€2.800/anno (risparmi €548)</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">Base + 2 moduli</div>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Tutto di Starter
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                2 moduli a scelta
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Supporto prioritario
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-lg transition-colors">
+                        Inizia gratis
+                    </button>
+                </div>
+
+                <!-- Business (Featured) -->
+                <div class="price-card featured">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <span class="px-4 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">PIÙ SCELTO</span>
+                    </div>
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Business</h3>
+                        <div class="text-4xl font-bold text-blue-600 mb-1">€359</div>
+                        <div class="text-sm text-gray-500">al mese</div>
+                        <div class="text-xs text-gray-400 mt-1">€3.600/anno (risparmi €708)</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">Base + 3 moduli</div>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-blue-600">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Tutto di Professional
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-blue-600">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                3 moduli a scelta
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-blue-600">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Onboarding dedicato
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-600/30">
+                        Inizia gratis
+                    </button>
+                </div>
+
+                <!-- Full -->
+                <div class="price-card">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Full</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-1">€449</div>
+                        <div class="text-sm text-gray-500">al mese</div>
+                        <div class="text-xs text-gray-400 mt-1">€4.500/anno (risparmi €888)</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">Tutti i moduli</div>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Tutto di Business
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Tutti i 4 moduli
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="text-green-500">
+                                    <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                                </svg>
+                                Supporto premium
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-lg transition-colors">
+                        Inizia gratis
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <p class="text-sm text-gray-500">
+                    Moduli disponibili: <strong>SDI</strong> (Fatturazione), <strong>RVFU</strong> (Demolizioni), <strong>RENTRI</strong> (Rifiuti), <strong>Contabilità</strong>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA finale -->
+    <section class="py-20 bg-blue-600">
+        <div class="max-w-4xl mx-auto px-6 text-center text-white">
+            <h2 class="text-4xl font-bold mb-4">
+                Pronto a modernizzare la tua autodemolizione?
+            </h2>
+            <p class="text-xl text-blue-100 mb-10">
+                Prova RescueManager gratis per 30 giorni. Setup incluso, supporto dedicato, nessuna carta richiesta.
+            </p>
+            <div class="flex flex-wrap gap-4 justify-center mb-8">
+                <button class="px-10 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-50 transition-colors shadow-xl">
+                    Inizia la prova gratuita
+                </button>
+                <button class="px-10 py-4 bg-blue-700 hover:bg-blue-800 border-2 border-white/20 text-white font-bold rounded-lg transition-colors">
+                    Parla con un esperto
+                </button>
+            </div>
+            <div class="flex items-center justify-center gap-8 text-sm text-blue-100">
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    30 giorni gratis
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    Setup incluso
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M13.5 2L6 9.5L2.5 6L1 7.5L6 12.5L15 3.5L13.5 2Z"/>
+                    </svg>
+                    Disdici quando vuoi
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer brand blu -->
+    <footer class="bg-[#2563EB] text-white py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-lg font-bold text-white">Rescue</span>
+                        <span class="text-lg font-bold text-[#10B981]">Manager</span>
+                    </div>
+                    <p class="text-sm text-white/80">Software completo per autodemolizioni e soccorso stradale.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Prodotto</h4>
+                    <ul class="space-y-2 text-sm text-white/80">
+                        <li><a href="#funzioni" class="hover:text-white">Funzioni</a></li>
+                        <li><a href="#integrazioni" class="hover:text-white">Integrazioni</a></li>
+                        <li><a href="#prezzi" class="hover:text-white">Prezzi</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Azienda</h4>
+                    <ul class="space-y-2 text-sm text-white/80">
+                        <li><a href="#" class="hover:text-white">Chi siamo</a></li>
+                        <li><a href="#" class="hover:text-white">Contatti</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Supporto</h4>
+                    <ul class="space-y-2 text-sm text-white/80">
+                        <li><a href="#" class="hover:text-white">Documentazione</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white">Assistenza</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/20 pt-8 flex items-center justify-between">
+                <p class="text-sm text-white/80">© 2026 RescueManager. Made in Italy.</p>
+                <div class="flex gap-4 text-sm text-white/80">
+                    <a href="#" class="hover:text-white">Privacy</a>
+                    <a href="#" class="hover:text-white">Termini</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

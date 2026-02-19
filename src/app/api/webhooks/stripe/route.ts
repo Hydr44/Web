@@ -1,13 +1,12 @@
 // src/app/api/webhooks/stripe/route.ts - Webhook Stripe unificato e completo
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20",
-});
+
 
 // Mappa price_id ai nomi dei piani
 const PLAN_MAPPING: Record<string, string> = {
@@ -40,7 +39,7 @@ async function updateUserSubscription(params: {
   currentPeriodEnd: number;
 }) {
   const { userId, customerId, subscriptionId, priceId, status, currentPeriodEnd } = params;
-  
+
   // Cerca prima per price_id, poi per product_id come fallback
   let planName = PLAN_MAPPING[priceId || ""] || "Unknown";
   if (planName === "Unknown" && priceId) {
@@ -100,7 +99,7 @@ async function findUserByCustomerId(customerId: string): Promise<string | null> 
   // Se non trovato, prova a recuperare il customer da Stripe e cercare per metadata
   try {
     const customer = await stripe.customers.retrieve(customerId);
-    if (customer && typeof customer === 'object' && customer.metadata?.user_id) {
+    if (customer && !('deleted' in customer) && customer.metadata?.user_id) {
       return customer.metadata.user_id;
     }
   } catch (error) {
@@ -233,7 +232,7 @@ export async function POST(req: NextRequest) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
         const userId = await findUserByCustomerId(customerId);
-        
+
         if (userId) {
           // Aggiorna status subscription a past_due
           await supabaseAdmin
@@ -258,7 +257,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Webhook processing error:", error);
     return NextResponse.json(
-      { error: (error as Error).message }, 
+      { error: (error as Error).message },
       { status: 500 }
     );
   }

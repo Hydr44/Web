@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     if (!devBypass) {
       const cookieStore = await nextCookies();
-      const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+      const supabase = createRouteHandlerClient({ cookies: async () => cookieStore });
 
       const { data: auth, error: authErr } = await supabase.auth.getUser();
       if (authErr || !auth?.user) return bad("non autenticato", 401);
@@ -96,7 +96,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       id: authUserId,
       email,
-      password: pwd, // mostrala una volta in UI, NON salvarla
+      // password non più restituita in chiaro per sicurezza
+      passwordGenerated: !password, // indica se è stata generata automaticamente
       orgId,
       appUserId: udata?.id ?? null,
       warnings: {
