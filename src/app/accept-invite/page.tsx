@@ -112,42 +112,19 @@ function AcceptInviteContent() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Registrazione fallita');
 
-      // 2. Crea profilo
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          email: invite.email,
-          full_name: fullName.trim(),
-        });
+      // 2. Accetta invito tramite RPC (bypassa RLS e usa ruolo corretto)
+      const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_team_invite', {
+        p_token: token,
+        p_user_id: authData.user.id,
+        p_full_name: fullName.trim(),
+      });
 
-      if (profileError && profileError.code !== '23505') {
-        console.warn('Profile insert warning:', profileError);
+      if (acceptError) throw acceptError;
+      if (!acceptResult?.success) {
+        throw new Error(acceptResult?.error || 'Errore durante accettazione invito');
       }
 
-      // 3. Aggiungi a org_members
-      const { error: memberError } = await supabase
-        .from('org_members')
-        .insert({
-          org_id: invite.org_id,
-          user_id: authData.user.id,
-          role: invite.role,
-        });
-
-      if (memberError) throw memberError;
-
-      // 4. Marca invito come accettato
-      const { error: updateError } = await supabase
-        .from('org_invites')
-        .update({
-          status: 'accepted',
-          accepted_at: new Date().toISOString(),
-        })
-        .eq('id', invite.id);
-
-      if (updateError) console.warn('Invite update warning:', updateError);
-
-      // 5. Login automatico
+      // 3. Login automatico
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: invite.email,
         password: password,
