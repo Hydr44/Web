@@ -45,27 +45,45 @@ function AcceptInviteContent() {
   async function loadInvite() {
     try {
       setLoading(true);
-      const { data, error: inviteError } = await supabase
+      
+      // Carica invito
+      const { data: inviteData, error: inviteError } = await supabase
         .from('org_invites')
-        .select('*, orgs(name)')
+        .select('*')
         .eq('token', token)
         .eq('status', 'pending')
         .single();
 
-      if (inviteError || !data) {
+      if (inviteError || !inviteData) {
         setError('Invito non trovato o già utilizzato');
         setStep('error');
         return;
       }
 
-      const expiresAt = new Date(data.expires_at);
+      // Carica nome organizzazione separatamente
+      const { data: orgData } = await supabase
+        .from('orgs')
+        .select('name')
+        .eq('id', inviteData.org_id)
+        .single();
+
+      console.log('Invite data:', inviteData);
+      console.log('Org data:', orgData);
+
+      const expiresAt = new Date(inviteData.expires_at);
       if (expiresAt < new Date()) {
         setError('Questo invito è scaduto');
         setStep('error');
         return;
       }
 
-      setInvite(data);
+      // Combina i dati
+      const combinedData = {
+        ...inviteData,
+        orgs: orgData,
+      };
+
+      setInvite(combinedData);
       setStep('register');
     } catch (err: any) {
       console.error('Error loading invite:', err);
