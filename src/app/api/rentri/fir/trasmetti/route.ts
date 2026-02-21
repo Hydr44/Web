@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    if (!rentriResponse.ok) {
+    if (!rentriResponse || !rentriResponse.ok) {
       console.error("[RENTRI-FIR] Errore RENTRI:", rentriData);
       
       // Salva errore nel DB
@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
         .from("rentri_formulari")
         .update({
           sync_status: "error",
-          sync_error: JSON.stringify(rentriData),
+          sync_error: JSON.stringify(rentriData || lastError),
           sync_at: new Date().toISOString()
         })
         .eq("id", fir_id);
@@ -224,9 +224,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: "Errore trasmissione RENTRI",
-          rentri_error: rentriData
+          rentri_error: rentriData || lastError
         },
-        { status: rentriResponse.status, headers }
+        { status: rentriResponse?.status || 500, headers }
       );
     }
     
