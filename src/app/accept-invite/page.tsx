@@ -232,6 +232,15 @@ function AcceptInviteContent() {
 
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 mb-6">
           <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
+              <FiCheck className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-slate-400 mb-1">Organizzazione</p>
+              <p className="text-white font-medium">{invite?.orgs?.name || 'N/A'}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4 mb-4">
             <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center shrink-0">
               <FiMail className="w-6 h-6 text-blue-400" />
             </div>
