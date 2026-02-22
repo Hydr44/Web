@@ -60,6 +60,10 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('=== OAUTH EXCHANGE ENDPOINT START ===');
+    console.log('Request URL:', request.url);
+    console.log('Request method:', request.method);
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+    
     const { code, app_id } = await request.json();
     console.log('Exchange params:', { code, app_id });
 
