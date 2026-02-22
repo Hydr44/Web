@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
             org_id: orgId,
             user_id: oauthData.user_id,
             role: userRole,
-            joined_at: new Date().toISOString()
+            created_at: new Date().toISOString()
           });
           console.log('[OAuth Exchange] Created org_members entry with role:', userRole);
         }
