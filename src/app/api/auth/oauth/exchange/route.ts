@@ -149,32 +149,77 @@ export async function POST(request: NextRequest) {
       const email = authUser.user.email || '';
       const fullName = authUser.user.user_metadata?.full_name || email.split('@')[0] || 'Utente';
       
-      // Cerca se l'utente ha già un org_id tramite org_members
+      // Controlla prima se c'è un invito pending per questa email
       let orgId = null;
-      const { data: memberData } = await supabase
-        .from('org_members')
-        .select('org_id')
-        .eq('user_id', oauthData.user_id)
-        .limit(1)
-        .single();
+      let userRole = 'owner';
       
-      if (memberData?.org_id) {
-        orgId = memberData.org_id;
+      const { data: pendingInvite } = await supabase
+        .from('org_invites')
+        .select('org_id, role')
+        .eq('email', email)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (pendingInvite?.org_id) {
+        // Usa org e ruolo dall'invito
+        orgId = pendingInvite.org_id;
+        userRole = pendingInvite.role;
+        console.log('[OAuth Exchange] Using org from pending invite:', orgId, 'role:', userRole);
       } else {
-        // Crea una nuova org
-        const { data: newOrg } = await supabase
-          .from('orgs')
-          .insert({ name: email.split('@')[0], created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        // Cerca se l'utente ha già un org_id tramite org_members
+        const { data: memberData } = await supabase
+          .from('org_members')
+          .select('org_id, role')
+          .eq('user_id', oauthData.user_id)
+          .limit(1)
+          .maybeSingle();
+        
+        if (memberData?.org_id) {
+          orgId = memberData.org_id;
+          userRole = memberData.role || 'owner';
+        } else {
+          // Crea una nuova org
+          const { data: newOrg } = await supabase
+            .from('orgs')
+            .insert({ name: email.split('@')[0], created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .select('id')
+            .single();
+          if (newOrg) {
+            orgId = newOrg.id;
+          }
+        }
+      }
+      
+      // Crea org_members se non esiste già
+      if (orgId) {
+        const { data: existingMember } = await supabase
+          .from('org_members')
           .select('id')
-          .single();
-        if (newOrg) {
-          orgId = newOrg.id;
+          .eq('user_id', oauthData.user_id)
+          .eq('org_id', orgId)
+          .maybeSingle();
+        
+        if (!existingMember) {
           await supabase.from('org_members').insert({
             org_id: orgId,
             user_id: oauthData.user_id,
-            role: 'owner',
+            role: userRole,
             joined_at: new Date().toISOString()
           });
+          console.log('[OAuth Exchange] Created org_members entry with role:', userRole);
+        }
+        
+        // Se c'era un invito, marcalo come accettato
+        if (pendingInvite) {
+          await supabase
+            .from('org_invites')
+            .update({ status: 'accepted', accepted_at: new Date().toISOString() })
+            .eq('email', email)
+            .eq('status', 'pending');
+          console.log('[OAuth Exchange] Marked invite as accepted');
         }
       }
 
