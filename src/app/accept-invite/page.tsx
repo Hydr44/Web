@@ -116,7 +116,10 @@ function AcceptInviteContent() {
       setAccepting(true);
       setError('');
 
-      // 1. Registra utente
+      // Registra utente - il trigger handle_new_user gestirà automaticamente:
+      // - Creazione profilo con org dell'invito
+      // - Aggiunta a org_members con ruolo dell'invito
+      // - Marcatura invito come accettato
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: invite.email,
         password: password,
@@ -130,19 +133,7 @@ function AcceptInviteContent() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Registrazione fallita');
 
-      // 2. Accetta invito tramite RPC (bypassa RLS e usa ruolo corretto)
-      const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_team_invite', {
-        p_token: token,
-        p_user_id: authData.user.id,
-        p_full_name: fullName.trim(),
-      });
-
-      if (acceptError) throw acceptError;
-      if (!acceptResult?.success) {
-        throw new Error(acceptResult?.error || 'Errore durante accettazione invito');
-      }
-
-      // 3. Login automatico
+      // Login automatico
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: invite.email,
         password: password,
