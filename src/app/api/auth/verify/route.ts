@@ -1,6 +1,6 @@
 // src/app/api/auth/verify/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import jwt from 'jsonwebtoken';
 
 export const runtime = "nodejs";
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       return corsJson(origin, { error: 'Invalid token type' }, 401);
     }
 
-    const supabase = await supabaseServer();
+    const supabase = supabaseAdmin;
 
     // Verifica che il token sia ancora attivo nel database
     const { data: tokenData, error: tokenError } = await supabase
