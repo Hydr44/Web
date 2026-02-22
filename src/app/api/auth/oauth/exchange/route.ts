@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     console.log('=== SEARCHING USER ===');
     console.log('User ID:', oauthData.user_id);
     
-    const { data: userData, error: userError } = await supabase
+    let { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', oauthData.user_id)
@@ -129,12 +129,81 @@ export async function POST(request: NextRequest) {
     console.log('User Data:', userData);
     console.log('User Error:', userError);
 
+    // Se il profilo non esiste, prova a recuperare da auth.users e crea il profilo
     if (userError || !userData) {
-      return withCORS(
-        { error: 'User not found' },
-        404,
-        request
-      );
+      console.log('=== PROFILE NOT FOUND, CHECKING AUTH.USERS ===');
+      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(oauthData.user_id);
+      
+      console.log('Auth user found:', !!authUser?.user);
+      console.log('Auth error:', authError);
+
+      if (authError || !authUser?.user) {
+        return withCORS(
+          { error: 'User not found' },
+          404,
+          request
+        );
+      }
+
+      // Crea profilo mancante al volo
+      const email = authUser.user.email || '';
+      const fullName = authUser.user.user_metadata?.full_name || email.split('@')[0] || 'Utente';
+      
+      // Cerca se l'utente ha già un org_id tramite org_members
+      let orgId = null;
+      const { data: memberData } = await supabase
+        .from('org_members')
+        .select('org_id')
+        .eq('user_id', oauthData.user_id)
+        .limit(1)
+        .single();
+      
+      if (memberData?.org_id) {
+        orgId = memberData.org_id;
+      } else {
+        // Crea una nuova org
+        const { data: newOrg } = await supabase
+          .from('orgs')
+          .insert({ name: email.split('@')[0], created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .select('id')
+          .single();
+        if (newOrg) {
+          orgId = newOrg.id;
+          await supabase.from('org_members').insert({
+            org_id: orgId,
+            user_id: oauthData.user_id,
+            role: 'owner',
+            joined_at: new Date().toISOString()
+          });
+        }
+      }
+
+      const { data: newProfile, error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: oauthData.user_id,
+          email: email,
+          full_name: fullName,
+          org_id: orgId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select('*')
+        .single();
+
+      console.log('=== PROFILE CREATED ===');
+      console.log('New profile:', newProfile);
+      console.log('Profile error:', profileError);
+
+      if (profileError || !newProfile) {
+        return withCORS(
+          { error: 'Failed to create user profile' },
+          500,
+          request
+        );
+      }
+
+      userData = newProfile;
     }
 
     // Genera access token e refresh token
