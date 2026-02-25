@@ -3,27 +3,31 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest } from '@/lib/staff-auth';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const EMAIL_FROM = 'RescueManager <noreply@rescuemanager.eu>';
+const SUPABASE_FUNCTIONS_URL = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'https://ienzdgrqalltvkdkuamp.functions.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-// Invia singola email via Resend
-async function sendViaResend(to: string, subject: string, html: string, text: string): Promise<{ id?: string; error?: string }> {
-  if (!RESEND_API_KEY) {
-    console.warn('[Email] RESEND_API_KEY non configurata, email non inviata');
-    return { error: 'RESEND_API_KEY non configurata' };
-  }
+// Invia singola email via Supabase Edge Function (usa Resend internamente)
+async function sendViaEdgeFunction(to: string, subject: string, html: string, text: string): Promise<{ id?: string; error?: string }> {
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/send-email`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-      body: JSON.stringify({ from: EMAIL_FROM, to: [to], subject, html, text }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      },
+      body: JSON.stringify({
+        type: 'custom',
+        to,
+        subject,
+        data: { html, text },
+      }),
     });
     if (!res.ok) {
       const err = await res.text();
       return { error: err };
     }
     const data = await res.json();
-    return { id: data.id };
+    return { id: data.email_id };
   } catch (err: any) {
     return { error: err.message };
   }
@@ -128,8 +132,8 @@ export async function POST(request: Request) {
 
       const { html, text } = buildEmailHtml(emailBody, lead);
 
-      // Invio reale via Resend
-      const result = await sendViaResend(lead.email, subjectParsed, html, text);
+      // Invio reale via Supabase Edge Function (Resend)
+      const result = await sendViaEdgeFunction(lead.email, subjectParsed, html, text);
 
       const recipientStatus = result.id ? 'sent' : 'failed';
       if (result.id) sentCount++; else failedCount++;
