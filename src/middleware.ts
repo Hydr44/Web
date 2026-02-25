@@ -13,11 +13,14 @@ export function middleware(request: NextRequest) {
     const STAFF_ALLOWED_ORIGINS = [
       'https://admin.rescuemanager.eu',
       'https://staff.rescuemanager.eu',
+      'http://localhost:5174',        // Admin panel Electron dev
+      'http://localhost:5173',        // Admin panel Vite dev
       'http://localhost:8081',        // Admin panel dev
       'http://localhost:3001',        // Admin panel dev alt
     ];
     const isAllowedOrigin = STAFF_ALLOWED_ORIGINS.includes(origin) ||
-      (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost:'));
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('app://');
     const corsOrigin = isAllowedOrigin ? origin : STAFF_ALLOWED_ORIGINS[0];
 
     // Handle preflight OPTIONS
