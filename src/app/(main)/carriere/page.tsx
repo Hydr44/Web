@@ -21,10 +21,10 @@ export default function CarrierePage() {
 
   return (
     <div className="bg-white">
-      <section className="pt-28 pb-10 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Lavora con noi</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24 text-center">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3">Lavora con noi<span className="text-blue-500">.</span></h1>
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
             Cerchiamo persone che vogliono costruire software utile per il settore autodemolizioni e soccorso stradale.
           </p>
         </div>
@@ -79,12 +79,12 @@ export default function CarrierePage() {
         </div>
       </section>
 
-      <section className="py-14 bg-[#2563EB]">
+      <section className="py-24 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Non trovi la posizione giusta?</h2>
-          <p className="text-blue-100 mb-6">Inviaci una candidatura spontanea a info@rescuemanager.eu</p>
-          <Link href="/contatti" className="inline-flex items-center gap-2 px-7 py-3 bg-white text-[#2563EB] font-semibold rounded-lg hover:bg-gray-50 transition-colors">
-            <Users className="h-4 w-4" /> Candidatura spontanea
+          <h2 className="text-4xl font-extrabold text-white mb-4">Non trovi la posizione giusta?</h2>
+          <p className="text-blue-100 mb-10 text-lg">Inviaci una candidatura spontanea a info@rescuemanager.eu</p>
+          <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
+            <Users className="h-4 w-4" /> CANDIDATURA SPONTANEA
           </Link>
         </div>
       </section>

@@ -74,10 +74,10 @@ export default function PreventivoPage() {
 
   return (
     <div className="bg-white">
-      <section className="pt-28 pb-10 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Richiedi un preventivo</h1>
-          <p className="text-lg text-gray-600 max-w-2xl">
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3">Preventivo<span className="text-blue-500">.</span></h1>
+          <p className="text-lg text-slate-400 max-w-2xl">
             Raccontaci la tua attività e ti prepariamo un preventivo su misura. Nessun impegno.
           </p>
         </div>

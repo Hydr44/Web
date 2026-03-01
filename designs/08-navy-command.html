@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 08: Navy Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'IBM Plex Sans', sans-serif; background: #0f1729; color: #cbd5e1; }
+        code, .mono { font-family: 'IBM Plex Mono', monospace; }
+        .copper { color: #c9956b; }
+        .bg-copper { background: #c9956b; color: #0f1729; }
+        .panel { background: #172033; border: 1px solid #1e2d45; border-radius: 0.75rem; }
+        .panel:hover { border-color: #2a4060; }
+        .grid-dots { background-image: radial-gradient(circle, #1e2d4520 1px, transparent 1px); background-size: 24px 24px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#0f1729]/95 backdrop-blur border-b border-[#1e2d45]">
+        <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                    <div class="status-dot bg-sky-400"></div>
+                    <span class="mono text-sky-400 text-xs font-medium">ONLINE</span>
+                </div>
+                <span class="text-slate-600">|</span>
+                <span class="font-bold text-white text-sm tracking-wide">RESCUEMANAGER</span>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-xs text-slate-500 font-medium uppercase tracking-wider">
+                <a href="#" class="hover:text-sky-400 transition">Funzionalita</a>
+                <a href="#" class="hover:text-sky-400 transition">Moduli</a>
+                <a href="#" class="hover:text-sky-400 transition">Prezzi</a>
+                <a href="#" class="hover:text-sky-400 transition">Contatti</a>
+            </div>
+            <a href="#" class="text-xs px-4 py-2 bg-sky-500 text-white font-semibold rounded hover:bg-sky-600 transition">ACCEDI</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-28 pb-20 grid-dots relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="mono text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20 px-3 py-1 rounded">v3.2</span>
+                        <span class="mono text-xs text-slate-600">RVFU &middot; SDI &middot; RENTRI</span>
+                    </div>
+                    <h1 class="text-4xl lg:text-5xl font-bold text-white mb-6 leading-[1.15]">
+                        Centro di controllo<br>
+                        per la tua<br>
+                        <span class="copper">autodemolizione</span>
+                    </h1>
+                    <p class="text-base text-slate-400 mb-8 leading-relaxed max-w-md">
+                        Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                        Monitoraggio completo in un'unica interfaccia.
+                    </p>
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <a href="#" class="px-6 py-3 bg-sky-500 text-white font-semibold text-sm rounded hover:bg-sky-600 transition">
+                            Richiedi dimostrazione
+                        </a>
+                        <a href="#" class="px-6 py-3 border border-[#1e2d45] text-slate-300 font-semibold text-sm rounded hover:border-sky-500/50 transition">
+                            392 172 3028
+                        </a>
+                    </div>
+                    <div class="flex gap-6 text-xs text-slate-600 mono">
+                        <span class="flex items-center gap-1.5"><span class="status-dot bg-emerald-400"></span> 30gg trial</span>
+                        <span class="flex items-center gap-1.5"><span class="status-dot bg-emerald-400"></span> Setup incluso</span>
+                        <span class="flex items-center gap-1.5"><span class="status-dot bg-emerald-400"></span> Supporto diretto</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="panel overflow-hidden">
+                        <div class="flex items-center gap-2 px-4 py-2.5 border-b border-[#1e2d45] bg-[#0f1729]">
+                            <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/50"></div>
+                            <span class="mono text-[10px] text-slate-600 ml-2">dashboard.rescuemanager.it</span>
+                        </div>
+                        <div class="bg-[#0d1322] aspect-video flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="mono text-slate-700 text-xs">[Screenshot dashboard]</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status bar -->
+    <section class="py-4 bg-[#172033] border-y border-[#1e2d45]">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 mono text-xs">
+                <div class="flex items-center gap-6">
+                    <span class="flex items-center gap-2"><span class="status-dot bg-emerald-400"></span><span class="text-slate-400">RVFU</span><span class="text-slate-600">connesso</span></span>
+                    <span class="flex items-center gap-2"><span class="status-dot bg-emerald-400"></span><span class="text-slate-400">SDI</span><span class="text-slate-600">connesso</span></span>
+                    <span class="flex items-center gap-2"><span class="status-dot bg-emerald-400"></span><span class="text-slate-400">RENTRI</span><span class="text-slate-600">connesso</span></span>
+                </div>
+                <span class="text-slate-700">Tutti i sistemi operativi</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-1 h-6 bg-sky-500 rounded-full"></div>
+                <h2 class="text-2xl font-bold text-white">Moduli operativi</h2>
+            </div>
+            <p class="text-slate-500 mb-12 text-sm max-w-md">Ogni modulo e integrato e comunica con gli altri in tempo reale.</p>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="panel p-6 transition-all hover:border-sky-500/30">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-sky-500/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <span class="mono text-xs text-sky-500">MOD-01</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">Trasporti</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Assegnazione, GPS, calendario, rapportino digitale con firma.</p>
+                </div>
+                <div class="panel p-6 transition-all hover:border-[#c9956b]/30">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-[#c9956b]/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-[#c9956b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <span class="mono text-xs text-[#c9956b]">MOD-02</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">Piazzale & VFU</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Tracciamento veicoli, documenti, timeline demolizione, RVFU.</p>
+                </div>
+                <div class="panel p-6 transition-all hover:border-emerald-500/30">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-emerald-500/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <span class="mono text-xs text-emerald-500">MOD-03</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">Fatture & RENTRI</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">XML automatico, SDI, registro rifiuti, formulari integrati.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-14 border-y border-[#1e2d45]">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="panel p-5 text-center"><div class="text-3xl font-bold text-sky-400 mb-1">4</div><div class="mono text-[10px] text-slate-600 uppercase tracking-wider">Integrazioni gov.</div></div>
+                <div class="panel p-5 text-center"><div class="text-3xl font-bold text-sky-400 mb-1">3</div><div class="mono text-[10px] text-slate-600 uppercase tracking-wider">Piattaforme</div></div>
+                <div class="panel p-5 text-center"><div class="text-3xl font-bold text-white mb-1">100%</div><div class="mono text-[10px] text-slate-600 uppercase tracking-wider">Made in Italy</div></div>
+                <div class="panel p-5 text-center"><div class="text-3xl font-bold text-white mb-1">24/7</div><div class="mono text-[10px] text-slate-600 uppercase tracking-wider">Uptime</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-white mb-4">Prendi il <span class="copper">controllo</span></h2>
+            <p class="text-slate-500 mb-8">Dimostrazione gratuita. Setup completo incluso.</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="#" class="px-6 py-3 bg-sky-500 text-white font-semibold text-sm rounded hover:bg-sky-600 transition">Richiedi demo</a>
+                <a href="#" class="px-6 py-3 border border-[#1e2d45] text-slate-300 font-semibold text-sm rounded hover:border-sky-500/50 transition mono">392 172 3028</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 border-t border-[#1e2d45]">
+        <div class="max-w-6xl mx-auto px-6 text-center mono text-[10px] text-slate-700 uppercase tracking-wider">
+            RescueManager &mdash; Centro di controllo per autodemolizioni
+        </div>
+    </footer>
+</body>
+</html>

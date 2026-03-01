@@ -149,123 +149,91 @@ function HomeContent() {
       )}
 
       {/* ============================================ */}
-      {/* HERO — Diretto, pratico, con screenshot vero */}
+      {/* HERO — Bold Split: Navy left, Blue right     */}
       {/* ============================================ */}
-      <section className="bg-white pt-28 pb-16 lg:pt-32 lg:pb-20">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-5 leading-tight">
-                Il gestionale per chi lavora<br className="hidden lg:block" /> nel soccorso e nelle demolizioni
+      <section className="pt-16">
+        <div className="grid lg:grid-cols-2 min-h-[90vh]">
+          {/* Left: Dark */}
+          <div className="flex items-center px-6 lg:px-12 xl:px-20 py-20 bg-[#0f172a]">
+            <div className="max-w-lg">
+              <div className="inline-block bg-blue-500/10 border border-blue-500/20 rounded px-3 py-1 text-xs text-blue-400 font-semibold uppercase tracking-wider mb-8">
+                Certificato RVFU / SDI / RENTRI
+              </div>
+              <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
+                Gestisci.<br />
+                Demolisci.<br />
+                <span className="text-blue-500">Fattura.</span>
               </h1>
-              
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                Trasporti, piazzale, clienti, fatture, RVFU, RENTRI — tutto in un unico programma. 
-                Funziona su PC, dal browser e dal telefono.
+              <p className="text-lg text-slate-400 mb-10 leading-relaxed">
+                Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                Un programma. Zero complicazioni.
               </p>
-              
-              <div className="flex flex-wrap gap-3 mb-8">
+              <div className="flex flex-wrap gap-4">
                 <Link
                   href="/contatti"
-                  className="px-7 py-3.5 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                  className="px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
                 >
-                  Richiedi una dimostrazione
+                  RICHIEDI DEMO
                 </Link>
                 <Link
                   href="tel:+393921723028"
-                  className="px-7 py-3.5 bg-white border border-gray-300 hover:border-gray-400 text-gray-800 font-semibold rounded-lg transition-colors flex items-center gap-2"
+                  className="px-7 py-4 border-2 border-slate-700 text-white font-bold text-sm hover:border-blue-500 transition-colors flex items-center gap-2"
                 >
                   <Phone className="h-4 w-4" />
-                  Chiamaci
+                  CHIAMACI
                 </Link>
               </div>
-              
-              <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#10B981]" />
-                  Prova gratuita 30 giorni
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#10B981]" />
-                  Installazione inclusa
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#10B981]" />
-                  Assistenza telefonica
-                </span>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="rounded-xl overflow-hidden shadow-xl border border-gray-200">
-                <Image
-                  src="/appshots/dashboard.jpg"
-                  alt="Schermata principale RescueManager"
-                  width={1200}
-                  height={800}
-                  priority
-                  className="w-full h-auto"
-                  quality={90}
-                />
-              </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ============================================ */}
-      {/* CERTIFICAZIONI — Sobrio, istituzionale       */}
-      {/* ============================================ */}
-      <section className="bg-gray-50 py-10 border-y border-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-14">
-            <span className="text-sm text-gray-400 uppercase tracking-wider font-medium">Integrazioni certificate:</span>
-            <div className="flex items-center gap-2">
+          {/* Right: Blue with screenshot */}
+          <div className="flex items-center justify-center px-6 lg:px-12 py-20 bg-blue-600">
+            <div className="w-full max-w-md rounded-lg overflow-hidden border border-white/20 shadow-2xl">
               <Image
-                src="/icons/icons8/icons8-auto-50-10.png"
-                alt="RVFU"
-                width={20}
-                height={20}
+                src="/appshots/dashboard.jpg"
+                alt="Schermata principale RescueManager"
+                width={1200}
+                height={800}
+                priority
+                className="w-full h-auto"
+                quality={90}
               />
-              <span className="font-semibold text-gray-800">RVFU</span>
-              <span className="text-xs text-gray-500">Ministero Trasporti</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-[#2563EB]" />
-              <span className="font-semibold text-gray-800">SDI</span>
-              <span className="text-xs text-gray-500">Agenzia delle Entrate</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-[#10B981]" />
-              <span className="font-semibold text-gray-800">RENTRI</span>
-              <span className="text-xs text-gray-500">Registro Rifiuti</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ============================================ */}
-      {/* COSA FA — Screenshot reali + testo pratico   */}
+      {/* CERTIFICAZIONI — Navy bar, bold                */}
+      {/* ============================================ */}
+      <section className="py-6 bg-[#0f172a] border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-8 text-sm">
+          <span className="font-bold text-white">RVFU</span>
+          <span className="text-slate-700">/</span>
+          <span className="font-bold text-white">SDI</span>
+          <span className="text-slate-700">/</span>
+          <span className="font-bold text-white">RENTRI</span>
+          <span className="text-slate-700">/</span>
+          <span className="text-slate-500">Tutte le certificazioni governative</span>
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* COSA FA — Bold Split style                    */}
       {/* ============================================ */}
       <section className="py-16 lg:py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Cosa fa RescueManager
-            </h2>
-            <p className="text-gray-600">
-              Un programma unico per gestire tutta l&apos;attività: dal soccorso stradale alla demolizione, dalla fattura al registro rifiuti.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-16">
+            Cosa fa<span className="text-blue-500">.</span>
+          </h2>
           
           {/* Blocco 1: Trasporti */}
           <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
             <div>
-              <span className="inline-block text-sm font-semibold text-[#2563EB] mb-3">Gestione Trasporti</span>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <span className="text-6xl font-extrabold text-blue-500/20">01</span>
+              <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                 Chiamate, autisti e mezzi sotto controllo
               </h3>
-              <p className="text-gray-600 mb-5">
+              <p className="text-gray-500 mb-5">
                 Ricevi la chiamata, assegni il trasporto, l&apos;autista riceve tutto sul telefono. 
                 Sai sempre dove sono i tuoi mezzi e a che punto è ogni lavoro.
               </p>
@@ -276,14 +244,14 @@ function HomeContent() {
                   "Calendario e mappa in tempo reale",
                   "Rapportino digitale con firma del cliente"
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-700">
-                    <CheckCircle2 className="h-4 w-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
                 src="/appshots/trasporti.jpg"
                 alt="Gestione trasporti RescueManager"
@@ -297,7 +265,7 @@ function HomeContent() {
 
           {/* Blocco 2: Piazzale e Veicoli */}
           <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
-            <div className="order-2 lg:order-1 rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
                 src="/appshots/piazzale.jpg"
                 alt="Gestione piazzale RescueManager"
@@ -308,11 +276,11 @@ function HomeContent() {
               />
             </div>
             <div className="order-1 lg:order-2">
-              <span className="inline-block text-sm font-semibold text-[#10B981] mb-3">Piazzale e Veicoli</span>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <span className="text-6xl font-extrabold text-blue-500/20">02</span>
+              <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                 Ogni veicolo tracciato dal primo giorno
               </h3>
-              <p className="text-gray-600 mb-5">
+              <p className="text-gray-500 mb-5">
                 Dal momento in cui un veicolo entra nel piazzale, hai tutto sotto controllo: 
                 documenti, foto, stato della pratica, scadenze.
               </p>
@@ -323,8 +291,8 @@ function HomeContent() {
                   "Scadenze e promemoria automatici",
                   "Ricerca rapida per targa o proprietario"
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-700">
-                    <CheckCircle2 className="h-4 w-4 text-[#10B981] mt-0.5 flex-shrink-0" />
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -335,11 +303,11 @@ function HomeContent() {
           {/* Blocco 3: Clienti */}
           <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
             <div>
-              <span className="inline-block text-sm font-semibold text-[#2563EB] mb-3">Clienti e Anagrafica</span>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <span className="text-6xl font-extrabold text-blue-500/20">03</span>
+              <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                 Tutti i tuoi clienti in un posto solo
               </h3>
-              <p className="text-gray-600 mb-5">
+              <p className="text-gray-500 mb-5">
                 Anagrafica completa, storico trasporti, fatture emesse, veicoli associati. 
                 Cerchi un cliente e trovi tutto quello che gli riguarda.
               </p>
@@ -350,14 +318,14 @@ function HomeContent() {
                   "Collegamento automatico a trasporti e fatture",
                   "Import da file Excel o CSV"
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-700">
-                    <CheckCircle2 className="h-4 w-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
                 src="/appshots/clienti.jpg"
                 alt="Gestione clienti RescueManager"
@@ -371,7 +339,7 @@ function HomeContent() {
 
           {/* Blocco 4: Preventivi */}
           <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div className="order-2 lg:order-1 rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
                 src="/appshots/preventivo.jpg"
                 alt="Preventivi RescueManager"
@@ -382,11 +350,11 @@ function HomeContent() {
               />
             </div>
             <div className="order-1 lg:order-2">
-              <span className="inline-block text-sm font-semibold text-[#10B981] mb-3">Preventivi</span>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <span className="text-6xl font-extrabold text-blue-500/20">04</span>
+              <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                 Preventivi pronti in pochi minuti
               </h3>
-              <p className="text-gray-600 mb-5">
+              <p className="text-gray-500 mb-5">
                 Crei il preventivo, lo mandi al cliente via email o WhatsApp, 
                 e quando accetta lo trasformi in fattura con un click.
               </p>
@@ -397,8 +365,8 @@ function HomeContent() {
                   "Conversione in fattura automatica",
                   "PDF professionale con il tuo logo"
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-700">
-                    <CheckCircle2 className="h-4 w-4 text-[#10B981] mt-0.5 flex-shrink-0" />
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -409,23 +377,21 @@ function HomeContent() {
       </section>
 
       {/* ============================================ */}
-      {/* MODULI SPECIALIZZATI — Le cose serie          */}
+      {/* MODULI SPECIALIZZATI — Navy dark               */}
       {/* ============================================ */}
-      <section className="py-16 lg:py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Moduli specializzati per il settore
-            </h2>
-            <p className="text-gray-600">
-              Integrazioni dirette con gli enti governativi. Niente copia-incolla, niente doppio lavoro.
-            </p>
-          </div>
+      <section className="py-20 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4">
+            Integrazioni certificate<span className="text-blue-500">.</span>
+          </h2>
+          <p className="text-slate-400 mb-14 max-w-2xl">
+            Collegamento diretto con gli enti governativi. Niente copia-incolla, niente doppio lavoro.
+          </p>
           
           <div className="grid md:grid-cols-3 gap-6">
             {/* RVFU */}
-            <div className="bg-white rounded-xl border border-gray-200 p-7 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
+              <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
                 <Image
                   src="/icons/icons8/icons8-auto-50-10.png"
                   alt="RVFU"
@@ -433,74 +399,74 @@ function HomeContent() {
                   height={20}
                 />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Radiazioni RVFU</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-bold text-white mb-2">Radiazioni RVFU</h3>
+              <p className="text-sm text-slate-400 mb-4">
                 Collegamento diretto al Ministero dei Trasporti. 
                 Radi il veicolo dal gestionale senza passare da altri portali.
               </p>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-slate-400">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Certificato di demolizione automatico
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Ricerca dati veicolo da targa
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Invio telematico a STA
                 </li>
               </ul>
             </div>
 
             {/* SDI */}
-            <div className="bg-white rounded-xl border border-gray-200 p-7 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
-                <Receipt className="h-5 w-5 text-[#2563EB]" />
+            <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
+              <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
+                <Receipt className="h-5 w-5 text-blue-500" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Fatturazione Elettronica</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-bold text-white mb-2">Fatturazione Elettronica</h3>
+              <p className="text-sm text-slate-400 mb-4">
                 Crei la fattura, il sistema genera l&apos;XML e lo invia all&apos;Agenzia delle Entrate. 
                 Ricevi le notifiche di consegna in automatico.
               </p>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-slate-400">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Invio automatico via SDI
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Bollo, ritenuta, cassa previdenziale
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563EB] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Scadenzario e solleciti
                 </li>
               </ul>
             </div>
 
             {/* RENTRI */}
-            <div className="bg-white rounded-xl border border-gray-200 p-7 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 bg-green-50 rounded-lg flex items-center justify-center mb-4">
-                <Recycle className="h-5 w-5 text-[#10B981]" />
+            <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
+              <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
+                <Recycle className="h-5 w-5 text-blue-500" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Registro RENTRI</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-bold text-white mb-2">Registro RENTRI</h3>
+              <p className="text-sm text-slate-400 mb-4">
                 Registro di carico e scarico rifiuti, formulari, 
                 trasmissione dati al registro nazionale. Tutto integrato.
               </p>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-slate-400">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#10B981] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Registro carico/scarico digitale
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#10B981] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Formulari di trasporto rifiuti
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-[#10B981] flex-shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
                   Trasmissione automatica al ministero
                 </li>
               </ul>
@@ -510,15 +476,13 @@ function HomeContent() {
       </section>
 
       {/* ============================================ */}
-      {/* PERCHÉ NOI — Concreto, da fornitore serio    */}
+      {/* PERCHÉ NOI — White with bold headings          */}
       {/* ============================================ */}
-      <section className="py-16 lg:py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Perché le autodemolizioni scelgono noi
-            </h2>
-          </div>
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-14">
+            Perché noi<span className="text-blue-500">.</span>
+          </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -545,13 +509,13 @@ function HomeContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-6 rounded-xl border border-gray-200 bg-white"
+                className="p-6 rounded-lg border-2 border-gray-100 bg-white hover:border-blue-500 transition-colors"
               >
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 bg-[#0f172a] rounded-lg flex items-center justify-center mb-4">
+                  <item.icon className="h-5 w-5 text-blue-500" />
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-1.5">{item.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+                <h3 className="text-base font-extrabold text-[#0f172a] mb-1.5">{item.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -559,64 +523,59 @@ function HomeContent() {
       </section>
 
       {/* ============================================ */}
-      {/* NUMERI — Credibilità                         */}
+      {/* NUMERI — Navy dark, big bold numbers           */}
       {/* ============================================ */}
-      <section className="py-14 bg-gray-50 border-y border-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">4</div>
-              <div className="text-sm text-gray-500">Integrazioni governative</div>
+      <section className="py-20 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center lg:text-left">
+              <div className="text-6xl font-extrabold text-blue-500 mb-2">4</div>
+              <div className="text-sm text-slate-500 font-medium">Integrazioni governative</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">3</div>
-              <div className="text-sm text-gray-500">Piattaforme (PC, Web, Mobile)</div>
+            <div className="text-center lg:text-left">
+              <div className="text-6xl font-extrabold text-blue-500 mb-2">3</div>
+              <div className="text-sm text-slate-500 font-medium">Piattaforme</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">100%</div>
-              <div className="text-sm text-gray-500">Made in Italy</div>
+            <div className="text-center lg:text-left">
+              <div className="text-6xl font-extrabold text-white mb-2">100<span className="text-blue-500">%</span></div>
+              <div className="text-sm text-slate-500 font-medium">Made in Italy</div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">24/7</div>
-              <div className="text-sm text-gray-500">Accesso ai tuoi dati</div>
+            <div className="text-center lg:text-left">
+              <div className="text-6xl font-extrabold text-white mb-2">24<span className="text-blue-500">/7</span></div>
+              <div className="text-sm text-slate-500 font-medium">Accesso dati</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ============================================ */}
-      {/* COME FUNZIONA — Semplice, 3 step             */}
+      {/* COME FUNZIONA — Bold Split 3-step             */}
       {/* ============================================ */}
-      <section className="py-16 lg:py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Come iniziare
-            </h2>
-            <p className="text-gray-600">
-              Ti seguiamo noi in tutto. Non devi essere un esperto di computer.
-            </p>
-          </div>
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-14">
+            Come iniziare<span className="text-blue-500">.</span>
+          </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-[#2563EB] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Ci chiami o ci scrivi</h3>
-              <p className="text-sm text-gray-600">
+            <div>
+              <span className="text-6xl font-extrabold text-blue-500">1</span>
+              <h3 className="text-lg font-extrabold text-[#0f172a] mb-2 mt-2">Ci chiami o ci scrivi</h3>
+              <p className="text-sm text-gray-500">
                 Ti facciamo vedere il programma con una dimostrazione gratuita. Nessun impegno.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-[#2563EB] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Ti installiamo tutto noi</h3>
-              <p className="text-sm text-gray-600">
+            <div>
+              <span className="text-6xl font-extrabold text-blue-500">2</span>
+              <h3 className="text-lg font-extrabold text-[#0f172a] mb-2 mt-2">Ti installiamo tutto noi</h3>
+              <p className="text-sm text-gray-500">
                 Configuriamo il programma sul tuo PC, importiamo i tuoi dati e ti facciamo la formazione.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-[#10B981] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Inizi a lavorare</h3>
-              <p className="text-sm text-gray-600">
+            <div>
+              <span className="text-6xl font-extrabold text-blue-500">3</span>
+              <h3 className="text-lg font-extrabold text-[#0f172a] mb-2 mt-2">Inizi a lavorare</h3>
+              <p className="text-sm text-gray-500">
                 Provi gratis per 30 giorni. Se non ti convince, non paghi nulla. Nessun vincolo.
               </p>
             </div>
@@ -625,35 +584,27 @@ function HomeContent() {
       </section>
 
       {/* ============================================ */}
-      {/* CTA FINALE — Diretto, con telefono           */}
+      {/* CTA FINALE — Bold Split Blue                  */}
       {/* ============================================ */}
-      <section className="py-16 lg:py-20 bg-[#2563EB]">
+      <section className="py-24 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Vuoi vedere come funziona?
-          </h2>
-          <p className="text-lg text-blue-100 mb-8">
-            Ti facciamo una dimostrazione gratuita senza impegno. 
-            Chiamaci o compila il modulo e ti ricontattiamo noi.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center mb-6">
+          <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
+          <p className="text-blue-100 mb-10 text-lg">Demo gratuita. Installazione inclusa. Assistenza diretta.</p>
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/contatti"
-              className="px-8 py-3.5 bg-white text-[#2563EB] font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors"
             >
-              Richiedi dimostrazione gratuita
+              RICHIEDI DEMO
             </Link>
             <Link
               href="tel:+393921723028"
-              className="px-8 py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 border border-blue-500"
+              className="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors flex items-center gap-2"
             >
               <Phone className="h-4 w-4" />
               392 172 3028
             </Link>
           </div>
-          <p className="text-sm text-blue-200">
-            Prova gratuita 30 giorni &middot; Installazione inclusa &middot; Nessun vincolo
-          </p>
         </div>
       </section>
     </main>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 03: Clean Swiss</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #fff; color: #1a1a1a; }
+        h1, h2, h3 { font-family: 'DM Serif Display', serif; }
+        .divider { height: 1px; background: #e5e5e5; }
+        .feature-line { border-left: 1px solid #e5e5e5; }
+        .feature-line:hover { border-left-color: #1a1a1a; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-gray-100">
+        <div class="max-w-5xl mx-auto px-8 h-16 flex items-center justify-between">
+            <span class="text-lg tracking-tight"><strong>Rescue</strong>Manager</span>
+            <div class="hidden md:flex items-center gap-10 text-[13px] text-gray-500">
+                <a href="#" class="hover:text-black transition">Funzionalita</a>
+                <a href="#" class="hover:text-black transition">Moduli</a>
+                <a href="#" class="hover:text-black transition">Prezzi</a>
+                <a href="#" class="hover:text-black transition">Contatti</a>
+            </div>
+            <a href="#" class="text-[13px] px-5 py-2 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition">Prova gratis</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-40 pb-24">
+        <div class="max-w-5xl mx-auto px-8">
+            <div class="max-w-3xl">
+                <p class="text-[13px] text-gray-400 uppercase tracking-[0.2em] mb-6">Software gestionale certificato</p>
+                <h1 class="text-5xl lg:text-7xl leading-[1.08] mb-8 text-black">
+                    Il gestionale per chi lavora nel soccorso e nelle demolizioni
+                </h1>
+                <p class="text-xl text-gray-500 mb-10 leading-relaxed max-w-lg">
+                    Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                    Tutto in un unico programma.
+                </p>
+                <div class="flex flex-wrap gap-4 mb-16">
+                    <a href="#" class="px-8 py-3.5 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition text-sm">
+                        Richiedi dimostrazione
+                    </a>
+                    <a href="#" class="px-8 py-3.5 text-gray-600 font-medium hover:text-black transition text-sm flex items-center gap-2">
+                        Chiamaci &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- Screenshot -->
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-gray-50 aspect-video flex items-center justify-center">
+                    <p class="text-gray-300 text-sm">[Screenshot dashboard]</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider max-w-5xl mx-auto"></div>
+
+    <!-- Certifications -->
+    <section class="py-12">
+        <div class="max-w-5xl mx-auto px-8">
+            <div class="flex flex-wrap items-center gap-12 text-[13px]">
+                <span class="text-gray-300 uppercase tracking-[0.15em]">Certificazioni</span>
+                <span class="text-gray-800 font-medium">RVFU <span class="text-gray-400 font-normal">&mdash; Ministero dei Trasporti</span></span>
+                <span class="text-gray-800 font-medium">SDI <span class="text-gray-400 font-normal">&mdash; Agenzia delle Entrate</span></span>
+                <span class="text-gray-800 font-medium">RENTRI <span class="text-gray-400 font-normal">&mdash; Registro Rifiuti</span></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider max-w-5xl mx-auto"></div>
+
+    <!-- Features -->
+    <section class="py-24">
+        <div class="max-w-5xl mx-auto px-8">
+            <p class="text-[13px] text-gray-400 uppercase tracking-[0.2em] mb-4">Funzionalita</p>
+            <h2 class="text-4xl lg:text-5xl text-black mb-16 max-w-md">Cosa fa RescueManager</h2>
+            
+            <div class="space-y-0">
+                <div class="feature-line pl-8 py-8 transition-all group cursor-default">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-2xl text-black mb-2">Gestione Trasporti</h3>
+                            <p class="text-gray-500 max-w-md text-[15px] leading-relaxed">Ricevi la chiamata, assegni il trasporto, l'autista riceve tutto sul telefono. Calendario e mappa in tempo reale.</p>
+                        </div>
+                        <span class="text-gray-300 text-[13px] uppercase tracking-wider mt-2">01</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="feature-line pl-8 py-8 transition-all group cursor-default">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-2xl text-black mb-2">Piazzale e Veicoli</h3>
+                            <p class="text-gray-500 max-w-md text-[15px] leading-relaxed">Ogni veicolo tracciato dal primo giorno. Documenti, foto, stato pratica, scadenze automatiche.</p>
+                        </div>
+                        <span class="text-gray-300 text-[13px] uppercase tracking-wider mt-2">02</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="feature-line pl-8 py-8 transition-all group cursor-default">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-2xl text-black mb-2">Fatturazione Elettronica</h3>
+                            <p class="text-gray-500 max-w-md text-[15px] leading-relaxed">XML generato automaticamente, invio diretto a SDI, notifiche di consegna. Bollo, ritenuta, cassa.</p>
+                        </div>
+                        <span class="text-gray-300 text-[13px] uppercase tracking-wider mt-2">03</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="feature-line pl-8 py-8 transition-all group cursor-default">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-2xl text-black mb-2">Registro RENTRI</h3>
+                            <p class="text-gray-500 max-w-md text-[15px] leading-relaxed">Registro carico e scarico rifiuti, formulari, trasmissione dati. Integrato e automatico.</p>
+                        </div>
+                        <span class="text-gray-300 text-[13px] uppercase tracking-wider mt-2">04</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-5xl mx-auto px-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-12">
+                <div>
+                    <div class="text-5xl font-light text-black mb-2" style="font-family:'DM Serif Display',serif">4</div>
+                    <div class="text-[13px] text-gray-400">Integrazioni governative</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-light text-black mb-2" style="font-family:'DM Serif Display',serif">3</div>
+                    <div class="text-[13px] text-gray-400">Piattaforme supportate</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-light text-black mb-2" style="font-family:'DM Serif Display',serif">100%</div>
+                    <div class="text-[13px] text-gray-400">Made in Italy</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-light text-black mb-2" style="font-family:'DM Serif Display',serif">24/7</div>
+                    <div class="text-[13px] text-gray-400">Accesso ai dati</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24">
+        <div class="max-w-5xl mx-auto px-8 text-center">
+            <h2 class="text-4xl lg:text-5xl text-black mb-5">Vuoi vedere come funziona?</h2>
+            <p class="text-gray-500 mb-10 text-lg">Dimostrazione gratuita, senza impegno.</p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="#" class="px-10 py-4 bg-black text-white font-medium rounded-full hover:bg-gray-800 transition">Richiedi dimostrazione</a>
+                <a href="#" class="px-10 py-4 text-gray-500 hover:text-black transition font-medium">392 172 3028 &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider max-w-5xl mx-auto"></div>
+    
+    <footer class="py-10">
+        <div class="max-w-5xl mx-auto px-8 text-center text-[13px] text-gray-400">
+            RescueManager &mdash; Software gestionale per autodemolizioni e soccorso stradale<br>
+            Prova gratuita 30 giorni &middot; Installazione inclusa &middot; Nessun vincolo
+        </div>
+    </footer>
+</body>
+</html>

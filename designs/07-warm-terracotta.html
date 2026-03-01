@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 07: Warm Terracotta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: #fdf6ec; color: #3d2c1e; }
+        h1, h2 { font-family: 'Fraunces', serif; }
+        .terra { color: #c2703e; }
+        .bg-terra { background: #c2703e; }
+        .bg-warm { background: #fdf6ec; }
+        .card-warm { background: white; border: 1px solid #f0e4d4; border-radius: 1.25rem; }
+        .card-warm:hover { border-color: #c2703e; box-shadow: 0 8px 30px rgba(194,112,62,0.08); }
+        .blob { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#fdf6ec]/90 backdrop-blur border-b border-[#f0e4d4]">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-terra flex items-center justify-center text-white font-bold text-sm">R</div>
+                <span class="font-bold text-[#3d2c1e] text-lg">RescueManager</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm text-[#9c8b7a] font-medium">
+                <a href="#" class="hover:text-[#3d2c1e] transition">Funzionalita</a>
+                <a href="#" class="hover:text-[#3d2c1e] transition">Moduli</a>
+                <a href="#" class="hover:text-[#3d2c1e] transition">Prezzi</a>
+                <a href="#" class="hover:text-[#3d2c1e] transition">Contatti</a>
+            </div>
+            <a href="#" class="text-sm px-5 py-2.5 bg-terra text-white font-semibold rounded-full hover:brightness-110 transition">Prova gratis</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-20 relative overflow-hidden">
+        <div class="absolute top-20 right-0 w-96 h-96 bg-[#c2703e]/5 blob -z-10"></div>
+        <div class="absolute bottom-0 left-10 w-64 h-64 bg-[#c2703e]/5 blob -z-10"></div>
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-white border border-[#f0e4d4] rounded-full px-4 py-2 text-xs text-[#9c8b7a] mb-8 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-terra"></span>
+                        Certificato RVFU, SDI e RENTRI
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-bold text-[#3d2c1e] mb-6 leading-[1.1]">
+                        Il gestionale<br>
+                        pensato per le<br>
+                        <span class="terra">persone</span>
+                    </h1>
+                    <p class="text-lg text-[#9c8b7a] mb-10 leading-relaxed max-w-md">
+                        Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                        Semplice da usare, completo in ogni aspetto.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#" class="px-7 py-3.5 bg-terra text-white font-semibold rounded-full hover:brightness-110 transition text-sm shadow-lg shadow-[#c2703e]/20">
+                            Richiedi dimostrazione
+                        </a>
+                        <a href="#" class="px-7 py-3.5 bg-white border border-[#f0e4d4] text-[#3d2c1e] font-semibold rounded-full hover:border-[#c2703e] transition text-sm">
+                            Chiamaci
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="card-warm overflow-hidden shadow-xl shadow-[#c2703e]/5">
+                        <div class="bg-gradient-to-br from-[#faf3e8] to-white aspect-video flex items-center justify-center">
+                            <p class="text-[#d4c4b0] text-sm">[Screenshot dashboard]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications -->
+    <section class="py-10 bg-white border-y border-[#f0e4d4]">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-center gap-10 text-sm">
+                <span class="text-[#d4c4b0] uppercase tracking-widest text-xs font-semibold">Integrazioni</span>
+                <span class="text-[#3d2c1e] font-semibold">RVFU <span class="text-[#9c8b7a] font-normal">Min. Trasporti</span></span>
+                <span class="text-[#3d2c1e] font-semibold">SDI <span class="text-[#9c8b7a] font-normal">Ag. Entrate</span></span>
+                <span class="text-[#3d2c1e] font-semibold">RENTRI <span class="text-[#9c8b7a] font-normal">Registro Rifiuti</span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl text-[#3d2c1e] mb-3">Un programma, <span class="terra">tante soluzioni</span></h2>
+                <p class="text-[#9c8b7a] max-w-lg mx-auto">Dal soccorso stradale alla demolizione, dalla fattura al registro rifiuti.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card-warm p-7 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-[#c2703e]/10 flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-[#c2703e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-[#3d2c1e] mb-2">Gestione Trasporti</h3>
+                    <p class="text-sm text-[#9c8b7a] leading-relaxed">Assegnazione rapida, app autisti, calendario e mappa. Rapportino con firma.</p>
+                </div>
+                <div class="card-warm p-7 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-[#c2703e]/10 flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-[#c2703e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-[#3d2c1e] mb-2">Piazzale e Veicoli</h3>
+                    <p class="text-sm text-[#9c8b7a] leading-relaxed">Documenti, foto, stato pratica. Ogni veicolo tracciato dall'ingresso.</p>
+                </div>
+                <div class="card-warm p-7 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-[#c2703e]/10 flex items-center justify-center mb-5">
+                        <svg class="w-6 h-6 text-[#c2703e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-[#3d2c1e] mb-2">Fatture e RENTRI</h3>
+                    <p class="text-sm text-[#9c8b7a] leading-relaxed">Fatturazione elettronica SDI, registro rifiuti. Tutto automatizzato.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="bg-[#3d2c1e] rounded-3xl p-12">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                    <div><div class="text-4xl font-bold text-[#c2703e] mb-1" style="font-family:'Fraunces',serif">4</div><div class="text-sm text-[#9c8b7a]">Integrazioni gov.</div></div>
+                    <div><div class="text-4xl font-bold text-[#c2703e] mb-1" style="font-family:'Fraunces',serif">3</div><div class="text-sm text-[#9c8b7a]">Piattaforme</div></div>
+                    <div><div class="text-4xl font-bold text-white mb-1" style="font-family:'Fraunces',serif">100%</div><div class="text-sm text-[#9c8b7a]">Made in Italy</div></div>
+                    <div><div class="text-4xl font-bold text-white mb-1" style="font-family:'Fraunces',serif">24/7</div><div class="text-sm text-[#9c8b7a]">Accesso dati</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl text-[#3d2c1e] mb-4">Ti facciamo vedere <span class="terra">tutto</span></h2>
+            <p class="text-[#9c8b7a] mb-8 text-lg">Dimostrazione gratuita, senza impegno. Ti seguiamo noi.</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="#" class="px-8 py-3.5 bg-terra text-white font-semibold rounded-full hover:brightness-110 transition shadow-lg shadow-[#c2703e]/20">Richiedi demo</a>
+                <a href="#" class="px-8 py-3.5 bg-white border border-[#f0e4d4] text-[#3d2c1e] font-semibold rounded-full hover:border-[#c2703e] transition">392 172 3028</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 border-t border-[#f0e4d4]">
+        <div class="max-w-6xl mx-auto px-6 text-center text-xs text-[#d4c4b0]">
+            RescueManager &mdash; Software gestionale per autodemolizioni e soccorso stradale
+        </div>
+    </footer>
+</body>
+</html>

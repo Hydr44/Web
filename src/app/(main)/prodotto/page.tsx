@@ -120,35 +120,35 @@ export default function Prodotto() {
   return (
     <main className="bg-white">
       {/* HERO */}
-      <section className="pt-18 md:pt-24 pb-16 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="max-w-xl">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6">
-                Ogni modulo che serve a chi demolisce e soccorre
+              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-[1.05]">
+                Ogni modulo<span className="text-blue-500">.</span>
               </h1>
-              <p className="text-lg text-gray-600 leading-relaxed mb-8">
+              <p className="text-lg text-slate-400 leading-relaxed mb-8">
                 Dal soccorso stradale alle radiazioni RVFU, dalla fatturazione SDI al registro RENTRI:
                 tutti i moduli per gestire la tua autodemolizione o centro di soccorso.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/contatti"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
+                  className="inline-flex items-center gap-2 px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
                 >
-                  Richiedi demo gratuita
+                  RICHIEDI DEMO
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/prezzi"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gray-300 bg-white text-gray-900 font-semibold hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-7 py-4 border-2 border-slate-700 text-white font-bold text-sm hover:border-blue-500 transition-colors"
                 >
                   Vedi prezzi
                 </Link>
               </div>
             </div>
 
-            <div className="relative rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="relative rounded-lg overflow-hidden shadow-2xl border border-white/10">
               <Image
                 src="/670shots_so.png"
                 alt="RescueManager Desktop App"
@@ -163,14 +163,12 @@ export default function Prodotto() {
       </section>
 
       {/* MODULES */}
-      <section className="py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Tutti i moduli</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Ogni modulo funziona da solo o insieme agli altri. Attivi solo quello che ti serve.
-            </p>
-          </div>
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-4">Tutti i moduli<span className="text-blue-500">.</span></h2>
+          <p className="text-gray-500 mb-12 max-w-2xl">
+            Ogni modulo funziona da solo o insieme agli altri. Attivi solo quello che ti serve.
+          </p>
 
           <div className="grid md:grid-cols-2 gap-6">
             {MODULES.map((mod) => {
@@ -206,9 +204,9 @@ export default function Prodotto() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-gray-50 border-t border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Domande frequenti</h2>
+      <section className="py-20 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl font-extrabold text-[#0f172a] mb-8 text-center">Domande frequenti<span className="text-blue-500">.</span></h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             {[
@@ -227,25 +225,23 @@ export default function Prodotto() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-primary">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Vuoi vedere come funziona?
-          </h2>
-          <p className="text-lg text-white/80 mb-8">
+      <section className="py-24 bg-blue-600">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
+          <p className="text-blue-100 mb-10 text-lg">
             Raccontaci cosa gestisci e ti mostriamo i moduli giusti per te. Demo gratuita, zero impegno.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contatti"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors"
             >
-              Richiedi demo gratuita
+              RICHIEDI DEMO
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/prezzi"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors"
             >
               Vedi i prezzi
             </Link>

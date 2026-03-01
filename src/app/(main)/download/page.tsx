@@ -15,10 +15,10 @@ import {
 export default function Accessi() {
   return (
     <main className="bg-white">
-      <section className="pt-28 pb-10 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Accessi e Download</h1>
-          <p className="text-lg text-gray-600 max-w-2xl">
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3">Accessi e Download<span className="text-blue-500">.</span></h1>
+          <p className="text-lg text-slate-400 max-w-2xl">
             Usa RescueManager dal browser, scarica la versione desktop per Windows e Mac, o usa l&apos;app mobile per gli autisti.
           </p>
         </div>
@@ -128,12 +128,12 @@ export default function Accessi() {
       </section>
 
       {/* CTA */}
-      <section className="py-14 bg-[#2563EB]">
+      <section className="py-24 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Hai bisogno di aiuto con l&apos;installazione?</h2>
-          <p className="text-blue-100 mb-6">Ti aiutiamo noi con la configurazione. Contattaci e ti guidiamo passo passo.</p>
-          <Link href="/contatti" className="inline-flex items-center gap-2 px-7 py-3 bg-white text-[#2563EB] font-semibold rounded-lg hover:bg-gray-50 transition-colors">
-            Richiedi assistenza
+          <h2 className="text-4xl font-extrabold text-white mb-4">Serve aiuto?</h2>
+          <p className="text-blue-100 mb-10 text-lg">Ti aiutiamo noi con la configurazione. Contattaci e ti guidiamo passo passo.</p>
+          <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
+            CONTATTACI
           </Link>
         </div>
       </section>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 05: Forest Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0a1a12; color: #d1d5c8; }
+        h1, h2 { font-family: 'Playfair Display', serif; }
+        .gold { color: #d4a853; }
+        .bg-gold { background: #d4a853; color: #0a1a12; }
+        .leaf-pattern { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 15 30 25 Q25 15 30 5z' fill='%2310b98108' /%3E%3C/svg%3E"); }
+        .card-forest { background: rgba(16,35,22,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(16,185,129,0.1); }
+        .card-forest:hover { border-color: rgba(212,168,83,0.3); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#0a1a12]/90 backdrop-blur border-b border-emerald-900/30">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm">R</div>
+                <span class="font-semibold text-white text-lg">Rescue<span class="gold">Manager</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm text-emerald-300/60 font-medium">
+                <a href="#" class="hover:text-white transition">Funzionalita</a>
+                <a href="#" class="hover:text-white transition">Moduli</a>
+                <a href="#" class="hover:text-white transition">Prezzi</a>
+                <a href="#" class="hover:text-white transition">Contatti</a>
+            </div>
+            <a href="#" class="text-sm px-5 py-2.5 bg-gold font-semibold rounded-lg hover:brightness-110 transition">Prova gratis</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-24 leaf-pattern relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-emerald-900/10 via-transparent to-transparent"></div>
+        <div class="max-w-6xl mx-auto px-6 relative">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-emerald-900/40 border border-emerald-800/30 rounded-full px-4 py-1.5 text-xs mb-8">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="text-emerald-300">Certificato RVFU &middot; SDI &middot; RENTRI</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]">
+                        Il futuro delle<br>
+                        <span class="gold">autodemolizioni</span><br>
+                        e iniziato
+                    </h1>
+                    <p class="text-lg text-emerald-200/60 mb-10 leading-relaxed max-w-md">
+                        Trasporti, piazzale, clienti, fatture elettroniche, RVFU, registro RENTRI. 
+                        Un software completo, sostenibile, certificato.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#" class="px-7 py-3.5 bg-gold font-semibold rounded-lg hover:brightness-110 transition text-sm">
+                            Richiedi dimostrazione
+                        </a>
+                        <a href="#" class="px-7 py-3.5 border border-emerald-700 text-white font-semibold rounded-lg hover:border-emerald-500 transition text-sm">
+                            392 172 3028
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="card-forest rounded-2xl overflow-hidden">
+                        <div class="bg-gradient-to-br from-emerald-950 to-[#0a1a12] aspect-video flex items-center justify-center">
+                            <p class="text-emerald-800 text-sm">[Screenshot dashboard]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications -->
+    <section class="py-10 bg-emerald-900/20 border-y border-emerald-900/30">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-center gap-10 text-sm">
+                <span class="text-emerald-800 uppercase tracking-widest text-xs font-semibold">Integrazioni</span>
+                <span class="text-emerald-200/80 font-medium">RVFU <span class="text-emerald-700">Ministero Trasporti</span></span>
+                <span class="text-emerald-200/80 font-medium">SDI <span class="text-emerald-700">Agenzia Entrate</span></span>
+                <span class="text-emerald-200/80 font-medium">RENTRI <span class="text-emerald-700">Registro Rifiuti</span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl text-white mb-3">Gestione <span class="gold">completa</span></h2>
+                <p class="text-emerald-300/50 max-w-lg mx-auto">Dal soccorso stradale alla demolizione, dalla fattura al registro rifiuti.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card-forest rounded-2xl p-7 transition-all hover:-translate-y-1">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Gestione Trasporti</h3>
+                    <p class="text-sm text-emerald-300/50 leading-relaxed">Chiamata, assegnazione, GPS autista. Rapportino digitale con firma cliente.</p>
+                </div>
+                <div class="card-forest rounded-2xl p-7 transition-all hover:-translate-y-1">
+                    <div class="w-10 h-10 rounded-xl bg-[#d4a853]/10 border border-[#d4a853]/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-[#d4a853]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Piazzale e Demolizioni</h3>
+                    <p class="text-sm text-emerald-300/50 leading-relaxed">Ogni veicolo tracciato. Documenti, stato pratica, scadenze automatiche.</p>
+                </div>
+                <div class="card-forest rounded-2xl p-7 transition-all hover:-translate-y-1">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Fatture e RENTRI</h3>
+                    <p class="text-sm text-emerald-300/50 leading-relaxed">Fatturazione SDI, registro rifiuti, formulari. Tutto integrato e automatizzato.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-16 border-y border-emerald-900/30">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div><div class="text-4xl font-bold gold mb-1" style="font-family:'Playfair Display',serif">4</div><div class="text-xs text-emerald-700 uppercase tracking-wider">Integrazioni gov.</div></div>
+                <div><div class="text-4xl font-bold gold mb-1" style="font-family:'Playfair Display',serif">3</div><div class="text-xs text-emerald-700 uppercase tracking-wider">Piattaforme</div></div>
+                <div><div class="text-4xl font-bold gold mb-1" style="font-family:'Playfair Display',serif">100%</div><div class="text-xs text-emerald-700 uppercase tracking-wider">Made in Italy</div></div>
+                <div><div class="text-4xl font-bold gold mb-1" style="font-family:'Playfair Display',serif">24/7</div><div class="text-xs text-emerald-700 uppercase tracking-wider">Accesso dati</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 bg-gradient-to-b from-[#0a1a12] to-emerald-950/50">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl text-white mb-4">Scopri il <span class="gold">valore</span> del tuo tempo</h2>
+            <p class="text-emerald-300/50 mb-8 text-lg">Dimostrazione gratuita. Ti seguiamo dall'inizio alla fine.</p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="#" class="px-8 py-3.5 bg-gold font-semibold rounded-lg hover:brightness-110 transition">Richiedi demo</a>
+                <a href="#" class="px-8 py-3.5 border border-emerald-700 text-white font-semibold rounded-lg hover:border-emerald-500 transition">392 172 3028</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 border-t border-emerald-900/20">
+        <div class="max-w-6xl mx-auto px-6 text-center text-xs text-emerald-900">
+            RescueManager &mdash; Software gestionale per autodemolizioni e soccorso stradale
+        </div>
+    </footer>
+</body>
+</html>

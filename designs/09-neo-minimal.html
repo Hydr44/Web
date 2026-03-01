@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 09: Neo Minimal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #fafafa; color: #171717; }
+        .accent { color: #2563eb; }
+        .line { height: 1px; background: #e5e5e5; }
+        .hover-line { position: relative; }
+        .hover-line::after { content:''; position:absolute; bottom:0; left:0; width:0; height:2px; background:#2563eb; transition: width 0.3s; }
+        .hover-line:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#fafafa]/90 backdrop-blur">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between border-b border-neutral-200">
+            <span class="text-sm font-bold tracking-tight text-neutral-900">RescueManager</span>
+            <div class="hidden md:flex items-center gap-8 text-[13px] text-neutral-400 font-medium">
+                <a href="#" class="hover:text-neutral-900 transition">Funzionalita</a>
+                <a href="#" class="hover:text-neutral-900 transition">Moduli</a>
+                <a href="#" class="hover:text-neutral-900 transition">Prezzi</a>
+                <a href="#" class="hover:text-neutral-900 transition">Contatti</a>
+            </div>
+            <a href="#" class="text-[13px] font-semibold text-neutral-900 hover:text-blue-600 transition">Accedi &rarr;</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-20">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="max-w-2xl">
+                <h1 class="text-6xl lg:text-8xl font-black text-neutral-900 mb-8 leading-[0.95] tracking-tight">
+                    Gestisci<br>
+                    tutto<span class="accent">.</span>
+                </h1>
+                <p class="text-xl text-neutral-400 mb-10 leading-relaxed max-w-md font-medium">
+                    Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                    Un programma.
+                </p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="px-6 py-3 bg-neutral-900 text-white font-semibold text-sm rounded hover:bg-neutral-800 transition">
+                        Richiedi demo
+                    </a>
+                    <a href="#" class="text-sm text-neutral-400 hover:text-neutral-900 font-medium transition">
+                        392 172 3028 &rarr;
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Screenshot -->
+            <div class="mt-20 border border-neutral-200 rounded-lg overflow-hidden">
+                <div class="bg-white aspect-[16/9] flex items-center justify-center">
+                    <p class="text-neutral-200 text-sm">[Screenshot dashboard]</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Minimal cert line -->
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="line"></div>
+        <div class="py-6 flex flex-wrap gap-8 text-[13px] text-neutral-300">
+            <span>RVFU</span>
+            <span>SDI</span>
+            <span>RENTRI</span>
+            <span class="text-neutral-200">Certificazioni governative integrate</span>
+        </div>
+        <div class="line"></div>
+    </div>
+
+    <!-- Features - ultra minimal -->
+    <section class="py-24">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-20">
+                <div>
+                    <h2 class="text-4xl lg:text-5xl font-black text-neutral-900 leading-[1.05] tracking-tight">
+                        Meno<br>complessita<span class="accent">.</span><br>
+                        Piu risultati<span class="accent">.</span>
+                    </h2>
+                </div>
+                <div class="space-y-0">
+                    <div class="hover-line py-8 border-b border-neutral-200">
+                        <h3 class="text-lg font-bold text-neutral-900 mb-1">Trasporti</h3>
+                        <p class="text-sm text-neutral-400">Chiamata, assegnazione, GPS, rapportino. Tempo reale.</p>
+                    </div>
+                    <div class="hover-line py-8 border-b border-neutral-200">
+                        <h3 class="text-lg font-bold text-neutral-900 mb-1">Piazzale</h3>
+                        <p class="text-sm text-neutral-400">Veicoli, documenti, foto, scadenze. Dall'ingresso alla rottamazione.</p>
+                    </div>
+                    <div class="hover-line py-8 border-b border-neutral-200">
+                        <h3 class="text-lg font-bold text-neutral-900 mb-1">Fatturazione SDI</h3>
+                        <p class="text-sm text-neutral-400">XML automatico, invio diretto, notifiche. Bollo, ritenuta, cassa.</p>
+                    </div>
+                    <div class="hover-line py-8 border-b border-neutral-200">
+                        <h3 class="text-lg font-bold text-neutral-900 mb-1">Registro RENTRI</h3>
+                        <p class="text-sm text-neutral-400">Carico, scarico, formulari. Trasmissione automatica.</p>
+                    </div>
+                    <div class="hover-line py-8">
+                        <h3 class="text-lg font-bold text-neutral-900 mb-1">Clienti e CRM</h3>
+                        <p class="text-sm text-neutral-400">Anagrafica, storico, collegamenti automatici.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-20 bg-neutral-900">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+                <div>
+                    <div class="text-5xl font-black text-white mb-2">4</div>
+                    <div class="text-xs text-neutral-500 uppercase tracking-widest">Integrazioni</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-black text-white mb-2">3</div>
+                    <div class="text-xs text-neutral-500 uppercase tracking-widest">Piattaforme</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-black text-white mb-2">100<span class="text-blue-500">%</span></div>
+                    <div class="text-xs text-neutral-500 uppercase tracking-widest">Made in Italy</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-black text-white mb-2">24<span class="text-blue-500">/</span>7</div>
+                    <div class="text-xs text-neutral-500 uppercase tracking-widest">Accesso</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-32">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <h2 class="text-5xl lg:text-7xl font-black text-neutral-900 tracking-tight mb-6">
+                Inizia<span class="accent">.</span>
+            </h2>
+            <p class="text-neutral-400 mb-10 text-lg font-medium">Demo gratuita. Zero impegno.</p>
+            <a href="#" class="inline-block px-8 py-4 bg-neutral-900 text-white font-bold text-sm rounded hover:bg-neutral-800 transition">
+                Richiedi dimostrazione
+            </a>
+        </div>
+    </section>
+
+    <footer class="py-8 border-t border-neutral-200">
+        <div class="max-w-5xl mx-auto px-6 text-center text-[12px] text-neutral-300">
+            RescueManager &mdash; Software gestionale per autodemolizioni
+        </div>
+    </footer>
+</body>
+</html>

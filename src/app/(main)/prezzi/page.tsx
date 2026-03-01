@@ -44,12 +44,12 @@ export default function PrezziPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <section className="pt-18 md:pt-24 pb-12 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Un software, tanti moduli
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 text-center">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4">
+            Un software<span className="text-blue-500">.</span> Tanti moduli<span className="text-blue-500">.</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
             Il pacchetto base include tutto quello che serve per gestire la tua attività.
             I moduli specializzati (RVFU, SDI, RENTRI) si attivano singolarmente o insieme.
           </p>
@@ -150,25 +150,23 @@ export default function PrezziPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-primary">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Vuoi sapere quanto costa per la tua attività?
-          </h2>
-          <p className="text-lg text-white/80 mb-8">
+      <section className="py-24 bg-blue-600">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
+          <p className="text-blue-100 mb-10 text-lg">
             Raccontaci cosa gestisci e ti prepariamo un preventivo su misura. Nessun impegno.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contatti"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors"
             >
-              Richiedi preventivo
+              RICHIEDI PREVENTIVO
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/prodotto"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors"
             >
               Vedi tutti i moduli
             </Link>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 06: Bold Split</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sora', sans-serif; }
+        .split-hero { background: linear-gradient(to right, #0f172a 50%, #2563eb 50%); }
+        @media (max-width:1023px) { .split-hero { background: #0f172a; } }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#0f172a]">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <span class="font-extrabold text-white text-xl tracking-tight">RESCUE<span class="text-blue-500">.</span></span>
+            <div class="hidden md:flex items-center gap-8 text-sm text-slate-400 font-medium">
+                <a href="#" class="hover:text-white transition">Funzionalita</a>
+                <a href="#" class="hover:text-white transition">Moduli</a>
+                <a href="#" class="hover:text-white transition">Prezzi</a>
+                <a href="#" class="hover:text-white transition">Contatti</a>
+            </div>
+            <a href="#" class="text-sm px-5 py-2.5 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition">PROVA GRATIS</a>
+        </div>
+    </nav>
+
+    <!-- Hero Split -->
+    <section class="split-hero pt-16">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 min-h-[90vh]">
+                <!-- Left: Dark -->
+                <div class="flex items-center px-6 lg:px-12 py-20 bg-[#0f172a]">
+                    <div class="max-w-lg">
+                        <div class="inline-block bg-blue-600/10 border border-blue-500/20 rounded px-3 py-1 text-xs text-blue-400 font-semibold uppercase tracking-wider mb-8">
+                            Certificato RVFU / SDI / RENTRI
+                        </div>
+                        <h1 class="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
+                            Gestisci.<br>
+                            Demolisci.<br>
+                            <span class="text-blue-500">Fattura.</span>
+                        </h1>
+                        <p class="text-lg text-slate-400 mb-10 leading-relaxed">
+                            Trasporti, piazzale, clienti, fatture, RVFU, RENTRI. 
+                            Un programma. Zero complicazioni.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="#" class="px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition">
+                                RICHIEDI DEMO
+                            </a>
+                            <a href="#" class="px-7 py-4 border-2 border-slate-700 text-white font-bold text-sm hover:border-blue-500 transition">
+                                CHIAMACI
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Red with content -->
+                <div class="flex items-center justify-center px-6 lg:px-12 py-20 bg-blue-600">
+                    <div class="w-full max-w-md bg-white/10 backdrop-blur rounded-lg aspect-video flex items-center justify-center border border-white/20">
+                        <div class="text-center text-white/70">
+                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <p class="text-sm font-medium">[Screenshot dashboard]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cert bar -->
+    <section class="py-6 bg-[#0f172a] border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-8 text-sm">
+            <span class="font-bold text-white">RVFU</span>
+            <span class="text-slate-700">/</span>
+            <span class="font-bold text-white">SDI</span>
+            <span class="text-slate-700">/</span>
+            <span class="font-bold text-white">RENTRI</span>
+            <span class="text-slate-700">/</span>
+            <span class="text-slate-500">Tutte le certificazioni governative</span>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-16">
+                Cosa fa<span class="text-blue-500">.</span>
+            </h2>
+            <div class="grid md:grid-cols-3 gap-0 border border-gray-200">
+                <div class="p-10 border-r border-gray-200 group hover:bg-[#0f172a] transition-colors">
+                    <div class="text-5xl font-extrabold text-gray-200 group-hover:text-blue-500 mb-6 transition-colors">01</div>
+                    <h3 class="text-xl font-bold text-[#0f172a] group-hover:text-white mb-3 transition-colors">Trasporti</h3>
+                    <p class="text-sm text-gray-500 group-hover:text-slate-400 leading-relaxed transition-colors">Chiamata, assegnazione, GPS, rapportino. Tutto in tempo reale.</p>
+                </div>
+                <div class="p-10 border-r border-gray-200 group hover:bg-[#0f172a] transition-colors">
+                    <div class="text-5xl font-extrabold text-gray-200 group-hover:text-blue-500 mb-6 transition-colors">02</div>
+                    <h3 class="text-xl font-bold text-[#0f172a] group-hover:text-white mb-3 transition-colors">Piazzale</h3>
+                    <p class="text-sm text-gray-500 group-hover:text-slate-400 leading-relaxed transition-colors">Veicoli, documenti, foto, scadenze. Dall'ingresso alla rottamazione.</p>
+                </div>
+                <div class="p-10 group hover:bg-[#0f172a] transition-colors">
+                    <div class="text-5xl font-extrabold text-gray-200 group-hover:text-blue-500 mb-6 transition-colors">03</div>
+                    <h3 class="text-xl font-bold text-[#0f172a] group-hover:text-white mb-3 transition-colors">Fatture</h3>
+                    <p class="text-sm text-gray-500 group-hover:text-slate-400 leading-relaxed transition-colors">XML automatico, invio SDI, notifiche. Registro RENTRI integrato.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-20 bg-[#0f172a]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center lg:text-left">
+                    <div class="text-6xl font-extrabold text-blue-500 mb-2">4</div>
+                    <div class="text-sm text-slate-500 font-medium">Integrazioni governative</div>
+                </div>
+                <div class="text-center lg:text-left">
+                    <div class="text-6xl font-extrabold text-blue-500 mb-2">3</div>
+                    <div class="text-sm text-slate-500 font-medium">Piattaforme</div>
+                </div>
+                <div class="text-center lg:text-left">
+                    <div class="text-6xl font-extrabold text-white mb-2">100<span class="text-blue-500">%</span></div>
+                    <div class="text-sm text-slate-500 font-medium">Made in Italy</div>
+                </div>
+                <div class="text-center lg:text-left">
+                    <div class="text-6xl font-extrabold text-white mb-2">24<span class="text-blue-500">/7</span></div>
+                    <div class="text-sm text-slate-500 font-medium">Accesso dati</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 bg-blue-600">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
+            <p class="text-blue-100 mb-10 text-lg">Demo gratuita. Installazione inclusa. Assistenza diretta.</p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="#" class="px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition">RICHIEDI DEMO</a>
+                <a href="#" class="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition">392 172 3028</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 bg-[#0f172a]">
+        <div class="max-w-7xl mx-auto px-6 text-center text-xs text-slate-700">
+            RescueManager &mdash; Software gestionale per autodemolizioni e soccorso stradale
+        </div>
+    </footer>
+</body>
+</html>

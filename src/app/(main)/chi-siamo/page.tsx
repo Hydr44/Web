@@ -16,12 +16,12 @@ import {
 export default function ChiSiamoPage() {
   return (
     <div className="bg-white">
-      <section className="pt-28 pb-10 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-            Nato sul campo, costruito per il campo
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28">
+          <h1 className="text-4xl lg:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
+            Nato sul campo<span className="text-blue-500">.</span>
           </h1>
-          <p className="text-lg text-gray-600 leading-relaxed max-w-3xl">
+          <p className="text-lg text-slate-400 leading-relaxed max-w-3xl">
             RescueManager non è nato in un ufficio di consulenza. È nato dalla frustrazione 
             di vedere autodemolizioni e centri di soccorso stradale sommersi da carta, fogli Excel 
             e procedure manuali che rubano tempo e generano errori.
@@ -112,25 +112,23 @@ export default function ChiSiamoPage() {
         </div>
       </section>
 
-      <section className="py-14 bg-[#2563EB]">
+      <section className="py-24 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">
-            Vuoi vedere come funziona?
-          </h2>
-          <p className="text-blue-100 mb-6">
+          <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
+          <p className="text-blue-100 mb-10 text-lg">
             Raccontaci cosa fai e ti mostriamo come possiamo semplificarti il lavoro. 
             Dimostrazione gratuita, zero impegno.
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link 
               href="/contatti"
-              className="px-7 py-3 bg-white text-[#2563EB] font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors"
             >
-              Contattaci
+              CONTATTACI
             </Link>
             <Link 
               href="tel:+393921723028"
-              className="px-7 py-3 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-2 border border-blue-500"
+              className="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors flex items-center gap-2"
             >
               <Phone className="h-4 w-4" />
               392 172 3028

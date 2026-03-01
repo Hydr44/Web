@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RescueManager - Stile 01: Midnight Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #050508; color: #e4e4e7; }
+        .glow { box-shadow: 0 0 60px rgba(59,130,246,0.15), 0 0 120px rgba(139,92,246,0.08); }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); }
+        .gradient-text { background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmer 3s linear infinite; }
+        @keyframes shimmer { to { background-position: 200% center; } }
+        .hero-grid { background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 60px 60px; }
+        .border-glow { border-image: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3), rgba(59,130,246,0.1)) 1; }
+        .card-hover:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); box-shadow: 0 8px 40px rgba(99,102,241,0.1); }
+        .stat-glow { text-shadow: 0 0 40px rgba(59,130,246,0.5); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">R</div>
+                <span class="font-bold text-white text-lg">RescueManager</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
+                <a href="#" class="hover:text-white transition">Funzionalita</a>
+                <a href="#" class="hover:text-white transition">Moduli</a>
+                <a href="#" class="hover:text-white transition">Prezzi</a>
+                <a href="#" class="hover:text-white transition">Contatti</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="#" class="text-sm text-zinc-400 hover:text-white transition">Accedi</a>
+                <a href="#" class="text-sm px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg font-medium hover:opacity-90 transition">Prova gratis</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="relative pt-32 pb-20 hero-grid overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/5 via-transparent to-violet-600/5"></div>
+        <div class="max-w-6xl mx-auto px-6 relative">
+            <div class="text-center max-w-3xl mx-auto">
+                <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs text-zinc-400 mb-8">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Certificato RVFU, SDI e RENTRI
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-black mb-6 leading-[1.1] tracking-tight">
+                    Il gestionale che<br>
+                    <span class="gradient-text">trasforma</span> il tuo<br>
+                    modo di lavorare
+                </h1>
+                <p class="text-lg text-zinc-400 mb-10 max-w-xl mx-auto leading-relaxed">
+                    Trasporti, piazzale, clienti, fatture, RVFU, RENTRI — tutto in un unico programma. 
+                    Funziona su PC, dal browser e dal telefono.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center mb-12">
+                    <a href="#" class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition text-sm">
+                        Richiedi una dimostrazione
+                    </a>
+                    <a href="#" class="px-8 py-3.5 glass text-white font-semibold rounded-xl hover:bg-white/5 transition text-sm">
+                        Chiamaci: 392 172 3028
+                    </a>
+                </div>
+            </div>
+            <!-- Faux Screenshot -->
+            <div class="max-w-4xl mx-auto glow rounded-2xl overflow-hidden border border-white/10">
+                <div class="bg-gradient-to-br from-zinc-900 to-zinc-950 aspect-video flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <p class="text-zinc-500 text-sm">[Screenshot dashboard qui]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications -->
+    <section class="py-12 border-y border-white/5">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-center gap-10">
+                <span class="text-xs text-zinc-600 uppercase tracking-widest">Integrazioni certificate</span>
+                <div class="flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span class="text-zinc-300 font-semibold">RVFU</span><span class="text-zinc-600">Min. Trasporti</span></div>
+                <div class="flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span class="text-zinc-300 font-semibold">SDI</span><span class="text-zinc-600">Ag. Entrate</span></div>
+                <div class="flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-zinc-300 font-semibold">RENTRI</span><span class="text-zinc-600">Reg. Rifiuti</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold text-white mb-3">Tutto sotto controllo</h2>
+                <p class="text-zinc-500 max-w-lg mx-auto">Un programma unico per gestire tutta l'attivita: dal soccorso stradale alla demolizione.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-5">
+                <div class="glass rounded-2xl p-7 card-hover transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Gestione Trasporti</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">Ricevi la chiamata, assegni il trasporto, l'autista riceve tutto sul telefono. Sempre in tempo reale.</p>
+                </div>
+                <div class="glass rounded-2xl p-7 card-hover transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Piazzale e Veicoli</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">Dal momento in cui un veicolo entra nel piazzale, hai tutto sotto controllo: documenti, foto, scadenze.</p>
+                </div>
+                <div class="glass rounded-2xl p-7 card-hover transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Fatturazione SDI</h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">Crei la fattura, il sistema genera l'XML e lo invia all'Agenzia delle Entrate. Notifiche automatiche.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-16 border-y border-white/5">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div><div class="text-4xl font-black text-white stat-glow mb-1">4</div><div class="text-xs text-zinc-600 uppercase tracking-wider">Integrazioni governative</div></div>
+                <div><div class="text-4xl font-black text-white stat-glow mb-1">3</div><div class="text-xs text-zinc-600 uppercase tracking-wider">Piattaforme</div></div>
+                <div><div class="text-4xl font-black text-white stat-glow mb-1">100%</div><div class="text-xs text-zinc-600 uppercase tracking-wider">Made in Italy</div></div>
+                <div><div class="text-4xl font-black text-white stat-glow mb-1">24/7</div><div class="text-xs text-zinc-600 uppercase tracking-wider">Accesso dati</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-violet-600/10 to-blue-600/10"></div>
+        <div class="max-w-3xl mx-auto px-6 text-center relative">
+            <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Pronto a modernizzare la tua attivita?</h2>
+            <p class="text-zinc-400 mb-8">Dimostrazione gratuita, senza impegno. Ti seguiamo noi in tutto.</p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="#" class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition">Richiedi demo gratuita</a>
+                <a href="#" class="px-8 py-3.5 glass text-white font-semibold rounded-xl hover:bg-white/5 transition">392 172 3028</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 text-center text-xs text-zinc-700">
+            <p>RescueManager &mdash; Software gestionale per autodemolizioni e soccorso stradale</p>
+            <p class="mt-1">Prova gratuita 30 giorni &middot; Installazione inclusa &middot; Nessun vincolo</p>
+        </div>
+    </footer>
+</body>
+</html>

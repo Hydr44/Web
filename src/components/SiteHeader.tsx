@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { authManager, addAuthListener, type AuthUser } from "@/lib/auth";
-import { LogIn, LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
+import { LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
 
@@ -126,10 +126,8 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-      scrolled ? "bg-white shadow-md" : "bg-white"
-    }`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
@@ -142,15 +140,15 @@ export default function SiteHeader() {
                 priority
               />
             </div>
-            <span className="hidden sm:block text-lg font-bold text-gray-900">RescueManager</span>
+            <span className="hidden sm:block text-xl font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">.</span></span>
           </Link>
 
           {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             <Link
               href="/"
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                pathname === "/" ? "text-white bg-white/10" : "text-slate-400 hover:text-white"
               }`}
             >
               Home
@@ -163,51 +161,51 @@ export default function SiteHeader() {
               onMouseLeave={() => setProdottoOpen(false)}
             >
               <button
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-1"
+                className="px-4 py-2 text-sm font-medium rounded transition-colors text-slate-400 hover:text-white flex items-center gap-1"
               >
                 Prodotto
                 <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${prodottoOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {prodottoOpen && (
-                <div className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-white shadow-xl border border-gray-200 p-4 z-50">
+                <div className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-4 z-50">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
-                      <Link href="/moduli/trasporti" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">Trasporti</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch e tracking</div>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
+                      <Link href="/moduli/trasporti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Trasporti</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Soccorso, dispatch e tracking</div>
                       </Link>
-                      <div className="px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-default">
-                        <div className="text-sm font-medium text-gray-900">Piazzale</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Gestione veicoli in deposito</div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
+                        <div className="text-sm font-medium text-white">Piazzale</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Gestione veicoli in deposito</div>
                       </div>
-                      <div className="px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-default">
-                        <div className="text-sm font-medium text-gray-900">Clienti</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Anagrafica e storico</div>
+                      <div className="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
+                        <div className="text-sm font-medium text-white">Clienti</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Anagrafica e storico</div>
                       </div>
-                      <Link href="/moduli/ricambi" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">Ricambi TecDoc</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Magazzino ricambi</div>
+                      <Link href="/moduli/ricambi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Ricambi TecDoc</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Magazzino ricambi</div>
                       </Link>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-2">Moduli specializzati</div>
-                      <Link href="/moduli/rvfu" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">RVFU</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Radiazioni veicoli MIT</div>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Moduli specializzati</div>
+                      <Link href="/moduli/rvfu" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">RVFU</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Radiazioni veicoli MIT</div>
                       </Link>
-                      <Link href="/moduli/rentri" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">RENTRI</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Registro rifiuti</div>
+                      <Link href="/moduli/rentri" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">RENTRI</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Registro rifiuti</div>
                       </Link>
-                      <Link href="/moduli/sdi" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">Fatturazione SDI</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Fatture elettroniche</div>
+                      <Link href="/moduli/sdi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Fatturazione SDI</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Fatture elettroniche</div>
                       </Link>
-                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="text-sm font-medium text-gray-900">Contabilità</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Prima nota e piano dei conti</div>
+                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Contabilità</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Prima nota e piano dei conti</div>
                       </Link>
                     </div>
                   </div>
@@ -217,8 +215,8 @@ export default function SiteHeader() {
 
             <Link
               href="/prezzi"
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/prezzi" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                pathname === "/prezzi" ? "text-white bg-white/10" : "text-slate-400 hover:text-white"
               }`}
             >
               Prezzi
@@ -226,8 +224,8 @@ export default function SiteHeader() {
 
             <Link
               href="/contatti"
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === "/contatti" ? "text-[#2563EB] bg-blue-50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                pathname === "/contatti" ? "text-white bg-white/10" : "text-slate-400 hover:text-white"
               }`}
             >
               Contatti
@@ -240,7 +238,7 @@ export default function SiteHeader() {
               <>
                 <Link
                   href="/dashboard"
-                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-[#2563EB] text-white hover:bg-blue-700 transition-colors font-medium"
+                  className="hidden sm:flex items-center gap-2 text-sm px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors font-bold"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
@@ -250,59 +248,59 @@ export default function SiteHeader() {
                 <div className="relative" data-dropdown>
                   <button
                     onClick={handleMenuToggle}
-                    className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 border transition-colors max-w-[200px] sm:max-w-[240px] ${
+                    className={`inline-flex items-center gap-2 rounded px-3 py-2 border transition-colors max-w-[200px] sm:max-w-[240px] ${
                       menuOpen 
-                        ? 'border-[#2563EB] bg-blue-50' 
-                        : 'border-gray-200 hover:bg-gray-50'
+                        ? 'border-blue-500 bg-blue-500/10' 
+                        : 'border-slate-700 hover:border-slate-600'
                     }`}
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    <div className="w-6 h-6 rounded-full bg-[#2563EB] flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-600 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={user.email}>
+                    <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={user.email}>
                       {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
                     </span>
-                    <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {menuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white shadow-xl border border-gray-200 p-1.5 z-[9999]"
+                      className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-1.5 z-[9999]"
                     >
-                      <div className="p-3 border-b border-gray-100">
-                        <div className="text-xs text-gray-400 uppercase tracking-wide">Account</div>
-                        <div className="text-sm font-medium text-gray-900 truncate" title={user.email}>{user.email}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                      <div className="p-3 border-b border-slate-700">
+                        <div className="text-xs text-slate-500 uppercase tracking-wide">Account</div>
+                        <div className="text-sm font-medium text-white truncate" title={user.email}>{user.email}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">
                           {user.isGoogle ? "Google Account" : "Email Account"}
                         </div>
                       </div>
                       
                       <Link
                         href="/dashboard/settings"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5 transition-colors"
                         onClick={() => setMenuOpen(false)}
                       >
                         <User2 className="h-4 w-4" />
                         Impostazioni
                       </Link>
                       
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-slate-700 my-1"></div>
                       
                       <button
                         className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                           isLoggingOut 
-                            ? 'text-gray-400 cursor-not-allowed' 
-                            : 'text-red-600 hover:bg-red-50'
+                            ? 'text-slate-500 cursor-not-allowed' 
+                            : 'text-red-400 hover:bg-red-500/10'
                         }`}
                         onClick={handleLogout}
                         disabled={isLoggingOut}
                       >
                         {isLoggingOut ? (
                           <>
-                            <div className="h-4 w-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                            <div className="h-4 w-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
                             Disconnessione...
                           </>
                         ) : (
@@ -319,16 +317,15 @@ export default function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563EB] text-white hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-bold"
               >
-                <LogIn className="h-4 w-4" />
-                Accedi
+                PROVA GRATIS
               </Link>
             )}
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+              className="lg:hidden p-2 rounded hover:bg-white/10 transition-colors text-slate-400"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -338,7 +335,7 @@ export default function SiteHeader() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-3">
+          <div className="lg:hidden border-t border-slate-800 py-3">
             <div className="flex flex-col gap-1">
               {NAV.map((item) => {
                 const active = item.match ? item.match(pathname) : pathname === item.href;
@@ -346,10 +343,10 @@ export default function SiteHeader() {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
                       active
-                        ? "text-[#2563EB] bg-blue-50"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "text-white bg-white/10"
+                        : "text-slate-400 hover:text-white"
                     }`}
                   >
                     {item.label}
