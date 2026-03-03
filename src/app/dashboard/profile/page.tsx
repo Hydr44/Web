@@ -152,19 +152,10 @@ export default function ProfilePage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-          <User className="h-4 w-4" />
-          Profilo Personale
-        </div>
-        
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
-              Il tuo <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">profilo</span>
-            </h1>
-            <p className="text-lg text-slate-400">
-              Gestisci le tue informazioni personali e le preferenze dell'account.
-            </p>
+            <h1 className="text-2xl font-bold text-white mb-1">Profilo</h1>
+            <p className="text-slate-400">Gestisci le tue informazioni personali.</p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -179,7 +170,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
                 >
                   <Save className="h-4 w-4" />
                   Salva
@@ -188,7 +179,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
               >
                 <Edit className="h-4 w-4" />
                 Modifica
@@ -204,7 +195,7 @@ export default function ProfilePage() {
           <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
             <div className="text-center">
               <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                   {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
                 </div>
                 {editing && (
@@ -254,7 +245,7 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.full_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="Il tuo nome completo"
                   />
                 ) : (
@@ -284,7 +275,7 @@ export default function ProfilePage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="+39 123 456 7890"
                   />
                 ) : (
@@ -304,7 +295,7 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="Milano, Italia"
                   />
                 ) : (
@@ -324,7 +315,7 @@ export default function ProfilePage() {
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="https://tuosito.com"
                   />
                 ) : (
@@ -349,7 +340,7 @@ export default function ProfilePage() {
                   <select
                     value={formData.timezone}
                     onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
                     <option value="Europe/Rome">Europa/Roma (GMT+1)</option>
                     <option value="Europe/London">Europa/Londra (GMT+0)</option>
@@ -374,7 +365,7 @@ export default function ProfilePage() {
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   placeholder="Raccontaci qualcosa di te..."
                 />
               ) : (

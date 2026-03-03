@@ -138,25 +138,15 @@ export default function SecurityPage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-          <Shield className="h-4 w-4" />
-          Centro Sicurezza
-        </div>
-        
-        <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4">
-          Sicurezza <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Account</span>
-        </h1>
-        
-        <p className="text-lg text-slate-400 max-w-2xl">
-          Monitora e gestisci la sicurezza del tuo account. Proteggi i tuoi dati con le migliori pratiche di sicurezza.
-        </p>
+        <h1 className="text-2xl font-bold text-white mb-1">Sicurezza</h1>
+        <p className="text-slate-400">Monitora e gestisci la sicurezza del tuo account.</p>
       </header>
 
       {/* Security Score */}
       <div className={`p-6 rounded-2xl border ${getSecurityScoreBg(securityData.securityScore)} `}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -193,7 +183,7 @@ export default function SecurityPage() {
           className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
               <Key className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -212,7 +202,7 @@ export default function SecurityPage() {
           className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center">
               <Smartphone className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -233,7 +223,7 @@ export default function SecurityPage() {
           className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-slate-600 flex items-center justify-center">
               <Monitor className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -252,7 +242,7 @@ export default function SecurityPage() {
           className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -271,7 +261,7 @@ export default function SecurityPage() {
           className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center">
               <Activity className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -340,7 +330,7 @@ export default function SecurityPage() {
       </div>
 
       {/* Security Progress */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-500/20/50 ">
+      <div className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700">
         <h2 className="text-xl font-semibold text-slate-100 mb-4">Migliora la Sicurezza del tuo Account</h2>
         
         <div className="mb-6">

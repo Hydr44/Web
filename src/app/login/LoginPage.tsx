@@ -4,16 +4,14 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const params = useSearchParams();
   const redirectTo = params.get("redirect") || "/dashboard";
@@ -26,33 +24,18 @@ export default function LoginPage() {
       return;
     }
 
-    if (!acceptTerms) {
-      setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
-    setSuccess(false);
 
     try {
-      console.log("=== LOGIN START ===");
-      console.log("Email:", email);
-      console.log("Redirect to:", redirectTo);
-
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        setSuccess(true);
-        
-        // Redirect immediato
-        window.location.href = redirectTo;
+        globalThis.location.href = redirectTo;
       } else {
-        console.error("Login failed:", result.error);
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
       }
-    } catch (error) {
-      console.error("Login exception:", error);
+    } catch {
       setError("Errore imprevisto durante l'accesso. Riprova.");
     } finally {
       setIsLoading(false);
@@ -93,7 +76,7 @@ export default function LoginPage() {
           </div>
 
           {/* Error Messages */}
-          {error && !success && (
+          {error && (
             <div
               className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
             >
@@ -150,37 +133,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Terms Checkbox */}
-            <div className="flex items-start gap-3">
-              <input
-                id="acceptTerms"
-                type="checkbox"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 text-blue-500 border-[#243044] bg-[#141c27] rounded focus:ring-blue-500"
-                disabled={isLoading}
-              />
-              <label htmlFor="acceptTerms" className="text-sm text-slate-400">
-                Accetto i{" "}
-                <Link href="/terms-of-use" className="text-[#2563EB] hover:underline">
-                  Termini d'Uso
-                </Link>{" "}
-                e la{" "}
-                <Link href="/privacy-policy" className="text-[#2563EB] hover:underline">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || !acceptTerms}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
-                isLoading || !acceptTerms
-                  ? "bg-[#243044] text-slate-600 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-500"
-              }`}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -188,11 +145,7 @@ export default function LoginPage() {
                   Accesso in corso...
                 </>
               ) : (
-                <>
-                  <LogIn className="h-4 w-4" />
-                  Accedi
-                  <ArrowRight className="h-4 w-4" />
-                </>
+                "Accedi"
               )}
             </button>
           </form>

@@ -207,25 +207,16 @@ export default function NotificationsPage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-          <Bell className="h-4 w-4" />
-          Centro Notifiche
-        </div>
-        
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-2">
-              Gestione <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Notifiche</span>
-            </h1>
-            <p className="text-lg text-slate-400">
-              Personalizza come e quando ricevere le notifiche per il tuo account.
-            </p>
+            <h1 className="text-2xl font-bold text-white mb-1">Notifiche</h1>
+            <p className="text-slate-400">Personalizza come e quando ricevere le notifiche.</p>
           </div>
           
           <button
             onClick={handleSaveSettings}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors duration-200 font-medium disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
           >
             {saving ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -242,7 +233,7 @@ export default function NotificationsPage() {
         {/* Email Notifications */}
         <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -341,7 +332,7 @@ export default function NotificationsPage() {
         {/* Push Notifications */}
         <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center">
               <Smartphone className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -424,7 +415,7 @@ export default function NotificationsPage() {
         {/* SMS Notifications */}
         <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-slate-600 flex items-center justify-center">
               <Monitor className="h-5 w-5 text-white" />
             </div>
             <div>

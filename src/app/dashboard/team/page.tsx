@@ -48,82 +48,65 @@ export default async function TeamPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <header className="text-center lg:text-left">
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-          <Users className="h-4 w-4" />
-          Gestione Team
-        </div>
-        
-        <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4">
-          Team & <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">ruoli</span>
-        </h1>
-        
-        <p className="text-lg text-slate-400 max-w-2xl">
-          Invita collaboratori, assegna ruoli e permessi per gestire il tuo team in modo efficiente.
-        </p>
+      <header>
+        <h1 className="text-2xl font-bold text-white mb-1">Team</h1>
+        <p className="text-slate-400">Gestisci i membri e i ruoli della tua organizzazione.</p>
       </header>
 
       {/* Statistiche team */}
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
-              <Users className="h-5 w-5 text-white" />
+        <div className="p-5 rounded-xl bg-[#1e293b] border border-slate-700">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-600/20 flex items-center justify-center">
+              <Users className="h-4 w-4 text-blue-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-100">Membri Totali</h3>
-              <p className="text-sm text-slate-400">Team attivo</p>
+              <p className="text-xs text-slate-400">Membri totali</p>
+              <div className="text-2xl font-bold text-white">{members.length}</div>
             </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-100">{members.length}</div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg shadow-black/20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
-              <Crown className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-slate-100">Amministratori</h3>
-              <p className="text-sm text-slate-400">Ruolo admin</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-100">
-            {members.filter(m => m.role === 'admin').length}
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-lg shadow-black/20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+        <div className="p-5 rounded-xl bg-[#1e293b] border border-slate-700">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Crown className="h-4 w-4 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-100">Utenti</h3>
-              <p className="text-sm text-slate-400">Ruolo user</p>
+              <p className="text-xs text-slate-400">Amministratori</p>
+              <div className="text-2xl font-bold text-white">{members.filter(m => m.role === 'admin').length}</div>
             </div>
           </div>
-          <div className="text-3xl font-bold text-slate-100">
-            {members.filter(m => m.role === 'user').length}
+        </div>
+
+        <div className="p-5 rounded-xl bg-[#1e293b] border border-slate-700">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-slate-700 flex items-center justify-center">
+              <User className="h-4 w-4 text-slate-300" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Utenti</p>
+              <div className="text-2xl font-bold text-white">{members.filter(m => m.role === 'user').length}</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Lista membri */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
+      <div className="p-6 rounded-xl bg-[#1e293b] border border-slate-700">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-blue-400" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-slate-100">Membri del Team</h3>
               <p className="text-sm text-slate-400">Gestisci i permessi e i ruoli</p>
             </div>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 text-white text-sm font-medium hover:shadow-lg shadow-black/20 transition-all duration-200">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
             <UserPlus className="h-4 w-4" />
-            Invita utente
+            Invita
           </button>
         </div>
 
@@ -136,7 +119,7 @@ export default async function TeamPage() {
                 </div>
                 <h3 className="text-lg font-medium text-slate-100 mb-2">Nessun membro trovato</h3>
                 <p className="text-sm text-slate-400 mb-4">Inizia invitando il primo membro del tuo team</p>
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 text-white text-sm font-medium hover:shadow-lg shadow-black/20 transition-all duration-200">
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
                   <UserPlus className="h-4 w-4" />
                   Invita il primo membro
                 </button>
@@ -145,7 +128,7 @@ export default async function TeamPage() {
               members.map((m) => (
                 <div key={m.id} className="flex items-center justify-between p-4 rounded-xl bg-[#1a2536] border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
                       <User className="h-5 w-5 text-white" />
                     </div>
                     <div>

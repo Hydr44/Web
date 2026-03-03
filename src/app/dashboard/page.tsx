@@ -10,9 +10,7 @@ import {
   Building2
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
 
 export default function DashboardPanoramica() {
@@ -23,8 +21,6 @@ export default function DashboardPanoramica() {
     status: "active",
     plan: "Pro"
   });
-  const animations = useOptimizedAnimations();
-
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
@@ -93,17 +89,16 @@ export default function DashboardPanoramica() {
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Building2 className="h-8 w-8 text-yellow-600" />
+          <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Building2 className="h-8 w-8 text-blue-400" />
           </div>
           
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-white mb-4">
             Benvenuto in RescueManager!
           </h1>
           
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Per iniziare a utilizzare RescueManager, devi prima creare o unirti a un'organizzazione.
-            Questo ti permetterà di gestire la tua officina e i tuoi dati in modo sicuro.
+          <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+            Per iniziare, crea la tua organizzazione. Ti permetterà di gestire la tua officina.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -124,26 +119,19 @@ export default function DashboardPanoramica() {
         </div>
 
         {/* Benefits */}
-        <motion.div 
-          {...animations.staggerContainer}
-          className="grid md:grid-cols-3 gap-6"
-        >
+        <div className="grid md:grid-cols-3 gap-6">
           {[
             { icon: Building2, title: "Gestione Completa", desc: "Organizza la tua officina con tutti gli strumenti necessari" },
-            { icon: Users, title: "Team Collaboration", desc: "Lavora con il tuo team in modo efficiente" },
+            { icon: Users, title: "Team", desc: "Lavora con il tuo team in modo efficiente" },
             { icon: Shield, title: "Sicurezza Dati", desc: "I tuoi dati sono protetti e sicuri" }
-          ].map((benefit, i) => (
-            <motion.div
-              key={benefit.title}
-              {...animations.staggerItem}
-              className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700"
-            >
-              <benefit.icon className="h-8 w-8 text-primary mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
-              <p className="text-slate-400">{benefit.desc}</p>
-            </motion.div>
+          ].map((benefit) => (
+            <div key={benefit.title} className="p-6 rounded-xl bg-[#1e293b] border border-slate-700">
+              <benefit.icon className="h-8 w-8 text-blue-400 mb-4" />
+              <h3 className="text-base font-semibold text-white mb-2">{benefit.title}</h3>
+              <p className="text-slate-400 text-sm">{benefit.desc}</p>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     );
   }
