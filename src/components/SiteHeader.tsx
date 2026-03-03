@@ -168,7 +168,11 @@ export default function SiteHeader() {
               </button>
 
               {prodottoOpen && (
-                <div className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-4 z-50">
+                <div 
+                  className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-4 z-50"
+                  onMouseEnter={() => setProdottoOpen(true)}
+                  onMouseLeave={() => setProdottoOpen(false)}
+                >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
@@ -315,12 +319,20 @@ export default function SiteHeader() {
                 </div>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-bold"
-              >
-                PROVA GRATIS
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                >
+                  Accedi
+                </Link>
+                <Link
+                  href="/contatti"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-bold"
+                >
+                  Richiedi Demo
+                </Link>
+              </>
             )}
 
             {/* Mobile menu button */}

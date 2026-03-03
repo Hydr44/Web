@@ -148,16 +148,13 @@ function HomeContent() {
       )}
 
       {/* ============================================ */}
-      {/* HERO — Bold Split: Navy left, Blue right     */}
+      {/* HERO — Bold Split with Video Background      */}
       {/* ============================================ */}
-      <section className="pt-16">
+      <section className="pt-16 relative">
         <div className="grid lg:grid-cols-2 min-h-[90vh]">
           {/* Left: Dark */}
-          <div className="flex items-center px-6 lg:px-12 xl:px-20 py-20 bg-[#0f172a]">
+          <div className="flex items-center px-6 lg:px-12 xl:px-20 py-20 bg-[#0f172a] relative z-10">
             <div className="max-w-lg">
-              <div className="inline-block bg-blue-500/10 border border-blue-500/20 rounded px-3 py-1 text-xs text-blue-400 font-semibold uppercase tracking-wider mb-8">
-                Certificato RVFU / SDI / RENTRI
-              </div>
               <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
                 Gestisci.<br />
                 Demolisci.<br />
@@ -170,13 +167,13 @@ function HomeContent() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/contatti"
-                  className="px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
+                  className="px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors rounded"
                 >
                   RICHIEDI DEMO
                 </Link>
                 <Link
                   href="tel:+393921723028"
-                  className="px-7 py-4 border-2 border-slate-700 text-white font-bold text-sm hover:border-blue-500 transition-colors flex items-center gap-2"
+                  className="px-7 py-4 border-2 border-slate-700 text-white font-bold text-sm hover:border-blue-500 transition-colors flex items-center gap-2 rounded"
                 >
                   <Phone className="h-4 w-4" />
                   CHIAMACI
@@ -184,35 +181,19 @@ function HomeContent() {
               </div>
             </div>
           </div>
-          {/* Right: Blue with screenshot */}
-          <div className="flex items-center justify-center px-6 lg:px-12 py-20 bg-blue-600">
-            <div className="w-full max-w-md rounded-lg overflow-hidden border border-white/20 shadow-2xl">
-              <Image
-                src="/appshots/dashboard.jpg"
-                alt="Schermata principale RescueManager"
-                width={1200}
-                height={800}
-                priority
-                className="w-full h-auto"
-                quality={90}
-              />
-            </div>
+          {/* Right: Blue with auto-play video */}
+          <div className="relative bg-blue-600 overflow-hidden">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src="/demo-video.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-blue-600/20"></div>
           </div>
-        </div>
-      </section>
-
-      {/* ============================================ */}
-      {/* CERTIFICAZIONI — Navy bar, bold                */}
-      {/* ============================================ */}
-      <section className="py-6 bg-[#0f172a] border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-8 text-sm">
-          <span className="font-bold text-white">RVFU</span>
-          <span className="text-slate-700">/</span>
-          <span className="font-bold text-white">SDI</span>
-          <span className="text-slate-700">/</span>
-          <span className="font-bold text-white">RENTRI</span>
-          <span className="text-slate-700">/</span>
-          <span className="text-slate-500">Tutte le certificazioni governative</span>
         </div>
       </section>
 

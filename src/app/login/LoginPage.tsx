@@ -62,7 +62,7 @@ export default function LoginPage() {
   // Google login handled by GoogleLoginButton component
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0c1929] via-[#141c27] to-[#0c1929] flex items-center justify-center p-4 pt-28">
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 pt-28">
       <div className="w-full max-w-md">
         {/* Logo grande */}
         <div className="text-center mb-8">
@@ -77,7 +77,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">RescueManager</div>
+              <div className="text-2xl font-bold text-white">RESCUE<span className="text-blue-500">.</span></div>
               <div className="text-sm text-slate-400 -mt-1">Autodemolizioni & Soccorso</div>
             </div>
           </Link>
@@ -85,7 +85,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div
-          className="bg-[#1a2536] rounded-lg border border-[#243044] p-8"
+          className="bg-[#1e293b] rounded-xl border border-slate-700 p-8 shadow-2xl"
         >
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-slate-100 mb-2">Accedi al tuo account</h1>
