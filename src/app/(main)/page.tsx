@@ -11,7 +11,6 @@ import {
   Headphones,
   Receipt,
   Recycle,
-  Clock,
   AlertCircle,
   X
 } from "lucide-react";
@@ -253,12 +252,12 @@ function HomeContent() {
             </div>
             <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
-                src="/appshots/trasporti.jpg"
-                alt="Gestione trasporti RescueManager"
-                width={800}
-                height={500}
+                src="/appshots/autisti.png"
+                alt="Gestione autisti e trasporti RescueManager"
+                width={1024}
+                height={768}
                 className="w-full h-auto"
-                quality={85}
+                quality={90}
               />
             </div>
           </div>
@@ -267,12 +266,12 @@ function HomeContent() {
           <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
             <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
-                src="/appshots/piazzale.jpg"
+                src="/appshots/piazzalenuovo.png"
                 alt="Gestione piazzale RescueManager"
-                width={800}
-                height={500}
+                width={1024}
+                height={768}
                 className="w-full h-auto"
-                quality={85}
+                quality={90}
               />
             </div>
             <div className="order-1 lg:order-2">
@@ -327,12 +326,12 @@ function HomeContent() {
             </div>
             <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
-                src="/appshots/clienti.jpg"
+                src="/appshots/clientinuovo.png"
                 alt="Gestione clienti RescueManager"
-                width={800}
-                height={500}
+                width={1024}
+                height={768}
                 className="w-full h-auto"
-                quality={85}
+                quality={90}
               />
             </div>
           </div>
@@ -341,29 +340,29 @@ function HomeContent() {
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
               <Image
-                src="/appshots/preventivo.jpg"
-                alt="Preventivi RescueManager"
-                width={800}
-                height={500}
+                src="/appshots/fatture elettroniche.png"
+                alt="Fatture elettroniche RescueManager"
+                width={1024}
+                height={768}
                 className="w-full h-auto"
-                quality={85}
+                quality={90}
               />
             </div>
             <div className="order-1 lg:order-2">
               <span className="text-6xl font-extrabold text-blue-500/20">04</span>
               <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
-                Preventivi pronti in pochi minuti
+                Fatture elettroniche in automatico
               </h3>
               <p className="text-gray-500 mb-5">
-                Crei il preventivo, lo mandi al cliente via email o WhatsApp, 
-                e quando accetta lo trasformi in fattura con un click.
+                Crei la fattura, la invii allo SDI e il sistema ti avvisa quando è accettata. 
+                Tutto conforme alla normativa italiana, senza pensieri.
               </p>
               <ul className="space-y-2.5">
                 {[
-                  "Creazione rapida con listino prezzi",
-                  "Invio diretto via email o WhatsApp",
-                  "Conversione in fattura automatica",
-                  "PDF professionale con il tuo logo"
+                  "Invio automatico allo SDI",
+                  "Notifiche di accettazione in tempo reale",
+                  "Conservazione sostitutiva inclusa",
+                  "Gestione note di credito e storni"
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
                     <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -476,48 +475,65 @@ function HomeContent() {
       </section>
 
       {/* ============================================ */}
-      {/* PERCHÉ NOI — White with bold headings          */}
+      {/* VIDEO DEMO — Bold Split style                  */}
       {/* ============================================ */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-14">
-            Perché noi<span className="text-blue-500">.</span>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { 
-                icon: Monitor, 
-                title: "Funziona ovunque", 
-                desc: "PC Windows, browser web, app sul telefono. I tuoi dati sono sempre con te." 
-              },
-              { 
-                icon: Headphones, 
-                title: "Assistenza vera", 
-                desc: "Ti rispondiamo al telefono. Ti aiutiamo con l'installazione e la formazione." 
-              },
-              { 
-                icon: Shield, 
-                title: "Dati al sicuro", 
-                desc: "Backup automatici ogni giorno. I tuoi dati sono protetti e sempre disponibili." 
-              },
-              { 
-                icon: Clock, 
-                title: "Sempre aggiornato", 
-                desc: "Aggiornamenti automatici. Quando cambiano le normative, il software si adegua." 
-              }
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="p-6 rounded-lg border-2 border-gray-100 bg-white hover:border-blue-500 transition-colors"
-              >
-                <div className="w-10 h-10 bg-[#0f172a] rounded-lg flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-blue-500" />
-                </div>
-                <h3 className="text-base font-extrabold text-[#0f172a] mb-1.5">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Video */}
+            <div className="order-2 lg:order-1">
+              <div className="rounded-lg overflow-hidden shadow-2xl border-2 border-[#0f172a]">
+                <video 
+                  controls 
+                  className="w-full h-auto"
+                  poster="/appshots/365shots_so.png"
+                >
+                  <source src="/demo-video.mp4" type="video/mp4" />
+                  Il tuo browser non supporta il tag video.
+                </video>
               </div>
-            ))}
+            </div>
+
+            {/* Right: Text */}
+            <div className="order-1 lg:order-2">
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-6">
+                Vedi in azione<span className="text-blue-500">.</span>
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">
+                Guarda come RescueManager semplifica la gestione quotidiana della tua autodemolizione. 
+                Dal primo contatto con il cliente fino alla radiazione del veicolo.
+              </p>
+              
+              <div className="space-y-4">
+                {[
+                  { 
+                    icon: Monitor, 
+                    title: "Interfaccia intuitiva", 
+                    desc: "Tutto a portata di click, senza complicazioni" 
+                  },
+                  { 
+                    icon: Shield, 
+                    title: "Dati sempre al sicuro", 
+                    desc: "Backup automatici e crittografia avanzata" 
+                  },
+                  { 
+                    icon: Headphones, 
+                    title: "Supporto dedicato", 
+                    desc: "Ti aiutiamo quando ne hai bisogno" 
+                  }
+                ].map((item) => (
+                  <div key={item.title} className="flex gap-4">
+                    <div className="w-12 h-12 bg-[#0f172a] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <item.icon className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-[#0f172a] mb-1">{item.title}</h3>
+                      <p className="text-sm text-gray-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
