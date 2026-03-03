@@ -131,12 +131,12 @@ export default function SiteHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="relative w-9 h-9">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden">
               <Image
-                src="/logoufficiale_1024.png"
+                src="/logo_128.png"
                 alt="RescueManager"
                 fill
-                className="object-contain"
+                className="object-cover"
                 priority
               />
             </div>
