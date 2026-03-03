@@ -182,17 +182,16 @@ function HomeContent() {
             </div>
           </div>
           {/* Right: Blue with auto-play video */}
-          <div className="relative bg-blue-600 overflow-hidden">
+          <div className="relative bg-blue-600 overflow-hidden flex items-center justify-center">
             <video 
               autoPlay 
               loop 
               muted 
               playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+              className="w-full h-full object-contain"
             >
               <source src="/demo-video.mp4" type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-blue-600/20"></div>
           </div>
         </div>
       </section>

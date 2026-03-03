@@ -109,14 +109,14 @@ export default function DashboardPanoramica() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/dashboard/create-org"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200"
             >
               <Building2 className="h-5 w-5" />
               Crea Organizzazione
               <ArrowRight className="h-4 w-4" />
             </Link>
             
-            <button className="inline-flex items-center gap-2 px-6 py-3 border border-[#243044] text-slate-300 font-semibold rounded-xl hover:bg-[#1a2536] transition-all duration-200">
+            <button className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-700 text-white font-semibold rounded-xl hover:bg-white/5 transition-all duration-200">
               <Users className="h-5 w-5" />
               Unisciti a un'Organizzazione
             </button>
@@ -136,11 +136,11 @@ export default function DashboardPanoramica() {
             <motion.div
               key={benefit.title}
               {...animations.staggerItem}
-              className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044]"
+              className="p-6 rounded-2xl bg-[#1e293b] border border-slate-700"
             >
               <benefit.icon className="h-8 w-8 text-primary mb-4" />
-              <h3 className="text-lg font-semibold text-slate-100 mb-2">{benefit.title}</h3>
-              <p className="text-gray-600">{benefit.desc}</p>
+              <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
+              <p className="text-slate-400">{benefit.desc}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -153,7 +153,7 @@ export default function DashboardPanoramica() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
           <p className="text-slate-400 mt-1">
             Benvenuto in {currentOrg}
           </p>
@@ -170,13 +170,13 @@ export default function DashboardPanoramica() {
       </div>
 
       {/* Info Card */}
-      <div className="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 rounded-xl p-6 border border-blue-500/20">
+      <div className="bg-[#1e293b] rounded-xl p-6 border border-slate-700">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
             <Building2 className="h-6 w-6 text-blue-400" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-slate-100 mb-1">{currentOrg}</h2>
+            <h2 className="text-lg font-semibold text-white mb-1">{currentOrg}</h2>
             <p className="text-sm text-slate-400 mb-3">
               Tutte le funzionalità operative sono disponibili nell'app desktop. Da qui puoi gestire il tuo abbonamento e scaricare l'applicazione.
             </p>
@@ -192,48 +192,48 @@ export default function DashboardPanoramica() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-[#1a2536] rounded-xl p-6 border border-[#243044]">
-        <h2 className="text-base font-semibold text-slate-200 mb-4">Gestione Account</h2>
+      <div className="bg-[#1e293b] rounded-xl p-6 border border-slate-700">
+        <h2 className="text-base font-semibold text-white mb-4">Gestione Account</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+          <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center mr-3">
               <BarChart3 className="h-4 w-4 text-emerald-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Abbonamento e Fatturazione</p>
+              <p className="font-medium text-white text-sm">Abbonamento e Fatturazione</p>
               <p className="text-xs text-slate-500">Gestisci piano e metodi di pagamento</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
-          <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+          <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center mr-3">
               <Download className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Download Applicazione</p>
+              <p className="font-medium text-white text-sm">Download Applicazione</p>
               <p className="text-xs text-slate-500">Scarica app desktop e mobile</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
-          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center mr-3">
               <Users className="h-4 w-4 text-purple-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Gestione Team</p>
+              <p className="font-medium text-white text-sm">Gestione Team</p>
               <p className="text-xs text-slate-500">Invita e gestisci membri</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
           </Link>
 
-          <Link href="/dashboard/org" className="flex items-center p-4 rounded-lg border border-[#243044] hover:bg-[#243044]/50 transition-colors group">
+          <Link href="/dashboard/org" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center mr-3">
               <Building2 className="h-4 w-4 text-amber-400" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-slate-200 text-sm">Organizzazione</p>
+              <p className="font-medium text-white text-sm">Organizzazione</p>
               <p className="text-xs text-slate-500">Visualizza e modifica dati aziendali</p>
             </div>
             <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />

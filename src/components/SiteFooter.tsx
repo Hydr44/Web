@@ -36,7 +36,6 @@ export default function SiteFooter() {
             <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Prodotto</h3>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/prodotto" className="text-slate-400 hover:text-white transition-colors">Moduli e funzionalità</Link></li>
-              <li><Link href="/prezzi" className="text-slate-400 hover:text-white transition-colors">Piani e prezzi</Link></li>
               <li><Link href="/download" className="text-slate-400 hover:text-white transition-colors">Accessi e download</Link></li>
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Richiedi demo</Link></li>
             </ul>

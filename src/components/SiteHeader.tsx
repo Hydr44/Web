@@ -218,15 +218,6 @@ export default function SiteHeader() {
             </div>
 
             <Link
-              href="/prezzi"
-              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
-                pathname === "/prezzi" ? "text-white bg-white/10" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Prezzi
-            </Link>
-
-            <Link
               href="/contatti"
               className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
                 pathname === "/contatti" ? "text-white bg-white/10" : "text-slate-400 hover:text-white"
