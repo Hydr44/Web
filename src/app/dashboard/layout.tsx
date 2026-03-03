@@ -13,7 +13,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const [userEmail, setUserEmail] = useState("");
-  const [currentOrgName, setCurrentOrgName] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -31,7 +30,6 @@ export default function DashboardLayout({
         }
         
         setUserEmail(user.email || "Utente");
-        setCurrentOrgName("RescueManager");
         setLoading(false);
       } catch (error) {
         console.error("Auth check error:", error);
@@ -46,7 +44,6 @@ export default function DashboardLayout({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         setUserEmail(session.user.email || "Utente");
-        setCurrentOrgName("RescueManager");
         setLoading(false);
       } else if (event === 'SIGNED_OUT') {
         router.push("/login?redirect=/dashboard");
@@ -58,7 +55,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#141c27] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-slate-400">Caricamento dashboard...</p>
@@ -69,7 +66,7 @@ export default function DashboardLayout({
 
   return (
     <DashboardShell userEmail={userEmail}>
-      <Breadcrumbs currentOrgName={currentOrgName} />
+      <Breadcrumbs />
       {children}
     </DashboardShell>
   );

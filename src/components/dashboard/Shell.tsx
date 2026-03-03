@@ -50,8 +50,8 @@ const NavLink: React.FC<{
         href={href}
         className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
           active 
-            ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg shadow-blue-500/20" 
-            : "text-slate-400 hover:bg-[#1a2536] hover:text-slate-200"
+            ? "bg-blue-600 text-white" 
+            : "text-slate-400 hover:bg-white/5 hover:text-white"
         }`}
         aria-current={active ? "page" : undefined}
       >
@@ -89,8 +89,8 @@ const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePa
         onClick={() => setOpen((v) => !v)}
         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
           open 
-            ? "text-slate-200 bg-[#1a2536]" 
-            : "text-slate-400 hover:bg-[#1a2536] hover:text-slate-200"
+            ? "text-white bg-white/5" 
+            : "text-slate-400 hover:bg-white/5 hover:text-white"
         }`}
       >
         {Icon && (
@@ -104,7 +104,7 @@ const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePa
         </div>
       </button>
 
-      <div className={`ml-6 mt-2 space-y-1 border-l border-[#243044] pl-3 ${open ? "block" : "hidden"}`}>
+      <div className={`ml-6 mt-2 space-y-1 border-l border-slate-700 pl-3 ${open ? "block" : "hidden"}`}>
         {item.children?.map((child) => {
           const active = child.href ? activePath.startsWith(child.href) : false;
           return (
@@ -134,16 +134,16 @@ export default function DashboardShell({
   const path = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#141c27] pt-20">
+    <div className="min-h-screen bg-slate-100 pt-20">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* Sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-4 bg-[#0c1929] border-r border-[#243044]">
+        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-4 bg-[#0f172a] border-r border-slate-800">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
             {/* User block */}
             {userEmail && (
-              <div className="mb-4 p-3 rounded-xl bg-[#1a2536] border border-[#243044]">
+              <div className="mb-4 p-3 rounded-xl bg-[#1e293b] border border-slate-700">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-400 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
                     <User className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -192,7 +192,7 @@ export default function DashboardShell({
                 await supabase.auth.signOut();
                 window.location.href = "/login";
               }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-[#1a2536] hover:text-slate-200 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
             >
               <LogOut className="h-4 w-4" /> 
               Esci
