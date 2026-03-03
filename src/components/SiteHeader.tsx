@@ -131,16 +131,16 @@ export default function SiteHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="relative w-10 h-10">
+            <div className="relative w-10 h-10 bg-white rounded-lg p-1.5 flex items-center justify-center">
               <Image
                 src="/logoufficiale_1024.png"
                 alt="RescueManager"
                 fill
-                className="object-contain"
+                className="object-contain p-0.5"
                 priority
               />
             </div>
-            <span className="hidden sm:block text-xl font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">.</span></span>
+            <span className="hidden sm:block text-xl font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
           </Link>
 
           {/* Navigation */}
