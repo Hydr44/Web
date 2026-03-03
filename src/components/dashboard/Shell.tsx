@@ -134,10 +134,10 @@ export default function DashboardShell({
   const path = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#0f172a] pt-20">
+    <div className="min-h-screen bg-[#0f172a] pt-28">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* Sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] p-4 bg-[#0a0f1a] border-r border-slate-800">
+        <aside className="lg:sticky lg:top-28 lg:h-[calc(100vh-112px)] p-4 bg-[#0a0f1a] border-r border-slate-800">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
             {/* User block */}
             {userEmail && (

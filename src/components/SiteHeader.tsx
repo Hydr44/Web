@@ -128,10 +128,10 @@ export default function SiteHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-28">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden">
               <Image
                 src="/logo_128.png"
                 alt="RescueManager"

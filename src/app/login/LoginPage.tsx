@@ -45,17 +45,17 @@ export default function LoginPage() {
   // Google login handled by GoogleLoginButton component
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 pt-28">
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 pt-36">
       <div className="w-full max-w-md">
         {/* Logo grande */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3 group">
-            <div className="relative w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden">
               <Image
-                src="/logoufficiale_1024.png"
+                src="/logo_128.png"
                 alt="RescueManager"
                 fill
-                className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 priority
               />
             </div>

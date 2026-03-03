@@ -124,7 +124,7 @@ function HomeContent() {
     <main>
       {/* Error Banner */}
       {showError && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-full mx-4">
+        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-full mx-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -150,7 +150,7 @@ function HomeContent() {
       {/* ============================================ */}
       {/* HERO — Bold Split with Video Background      */}
       {/* ============================================ */}
-      <section className="pt-16 relative">
+      <section className="pt-28 relative">
         <div className="grid lg:grid-cols-2 min-h-[90vh]">
           {/* Left: Dark */}
           <div className="flex items-center px-6 lg:px-12 xl:px-20 py-20 bg-[#0f172a] relative z-10">

@@ -18,13 +18,13 @@ export default function NotFound() {
         {/* Logo */}
         <div className="mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3 group">
-            <div className="relative w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-lg">
               <Image 
-                src="/logoufficiale_1024.png" 
+                src="/logo_128.png" 
                 alt="RescueManager" 
                 fill
                 priority 
-                className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
