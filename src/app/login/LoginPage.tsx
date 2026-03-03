@@ -50,17 +50,17 @@ export default function LoginPage() {
         {/* Logo grande */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3 group">
-            <div className="relative w-24 h-24">
+            <div className="relative w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
               <Image
                 src="/logoufficiale_1024.png"
                 alt="RescueManager"
                 fill
-                className="object-contain transition-transform duration-300 group-hover:scale-105"
+                className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
                 priority
               />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">RESCUE<span className="text-blue-500">.</span></div>
+              <div className="text-2xl font-bold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></div>
               <div className="text-sm text-slate-400 -mt-1">Autodemolizioni & Soccorso</div>
             </div>
           </Link>
