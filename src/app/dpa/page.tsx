@@ -5,7 +5,7 @@ export default function DPAPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-[#0f172a] via-[#1e2d45] to-[#0f172a] pt-28 pb-16">
+      <div className="bg-[#0f172a] pt-28 pb-16">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-500/30 px-4 py-2 mb-6 bg-blue-500/10 text-blue-400 font-medium">
             <Shield className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function DPAPage() {
           </section>
 
           {/* Contatti */}
-          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+          <div className="bg-[#0f172a] rounded-xl p-6 text-white">
             <h3 className="font-bold text-lg mb-4">Contatti per Questioni Relative al DPA</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
