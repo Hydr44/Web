@@ -46,7 +46,7 @@ export default function CookiePolicyPage() {
               </div>
               <h2 className="text-xl font-bold text-gray-900">1. Identificazione del Titolare</h2>
             </div>
-            <div className="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
               <p><strong>Emmanuel Salvatore Scozzarini</strong> — Nome commerciale: <strong>RescueManager</strong></p>
               <p><strong>P. IVA:</strong> 02166430856 (visibile in modo permanente nel footer di ogni pagina, in conformità all&apos;art. 35 del D.P.R. 633/1972)</p>
               <p><strong>Domicilio Professionale:</strong> Via dello Smeraldo 18, Gela (CL), Sicilia</p>
@@ -242,7 +242,7 @@ export default function CookiePolicyPage() {
           </section>
 
           {/* 8. Contatti */}
-          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+          <div className="bg-[#0f172a] rounded-xl p-6 text-white">
             <h3 className="font-bold text-lg mb-4">8. Contatti e Diritti degli Interessati</h3>
             <p className="text-slate-300 text-sm mb-4">Per qualsiasi richiesta relativa alla presente Cookie Policy o all&apos;esercizio dei diritti in materia di dati personali:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

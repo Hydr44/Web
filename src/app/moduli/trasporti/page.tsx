@@ -1,128 +1,84 @@
 import Link from "next/link";
-import { ArrowLeft, Truck, MapPin, Calendar, Users, BarChart3, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Users, BarChart3, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function TrasportiPage() {
   return (
-    <main className="min-h-screen bg-white pt-24 pb-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back button */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Torna alla home
-        </Link>
-
-        {/* Header */}
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-blue-50 border border-blue-200 mb-6">
-            <Truck className="h-5 w-5 text-[#2563EB]" />
-            <span className="text-sm font-medium text-[#2563EB]">App Base</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Gestione Trasporti
+    <main className="bg-white">
+      {/* HERO */}
+      <section className="pt-16 bg-[#0f172a]">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Torna alla home
+          </Link>
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">App Base</p>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-[1.05]">
+            Gestione Trasporti<span className="text-blue-500">.</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl">
-            Sistema completo per la gestione dei trasporti di soccorso stradale e demolizioni, con tracking GPS in tempo reale e dispatch automatico.
+          <p className="text-lg text-slate-400 max-w-2xl">
+            Sistema completo per soccorso stradale e demolizioni: dispatch, tracking GPS in tempo reale, calendario turni e rapportini digitali.
           </p>
         </div>
+      </section>
 
-        {/* Features grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
-              <MapPin className="h-6 w-6 text-[#2563EB]" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Tracking GPS Live</h3>
-            <p className="text-sm text-gray-600">
-              Monitora in tempo reale la posizione dei mezzi di soccorso con aggiornamenti automatici ogni 30 secondi. Supporto dispositivi Teltonika, Queclink, Concox e OBD2.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center mb-4">
-              <Calendar className="h-6 w-6 text-[#10B981]" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Pianificazione Avanzata</h3>
-            <p className="text-sm text-gray-600">
-              Calendario integrato con vista settimana/mese, assegnazione automatica autisti e mezzi, gestione priorità e ottimizzazione percorsi.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-[#2563EB]" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Dispatch Intelligente</h3>
-            <p className="text-sm text-gray-600">
-              Assegnazione automatica basata su disponibilità autisti, posizione GPS e tipo di mezzo. Notifiche push istantanee all'app mobile.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mb-4">
-              <BarChart3 className="h-6 w-6 text-gray-700" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Report e Analytics</h3>
-            <p className="text-sm text-gray-600">
-              KPI in tempo reale, statistiche per autista/mezzo, analisi percorsi, tempi medi di intervento e export CSV per analisi avanzate.
-            </p>
+      {/* FEATURES */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { icon: MapPin, color: "text-blue-600", title: "Tracking GPS Live", desc: "Monitora in tempo reale la posizione dei mezzi con aggiornamenti ogni 30 secondi. Supporto Teltonika, Queclink, Concox e OBD2." },
+              { icon: Calendar, color: "text-green-600", title: "Pianificazione Avanzata", desc: "Calendario con vista settimana/mese, assegnazione automatica autisti e mezzi, gestione priorità e ottimizzazione percorsi." },
+              { icon: Users, color: "text-blue-600", title: "Dispatch Intelligente", desc: "Assegnazione automatica su disponibilità autisti, posizione GPS e tipo mezzo. Notifiche push istantanee sull'app mobile." },
+              { icon: BarChart3, color: "text-gray-600", title: "Report e Analytics", desc: "KPI in tempo reale, statistiche per autista/mezzo, tempi medi di intervento e export CSV per analisi avanzate." },
+            ].map((f) => (
+              <div key={f.title} className="p-6 border border-gray-200">
+                <f.icon className={`h-6 w-6 ${f.color} mb-3`} />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-600">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Stati trasporto */}
-        <div className="p-6 rounded-xl bg-gray-50 border border-gray-200 mb-12">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Stati Trasporto</h3>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-              <span className="text-sm text-gray-700">Da Fare</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-gray-700">In Corso</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-              <span className="text-sm text-gray-700">Completato</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-slate-500"></div>
-              <span className="text-sm text-gray-700">In Attesa</span>
-            </div>
+      {/* STATI */}
+      <section className="py-8 bg-gray-50 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Stati Trasporto</h3>
+          <div className="flex flex-wrap gap-6">
+            {[["bg-amber-500","Da Fare"],["bg-blue-500","In Corso"],["bg-emerald-500","Completato"],["bg-slate-400","In Attesa"]].map(([c,l]) => (
+              <div key={l} className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${c}`} />
+                <span className="text-sm text-gray-700">{l}</span>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Incluso in */}
-        <div className="p-6 rounded-xl bg-blue-50 border border-blue-200">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-[#2563EB] mt-0.5" />
+      {/* INCLUSO */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-start gap-3 p-6 border border-gray-200">
+            <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-2">Incluso in tutti i piani</h3>
-              <p className="text-sm text-gray-600">
-                Il modulo Trasporti fa parte dell'App Base ed è incluso in tutti i piani: Starter, Professional, Business e Full.
-              </p>
+              <p className="font-bold text-gray-900 mb-1">Incluso in tutti i piani</p>
+              <p className="text-sm text-gray-600">Il modulo Trasporti fa parte dell'App Base ed è incluso in tutti i piani.</p>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* CTA */}
-        <div className="mt-12 flex gap-4">
-          <Link
-            href="/contatti"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-500 transition-colors"
-          >
-            Richiedi Demo
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
-          >
-            Scopri altri moduli
+      {/* CTA */}
+      <section className="py-16 bg-blue-600">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-extrabold text-white mb-4">Gestisci i trasporti senza caos.</h2>
+          <p className="text-blue-100 mb-8">Demo gratuita, 30 minuti, personalizzata per la tua attività.</p>
+          <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
+            RICHIEDI DEMO <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

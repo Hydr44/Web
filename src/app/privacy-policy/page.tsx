@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
               </div>
               <h2 className="text-xl font-bold text-gray-900">1. Titolare del Trattamento e Dati di Contatto</h2>
             </div>
-            <div className="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
               <p><strong>Titolare del Trattamento:</strong> Emmanuel Salvatore Scozzarini</p>
               <p><strong>Nome commerciale:</strong> RescueManager</p>
               <p><strong>Qualifica:</strong> Libero Professionista / Imprenditore Individuale</p>
@@ -281,7 +281,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Contatti */}
-          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+          <div className="bg-[#0f172a] rounded-xl p-6 text-white">
             <h3 className="font-bold text-lg mb-4">Contatti per Questioni relative alla Privacy</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>

@@ -246,7 +246,7 @@ export default function TermsOfUsePage() {
           </section>
 
           {/* Contatti */}
-          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+          <div className="bg-[#0f172a] rounded-xl p-6 text-white">
             <h3 className="font-bold text-lg mb-4">Contatti per Questioni Legali e Contrattuali</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
