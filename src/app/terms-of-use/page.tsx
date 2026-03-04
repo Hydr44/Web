@@ -1,345 +1,276 @@
 // src/app/terms-of-use/page.tsx
-import { FileText, Shield, CreditCard, Users, AlertTriangle, Scale, Phone } from "lucide-react";
+import { FileText, Shield, CreditCard, Users, AlertTriangle, Scale, Lock, RefreshCcw, Landmark } from "lucide-react";
 
 export default function TermsOfUsePage() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-blue-200 px-4 py-2 mb-6 bg-blue-50 text-[#2563EB] font-medium">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-[#0f172a] via-[#1e2d45] to-[#0f172a] pt-28 pb-16">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-500/30 px-4 py-2 mb-6 bg-blue-500/10 text-blue-400 font-medium">
             <FileText className="h-4 w-4" />
-            Termini d'Uso
+            Documento I — SaaS Agreement
           </div>
-          
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="text-gray-900">Termini d'Uso</span>
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-4">
+            Termini e Condizioni di Servizio
           </h1>
-          
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Questi Termini d'Uso regolano l'utilizzo dei servizi RescueManager. Leggili attentamente prima di utilizzare i nostri servizi.
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            Contratto SaaS tra RescueManager ed il Cliente professionale operante nel settore dell&apos;autodemolizione.
           </p>
-          
-          <div className="mt-6 text-sm text-gray-500">
-            Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-500">
+            <span>Versione 3.0</span>
+            <span className="w-1 h-1 rounded-full bg-slate-600" />
+            <span>In vigore dal 23 febbraio 2026</span>
+            <span className="w-1 h-1 rounded-full bg-slate-600" />
+            <span>Contratto B2B</span>
           </div>
         </div>
+      </div>
 
-        {/* Contenuto */}
-        <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8">
-            
-            {/* 1. Accettazione dei termini */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
-                  <FileText className="h-4 w-4 text-[#2563EB]" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">1. Accettazione dei Termini</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  Benvenuto su RescueManager. Questi Termini d'Uso ("Termini") costituiscono un accordo legale tra te ("Utente" o "Cliente") e RescueManager ("noi", "nostro" o "l'Azienda") riguardo all'utilizzo dei nostri servizi.
-                </p>
-                <p>
-                  Utilizzando i nostri servizi, accetti di essere vincolato da questi Termini. Se non accetti questi Termini, ti preghiamo di non utilizzare i nostri servizi.
-                </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <p className="text-blue-800 font-medium">
-                    <strong>Importante:</strong> Questi Termini si applicano a tutti gli utenti dei nostri servizi, inclusi i clienti con abbonamenti a pagamento.
-                  </p>
-                </div>
-              </div>
-            </section>
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
 
-            {/* 2. Descrizione dei servizi */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Shield className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">2. Descrizione dei Servizi</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>RescueManager fornisce servizi software per la gestione di officine di soccorso stradale, inclusi:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Gestione della flotta veicoli</li>
-                  <li>Coordinamento degli autisti</li>
-                  <li>Gestione dei trasporti e demolizioni RVFU</li>
-                  <li>Fatturazione elettronica</li>
-                  <li>App mobile per autisti</li>
-                  <li>Magazzino ricambi</li>
-                  <li>Piazzale auto</li>
-                  <li>Gestione clienti e reportistica</li>
-                </ul>
-                <p>
-                  I servizi sono forniti tramite piattaforma web, applicazioni desktop e mobile, e possono includere supporto tecnico e aggiornamenti.
-                </p>
-              </div>
-            </section>
+        {/* Avviso B2B */}
+        <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-5 flex gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800">
+            <strong>Contratto B2B esclusivo.</strong> Il presente contratto è stipulato esclusivamente tra operatori professionali (D.Lgs. 206/2005 non applicabile). Il Cliente è un soggetto professionale operante nel settore dell&apos;autodemolizione, veicoli fuori uso e attività affini.
+          </p>
+        </div>
 
-            {/* 3. Registrazione e account */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <Users className="h-4 w-4 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">3. Registrazione e Account</h2>
+        <div className="space-y-6">
+
+          {/* 1. Identificazione delle Parti */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
+                <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="text-gray-700 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">3.1 Creazione Account</h3>
-                <p>Per utilizzare i nostri servizi, devi:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Fornire informazioni accurate e complete</li>
-                  <li>Mantenere aggiornate le tue informazioni</li>
-                  <li>Essere maggiorenne o avere il consenso dei genitori</li>
-                  <li>Creare una password sicura</li>
-                </ul>
+              <h2 className="text-xl font-bold text-gray-900">1. Identificazione delle Parti e Oggetto del Contratto</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">1.1 Il Fornitore</h3>
+              <p>Il presente contratto è stipulato tra <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista/imprenditore individuale, operante commercialmente sotto il nome <strong>RescueManager</strong>, con domicilio professionale in <strong>Via dello Smeraldo 18, Gela (CL), Sicilia</strong>, P. IVA <strong>02166430856</strong>.</p>
+              <p>Il Fornitore è una persona fisica che esercita attività d&apos;impresa in forma individuale. Non sussiste pertanto alcuna separazione tra il patrimonio dell&apos;impresa e il patrimonio personale del titolare, ai sensi degli artt. 2082 e 2740 del Codice Civile.</p>
 
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">3.2 Responsabilità dell'Account</h3>
-                <p>Sei responsabile di:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Mantenere la sicurezza del tuo account</li>
-                  <li>Tutte le attività che avvengono nel tuo account</li>
-                  <li>Notificarci immediatamente di qualsiasi uso non autorizzato</li>
-                  <li>Garantire che le informazioni fornite siano accurate</li>
-                </ul>
+              <h3 className="font-semibold text-gray-900 mt-4">1.2 Il Cliente</h3>
+              <p>Il Cliente è esclusivamente un soggetto professionale operante nel settore dell&apos;autodemolizione, del commercio di veicoli fuori uso, della gestione di rottami e attività affini. Il presente contratto è esplicitamente escluso dall&apos;ambito di applicazione del Codice del Consumo (D.Lgs. 206/2005).</p>
+
+              <h3 className="font-semibold text-gray-900 mt-4">1.3 Oggetto del Contratto</h3>
+              <p>Il Fornitore concede al Cliente l&apos;accesso e l&apos;utilizzo in modalità <strong>Software as a Service (SaaS)</strong> della piattaforma denominata RescueManager, che integra le seguenti funzionalità:</p>
+              <ul className="list-disc list-inside space-y-1 ml-3">
+                <li>Gestione operativa del ciclo del veicolo fuori uso (schede, acquisto, cessione, targhe, telai)</li>
+                <li>Compliance RENTRI (Registro Nazionale per la Tracciabilità dei Rifiuti)</li>
+                <li>Procedure di Radiazione per Demolizione (RVFU) tramite sportello telematico</li>
+                <li>Fatturazione elettronica e integrazione SDI (Sistema di Interscambio)</li>
+                <li>Gestione magazzino ricambi, anagrafica clienti/fornitori, reportistica</li>
+                <li>Supporto tecnico nei modi e nei tempi descritti ai successivi articoli</li>
+              </ul>
+
+              <h3 className="font-semibold text-gray-900 mt-4">1.4 Infrastruttura Tecnologica</h3>
+              <p>Il Servizio è erogato tramite un&apos;infrastruttura distribuita che si avvale di:</p>
+              <ul className="list-disc list-inside space-y-1 ml-3">
+                <li><strong>Vercel Inc.</strong> (USA) — hosting sito web e frontend; certificato SOC 2 Type 2, ISO 27001; trasferimento dati extra-UE coperto da EU-U.S. Data Privacy Framework (DPF) e SCC</li>
+                <li><strong>IONOS SE</strong> (Germania) — hosting API e backend; certificato ISO 27001; dati trattati esclusivamente nell&apos;Unione Europea (SEE), nessun trasferimento verso Paesi terzi</li>
+              </ul>
+            </div>
+          </section>
+
+          {/* 2. Conclusione del Contratto */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 text-green-600" />
               </div>
-            </section>
+              <h2 className="text-xl font-bold text-gray-900">2. Modalità di Conclusione del Contratto</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">2.1 Procedura Telematica</h3>
+              <p>Il contratto si conclude mediante procedura telematica interamente gestita tramite la Piattaforma, ai sensi degli artt. 12 e 13 del D.Lgs. 70/2003. Il processo prevede: registrazione, selezione del piano, presentazione delle condizioni contrattuali, approvazione specifica delle clausole vessatorie (art. 1341 c.c.), inoltro dell&apos;ordine e conferma via e-mail.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">2.2 Archiviazione e Lingua</h3>
+              <p>Il contratto è archiviato elettronicamente e accessibile dal Cliente dalla sezione &quot;Il mio account&quot;. La lingua del contratto è l&apos;italiano.</p>
+            </div>
+          </section>
 
-            {/* 4. Pagamenti e fatturazione */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <CreditCard className="h-4 w-4 text-purple-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">4. Pagamenti e Fatturazione</h2>
+          {/* 3. Licenza e Proprietà Intellettuale */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
+                <Lock className="h-5 w-5 text-purple-600" />
               </div>
-              <div className="text-gray-700 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">4.1 Piani di Abbonamento</h3>
-                <p>Offriamo diversi piani di abbonamento:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Starter:</strong> Piano base per piccole officine</li>
-                  <li><strong>Flotta:</strong> Piano completo per officine medie</li>
-                  <li><strong>Enterprise:</strong> Piano avanzato per grandi aziende</li>
-                </ul>
+              <h2 className="text-xl font-bold text-gray-900">3. Licenza d&apos;Uso e Proprietà Intellettuale</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">3.1 Concessione della Licenza</h3>
+              <p>Il Fornitore concede al Cliente una licenza d&apos;uso <strong>non esclusiva, non trasferibile, non cedibile e revocabile</strong> per accedere alla Piattaforma durante il periodo di abbonamento. Il contratto SaaS non trasferisce alcun diritto di proprietà sul software, codice sorgente, banche dati, loghi o marchi.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">3.2 Protezione del Software</h3>
+              <p>La Piattaforma RescueManager è di proprietà esclusiva di Emmanuel Salvatore Scozzarini ed è protetta ai sensi degli artt. 1 e 2, n. 8, della Legge 22 aprile 1941, n. 633. Tutti i diritti sono riservati.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">3.3 Diritti Inderogabili dell&apos;Utente</h3>
+              <p>In conformità all&apos;art. 64-ter della Legge 633/1941, il Cliente ha il diritto inderogabile di effettuare copie di riserva dei propri dati e di osservare il funzionamento del programma. Qualsiasi clausola contraria è nulla di diritto.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">3.4 Divieti</h3>
+              <p>È vietato copiare, distribuire, decompilare, effettuare reverse engineering, rimuovere avvisi di copyright o utilizzare la Piattaforma per finalità illecite o per conto di terzi non autorizzati.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">3.5 Dati del Cliente</h3>
+              <p>I dati inseriti dal Cliente restano di sua esclusiva proprietà. In caso di cessazione, il Fornitore mette a disposizione un export completo per 90 giorni dalla cessazione del contratto.</p>
+            </div>
+          </section>
 
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">4.2 Pagamenti</h3>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>I pagamenti sono dovuti in anticipo</li>
-                  <li>Accettiamo pagamenti tramite carta di credito e bonifico</li>
-                  <li>I prezzi sono espressi in euro e includono IVA</li>
-                  <li>I prezzi possono essere modificati con preavviso di 30 giorni</li>
-                </ul>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">4.3 Rinnovo Automatico</h3>
-                <p>
-                  Gli abbonamenti si rinnovano automaticamente alla scadenza, a meno che non vengano disdetti con almeno 30 giorni di preavviso.
-                </p>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">4.4 Rimborsi</h3>
-                <p>
-                  I rimborsi sono disponibili entro 14 giorni dall'acquisto, purché il servizio non sia stato utilizzato in modo significativo.
-                </p>
+          {/* 4. Corrispettivi e Pagamenti */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
+                <CreditCard className="h-5 w-5 text-indigo-600" />
               </div>
-            </section>
+              <h2 className="text-xl font-bold text-gray-900">4. Corrispettivi, Fatturazione e Pagamenti</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">4.1 Corrispettivi</h3>
+              <p>I corrispettivi sono indicati nella sezione &quot;Prezzi&quot; del sito ufficiale, espressi in Euro (€) IVA esclusa. Le tariffe possono essere modificate con preavviso di 60 giorni.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">4.2 Pagamenti tramite Stripe</h3>
+              <p>I pagamenti sono gestiti da <strong>Stripe Payments Europe, Ltd.</strong> (Irlanda), certificato PCI-DSS. I dati della carta non sono archiviati sui server del Fornitore.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">4.3 Fatturazione Elettronica</h3>
+              <p>Il Fornitore, Emmanuel Salvatore Scozzarini P. IVA 02166430856, emette fattura elettronica tramite SDI per ogni canone addebitato.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">4.4 Interessi di Mora</h3>
+              <p>In caso di ritardo, si applicano il D.Lgs. 231/2002: interessi al tasso BCE + 8 punti percentuali dal giorno successivo alla scadenza, più indennizzo forfettario di €40,00 per fattura insoluta.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">4.5 Sospensione per Morosità</h3>
+              <p>In caso di mancato pagamento, il Fornitore può sospendere l&apos;accesso dopo 15 giorni di tolleranza, previo avviso via e-mail. Il servizio è ripristinato entro 2 giorni lavorativi dalla regolarizzazione.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">4.6 Periodo di Prova Gratuito</h3>
+              <p>Il Fornitore offre 14 giorni di prova gratuita. Al termine, salvo disdetta, il contratto si converte automaticamente nell&apos;abbonamento selezionato.</p>
+            </div>
+          </section>
 
-            {/* 5. Uso accettabile */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                  <AlertTriangle className="h-4 w-4 text-orange-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">5. Uso Accettabile</h2>
+          {/* 5. Durata e Rinnovo */}
+          <section className="bg-white rounded-xl border border-amber-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-amber-600/10 flex items-center justify-center flex-shrink-0">
+                <RefreshCcw className="h-5 w-5 text-amber-600" />
               </div>
-              <div className="text-gray-700 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">5.1 Uso Consentito</h3>
-                <p>Puoi utilizzare i nostri servizi per:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Gestire la tua attività di soccorso stradale</li>
-                  <li>Coordinare veicoli e autisti</li>
-                  <li>Gestire clienti e fatturazione</li>
-                  <li>Utilizzare le funzionalità previste dal tuo piano</li>
-                </ul>
+              <h2 className="text-xl font-bold text-gray-900">5. Durata e Rinnovo Automatico</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="font-semibold text-amber-900 mb-2">⚠️ Clausola Vessatoria — Art. 1341, comma 2, c.c.</p>
+                <p className="text-amber-800"><strong>Contenuto sintetico:</strong> il contratto si rinnova automaticamente alla scadenza, con ulteriore addebito del corrispettivo, salvo disdetta inviata con almeno 30 giorni di preavviso.</p>
+              </div>
+              <h3 className="font-semibold text-gray-900">5.1 Durata</h3>
+              <p>Il contratto ha durata pari al periodo di abbonamento scelto (mensile o annuale), dalla data di attivazione.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">5.2 Rinnovo Automatico</h3>
+              <p>Il contratto si rinnova automaticamente per un periodo uguale a quello originariamente sottoscritto, salvo comunicazione di disdetta con preavviso di almeno <strong>30 giorni</strong> prima della scadenza, tramite funzione in-app o e-mail a <a href="mailto:rescuemanager@legalmail.it" className="text-blue-600 hover:underline">rescuemanager@legalmail.it</a>.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">5.3 Notifica di Cortesia</h3>
+              <p>Il Fornitore invia una notifica di cortesia almeno 7 giorni prima del rinnovo automatico. Tale notifica è informativa e non sostituisce la formale comunicazione di disdetta.</p>
+            </div>
+          </section>
 
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">5.2 Uso Proibito</h3>
-                <p>È vietato utilizzare i nostri servizi per:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Attività illegali o fraudolente</li>
-                  <li>Violare diritti di proprietà intellettuale</li>
-                  <li>Interferire con il funzionamento dei servizi</li>
-                  <li>Creare account falsi o multipli</li>
-                  <li>Distribuire malware o contenuti dannosi</li>
-                  <li>Spam o comunicazioni non autorizzate</li>
-                </ul>
+          {/* 6. Recesso e Rimborsi */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-teal-600/10 flex items-center justify-center flex-shrink-0">
+                <Scale className="h-5 w-5 text-teal-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">6. Recesso e Politiche di Rimborso</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">6.1 Diritto di Recesso</h3>
+              <p>Trattandosi di contratto B2B, non si applica il recesso di 14 giorni ex artt. 52 ss. Codice del Consumo. Ciascuna Parte può recedere con preavviso di 30 giorni rispetto alla successiva data di rinnovo, o per giusta causa con effetto immediato previa diffida scritta.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">6.2 Politica di Rimborso Volontaria</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-200 rounded-lg text-sm">
+                  <thead><tr className="bg-gray-50"><th className="border border-gray-200 px-3 py-2 text-left">Periodo dalla data di attivazione</th><th className="border border-gray-200 px-3 py-2 text-left">Rimborso riconosciuto</th></tr></thead>
+                  <tbody>
+                    <tr><td className="border border-gray-200 px-3 py-2">Fino a 30 giorni</td><td className="border border-gray-200 px-3 py-2">Rimborso integrale</td></tr>
+                    <tr><td className="border border-gray-200 px-3 py-2">Dal 31° al 60° giorno</td><td className="border border-gray-200 px-3 py-2">Rimborso pro-rata ai giorni residui</td></tr>
+                    <tr><td className="border border-gray-200 px-3 py-2">Oltre il 60° giorno</td><td className="border border-gray-200 px-3 py-2">Nessun rimborso; servizio attivo fino a scadenza</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-gray-500">La politica si applica una sola volta per Cliente. Rimborsi elaborati entro 14 giorni lavorativi.</p>
+            </div>
+          </section>
 
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <p className="text-red-800 font-medium">
-                    <strong>Violazione:</strong> La violazione di questi termini può comportare la sospensione o la cancellazione del tuo account.
-                  </p>
-                </div>
+          {/* 7. SLA e Limitazione Responsabilità */}
+          <section className="bg-white rounded-xl border border-red-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-red-600/10 flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 text-red-600" />
               </div>
-            </section>
+              <h2 className="text-xl font-bold text-gray-900">7. Livello di Servizio (SLA) e Limitazioni di Responsabilità</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">7.1 Livello di Servizio (SLA)</h3>
+              <p>Il Fornitore garantisce una disponibilità della Piattaforma pari ad almeno il <strong>99,5%</strong> su base mensile, escluse le finestre di manutenzione programmata (preavviso minimo 48 ore). In caso di mancato rispetto, il Cliente ha diritto a un credito sul servizio proporzionale al disservizio.</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="font-semibold text-red-900 mb-2">⚠️ Clausola Vessatoria — Art. 1341, comma 2, c.c.</p>
+                <p className="text-red-800 text-xs"><strong>Contenuto sintetico:</strong> la responsabilità del Fornitore per danni diretti è limitata ai corrispettivi versati negli ultimi 12 mesi; sono esclusi danni indiretti, perdita di profitto e danni da cause di forza maggiore o da infrastrutture di terzi.</p>
+              </div>
+              <h3 className="font-semibold text-gray-900 mt-4">7.2 Limitazione di Responsabilità</h3>
+              <p>Fermo restando quanto inderogabilmente previsto dalla legge (inclusa la nullità ex art. 1229 c.c. per dolo/colpa grave), la responsabilità del Fornitore per danni diretti è limitata all&apos;importo dei corrispettivi versati nei <strong>12 mesi precedenti</strong> all&apos;evento dannoso. Sono esclusi danni indiretti, consequenziali, perdita di profitto, perdita di dati per cause non imputabili al Fornitore, e disservizi di sub-fornitori (Vercel, IONOS, SDI, RENTRI, MCTC) o cause di forza maggiore.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">7.3 Obblighi di Backup</h3>
+              <p>Il Fornitore effettua backup automatici giornalieri conservati per almeno 30 giorni. Il Cliente è invitato a eseguire periodicamente l&apos;export dei propri dati come misura di sicurezza aggiuntiva.</p>
+            </div>
+          </section>
 
-            {/* 6. Proprietà intellettuale */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                  <Scale className="h-4 w-4 text-indigo-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">6. Proprietà Intellettuale</h2>
+          {/* 8. Legge e Foro */}
+          <section className="bg-white rounded-xl border border-indigo-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
+                <Landmark className="h-5 w-5 text-indigo-600" />
               </div>
-              <div className="text-gray-700 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">6.1 Nostra Proprietà</h3>
-                <p>
-                  Tutti i diritti di proprietà intellettuale sui nostri servizi, inclusi software, design, marchi e contenuti, appartengono a RescueManager o ai nostri licenzianti.
-                </p>
+              <h2 className="text-xl font-bold text-gray-900">8. Legge Applicabile e Foro Competente</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">8.1 Legge Applicabile</h3>
+              <p>Il presente contratto è regolato dalla legge italiana. Si applicano il Codice Civile, il D.Lgs. 70/2003, il D.Lgs. 231/2002 e ogni altra norma italiana ed europea applicabile.</p>
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                <p className="font-semibold text-indigo-900 mb-2">⚠️ Clausola Vessatoria — Art. 1341, comma 2, c.c.</p>
+                <p className="text-indigo-800 text-xs"><strong>Contenuto sintetico:</strong> qualsiasi controversia è devoluta in via esclusiva al Foro del domicilio professionale del Fornitore (Gela, CL), con deroga alla competenza territoriale ordinaria.</p>
+              </div>
+              <h3 className="font-semibold text-gray-900 mt-4">8.2 Foro Competente</h3>
+              <p>Per qualsiasi controversia è competente in via esclusiva il <strong>Foro di Caltanissetta</strong> (luogo del domicilio professionale del Fornitore: Via dello Smeraldo 18, Gela, CL). Tale clausola deroga alla competenza ordinaria ex artt. 18, 19, 20 c.p.c.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">8.3 Tentativo di Conciliazione</h3>
+              <p>Le Parti si impegnano a tentare in buona fede la risoluzione amichevole entro 30 giorni dalla comunicazione scritta del disaccordo, prima di adire l&apos;Autorità Giudiziaria.</p>
+            </div>
+          </section>
 
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">6.2 Licenza d'Uso</h3>
-                <p>
-                  Ti concediamo una licenza limitata, non esclusiva e non trasferibile per utilizzare i nostri servizi secondo questi Termini.
-                </p>
+          {/* 9. Disposizioni Generali */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-gray-600/10 flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 text-gray-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">9. Disposizioni Generali</h2>
+            </div>
+            <div className="text-gray-700 space-y-3 text-sm leading-relaxed">
+              <p><strong>9.1 Modifiche ai Termini:</strong> comunicate con 30 giorni di preavviso. L&apos;utilizzo continuato costituisce accettazione.</p>
+              <p><strong>9.2 Cessibilità:</strong> il Cliente non può cedere il contratto senza consenso scritto. Il Fornitore può cedere nell&apos;ambito di trasferimenti d&apos;azienda con preavviso di 30 giorni.</p>
+              <p><strong>9.3 Nullità Parziale:</strong> la nullità di una clausola non comporta la nullità dell&apos;intero contratto.</p>
+              <p><strong>9.4 Integralità:</strong> il presente contratto, con Privacy Policy, DPA e Cookie Policy, costituisce l&apos;intero accordo tra le Parti.</p>
+            </div>
+          </section>
 
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">6.3 I Tuoi Dati</h3>
-                <p>
-                  Mantieni la proprietà dei tuoi dati. Ti concediamo il diritto di esportare i tuoi dati in qualsiasi momento.
-                </p>
+          {/* Contatti */}
+          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+            <h3 className="font-bold text-lg mb-4">Contatti per Questioni Legali e Contrattuali</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-slate-400 mb-1">Titolare / Fornitore</p>
+                <p className="font-semibold">Emmanuel Salvatore Scozzarini</p>
+                <p className="text-slate-300">RescueManager</p>
               </div>
-            </section>
-
-            {/* 7. Privacy e protezione dati */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Shield className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">7. Privacy e Protezione Dati</h2>
+              <div>
+                <p className="text-slate-400 mb-1">Recapiti</p>
+                <p>Via dello Smeraldo 18, Gela (CL)</p>
+                <p><a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
+                <p><a href="https://www.rescuemanager.eu" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
+                <p className="text-slate-400 text-xs mt-1">P. IVA: 02166430856</p>
               </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  La raccolta e l'utilizzo delle tue informazioni personali sono regolati dalla nostra <a href="/privacy-policy" className="text-[#2563EB] hover:underline">Privacy Policy</a>, che fa parte integrante di questi Termini.
-                </p>
-                <p>
-                  Ci impegniamo a proteggere i tuoi dati secondo il GDPR e le normative italiane sulla privacy.
-                </p>
-              </div>
-            </section>
-
-            {/* 8. Limitazione di responsabilità */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">8. Limitazione di Responsabilità</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-3">⚠️ Disclaimer</h3>
-                  <p className="text-yellow-700">
-                    I nostri servizi sono forniti "così come sono". Non garantiamo che i servizi siano privi di errori o interruzioni.
-                  </p>
-                </div>
-                
-                <p>La nostra responsabilità è limitata nei seguenti casi:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Interruzioni temporanee del servizio</li>
-                  <li>Perdita di dati dovuta a cause di forza maggiore</li>
-                  <li>Danni indiretti o consequenziali</li>
-                  <li>Perdita di profitti o opportunità commerciali</li>
-                </ul>
-
-                <p>
-                  La nostra responsabilità totale non supererà l'importo pagato per i servizi nei 12 mesi precedenti all'evento che ha causato il danno.
-                </p>
-              </div>
-            </section>
-
-            {/* 9. Sospensione e cancellazione */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <Users className="h-4 w-4 text-red-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">9. Sospensione e Cancellazione</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">9.1 Cancellazione da Parte Tua</h3>
-                <p>
-                  Puoi cancellare il tuo account in qualsiasi momento tramite le impostazioni del tuo profilo o contattando il supporto.
-                </p>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">9.2 Sospensione da Parte Nostra</h3>
-                <p>Possiamo sospendere o cancellare il tuo account se:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Violi questi Termini</li>
-                  <li>Non paghi le fatture</li>
-                  <li>Utilizzi i servizi in modo improprio</li>
-                  <li>Richiediamo di farlo per motivi legali</li>
-                </ul>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">9.3 Effetti della Cancellazione</h3>
-                <p>
-                  Alla cancellazione, perderai l'accesso ai servizi e i tuoi dati potrebbero essere cancellati dopo un periodo di grazia di 30 giorni.
-                </p>
-              </div>
-            </section>
-
-            {/* 10. Modifiche ai termini */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center">
-                  <FileText className="h-4 w-4 text-gray-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">10. Modifiche ai Termini</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  Possiamo modificare questi Termini periodicamente. Le modifiche significative saranno comunicate tramite email o attraverso i nostri servizi con almeno 30 giorni di preavviso.
-                </p>
-                <p>
-                  L'utilizzo continuato dei servizi dopo le modifiche costituisce accettazione dei nuovi Termini.
-                </p>
-              </div>
-            </section>
-
-            {/* 11. Legge applicabile */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                  <Scale className="h-4 w-4 text-indigo-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">11. Legge Applicabile e Foro</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  Questi Termini sono regolati dalla legge italiana. Qualsiasi controversia sarà di competenza esclusiva del Tribunale di Milano.
-                </p>
-                <p>
-                  Prima di intraprendere azioni legali, le parti si impegnano a tentare una risoluzione amichevole della controversia.
-                </p>
-              </div>
-            </section>
-
-            {/* 12. Contatti */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Phone className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">12. Contatti</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>Per domande riguardo a questi Termini d'Uso, contattaci:</p>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p><strong>Email:</strong> <a href="mailto:legal@rescuemanager.it" className="text-[#2563EB] hover:underline">legal@rescuemanager.it</a></p>
-                  <p><strong>Telefono:</strong> +39 02 1234 5678</p>
-                  <p><strong>Indirizzo:</strong> Via Roma 123, 20100 Milano, Italia</p>
-                </div>
-              </div>
-            </section>
-
+            </div>
           </div>
+
+          {/* Link altre policy */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a href="/privacy-policy" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Privacy Policy</a>
+            <a href="/cookie-policy" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Cookie Policy</a>
+            <a href="/dpa" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Data Processing Agreement</a>
+          </div>
+
         </div>
       </div>
     </div>

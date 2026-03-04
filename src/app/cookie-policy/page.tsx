@@ -1,312 +1,273 @@
 // src/app/cookie-policy/page.tsx
-import { Cookie, Settings, Shield, Eye, Database, Clock, Users } from "lucide-react";
+import { Cookie, Settings, Shield, Eye, Database, Clock } from "lucide-react";
 
 export default function CookiePolicyPage() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-blue-200 px-4 py-2 mb-6 bg-blue-50 text-[#2563EB] font-medium">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-[#0f172a] via-[#1e2d45] to-[#0f172a] pt-28 pb-16">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-500/30 px-4 py-2 mb-6 bg-blue-500/10 text-blue-400 font-medium">
             <Cookie className="h-4 w-4" />
-            Cookie Policy
+            Documento IV — Cookie Policy
           </div>
-          
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="text-gray-900">Cookie Policy</span>
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-4">
+            Cookie Policy
           </h1>
-          
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Questa Cookie Policy spiega come RescueManager utilizza i cookie e tecnologie simili per migliorare la tua esperienza di navigazione.
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            Informativa sull&apos;uso di cookie e strumenti di tracciamento ai sensi dell&apos;art. 122 del D.Lgs. 196/2003 e del Provvedimento Garante n. 231/2021
           </p>
-          
-          <div className="mt-6 text-sm text-gray-500">
-            Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-500">
+            <span>Versione 3.0</span>
+            <span className="w-1 h-1 rounded-full bg-slate-600" />
+            <span>In vigore dal 23 febbraio 2026</span>
+            <span className="w-1 h-1 rounded-full bg-slate-600" />
+            <span>GDPR + ePrivacy</span>
           </div>
         </div>
+      </div>
 
-        {/* Contenuto */}
-        <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-lg border border-gray-200 shadow-lg p-8">
-            
-            {/* 1. Cosa sono i cookie */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
-                  <Cookie className="h-4 w-4 text-[#2563EB]" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">1. Cosa Sono i Cookie</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  I cookie sono piccoli file di testo che vengono memorizzati sul tuo dispositivo quando visiti un sito web. Questi file contengono informazioni che vengono utilizzate per migliorare la tua esperienza di navigazione e fornire funzionalità personalizzate.
-                </p>
-                <p>
-                  I cookie possono essere "di sessione" (temporanei e cancellati quando chiudi il browser) o "persistenti" (rimangono sul tuo dispositivo per un periodo di tempo determinato).
-                </p>
-              </div>
-            </section>
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
 
-            {/* 2. Tipi di cookie che utilizziamo */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Settings className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">2. Tipi di Cookie che Utilizziamo</h2>
-              </div>
-              <div className="text-gray-700 space-y-6">
-                
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center">
-                      <Shield className="h-3 w-3 text-green-600" />
-                    </div>
-                    Cookie Essenziali
-                  </h3>
-                  <p className="mb-3">Questi cookie sono necessari per il funzionamento del sito web e non possono essere disabilitati.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li>Cookie di autenticazione e sessione</li>
-                    <li>Cookie per la sicurezza e prevenzione frodi</li>
-                    <li>Cookie per le preferenze di base</li>
-                    <li>Cookie per il carrello e-commerce</li>
-                  </ul>
-                </div>
+        <div className="space-y-6">
 
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-blue-500/10 flex items-center justify-center">
-                      <Eye className="h-3 w-3 text-blue-600" />
-                    </div>
-                    Cookie di Prestazioni e Analytics
-                  </h3>
-                  <p className="mb-3">Questi cookie ci aiutano a capire come gli utenti interagiscono con il nostro sito.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li>Google Analytics per statistiche di utilizzo</li>
-                    <li>Cookie per il monitoraggio delle prestazioni</li>
-                    <li>Cookie per l'analisi del comportamento utente</li>
-                    <li>Cookie per il test A/B</li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-purple-500/10 flex items-center justify-center">
-                      <Users className="h-3 w-3 text-purple-600" />
-                    </div>
-                    Cookie di Funzionalità
-                  </h3>
-                  <p className="mb-3">Questi cookie permettono al sito di ricordare le tue scelte e preferenze.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li>Cookie per le preferenze di lingua</li>
-                    <li>Cookie per le impostazioni di tema</li>
-                    <li>Cookie per le preferenze di notifica</li>
-                    <li>Cookie per la personalizzazione dell'interfaccia</li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-orange-500/10 flex items-center justify-center">
-                      <Database className="h-3 w-3 text-orange-600" />
-                    </div>
-                    Cookie di Marketing
-                  </h3>
-                  <p className="mb-3">Questi cookie vengono utilizzati per fornire pubblicità rilevante e misurare l'efficacia delle campagne.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li>Cookie per il remarketing</li>
-                    <li>Cookie per il targeting pubblicitario</li>
-                    <li>Cookie per i social media</li>
-                    <li>Cookie per il tracciamento delle conversioni</li>
-                  </ul>
-                </div>
-
-              </div>
-            </section>
-
-            {/* 3. Durata dei cookie */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <Clock className="h-4 w-4 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">3. Durata dei Cookie</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-gray-300 rounded-lg">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Tipo di Cookie</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Durata</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Descrizione</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="border border-gray-300 px-4 py-2">Cookie di Sessione</td>
-                        <td className="border border-gray-300 px-4 py-2">Fino alla chiusura del browser</td>
-                        <td className="border border-gray-300 px-4 py-2">Temporanei, cancellati quando chiudi il browser</td>
-                      </tr>
-                      <tr>
-                        <td className="border border-gray-300 px-4 py-2">Cookie di Autenticazione</td>
-                        <td className="border border-gray-300 px-4 py-2">30 giorni</td>
-                        <td className="border border-gray-300 px-4 py-2">Mantengono la sessione di login</td>
-                      </tr>
-                      <tr>
-                        <td className="border border-gray-300 px-4 py-2">Cookie di Preferenze</td>
-                        <td className="border border-gray-300 px-4 py-2">1 anno</td>
-                        <td className="border border-gray-300 px-4 py-2">Ricordano le tue impostazioni</td>
-                      </tr>
-                      <tr>
-                        <td className="border border-gray-300 px-4 py-2">Cookie Analytics</td>
-                        <td className="border border-gray-300 px-4 py-2">2 anni</td>
-                        <td className="border border-gray-300 px-4 py-2">Raccolgono dati statistici</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
-
-            {/* 4. Cookie di terze parti */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <Database className="h-4 w-4 text-red-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">4. Cookie di Terze Parti</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>Utilizziamo servizi di terze parti che possono impostare cookie:</p>
-                
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Google Analytics</h3>
-                  <p className="mb-2">Utilizziamo Google Analytics per analizzare l'utilizzo del nostro sito.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li><strong>Finalità:</strong> Analisi del traffico e comportamento utenti</li>
-                    <li><strong>Durata:</strong> Fino a 2 anni</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://policies.google.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a></li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Stripe</h3>
-                  <p className="mb-2">Utilizziamo Stripe per i pagamenti online.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li><strong>Finalità:</strong> Processamento pagamenti sicuro</li>
-                    <li><strong>Durata:</strong> Variabile</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://stripe.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Stripe Privacy Policy</a></li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Supabase</h3>
-                  <p className="mb-2">Utilizziamo Supabase per l'autenticazione e il database.</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                    <li><strong>Finalità:</strong> Gestione utenti e dati</li>
-                    <li><strong>Durata:</strong> Sessione</li>
-                    <li><strong>Privacy Policy:</strong> <a href="https://supabase.com/privacy" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a></li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            {/* 5. Gestione dei cookie */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Settings className="h-4 w-4 text-purple-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">5. Come Gestire i Cookie</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>Hai diverse opzioni per gestire i cookie:</p>
-                
-                <h3 className="text-lg font-semibold text-gray-900">5.1 Impostazioni del Browser</h3>
-                <p>Puoi controllare e cancellare i cookie attraverso le impostazioni del tuo browser:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Chrome:</strong> Impostazioni → Privacy e sicurezza → Cookie</li>
-                  <li><strong>Firefox:</strong> Opzioni → Privacy e sicurezza → Cookie</li>
-                  <li><strong>Safari:</strong> Preferenze → Privacy → Cookie</li>
-                  <li><strong>Edge:</strong> Impostazioni → Cookie e autorizzazioni sito</li>
-                </ul>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">5.2 Banner di Consenso</h3>
-                <p>Quando visiti il nostro sito per la prima volta, vedrai un banner che ti permette di:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Accettare tutti i cookie</li>
-                  <li>Rifiutare i cookie non essenziali</li>
-                  <li>Personalizzare le tue preferenze</li>
-                </ul>
-
-                <h3 className="text-lg font-semibold text-gray-900 mt-6">5.3 Strumenti di Opt-out</h3>
-                <p>Puoi utilizzare questi strumenti per disabilitare specifici cookie:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Google Analytics:</strong> <a href="https://tools.google.com/dlpage/gaoptout" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out</a></li>
-                  <li><strong>Network Advertising Initiative:</strong> <a href="http://www.networkadvertising.org/choices/" className="text-[#2563EB] hover:underline" target="_blank" rel="noopener noreferrer">NAI Opt-out</a></li>
-                </ul>
-              </div>
-            </section>
-
-            {/* 6. Impatto della disabilitazione */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <Eye className="h-4 w-4 text-yellow-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">6. Impatto della Disabilitazione dei Cookie</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-3">⚠️ Attenzione</h3>
-                  <p className="text-yellow-700">
-                    Disabilitare alcuni cookie potrebbe influire sul funzionamento del sito. I cookie essenziali sono necessari per:
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 mt-3 text-yellow-700">
-                    <li>Mantenere la sessione di login</li>
-                    <li>Garantire la sicurezza del sito</li>
-                    <li>Salvare le preferenze di base</li>
-                    <li>Processare i pagamenti</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            {/* 7. Aggiornamenti */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center">
-                  <Clock className="h-4 w-4 text-gray-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">7. Aggiornamenti a Questa Policy</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>
-                  Potremmo aggiornare questa Cookie Policy periodicamente per riflettere cambiamenti nelle nostre pratiche o per altri motivi operativi, legali o normativi. Ti consigliamo di rivedere questa policy regolarmente.
-                </p>
-              </div>
-            </section>
-
-            {/* 8. Contatti */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Cookie className="h-4 w-4 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">8. Contatti</h2>
-              </div>
-              <div className="text-gray-700 space-y-4">
-                <p>Per domande riguardo a questa Cookie Policy, contattaci:</p>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p><strong>Email:</strong> <a href="mailto:cookies@rescuemanager.it" className="text-[#2563EB] hover:underline">cookies@rescuemanager.it</a></p>
-                  <p><strong>Telefono:</strong> +39 02 1234 5678</p>
-                  <p><strong>Indirizzo:</strong> Via Roma 123, 20100 Milano, Italia</p>
-                </div>
-              </div>
-            </section>
-
+          {/* Premessa normativa */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+            <p className="text-sm text-blue-900 leading-relaxed">
+              La presente Cookie Policy è redatta in conformità all&apos;art. 122 del D.Lgs. 30 giugno 2003, n. 196 (Codice Privacy), al Provvedimento del Garante n. 231 del 10 giugno 2021 (&quot;Linee Guida Cookie&quot;), alla Direttiva 2002/58/CE (Direttiva ePrivacy) e al GDPR. Si riferisce all&apos;utilizzo di cookie e strumenti di tracciamento sul sito web e sulla Piattaforma web gestiti da <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista operante sotto il nome commerciale <strong>RescueManager</strong>, P. IVA 02166430856.
+            </p>
           </div>
+
+          {/* 1. Identificazione Titolare */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">1. Identificazione del Titolare</h2>
+            </div>
+            <div className="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
+              <p><strong>Emmanuel Salvatore Scozzarini</strong> — Nome commerciale: <strong>RescueManager</strong></p>
+              <p><strong>P. IVA:</strong> 02166430856 (visibile in modo permanente nel footer di ogni pagina, in conformità all&apos;art. 35 del D.P.R. 633/1972)</p>
+              <p><strong>Domicilio Professionale:</strong> Via dello Smeraldo 18, Gela (CL), Sicilia</p>
+              <p><strong>E-mail:</strong> <a href="mailto:rescuemanager@legalmail.it" className="text-blue-600 hover:underline">rescuemanager@legalmail.it</a></p>
+              <p><strong>Sito web:</strong> <a href="https://www.rescuemanager.eu" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
+            </div>
+          </section>
+
+          {/* 2. Infrastruttura di Hosting */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
+                <Database className="h-5 w-5 text-indigo-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">2. Infrastruttura di Hosting e Implicazioni per i Cookie</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">USA — Trasferimento extra-UE</span>
+                  </div>
+                  <p className="font-semibold text-gray-900 mb-1">Vercel Inc.</p>
+                  <p className="text-xs text-gray-600">Hosting sito web e frontend. I dati tecnici di connessione (incluso indirizzo IP e log di accesso) sono trattati sui server USA. Trasferimento lecito: EU-U.S. Data Privacy Framework (DPF) + SCC.</p>
+                </div>
+                <div className="border border-green-200 rounded-lg p-4 bg-green-50/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Germania — Solo UE/SEE</span>
+                  </div>
+                  <p className="font-semibold text-gray-900 mb-1">IONOS SE</p>
+                  <p className="text-xs text-gray-600">Hosting API e backend. I log generati dalle chiamate API sono trattati esclusivamente nello Spazio Economico Europeo. Nessun trasferimento verso Paesi terzi.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Cosa sono i Cookie */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
+                <Cookie className="h-5 w-5 text-purple-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">3. Cosa Sono i Cookie e gli Strumenti di Tracciamento</h2>
+            </div>
+            <div className="text-gray-700 text-sm leading-relaxed">
+              <p>I cookie sono piccoli file di testo che un sito web memorizza sul dispositivo dell&apos;utente (computer, tablet, smartphone) quando quest&apos;ultimo lo visita. Insieme ai cookie, possono essere impiegati altri strumenti di tracciamento analoghi, come pixel, tag, SDK, local storage e fingerprinting, che svolgono funzioni simili. Ai fini della presente Policy, tutti tali strumenti sono indicati collettivamente come <strong>&quot;strumenti di tracciamento&quot;</strong>.</p>
+            </div>
+          </section>
+
+          {/* 4. Tipologie di Cookie */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
+                <Settings className="h-5 w-5 text-green-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">4. Tipologie di Strumenti di Tracciamento Utilizzati</h2>
+            </div>
+            <div className="text-gray-700 space-y-5 text-sm leading-relaxed">
+              <p>Conformemente al Provvedimento del Garante n. 231/2021, gli strumenti di tracciamento si distinguono in tecnici (esenti da consenso) e non tecnici (subordinati a consenso preventivo).</p>
+
+              {/* 4.1 Cookie Tecnici */}
+              <div className="border border-green-200 rounded-xl overflow-hidden">
+                <div className="bg-green-50 px-5 py-3 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-green-700" />
+                  <h3 className="font-semibold text-green-900">4.1 Cookie e Strumenti Tecnici — Esenti da Consenso</h3>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs text-green-800 mb-4">Strettamente necessari per il funzionamento del sito e della Piattaforma. Esenti ex art. 122, comma 1, Codice Privacy.</p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-200 text-xs">
+                      <thead><tr className="bg-gray-50"><th className="border border-gray-200 px-3 py-2 text-left">Nome / Categoria</th><th className="border border-gray-200 px-3 py-2 text-left">Finalità</th><th className="border border-gray-200 px-3 py-2 text-left">Durata</th><th className="border border-gray-200 px-3 py-2 text-left">Parte</th></tr></thead>
+                      <tbody>
+                        <tr><td className="border border-gray-200 px-3 py-2">Cookie di sessione autenticazione</td><td className="border border-gray-200 px-3 py-2">Mantengono la sessione autenticata, evitando la ripetizione del login</td><td className="border border-gray-200 px-3 py-2">Sessione</td><td className="border border-gray-200 px-3 py-2">Prima parte</td></tr>
+                        <tr><td className="border border-gray-200 px-3 py-2">Cookie di preferenze</td><td className="border border-gray-200 px-3 py-2">Memorizzano preferenze di navigazione (lingua, impostazioni UI)</td><td className="border border-gray-200 px-3 py-2">12 mesi</td><td className="border border-gray-200 px-3 py-2">Prima parte</td></tr>
+                        <tr><td className="border border-gray-200 px-3 py-2">Cookie CSRF token</td><td className="border border-gray-200 px-3 py-2">Proteggono da attacchi Cross-Site Request Forgery</td><td className="border border-gray-200 px-3 py-2">Sessione</td><td className="border border-gray-200 px-3 py-2">Prima parte</td></tr>
+                        <tr><td className="border border-gray-200 px-3 py-2">Cookie di sicurezza</td><td className="border border-gray-200 px-3 py-2">Rilevamento comportamenti anomali e prevenzione accessi fraudolenti</td><td className="border border-gray-200 px-3 py-2">Sessione / 24h</td><td className="border border-gray-200 px-3 py-2">Prima parte</td></tr>
+                        <tr><td className="border border-gray-200 px-3 py-2">Cookie bilanciamento del carico</td><td className="border border-gray-200 px-3 py-2">Distribuiscono il traffico tra i server Vercel (CDN routing)</td><td className="border border-gray-200 px-3 py-2">Sessione</td><td className="border border-gray-200 px-3 py-2">Vercel Inc.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Vercel Inc. potrebbe installare autonomamente cookie tecnici strettamente necessari per il funzionamento dell&apos;infrastruttura CDN. Per l&apos;elenco aggiornato: <a href="https://vercel.com/legal/privacy-policy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">vercel.com/legal/privacy-policy</a>.</p>
+                </div>
+              </div>
+
+              {/* 4.2 Cookie Analytics */}
+              <div className="border border-blue-200 rounded-xl overflow-hidden">
+                <div className="bg-blue-50 px-5 py-3 flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-blue-700" />
+                  <h3 className="font-semibold text-blue-900">4.2 Cookie di Analytics — Subordinati a Consenso o Misure di Minimizzazione</h3>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs text-blue-800 mb-3">I cookie analytics sono equiparati ai cookie tecnici ed esenti da consenso <strong>solo se</strong> vengono adottate le seguenti misure di minimizzazione (punto 7.2 Linee Guida Garante n. 231/2021):</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2 text-xs text-blue-800 mb-3">
+                    <li>Mascheramento dell&apos;indirizzo IP (ultimo ottetto rimosso prima di qualsiasi elaborazione)</li>
+                    <li>Elaborazione esclusivamente in forma aggregata, senza profilazione individuale</li>
+                    <li>Limitazione alle interazioni con il solo Sito/Piattaforma del Titolare</li>
+                  </ul>
+                  <p className="text-xs text-blue-700">In assenza delle predette misure, il Titolare acquisirà il consenso esplicito dell&apos;utente prima di installare tali strumenti.</p>
+                  <div className="mt-3 bg-white border border-blue-100 rounded-lg p-3 text-xs">
+                    <p><strong>Analytics aggregati</strong> (es. Matomo in-house o Google Analytics con IP anonimizzato) — Finalità: analisi statistica visite — Durata: 13 mesi — Prima/Terza parte (con IP mascherato)</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4.3 Cookie Profilazione */}
+              <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-gray-50 px-5 py-3 flex items-center gap-2">
+                  <Database className="h-4 w-4 text-gray-600" />
+                  <h3 className="font-semibold text-gray-900">4.3 Cookie di Profilazione e Marketing — Soggetti a Consenso Preventivo</h3>
+                </div>
+                <div className="p-5">
+                  <p className="text-sm text-gray-700">Il Titolare <strong>non utilizza attualmente</strong> cookie di profilazione o di remarketing pubblicitario. Qualora in futuro tale utilizzo fosse introdotto, la presente Cookie Policy sarà aggiornata e il consenso esplicito dell&apos;utente sarà acquisito preventivamente attraverso il banner di gestione del consenso.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Dati Tecnici e Log */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-orange-600/10 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-5 w-5 text-orange-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">5. Dati Tecnici e Log di Accesso</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">5.1 Trattamento dei Log di Accesso</h3>
+              <p>Indipendentemente dall&apos;utilizzo di cookie, i sistemi informatici della Piattaforma acquisiscono automaticamente log di accesso e connessione (incluso l&apos;indirizzo IP) per: sicurezza informatica, funzionamento e manutenzione, fatturazione.</p>
+              <h3 className="font-semibold text-gray-900 mt-4">5.2 Localizzazione del Trattamento dei Log</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
+                  <p className="font-semibold text-orange-900">Log frontend (sito web)</p>
+                  <p className="text-orange-700 mt-1">Trattati anche da <strong>Vercel Inc. (USA)</strong>, con garanzie di trasferimento EU-U.S. DPF + SCC.</p>
+                </div>
+                <div className="bg-green-50 border border-green-100 rounded-lg p-3">
+                  <p className="font-semibold text-green-900">Log API (backend)</p>
+                  <p className="text-green-700 mt-1">Trattati da <strong>IONOS SE (Germania)</strong>, esclusivamente all&apos;interno dell&apos;Unione Europea.</p>
+                </div>
+              </div>
+              <h3 className="font-semibold text-gray-900 mt-4">5.3 Periodo di Conservazione dei Log</h3>
+              <p>In conformità all&apos;art. 123 del D.Lgs. 196/2003: log di traffico per fatturazione — max <strong>6 mesi</strong>; log di sicurezza — max <strong>12 mesi</strong>. Al termine, cancellazione o anonimizzazione irreversibile.</p>
+            </div>
+          </section>
+
+          {/* 6. Gestione del Consenso */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-teal-600/10 flex items-center justify-center flex-shrink-0">
+                <Eye className="h-5 w-5 text-teal-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">6. Gestione del Consenso</h2>
+            </div>
+            <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
+              <h3 className="font-semibold text-gray-900">6.1 Banner di Gestione del Consenso</h3>
+              <p>Al primo accesso al Sito, agli utenti non ancora autenticati è presentato un banner informativo conforme alle prescrizioni del Provvedimento del Garante n. 231/2021, che:</p>
+              <ul className="list-disc list-inside space-y-1 ml-3">
+                <li>Fornisce una prima informativa sintetica sull&apos;utilizzo degli strumenti di tracciamento</li>
+                <li>Consente di accettare o rifiutare il consenso mediante azioni equivalenti e paritetiche (pulsanti di pari rilievo grafico)</li>
+                <li>Consente di chiudere il banner mantenendo le impostazioni predefinite (solo cookie tecnici attivi)</li>
+                <li>Non implementa meccanismi di &quot;cookie wall&quot; (blocco dell&apos;accesso in mancanza di consenso)</li>
+              </ul>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
+                <p className="text-xs text-blue-900"><strong>Privacy by Default (art. 25 GDPR):</strong> nessun cookie non tecnico è installato prima che l&apos;utente abbia espresso consenso attraverso un&apos;azione positiva e inequivocabile. Il semplice proseguimento della navigazione (scroll) non costituisce consenso valido.</p>
+              </div>
+
+              <h3 className="font-semibold text-gray-900 mt-5">6.2 Revoca del Consenso e Gestione delle Preferenze</h3>
+              <p>L&apos;utente può revocare il consenso in qualsiasi momento tramite:</p>
+              <ul className="list-disc list-inside space-y-1 ml-3">
+                <li>Il pannello di gestione delle preferenze cookie accessibile tramite il link &quot;Gestisci Cookie&quot; nel footer</li>
+                <li>Le impostazioni del browser (link alle istruzioni principali browser):</li>
+              </ul>
+              <div className="grid grid-cols-2 gap-2 ml-3 mt-2 text-xs">
+                <a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google Chrome →</a>
+                <a href="https://support.mozilla.org/it/kb/Gestione%20dei%20cookie" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Mozilla Firefox →</a>
+                <a href="https://support.apple.com/it-it/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Safari →</a>
+                <a href="https://support.microsoft.com/it-it/microsoft-edge/eliminare-i-cookie-in-microsoft-edge" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Microsoft Edge →</a>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">La revoca del consenso non pregiudica la liceità del trattamento effettuato prima della revoca. La disabilitazione dei cookie tecnici potrebbe pregiudicare il corretto funzionamento della Piattaforma.</p>
+            </div>
+          </section>
+
+          {/* 7. Aggiornamenti */}
+          <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-lg bg-gray-600/10 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-5 w-5 text-gray-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">7. Aggiornamenti della Cookie Policy</h2>
+            </div>
+            <div className="text-gray-700 text-sm leading-relaxed">
+              <p>Il Titolare, Emmanuel Salvatore Scozzarini (P. IVA 02166430856), si riserva il diritto di modificare la presente Cookie Policy in qualsiasi momento, in risposta a modifiche normative, tecnologiche o operative (ivi incluse variazioni nell&apos;infrastruttura di hosting o nei fornitori di servizi). Le modifiche sono comunicate agli utenti tramite avviso sul Sito e, ove opportuno, tramite nuova richiesta di consenso.</p>
+            </div>
+          </section>
+
+          {/* 8. Contatti */}
+          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a5f] rounded-xl p-6 text-white">
+            <h3 className="font-bold text-lg mb-4">8. Contatti e Diritti degli Interessati</h3>
+            <p className="text-slate-300 text-sm mb-4">Per qualsiasi richiesta relativa alla presente Cookie Policy o all&apos;esercizio dei diritti in materia di dati personali:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-slate-400 mb-1">Titolare del Trattamento</p>
+                <p className="font-semibold">Emmanuel Salvatore Scozzarini — RescueManager</p>
+                <p className="text-slate-400 text-xs mt-1">P. IVA: 02166430856</p>
+              </div>
+              <div>
+                <p className="text-slate-400 mb-1">Recapiti</p>
+                <p>Via dello Smeraldo 18, Gela (CL), Sicilia</p>
+                <p><a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
+                <p><a href="https://www.rescuemanager.eu" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
+                <p className="text-slate-400 text-xs mt-2">Reclamo: <a href="https://www.garanteprivacy.it" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">Garante Privacy (www.garanteprivacy.it)</a></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Link altre policy */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a href="/terms-of-use" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Termini e Condizioni</a>
+            <a href="/privacy-policy" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Privacy Policy</a>
+            <a href="/dpa" className="text-sm text-blue-600 hover:underline border border-blue-200 px-3 py-1.5 rounded-lg bg-blue-50">Data Processing Agreement</a>
+          </div>
+
         </div>
       </div>
     </div>
