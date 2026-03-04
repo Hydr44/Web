@@ -15,8 +15,8 @@ export default function CookieConsentModal() {
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
     if (!consent) {
-      // Mostra il banner dopo un breve delay per non essere invasivo
-      setTimeout(() => setVisible(true), 1000);
+      // Mostra il banner subito, posizionato in basso a destra
+      setTimeout(() => setVisible(true), 500);
     } else {
       // Carica le preferenze salvate
       try {
@@ -70,12 +70,29 @@ export default function CookieConsentModal() {
 
   return (
     <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-[9998] backdrop-blur-sm" />
+      {/* Overlay leggero - non blocca la vista */}
+      <div className="fixed inset-0 bg-black/20 z-[9998] pointer-events-none" />
       
-      {/* Modal */}
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      {/* Banner posizionato in basso a destra, sempre visibile */}
+      <div 
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] max-w-md w-[calc(100vw-2rem)] sm:w-full"
+        style={{
+          animation: 'slideUp 0.4s ease-out forwards',
+        }}
+      >
+        <style jsx>{`
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(2rem);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
+        <div className="bg-white rounded-2xl shadow-2xl border-2 border-blue-500/20 max-h-[85vh] overflow-y-auto">
           {/* Header */}
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
             <div className="flex items-center justify-between">
