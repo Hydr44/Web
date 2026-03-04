@@ -53,15 +53,15 @@ export default function SupportPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Supporto</h1>
-        <p className="text-slate-400">Scrivi al nostro team. Risposta entro 24 ore.</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Supporto</h1>
+        <p className="text-gray-500">Scrivi al nostro team. Risposta entro 24 ore.</p>
       </div>
 
       {sent ? (
-        <div className="bg-[#1e293b] rounded-xl border border-green-500/30 p-8 text-center">
-          <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Richiesta inviata</h2>
-          <p className="text-slate-400 mb-6">Ti risponderemo all'indirizzo <span className="text-white">{userEmail}</span> entro 24 ore.</p>
+        <div className="bg-white  border border-green-500/30 p-8 text-center">
+          <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Richiesta inviata</h2>
+          <p className="text-gray-500 mb-6">Ti risponderemo all'indirizzo <span className="text-gray-900">{userEmail}</span> entro 24 ore.</p>
           <button
             onClick={() => setSent(false)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -70,19 +70,19 @@ export default function SupportPage() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-[#1e293b] rounded-xl border border-slate-700 p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white  border border-gray-200 p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            <div className="p-3 bg-red-50 border border-red-500/30 text-red-600 text-sm">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Tipo di richiesta</label>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Tipo di richiesta</label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-[#0f172a] text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="domanda">Domanda</option>
               <option value="bug">Segnalazione bug</option>
@@ -93,25 +93,25 @@ export default function SupportPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Oggetto</label>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Oggetto</label>
             <input
               type="text"
               value={oggetto}
               onChange={(e) => setOggetto(e.target.value)}
               placeholder="Descrivi brevemente il problema"
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-[#0f172a] text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Messaggio</label>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Messaggio</label>
             <textarea
               value={messaggio}
               onChange={(e) => setMessaggio(e.target.value)}
               placeholder="Descrivi il problema in dettaglio..."
               rows={5}
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-[#0f172a] text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               required
             />
           </div>
@@ -130,25 +130,25 @@ export default function SupportPage() {
         </form>
       )}
 
-      <div className="bg-[#1e293b] rounded-xl border border-slate-700 p-6">
-        <h2 className="text-sm font-bold text-white uppercase tracking-wide mb-4">Contatti diretti</h2>
+      <div className="bg-white  border border-gray-200 p-6">
+        <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Contatti diretti</h2>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
-              <Mail className="h-4 w-4 text-blue-400" />
+            <div className="w-8 h-8 bg-blue-50 flex items-center justify-center">
+              <Mail className="h-4 w-4 text-blue-600" />
             </div>
             <div>
-              <div className="text-xs text-slate-500">Email supporto</div>
-              <a href="mailto:info@rescuemanager.eu" className="text-white text-sm hover:text-blue-400 transition-colors">info@rescuemanager.eu</a>
+              <div className="text-xs text-gray-400">Email supporto</div>
+              <a href="mailto:info@rescuemanager.eu" className="text-gray-900 text-sm hover:text-blue-600 transition-colors">info@rescuemanager.eu</a>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
-              <Phone className="h-4 w-4 text-blue-400" />
+            <div className="w-8 h-8 bg-blue-50 flex items-center justify-center">
+              <Phone className="h-4 w-4 text-blue-600" />
             </div>
             <div>
-              <div className="text-xs text-slate-500">Telefono</div>
-              <a href="tel:+393921723028" className="text-white text-sm hover:text-blue-400 transition-colors">+39 392 172 3028</a>
+              <div className="text-xs text-gray-400">Telefono</div>
+              <a href="tel:+393921723028" className="text-gray-900 text-sm hover:text-blue-600 transition-colors">+39 392 172 3028</a>
             </div>
           </div>
         </div>

@@ -154,8 +154,8 @@ export default function ProfilePage() {
       <header>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Profilo</h1>
-            <p className="text-slate-400">Gestisci le tue informazioni personali.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Profilo</h1>
+            <p className="text-gray-500">Gestisci le tue informazioni personali.</p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -163,14 +163,14 @@ export default function ProfilePage() {
               <>
                 <button
                   onClick={handleCancel}
-                  className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-slate-200 transition-colors duration-200"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-800 transition-colors duration-200"
                 >
                   <X className="h-4 w-4" />
                   Annulla
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 transition-colors font-medium"
                 >
                   <Save className="h-4 w-4" />
                   Salva
@@ -179,7 +179,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 transition-colors font-medium"
               >
                 <Edit className="h-4 w-4" />
                 Modifica
@@ -192,29 +192,29 @@ export default function ProfilePage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Profile Card */}
         <div className="lg:col-span-1">
-          <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+          <div className="p-6  bg-white border border-[#243044] ">
             <div className="text-center">
               <div className="relative inline-block mb-4">
                 <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                   {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
                 </div>
                 {editing && (
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors duration-200">
+                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-gray-900 rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors duration-200">
                     <Camera className="h-4 w-4" />
                   </button>
                 )}
               </div>
               
-              <h2 className="text-xl font-semibold text-slate-100 mb-1">
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">
                 {userData.full_name || "Nome non impostato"}
               </h2>
-              <p className="text-sm text-slate-400 mb-4">{userData.email}</p>
+              <p className="text-sm text-gray-500 mb-4">{userData.email}</p>
               
               {userData.bio && (
-                <p className="text-sm text-slate-300 mb-4">{userData.bio}</p>
+                <p className="text-sm text-gray-600 mb-4">{userData.bio}</p>
               )}
               
-              <div className="space-y-2 text-sm text-slate-400">
+              <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>Membro dal {new Date(userData.created_at).toLocaleDateString('it-IT')}</span>
@@ -232,12 +232,12 @@ export default function ProfilePage() {
 
         {/* Profile Form */}
         <div className="lg:col-span-2">
-          <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
-            <h3 className="text-xl font-semibold text-slate-100 mb-6">Informazioni Personali</h3>
+          <div className="p-6  bg-white border border-[#243044] ">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Informazioni Personali</h3>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Nome Completo
                 </label>
                 {editing ? (
@@ -245,29 +245,29 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.full_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="Il tuo nome completo"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100">
+                  <div className="px-4 py-3 bg-white  text-gray-900">
                     {userData.full_name || "Non impostato"}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Email
                 </label>
-                <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-slate-500" />
+                <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-gray-400" />
                   {userData.email}
                 </div>
-                <p className="text-xs text-slate-500 mt-1">L'email non può essere modificata</p>
+                <p className="text-xs text-gray-400 mt-1">L'email non può essere modificata</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Telefono
                 </label>
                 {editing ? (
@@ -275,19 +275,19 @@ export default function ProfilePage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="+39 123 456 7890"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-slate-500" />
+                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-gray-400" />
                     {userData.phone || "Non impostato"}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Località
                 </label>
                 {editing ? (
@@ -295,19 +295,19 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="Milano, Italia"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-slate-500" />
+                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-400" />
                     {userData.location || "Non impostato"}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Sito Web
                 </label>
                 {editing ? (
@@ -315,12 +315,12 @@ export default function ProfilePage() {
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="https://tuosito.com"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-slate-500" />
+                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-gray-400" />
                     {userData.website ? (
                       <a href={userData.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                         {userData.website}
@@ -333,14 +333,14 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Fuso Orario
                 </label>
                 {editing ? (
                   <select
                     value={formData.timezone}
                     onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
                     <option value="Europe/Rome">Europa/Roma (GMT+1)</option>
                     <option value="Europe/London">Europa/Londra (GMT+0)</option>
@@ -348,8 +348,8 @@ export default function ProfilePage() {
                     <option value="Asia/Tokyo">Asia/Tokyo (GMT+9)</option>
                   </select>
                 ) : (
-                  <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-slate-500" />
+                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-400" />
                     {userData.timezone}
                   </div>
                 )}
@@ -357,7 +357,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
                 Biografia
               </label>
               {editing ? (
@@ -365,11 +365,11 @@ export default function ProfilePage() {
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-700 bg-[#0f172a] text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   placeholder="Raccontaci qualcosa di te..."
                 />
               ) : (
-                <div className="px-4 py-3 bg-[#141c27] rounded-xl text-slate-100 min-h-[100px]">
+                <div className="px-4 py-3 bg-white  text-gray-900 min-h-[100px]">
                   {userData.bio || "Nessuna biografia impostata"}
                 </div>
               )}

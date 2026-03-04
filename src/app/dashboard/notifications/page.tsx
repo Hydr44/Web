@@ -176,22 +176,22 @@ export default function NotificationsPage() {
       case "marketing":
         return <Zap className="h-5 w-5 text-purple-500" />;
       default:
-        return <Bell className="h-5 w-5 text-slate-500" />;
+        return <Bell className="h-5 w-5 text-gray-400" />;
     }
   };
 
   const getNotificationTypeColor = (type: string) => {
     switch (type) {
       case "security":
-        return "bg-red-500/10 border-red-500/20";
+        return "bg-red-50 border-red-200";
       case "billing":
-        return "bg-blue-500/10 border-blue-500/20";
+        return "bg-blue-50 border-blue-200";
       case "organization":
         return "bg-emerald-500/10 border-emerald-500/20";
       case "marketing":
         return "bg-purple-50 border-purple-200";
       default:
-        return "bg-[#141c27] border-[#243044]";
+        return "bg-white border-[#243044]";
     }
   };
 
@@ -209,14 +209,14 @@ export default function NotificationsPage() {
       <header>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Notifiche</h1>
-            <p className="text-slate-400">Personalizza come e quando ricevere le notifiche.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Notifiche</h1>
+            <p className="text-gray-500">Personalizza come e quando ricevere le notifiche.</p>
           </div>
           
           <button
             onClick={handleSaveSettings}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
           >
             {saving ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -231,20 +231,20 @@ export default function NotificationsPage() {
       {/* Notification Channels */}
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Email Notifications */}
-        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+        <div className="p-6  bg-white border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-100">Email</h2>
-              <p className="text-sm text-slate-400">Notifiche via email</p>
+              <h2 className="text-xl font-semibold text-gray-900">Email</h2>
+              <p className="text-sm text-gray-500">Notifiche via email</p>
             </div>
           </div>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Notifiche email</span>
+              <span className="text-sm font-medium text-gray-600">Notifiche email</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -255,14 +255,14 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
             {notificationSettings.email.enabled && (
               <div className="space-y-3 ml-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Sicurezza</span>
+                  <span className="text-sm text-gray-500">Sicurezza</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -273,12 +273,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Fatturazione</span>
+                  <span className="text-sm text-gray-500">Fatturazione</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -289,12 +289,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Organizzazione</span>
+                  <span className="text-sm text-gray-500">Organizzazione</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -305,12 +305,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Marketing</span>
+                  <span className="text-sm text-gray-500">Marketing</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -321,7 +321,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -330,20 +330,20 @@ export default function NotificationsPage() {
         </div>
 
         {/* Push Notifications */}
-        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+        <div className="p-6  bg-white border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center">
-              <Smartphone className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-emerald-600 flex items-center justify-center">
+              <Smartphone className="h-5 w-5 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-100">Push</h2>
-              <p className="text-sm text-slate-400">Notifiche push</p>
+              <h2 className="text-xl font-semibold text-gray-900">Push</h2>
+              <p className="text-sm text-gray-500">Notifiche push</p>
             </div>
           </div>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Notifiche push</span>
+              <span className="text-sm font-medium text-gray-600">Notifiche push</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -354,14 +354,14 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
             {notificationSettings.push.enabled && (
               <div className="space-y-3 ml-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Sicurezza</span>
+                  <span className="text-sm text-gray-500">Sicurezza</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -372,12 +372,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Fatturazione</span>
+                  <span className="text-sm text-gray-500">Fatturazione</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -388,12 +388,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Organizzazione</span>
+                  <span className="text-sm text-gray-500">Organizzazione</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -404,7 +404,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -413,20 +413,20 @@ export default function NotificationsPage() {
         </div>
 
         {/* SMS Notifications */}
-        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
+        <div className="p-6  bg-white border border-[#243044] ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-slate-600 flex items-center justify-center">
-              <Monitor className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
+              <Monitor className="h-5 w-5 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-100">SMS</h2>
-              <p className="text-sm text-slate-400">Notifiche SMS</p>
+              <h2 className="text-xl font-semibold text-gray-900">SMS</h2>
+              <p className="text-sm text-gray-500">Notifiche SMS</p>
             </div>
           </div>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Notifiche SMS</span>
+              <span className="text-sm font-medium text-gray-600">Notifiche SMS</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -437,14 +437,14 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
             {notificationSettings.sms.enabled && (
               <div className="space-y-3 ml-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Sicurezza</span>
+                  <span className="text-sm text-gray-500">Sicurezza</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -455,12 +455,12 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400">Fatturazione</span>
+                  <span className="text-sm text-gray-500">Fatturazione</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -471,7 +471,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -483,12 +483,12 @@ export default function NotificationsPage() {
       {/* Advanced Settings */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Quiet Hours */}
-        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
-          <h2 className="text-xl font-semibold text-slate-100 mb-6">Ore Silenziose</h2>
+        <div className="p-6  bg-white border border-[#243044] ">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Ore Silenziose</h2>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Abilita ore silenziose</span>
+              <span className="text-sm font-medium text-gray-600">Abilita ore silenziose</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -502,14 +502,14 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
             {notificationSettings.preferences.quietHours.enabled && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Inizio</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Inizio</label>
                   <input
                     type="time"
                     value={notificationSettings.preferences.quietHours.start}
@@ -520,11 +520,11 @@ export default function NotificationsPage() {
                         quietHours: { ...prev.preferences.quietHours, start: e.target.value }
                       }
                     }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Fine</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Fine</label>
                   <input
                     type="time"
                     value={notificationSettings.preferences.quietHours.end}
@@ -535,7 +535,7 @@ export default function NotificationsPage() {
                         quietHours: { ...prev.preferences.quietHours, end: e.target.value }
                       }
                     }))}
-                    className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   />
                 </div>
               </div>
@@ -544,19 +544,19 @@ export default function NotificationsPage() {
         </div>
 
         {/* Frequency Settings */}
-        <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
-          <h2 className="text-xl font-semibold text-slate-100 mb-6">Frequenza</h2>
+        <div className="p-6  bg-white border border-[#243044] ">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Frequenza</h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Frequenza notifiche</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Frequenza notifiche</label>
               <select
                 value={notificationSettings.preferences.frequency}
                 onChange={(e) => setNotificationSettings(prev => ({
                   ...prev,
                   preferences: { ...prev.preferences, frequency: e.target.value }
                 }))}
-                className="w-full px-4 py-3 border border-[#243044] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
               >
                 <option value="immediate">Immediata</option>
                 <option value="daily">Giornaliera</option>
@@ -565,7 +565,7 @@ export default function NotificationsPage() {
             </div>
             
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Digest settimanale</span>
+              <span className="text-sm font-medium text-gray-600">Digest settimanale</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -576,7 +576,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#243044] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#1a2536] after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
@@ -584,22 +584,22 @@ export default function NotificationsPage() {
       </div>
 
       {/* Recent Notifications */}
-      <div className="p-6 rounded-2xl bg-[#1a2536] border border-[#243044] ">
-        <h2 className="text-xl font-semibold text-slate-100 mb-6">Notifiche Recenti</h2>
+      <div className="p-6  bg-white border border-[#243044] ">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Notifiche Recenti</h2>
         
         <div className="space-y-4">
           {recentNotifications.map((notification) => (
-            <div key={notification.id} className={`p-4 rounded-xl border ${getNotificationTypeColor(notification.type)} ${!notification.read ? 'ring-2 ring-primary/20' : ''}`}>
+            <div key={notification.id} className={`p-4  border ${getNotificationTypeColor(notification.type)} ${!notification.read ? 'ring-2 ring-primary/20' : ''}`}>
               <div className="flex items-start gap-3">
                 {getNotificationIcon(notification.type)}
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-medium text-slate-100">{notification.title}</h3>
-                    <span className="text-sm text-slate-500">{notification.time}</span>
+                    <h3 className="font-medium text-gray-900">{notification.title}</h3>
+                    <span className="text-sm text-gray-400">{notification.time}</span>
                   </div>
-                  <p className="text-sm text-slate-400 mb-2">{notification.message}</p>
+                  <p className="text-sm text-gray-500 mb-2">{notification.message}</p>
                   {!notification.read && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary text-white">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary text-gray-900">
                       <Bell className="h-3 w-3" />
                       Non letta
                     </span>

@@ -83,52 +83,45 @@ export default function DashboardPanoramica() {
     return <LoadingPage text="Caricamento dashboard..." />;
   }
 
-  // Se l'utente non ha organizzazione, mostra messaggio
   if (!hasOrganization) {
     return (
       <div className="space-y-8">
-        {/* Header */}
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Building2 className="h-8 w-8 text-blue-400" />
+          <div className="w-12 h-12 bg-blue-600 flex items-center justify-center mx-auto mb-6">
+            <Building2 className="h-6 w-6 text-white" />
           </div>
-          
-          <h1 className="text-3xl font-bold text-white mb-4">
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-3">
             Benvenuto in RescueManager!
           </h1>
-          
-          <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-gray-500 mb-8 max-w-lg mx-auto">
             Per iniziare, crea la tua organizzazione. Ti permetterà di gestire la tua officina.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/dashboard/create-org"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
             >
-              <Building2 className="h-5 w-5" />
+              <Building2 className="h-4 w-4" />
               Crea Organizzazione
               <ArrowRight className="h-4 w-4" />
             </Link>
-            
-            <button className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-700 text-white font-semibold rounded-xl hover:bg-white/5 transition-all duration-200">
-              <Users className="h-5 w-5" />
-              Unisciti a un'Organizzazione
+            <button className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors">
+              <Users className="h-4 w-4" />
+              Unisciti a un&apos;Organizzazione
             </button>
           </div>
         </div>
 
-        {/* Benefits */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-4">
           {[
             { icon: Building2, title: "Gestione Completa", desc: "Organizza la tua officina con tutti gli strumenti necessari" },
             { icon: Users, title: "Team", desc: "Lavora con il tuo team in modo efficiente" },
             { icon: Shield, title: "Sicurezza Dati", desc: "I tuoi dati sono protetti e sicuri" }
-          ].map((benefit) => (
-            <div key={benefit.title} className="p-6 rounded-xl bg-[#1e293b] border border-slate-700">
-              <benefit.icon className="h-8 w-8 text-blue-400 mb-4" />
-              <h3 className="text-base font-semibold text-white mb-2">{benefit.title}</h3>
-              <p className="text-slate-400 text-sm">{benefit.desc}</p>
+          ].map((b) => (
+            <div key={b.title} className="p-6 border border-gray-200 bg-white">
+              <b.icon className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="font-bold text-gray-900 text-sm mb-1">{b.title}</h3>
+              <p className="text-gray-500 text-xs">{b.desc}</p>
             </div>
           ))}
         </div>
@@ -138,94 +131,62 @@ export default function DashboardPanoramica() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-          <p className="text-slate-400 mt-1">
-            Benvenuto in {currentOrg}
-          </p>
+          <h1 className="text-2xl font-extrabold text-gray-900">Dashboard</h1>
+          <p className="text-gray-500 text-sm mt-1">Benvenuto in {currentOrg}</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-xs text-slate-500">Piano attivo</p>
-            <p className="font-semibold text-emerald-400">{subscription.plan}</p>
+            <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Piano</p>
+            <p className="font-bold text-green-600 text-sm">{subscription.plan}</p>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-            <Shield className="h-5 w-5 text-emerald-400" />
+          <div className="w-9 h-9 bg-green-50 flex items-center justify-center border border-green-200">
+            <Shield className="h-4 w-4 text-green-600" />
           </div>
         </div>
       </div>
 
-      {/* Info Card */}
-      <div className="bg-[#1e293b] rounded-xl p-6 border border-slate-700">
+      <div className="p-6 border border-gray-200 bg-white">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-            <Building2 className="h-6 w-6 text-blue-400" />
+          <div className="w-10 h-10 bg-blue-50 flex items-center justify-center border border-blue-200 shrink-0">
+            <Building2 className="h-5 w-5 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-white mb-1">{currentOrg}</h2>
-            <p className="text-sm text-slate-400 mb-3">
-              Tutte le funzionalità operative sono disponibili nell'app desktop. Da qui puoi gestire il tuo abbonamento e scaricare l'applicazione.
+            <h2 className="font-bold text-gray-900 mb-1">{currentOrg}</h2>
+            <p className="text-sm text-gray-500 mb-3">
+              Le funzionalità operative sono nell&apos;app desktop. Da qui gestisci abbonamento e download.
             </p>
             <Link
               href="/dashboard/org"
-              className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+              className="inline-flex items-center gap-1 text-sm text-blue-600 font-bold hover:underline"
             >
-              Visualizza dettagli organizzazione
-              <ArrowRight className="h-4 w-4" />
+              Dettagli organizzazione <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-[#1e293b] rounded-xl p-6 border border-slate-700">
-        <h2 className="text-base font-semibold text-white mb-4">Gestione Account</h2>
+      <div>
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Gestione Account</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Link href="/dashboard/billing" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center mr-3">
-              <BarChart3 className="h-4 w-4 text-emerald-400" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-white text-sm">Abbonamento e Fatturazione</p>
-              <p className="text-xs text-slate-500">Gestisci piano e metodi di pagamento</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-          </Link>
-
-          <Link href="/dashboard/download" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center mr-3">
-              <Download className="h-4 w-4 text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-white text-sm">Download Applicazione</p>
-              <p className="text-xs text-slate-500">Scarica app desktop e mobile</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-          </Link>
-
-          <Link href="/dashboard/team" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center mr-3">
-              <Users className="h-4 w-4 text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-white text-sm">Gestione Team</p>
-              <p className="text-xs text-slate-500">Invita e gestisci membri</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-          </Link>
-
-          <Link href="/dashboard/org" className="flex items-center p-4 rounded-lg border border-slate-700 hover:bg-white/5 transition-colors group">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center mr-3">
-              <Building2 className="h-4 w-4 text-amber-400" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-white text-sm">Organizzazione</p>
-              <p className="text-xs text-slate-500">Visualizza e modifica dati aziendali</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-          </Link>
+          {[
+            { href: "/dashboard/billing", icon: BarChart3, color: "text-green-600 bg-green-50 border-green-200", title: "Abbonamento e Fatturazione", desc: "Gestisci piano e metodi di pagamento" },
+            { href: "/dashboard/download", icon: Download, color: "text-blue-600 bg-blue-50 border-blue-200", title: "Download Applicazione", desc: "Scarica app desktop e mobile" },
+            { href: "/dashboard/team", icon: Users, color: "text-purple-600 bg-purple-50 border-purple-200", title: "Gestione Team", desc: "Invita e gestisci membri" },
+            { href: "/dashboard/org", icon: Building2, color: "text-amber-600 bg-amber-50 border-amber-200", title: "Organizzazione", desc: "Visualizza e modifica dati aziendali" },
+          ].map((a) => (
+            <Link key={a.href} href={a.href} className="flex items-center p-4 border border-gray-200 bg-white hover:bg-gray-50 transition-colors group">
+              <div className={`w-9 h-9 flex items-center justify-center mr-3 border ${a.color}`}>
+                <a.icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-gray-900 text-sm">{a.title}</p>
+                <p className="text-xs text-gray-400">{a.desc}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
+            </Link>
+          ))}
         </div>
       </div>
     </div>
