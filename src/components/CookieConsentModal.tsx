@@ -37,25 +37,27 @@ export default function CookieConsentModal() {
   if (!visible) return null;
 
   return (
-    <>
-      {/* Overlay scuro — copre il sito, centra il banner */}
-      <div
-        style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(0,0,0,0.55)" }}
-        onClick={rejectNonEssential}
-      />
-
-      {/* Banner — centrato nel viewport, segue la finestra */}
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.6)",
+        pointerEvents: "auto",
+      }}
+    >
+      {/* Banner centrato con flexbox — garantisce viewport centering */}
       <div
         style={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 9999,
           width: "min(92vw, 480px)",
           maxHeight: "85vh",
           overflowY: "auto",
+          pointerEvents: "auto",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white border-2 border-[#0f172a] shadow-2xl">
           {/* Header dark — stile sito */}
@@ -204,6 +206,6 @@ export default function CookieConsentModal() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
