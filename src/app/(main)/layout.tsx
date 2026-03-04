@@ -1,5 +1,4 @@
 import SiteFooter from "@/components/SiteFooter";
-import CookieBanner from "@/components/CookieBanner";
 import ChatwootWidget from "@/components/ChatwootWidget";
 import ImagePreloader from "@/components/ImagePreloader";
 
@@ -14,7 +13,6 @@ export default function MainLayout({
       
       {/* Footer e componenti per pagine principali */}
       <SiteFooter />
-      <CookieBanner />
       <ChatwootWidget />
       <ImagePreloader 
         images={[
