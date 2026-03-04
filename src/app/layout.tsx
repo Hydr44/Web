@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteHeader from "@/components/SiteHeader";
+import CookieConsentModal from "@/components/CookieConsentModal";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -138,6 +139,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1 min-h-0">
               {children}
             </main>
+            <CookieConsentModal />
             <SpeedInsights />
           </>
         )}
