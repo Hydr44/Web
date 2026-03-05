@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, MapPin, Filter, Clock, Car, ArrowRight } from "lucide-react";
+import { ArrowLeft, MapPin, Filter, Clock, Car, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default function PiazzalePage() {
   return (
@@ -16,6 +16,30 @@ export default function PiazzalePage() {
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl">
             Mappa interattiva del piazzale, posizioni veicoli, tracciamento movimentazioni e ottimizzazione degli spazi.
+          </p>
+        </div>
+      </section>
+
+      {/* PROBLEMA */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Perché serve</h2>
+          <p className="text-gray-600 mb-6">
+            Gestire un piazzale senza un sistema centrale significa perdere tempo a cercare veicoli, nessuna visibilità su scadenze e difficoltà a ottimizzare gli spazi.
+          </p>
+          <div className="grid md:grid-cols-3 gap-4 text-left mb-6">
+            <div className="p-4 bg-white border border-gray-200">
+              <p className="text-sm text-gray-600">Non sai dove si trova un veicolo specifico</p>
+            </div>
+            <div className="p-4 bg-white border border-gray-200">
+              <p className="text-sm text-gray-600">Nessuna visibilità su scadenze custodia</p>
+            </div>
+            <div className="p-4 bg-white border border-gray-200">
+              <p className="text-sm text-gray-600">Difficoltà a ottimizzare gli spazi</p>
+            </div>
+          </div>
+          <p className="text-lg font-bold text-gray-900">
+            Il modulo Piazzale centralizza tutto: posizioni, stati, movimenti e scadenze in un'unica mappa interattiva.
           </p>
         </div>
       </section>
@@ -75,17 +99,25 @@ export default function PiazzalePage() {
 
             <div className="p-6 border border-gray-200">
               <Clock className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Tracciamento Tempi</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Tracciamento posizioni</h3>
               <p className="text-sm text-gray-600">
-                Notifiche automatiche per scadenze custodia, documenti mancanti e veicoli fermi oltre soglia.
+                Registra tutti i movimenti: ingresso, spostamenti interni, cambio stato e uscita dal piazzale.
+              </p>
+            </div>
+
+            <div className="p-6 border border-gray-200">
+              <AlertTriangle className="h-6 w-6 text-amber-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Notifiche automatiche</h3>
+              <p className="text-sm text-gray-600">
+                Avvisi per scadenze custodia, documenti mancanti e veicoli fermi oltre soglia configurabile.
               </p>
             </div>
 
             <div className="p-6 border border-gray-200">
               <Filter className="h-6 w-6 text-purple-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Filtri Avanzati</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati e filtri</h3>
               <p className="text-sm text-gray-600">
-                Filtra per stato (in deposito, in lavorazione, pronto), tipo veicolo, data ingresso e molto altro.
+                Ogni veicolo ha uno stato chiaro. Filtra per stato, tipo veicolo, data ingresso, settore o cliente.
               </p>
             </div>
           </div>
@@ -100,6 +132,51 @@ export default function PiazzalePage() {
               <div key={t} className="p-4 border border-gray-200 bg-white">
                 <p className="font-bold text-gray-900 mb-1 text-sm">{t}</p>
                 <p className="text-xs text-gray-500">{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COME FUNZIONA */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Come funziona</h2>
+          <div className="space-y-4">
+            {[
+              { n: "1", title: "Registra ingresso veicolo", desc: "Inserisci targa, dati veicolo e posizione nel piazzale." },
+              { n: "2", title: "Assegna settore e stato", desc: "Posiziona il veicolo sulla mappa e imposta lo stato iniziale." },
+              { n: "3", title: "Traccia movimenti", desc: "Ogni spostamento viene registrato automaticamente con data, ora e operatore." },
+              { n: "4", title: "Monitora scadenze", desc: "Il sistema ti avvisa quando serve agire (documenti, custodia, ritiro)." },
+              { n: "5", title: "Gestisci uscita", desc: "Registra l'uscita e libera lo spazio per nuovi ingressi." },
+            ].map((s) => (
+              <div key={s.n} className="flex gap-4 p-4 bg-white border border-gray-200">
+                <div className="w-8 h-8 bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">{s.n}</div>
+                <div>
+                  <p className="font-bold text-gray-900 mb-1">{s.title}</p>
+                  <p className="text-sm text-gray-600">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VANTAGGI */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Vantaggi</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { icon: Clock, title: "Zero tempo perso", desc: "Trovi subito ogni veicolo senza cercare fisicamente." },
+              { icon: MapPin, title: "Spazi ottimizzati", desc: "Vedi in tempo reale la saturazione del piazzale e pianifichi meglio." },
+              { icon: AlertTriangle, title: "Scadenze sotto controllo", desc: "Notifiche automatiche per custodie e documenti." },
+              { icon: Filter, title: "Storico completo", desc: "Ogni movimento registrato per tracciabilità e conformità normativa." },
+            ].map((v) => (
+              <div key={v.title} className="p-6 border border-gray-200">
+                <v.icon className="h-6 w-6 text-blue-600 mb-3" />
+                <h3 className="font-bold text-gray-900 mb-2">{v.title}</h3>
+                <p className="text-sm text-gray-600">{v.desc}</p>
               </div>
             ))}
           </div>

@@ -31,6 +31,7 @@ export default function SiteHeader() {
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [prodottoOpen, setProdottoOpen] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Scroll handler
   useEffect(() => {
@@ -154,62 +155,82 @@ export default function SiteHeader() {
               Home
             </Link>
 
-            {/* Prodotto dropdown */}
+            {/* Funzionalità dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setProdottoOpen(true)}
-              onMouseLeave={() => setProdottoOpen(false)}
+              onMouseEnter={() => {
+                if (hoverTimeout) clearTimeout(hoverTimeout);
+                const timeout = setTimeout(() => setProdottoOpen(true), 200);
+                setHoverTimeout(timeout);
+              }}
+              onMouseLeave={() => {
+                if (hoverTimeout) clearTimeout(hoverTimeout);
+                const timeout = setTimeout(() => setProdottoOpen(false), 300);
+                setHoverTimeout(timeout);
+              }}
             >
               <button
                 className="px-4 py-2 text-sm font-medium rounded transition-colors text-slate-400 hover:text-white flex items-center gap-1"
               >
-                Prodotto
+                Funzionalità
                 <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${prodottoOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {prodottoOpen && (
                 <div 
                   className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-4 z-50"
-                  onMouseEnter={() => setProdottoOpen(true)}
-                  onMouseLeave={() => setProdottoOpen(false)}
+                  onMouseEnter={() => {
+                    if (hoverTimeout) clearTimeout(hoverTimeout);
+                    setProdottoOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    if (hoverTimeout) clearTimeout(hoverTimeout);
+                    const timeout = setTimeout(() => setProdottoOpen(false), 300);
+                    setHoverTimeout(timeout);
+                  }}
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
                       <Link href="/moduli/trasporti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Trasporti</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Soccorso, dispatch e tracking</div>
+                        <div className="text-sm font-medium text-white">Trasporti & Tracking</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Soccorso, dispatch e GPS</div>
                       </Link>
-                      <div className="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
-                        <div className="text-sm font-medium text-white">Piazzale</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Gestione veicoli in deposito</div>
-                      </div>
-                      <div className="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
+                      <div className="px-3 py-1.5 text-xs font-medium text-slate-500 uppercase tracking-wide">Anagrafiche</div>
+                      <Link href="/moduli/clienti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors ml-2">
                         <div className="text-sm font-medium text-white">Clienti</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Anagrafica e storico</div>
-                      </div>
-                      <Link href="/moduli/ricambi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Ricambi TecDoc</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Magazzino ricambi</div>
+                        <div className="text-xs text-slate-400 mt-0.5">CRM e storico</div>
+                      </Link>
+                      <Link href="/moduli/mezzi-autisti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors ml-2">
+                        <div className="text-sm font-medium text-white">Mezzi & Autisti</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Flotta e personale</div>
+                      </Link>
+                      <Link href="/moduli/piazzale" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Piazzale</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Gestione deposito veicoli</div>
+                      </Link>
+                      <Link href="/moduli/preventivi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Preventivi</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Offerte e preventivazione</div>
+                      </Link>
+                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                        <div className="text-sm font-medium text-white">Contabilità & Fatturazione</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Prima nota e fatture</div>
                       </Link>
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Moduli specializzati</div>
                       <Link href="/moduli/rvfu" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">RVFU</div>
+                        <div className="text-sm font-medium text-white">Demolizioni RVFU</div>
                         <div className="text-xs text-slate-400 mt-0.5">Radiazioni veicoli MIT</div>
                       </Link>
                       <Link href="/moduli/rentri" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">RENTRI</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Registro rifiuti</div>
+                        <div className="text-sm font-medium text-white">Rifiuti RENTRI</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Registro elettronico rifiuti</div>
                       </Link>
                       <Link href="/moduli/sdi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Fatturazione SDI</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Fatture elettroniche</div>
-                      </Link>
-                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Contabilità</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Prima nota e piano dei conti</div>
+                        <div className="text-sm font-medium text-white">Fatturazione Elettronica</div>
+                        <div className="text-xs text-slate-400 mt-0.5">Sistema di Interscambio (SDI)</div>
                       </Link>
                     </div>
                   </div>
