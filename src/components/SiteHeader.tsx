@@ -178,7 +178,7 @@ export default function SiteHeader() {
 
               {prodottoOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-1 w-[560px] rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-4 z-50"
+                  className="absolute top-full left-0 mt-1 w-[520px] bg-white shadow-xl border border-gray-200 p-4 z-50"
                   onMouseEnter={() => {
                     if (hoverTimeout) clearTimeout(hoverTimeout);
                     setProdottoOpen(true);
@@ -189,48 +189,43 @@ export default function SiteHeader() {
                     setHoverTimeout(timeout);
                   }}
                 >
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Funzioni base</div>
-                      <Link href="/moduli/trasporti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Trasporti & Tracking</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Soccorso, dispatch e GPS</div>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Funzioni base</div>
+                      <Link href="/moduli/trasporti" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Trasporti & Tracking</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch, mappa e stati intervento</div>
                       </Link>
-                      <div className="px-3 py-1.5 text-xs font-medium text-slate-500 uppercase tracking-wide">Anagrafiche</div>
-                      <Link href="/moduli/clienti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors ml-2">
-                        <div className="text-sm font-medium text-white">Clienti</div>
-                        <div className="text-xs text-slate-400 mt-0.5">CRM e storico</div>
+                      <Link href="/moduli/clienti" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Clienti</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Anagrafica, storico servizi e statistiche</div>
                       </Link>
-                      <Link href="/moduli/mezzi-autisti" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors ml-2">
-                        <div className="text-sm font-medium text-white">Mezzi & Autisti</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Flotta e personale</div>
+                      <Link href="/moduli/mezzi-autisti" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Mezzi & Autisti</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Flotta, scadenze automatiche e turni</div>
                       </Link>
-                      <Link href="/moduli/piazzale" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Piazzale</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Gestione deposito veicoli</div>
+                      <Link href="/moduli/piazzale" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Piazzale</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Posizioni veicoli, stati e scadenze deposito</div>
                       </Link>
-                      <Link href="/moduli/preventivi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Preventivi</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Offerte e preventivazione</div>
-                      </Link>
-                      <Link href="/moduli/contabilita" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Contabilità & Fatturazione</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Prima nota e fatture</div>
+                      <Link href="/moduli/preventivi" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Preventivi</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Offerte, accettazione e conversione ordine</div>
                       </Link>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">Moduli specializzati</div>
-                      <Link href="/moduli/rvfu" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Demolizioni RVFU</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Radiazioni veicoli MIT</div>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Moduli speciali</div>
+                      <Link href="/moduli/rvfu" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Demolizioni RVFU</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Workflow D.Lgs 209/2003, radiazioni PRA</div>
                       </Link>
-                      <Link href="/moduli/rentri" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Rifiuti RENTRI</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Registro elettronico rifiuti</div>
+                      <Link href="/moduli/rentri" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Rifiuti RENTRI</div>
+                        <div className="text-xs text-gray-500 mt-0.5">FIR digitali, registro, MUD automatico</div>
                       </Link>
-                      <Link href="/moduli/sdi" className="block px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                        <div className="text-sm font-medium text-white">Fatturazione Elettronica</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Sistema di Interscambio (SDI)</div>
+                      <Link href="/moduli/sdi" className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                        <div className="text-sm font-semibold text-gray-900">Fatturazione & Contabilità</div>
+                        <div className="text-xs text-gray-500 mt-0.5">SDI, prima nota, conservazione sostitutiva</div>
                       </Link>
                     </div>
                   </div>

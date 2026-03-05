@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Users, Phone, FileText, TrendingUp, History, ArrowRight } from "lucide-react";
+import { ArrowLeft, Users, Phone, TrendingUp, History, ArrowRight } from "lucide-react";
 
 export default function ClientiPage() {
   return (
@@ -20,103 +20,105 @@ export default function ClientiPage() {
         </div>
       </section>
 
-      {/* PROBLEMA */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Perché serve</h2>
-          <p className="text-gray-600 mb-6">
-            Gestire clienti senza un sistema centrale significa dati sparsi, nessuna visibilità su storico e fatturato, difficoltà a recuperare informazioni.
-          </p>
-          <div className="grid md:grid-cols-3 gap-4 text-left mb-6">
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Dati sparsi tra Excel e memoria</p>
-            </div>
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Nessuna visibilità su storico servizi</p>
-            </div>
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Tempo perso a cercare informazioni</p>
-            </div>
-          </div>
-          <p className="text-lg font-bold text-gray-900">
-            Il modulo Clienti centralizza tutte le informazioni: anagrafica, contatti, storico e statistiche in un'unica scheda.
-          </p>
-        </div>
-      </section>
-
+      {/* INTRO */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Users, color: "text-blue-600", title: "Anagrafica completa", desc: "Dati anagrafici (nome, cognome, ragione sociale), Codice fiscale e Partita IVA, indirizzo, telefono, email e PEC." },
-              { icon: Phone, color: "text-green-600", title: "Contatti multipli", desc: "Gestisci più numeri di telefono, email e referenti per ogni cliente. Utile per aziende con più sedi." },
-              { icon: History, color: "text-purple-600", title: "Storico completo", desc: "Visualizza trasporti effettuati, preventivi inviati, fatture emesse e note in ordine cronologico." },
-              { icon: TrendingUp, color: "text-red-600", title: "Statistiche cliente", desc: "Valore totale servizi, numero di interventi, fatturato generato e frequenza ordini." },
-            ].map((f) => (
-              <div key={f.title} className="p-6 border border-gray-200">
-                <f.icon className={`h-6 w-6 ${f.color} mb-3`} />
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-gray-600">{f.desc}</p>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Un cliente, tutta la sua storia</h2>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                In un'autodemolizione passano decine di clienti diversi: privati che portano un'auto da rottamare, assicurazioni che mandano richieste di soccorso, officine che cercano ricambi, aziende con flotte intere. Senza un registro organizzato, ogni chiamata parte da zero — chi è questo cliente? ha già fatto interventi con noi? c'è qualcosa da ricordare?
+              </p>
+              <p className="text-gray-600 leading-relaxed">
+                Il modulo Clienti crea una scheda unica per ogni soggetto: dati anagrafici, contatti, storico completo di tutti gli interventi, preventivi e fatture emesse. Ogni volta che arriva una chiamata, apri la scheda e hai tutto davanti in 5 secondi.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <div className="p-4 bg-gray-50 border-l-4 border-red-400">
+                <p className="text-sm font-semibold text-gray-900">Il problema comune</p>
+                <p className="text-sm text-gray-600 mt-1">Il numero è salvato sul telefono, i dati fiscali sono su un foglio, l'ultimo intervento lo ricordi a memoria. Se manca il titolare, nessuno sa niente.</p>
               </div>
-            ))}
+              <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
+                <p className="text-sm font-semibold text-gray-900">Con il gestionale</p>
+                <p className="text-sm text-gray-600 mt-1">Ogni operatore vede nome, numero, P.IVA, indirizzo, note, storico completo degli interventi e fatturato totale — aggiornato in tempo reale da chiunque del team.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-8 bg-gray-50 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Tipologie di Clienti</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[["Clienti Privati","Anagrafica semplificata, storico servizi e preferenze. Ideale per interventi occasionali o clienti abituali."],["Assicurazioni","Convenzioni, tariffari dedicati e referenti per ogni compagnia. Gestisci accordi commerciali e condizioni specifiche."],["Aziende & Flotte","Più sedi, flotte veicoli, contratti e condizioni dedicate. Perfetto per grandi clienti con esigenze complesse."]].map(([t,d]) => (
-              <div key={t} className="p-4 border border-gray-200 bg-white">
-                <p className="font-bold text-gray-900 mb-1 text-sm">{t}</p>
-                <p className="text-xs text-gray-500">{d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COME FUNZIONA */}
+      {/* FEATURES */}
       <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Come funziona</h2>
-          <div className="space-y-4">
-            {[
-              { n: "1", title: "Crea la scheda cliente", desc: "Inserisci dati anagrafici e contatti." },
-              { n: "2", title: "Associa servizi", desc: "Ogni trasporto, preventivo o fattura viene collegato automaticamente al cliente." },
-              { n: "3", title: "Consulta lo storico", desc: "Apri la scheda cliente e vedi tutto: servizi, documenti e statistiche." },
-              { n: "4", title: "Esporta e analizza", desc: "Esporta liste clienti in CSV per analisi esterne o invio a commercialista." },
-            ].map((s) => (
-              <div key={s.n} className="flex gap-4 p-4 bg-white border border-gray-200">
-                <div className="w-8 h-8 bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">{s.n}</div>
-                <div>
-                  <p className="font-bold text-gray-900 mb-1">{s.title}</p>
-                  <p className="text-sm text-gray-600">{s.desc}</p>
-                </div>
-              </div>
-            ))}
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nella scheda cliente</h2>
+          <p className="text-gray-500 text-center mb-10">Tutte le informazioni in un posto solo, accessibili da qualsiasi postazione.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 border border-gray-200 bg-white">
+              <Users className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Anagrafica completa</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Nome e cognome o ragione sociale, codice fiscale e Partita IVA, indirizzo completo, telefono, email e PEC. Puoi indicare se è un privato, un'assicurazione o un'azienda, così da applicare tariffe e condizioni diverse. I dati fiscali sono già pronti quando devi emettere una fattura — non devi cercarli ogni volta.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Phone className="h-6 w-6 text-green-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Contatti multipli e referenti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per ogni cliente puoi salvare più numeri di telefono, più email e più referenti con ruoli diversi. Molto utile per le assicurazioni (hanno un referente sinistri, uno per i preventivi, uno per la fatturazione) o per le aziende con più sedi. Non serve più cercare il contatto giusto in rubrica — è tutto nella scheda.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <History className="h-6 w-6 text-purple-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Storico completo degli interventi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Nella scheda cliente vedi in ordine cronologico tutti i trasporti effettuati, i preventivi inviati con il loro stato (accettato, rifiutato, in attesa), le fatture emesse e le note interne. Se un cliente contesta un intervento di sei mesi fa, in 10 secondi hai tutto davanti. Il sistema non dimentica niente e non perde nessun dato.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <TrendingUp className="h-6 w-6 text-red-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Statistiche e valore cliente</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per ogni cliente vedi il totale degli interventi effettuati, il fatturato generato nel periodo e la frequenza degli ordini. Questo ti permette di capire subito chi sono i clienti più importanti, chi vale la pena fidelizzare e dove conviene investire tempo commerciale. Utile soprattutto per le assicurazioni con cui hai convenzioni.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TIPOLOGIE */}
+      <section className="py-12 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Tipi di clienti gestiti</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Clienti Privati</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Privati che portano l'auto da demolire, richiedono un soccorso stradale o comprano ricambi. Anagrafica semplificata, storico degli interventi e note operative. Il sistema ricorda automaticamente i veicoli già gestiti per quel cliente.</p>
+            </div>
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Assicurazioni</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Compagnie assicurative che mandano richieste di soccorso o demolizione. Puoi salvare le condizioni della convenzione, i referenti per ogni tipo di pratica e le tariffe concordate. Il gestionale applica automaticamente le condizioni specifiche di ogni compagnia.</p>
+            </div>
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Aziende & Flotte</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Officine, concessionari, trasportatori o aziende con flotte di veicoli. Puoi gestire più sedi, contratti dedicati e condizioni specifiche. Il sistema tiene separati gli interventi per sede ma li aggrega nel profilo azienda per il totale fatturato.</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* VANTAGGI */}
       <section className="py-16">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Vantaggi</h2>
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Cosa cambia nella tua operatività</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: Users, title: "Nessun dato perso", desc: "Tutto centralizzato e sempre accessibile." },
-              { icon: TrendingUp, title: "Risposte più rapide", desc: "Quando il cliente chiama, hai subito tutte le informazioni." },
-              { icon: FileText, title: "Migliore gestione commerciale", desc: "Statistiche e storico ti aiutano a capire quali clienti sono più redditizi." },
-              { icon: History, title: "Meno errori", desc: "Dati univoci e aggiornati, niente duplicati o informazioni obsolete." },
-            ].map((v) => (
-              <div key={v.title} className="p-6 border border-gray-200">
-                <v.icon className="h-6 w-6 text-blue-600 mb-3" />
-                <h3 className="font-bold text-gray-900 mb-2">{v.title}</h3>
-                <p className="text-sm text-gray-600">{v.desc}</p>
-              </div>
-            ))}
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Risposta immediata al telefono</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Quando chiama un cliente, cerchi il nome nel gestionale e in 5 secondi hai: chi è, quanti interventi ha fatto, cosa aveva richiesto l'ultima volta, se ci sono fatture aperte. Non devi chiedere niente, non devi andare a cercare su fogli o email. Questo riduce il tempo di ogni telefonata e migliora l'immagine professionale della tua attività.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Nessun dato perso o dimenticato</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La P.IVA, l'indirizzo di fatturazione, la PEC, il referente dell'assicurazione: una volta inseriti, sono sempre disponibili per tutta la tua squadra. Non devi chiedere al cliente di ridarteli ogni volta, e non rischi errori di trascrizione nella fattura perché i dati si copiano automaticamente.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Visione commerciale sui clienti migliori</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Con le statistiche per cliente capisci subito chi genera più fatturato, quale assicurazione vale di più, e quali clienti non tornano da tempo. Queste informazioni ti aiutano a prendere decisioni commerciali concrete: a chi offrire condizioni migliori, dove investire tempo di relazione, dove alzare i prezzi.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Fatturazione senza reinserimento</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Quando devi emettere una fattura, i dati del cliente sono già nel sistema e si compilano automaticamente nel documento. Non devi copiare nulla, non rischi di sbagliare codice fiscale o indirizzo. Meno tempo perso, meno errori, meno fatture da correggere e reinviare a SDI.</p>
+            </div>
           </div>
         </div>
       </section>

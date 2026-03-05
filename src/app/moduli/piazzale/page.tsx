@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, MapPin, Filter, Clock, Car, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, MapPin, Filter, Car, ArrowRight, AlertTriangle } from "lucide-react";
 
 export default function PiazzalePage() {
   return (
@@ -20,165 +20,105 @@ export default function PiazzalePage() {
         </div>
       </section>
 
-      {/* PROBLEMA */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Perché serve</h2>
-          <p className="text-gray-600 mb-6">
-            Gestire un piazzale senza un sistema centrale significa perdere tempo a cercare veicoli, nessuna visibilità su scadenze e difficoltà a ottimizzare gli spazi.
-          </p>
-          <div className="grid md:grid-cols-3 gap-4 text-left mb-6">
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Non sai dove si trova un veicolo specifico</p>
-            </div>
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Nessuna visibilità su scadenze custodia</p>
-            </div>
-            <div className="p-4 bg-white border border-gray-200">
-              <p className="text-sm text-gray-600">Difficoltà a ottimizzare gli spazi</p>
-            </div>
-          </div>
-          <p className="text-lg font-bold text-gray-900">
-            Il modulo Piazzale centralizza tutto: posizioni, stati, movimenti e scadenze in un'unica mappa interattiva.
-          </p>
-        </div>
-      </section>
-
-      {/* Descrizione */}
-      <section className="py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
+      {/* INTRO */}
+      <section className="py-16">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Cos'è il Piazzale</h2>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Il problema del piazzale non tracciato</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Il modulo Piazzale è il cuore della gestione del deposito veicoli. Permette di tracciare ogni veicolo presente nel tuo piazzale, dalla sua posizione fisica fino allo stato amministrativo e alla documentazione associata.
+                In un'autodemolizione il piazzale può contenere decine o centinaia di veicoli. Senza un registro organizzato, trovare una specifica auto richiede di girare fisicamente tra le file, chiedere ai colleghi, cercare su fogli scritti a mano. Se un cliente chiama per sapere quando può ritirare il suo veicolo, non sai rispondergli senza andare a controllare di persona.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Ideale per autodemolizioni, depositi giudiziari, centri di soccorso e qualsiasi attività che necessiti di gestire un parco veicoli in deposito.
+                Il modulo Piazzale registra ogni veicolo con la sua posizione nel deposito, lo stato corrente e tutte le scadenze. In qualsiasi momento, da qualsiasi postazione, puoi vedere dove si trova ogni auto, da quanto tempo è lì e cosa serve fare.
               </p>
             </div>
-
-            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                Incluso in tutti i piani
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Il modulo Piazzale è parte dell'App Base e disponibile in tutti i piani di abbonamento senza costi aggiuntivi.
-              </p>
-              <Link
-                href="/contatti"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 transition-colors"
-              >
-                Richiedi demo
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Funzionalità */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="p-6 border border-gray-200">
-              <MapPin className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa Interattiva</h3>
-              <p className="text-sm text-gray-600">
-                Visualizza la posizione fisica di ogni veicolo nel deposito con mappa interattiva e assegnazione settori.
-              </p>
-            </div>
-
-            <div className="p-6 border border-gray-200">
-              <Car className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Posizioni Veicoli</h3>
-              <p className="text-sm text-gray-600">
-                Traccia tutti i movimenti: ingresso, spostamenti interni, uscita e cambio stato.
-              </p>
-            </div>
-
-            <div className="p-6 border border-gray-200">
-              <Clock className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Tracciamento posizioni</h3>
-              <p className="text-sm text-gray-600">
-                Registra tutti i movimenti: ingresso, spostamenti interni, cambio stato e uscita dal piazzale.
-              </p>
-            </div>
-
-            <div className="p-6 border border-gray-200">
-              <AlertTriangle className="h-6 w-6 text-amber-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Notifiche automatiche</h3>
-              <p className="text-sm text-gray-600">
-                Avvisi per scadenze custodia, documenti mancanti e veicoli fermi oltre soglia configurabile.
-              </p>
-            </div>
-
-            <div className="p-6 border border-gray-200">
-              <Filter className="h-6 w-6 text-purple-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati e filtri</h3>
-              <p className="text-sm text-gray-600">
-                Ogni veicolo ha uno stato chiaro. Filtra per stato, tipo veicolo, data ingresso, settore o cliente.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-8 bg-gray-50 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Adatto a</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[["Autodemolizioni","Stato lavorazione veicoli e disponibilità ricambi."],["Depositi giudiziari","Confische, sequestri e custodie con scadenze."],["Centri soccorso","Veicoli in attesa di ritiro o definizione pratica."]].map(([t,d]) => (
-              <div key={t} className="p-4 border border-gray-200 bg-white">
-                <p className="font-bold text-gray-900 mb-1 text-sm">{t}</p>
-                <p className="text-xs text-gray-500">{d}</p>
+            <div className="space-y-3">
+              <div className="p-4 bg-gray-50 border-l-4 border-red-400">
+                <p className="text-sm font-semibold text-gray-900">Senza il gestionale</p>
+                <p className="text-sm text-gray-600 mt-1">Fogli di carta, memoria e giri fisici per trovare i veicoli. Scadenze custodia dimenticate, spazio occupato da auto che andavano già spostate.</p>
               </div>
-            ))}
+              <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
+                <p className="text-sm font-semibold text-gray-900">Con il gestionale</p>
+                <p className="text-sm text-gray-600 mt-1">Lista digitale aggiornata, posizione per settore, storico movimenti, avvisi automatici per scadenze. Nessun veicolo perso, nessuna scadenza dimenticata.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* COME FUNZIONA */}
+      {/* FEATURES */}
       <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Come funziona</h2>
-          <div className="space-y-4">
-            {[
-              { n: "1", title: "Registra ingresso veicolo", desc: "Inserisci targa, dati veicolo e posizione nel piazzale." },
-              { n: "2", title: "Assegna settore e stato", desc: "Posiziona il veicolo sulla mappa e imposta lo stato iniziale." },
-              { n: "3", title: "Traccia movimenti", desc: "Ogni spostamento viene registrato automaticamente con data, ora e operatore." },
-              { n: "4", title: "Monitora scadenze", desc: "Il sistema ti avvisa quando serve agire (documenti, custodia, ritiro)." },
-              { n: "5", title: "Gestisci uscita", desc: "Registra l'uscita e libera lo spazio per nuovi ingressi." },
-            ].map((s) => (
-              <div key={s.n} className="flex gap-4 p-4 bg-white border border-gray-200">
-                <div className="w-8 h-8 bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">{s.n}</div>
-                <div>
-                  <p className="font-bold text-gray-900 mb-1">{s.title}</p>
-                  <p className="text-sm text-gray-600">{s.desc}</p>
-                </div>
-              </div>
-            ))}
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
+          <p className="text-gray-500 text-center mb-10">Tutto per gestire il deposito veicoli in modo ordinato e tracciabile.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 border border-gray-200 bg-white">
+              <Car className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Registro veicoli in deposito</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni veicolo che entra nel piazzale viene registrato con targa, marca e modello, cliente di riferimento, data di ingresso, settore assegnato e stato. Puoi aggiungere foto, documenti allegati e note operative. Il registro è sempre aggiornato e accessibile da qualsiasi postazione — ufficio, magazzino o smartphone.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <MapPin className="h-6 w-6 text-green-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Posizioni e settori</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Il piazzale è diviso in settori configurabili (A1, B3, zona nord, ecc.). Quando registri un veicolo, assegni il settore e la posizione specifica. Quando il veicolo viene spostato, aggiorni la posizione in 10 secondi. Così chiunque può trovare qualsiasi auto senza dover fare il giro del piazzale o chiamare il collega che l'ha parcheggiata.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Filter className="h-6 w-6 text-purple-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati e filtri avanzati</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni veicolo ha uno stato che riflette la sua situazione: In attesa, In lavorazione, Pronto per ritiro, Demolito, Uscito. Puoi filtrare la lista per stato, cliente, data ingresso, settore o tipo veicolo. In pochi secondi vedi solo i veicoli che ti servono — ad esempio tutti quelli "pronti per ritiro" o tutti quelli in un certo settore.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <AlertTriangle className="h-6 w-6 text-amber-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Scadenze e notifiche automatiche</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per i depositi giudiziari o le custodie con scadenza, il sistema ti avvisa automaticamente quando si avvicina la data limite. Puoi configurare notifiche per veicoli fermi oltre un certo numero di giorni, documenti mancanti o pratiche in attesa di definizione. Nessuna scadenza viene dimenticata perché il gestionale te la ricorda prima.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ADATTO A */}
+      <section className="py-12 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Adatto a queste attività</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Autodemolizioni</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Traccia lo stato di lavorazione di ogni veicolo: appena entrato, in bonifica, smontaggio ricambi, pronto per frantumatore. Collega il piazzale al modulo RVFU per avere tutto integrato in un'unica schermata.</p>
+            </div>
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Depositi giudiziari</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Gestisci confische, sequestri e custodie con scadenze precise. Ogni veicolo ha il numero di provvedimento, il magistrato di riferimento, la data di scadenza custodia e lo stato della pratica. Notifiche automatiche prima delle scadenze.</p>
+            </div>
+            <div className="p-5 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Centri soccorso</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Veicoli recuperati dopo incidenti in attesa di ritiro dal proprietario o dall'assicurazione. Tieni traccia di chi deve ritirare cosa, entro quando, e con quali documenti. Il sistema ti avvisa se un veicolo è fermo da troppo tempo senza notizie.</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* VANTAGGI */}
       <section className="py-16">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Vantaggi</h2>
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Cosa cambia nella tua operatività</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: Clock, title: "Zero tempo perso", desc: "Trovi subito ogni veicolo senza cercare fisicamente." },
-              { icon: MapPin, title: "Spazi ottimizzati", desc: "Vedi in tempo reale la saturazione del piazzale e pianifichi meglio." },
-              { icon: AlertTriangle, title: "Scadenze sotto controllo", desc: "Notifiche automatiche per custodie e documenti." },
-              { icon: Filter, title: "Storico completo", desc: "Ogni movimento registrato per tracciabilità e conformità normativa." },
-            ].map((v) => (
-              <div key={v.title} className="p-6 border border-gray-200">
-                <v.icon className="h-6 w-6 text-blue-600 mb-3" />
-                <h3 className="font-bold text-gray-900 mb-2">{v.title}</h3>
-                <p className="text-sm text-gray-600">{v.desc}</p>
-              </div>
-            ))}
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Trova ogni veicolo in secondi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Invece di fare il giro fisico del piazzale o chiamare il collega, cerchi la targa nel gestionale e vedi subito: settore A3, fila 2, da 5 giorni, stato "in attesa demolizione". Risparmia decine di minuti al giorno, soprattutto nei periodi di punta con il piazzale pieno.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Spazio gestito meglio</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Vedere quanti veicoli sono in ogni settore e quali sono fermi da più tempo ti aiuta a ottimizzare lo spazio. Puoi identificare subito i veicoli che occupano posto senza che ci sia un'azione in corso e prioritizzare la lavorazione o l'uscita di quelli più vecchi.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Nessuna scadenza dimenticata</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per i depositi giudiziari o le custodie a termine, dimenticarsi di una scadenza può avere conseguenze legali serie. Le notifiche automatiche del gestionale ti avvisano con anticipo, così hai il tempo di agire senza trovarti in situazioni di inadempienza.</p>
+            </div>
+            <div className="p-6 bg-gray-50 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Storico completo per ogni veicolo</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni spostamento, cambio stato e operazione viene registrata con data, ora e operatore responsabile. Se nasce una contestazione su quando è entrato un veicolo o cosa è stato fatto, hai uno storico preciso e verificabile. Questo è fondamentale anche in caso di controlli ispettivi.</p>
+            </div>
           </div>
         </div>
       </section>

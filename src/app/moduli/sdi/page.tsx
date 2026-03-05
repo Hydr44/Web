@@ -30,117 +30,122 @@ export default function SDIPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* INTRO */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="p-6 border border-gray-200">
-            <FileText className="h-6 w-6 text-blue-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Generazione XML FatturaPA</h3>
-            <p className="text-sm text-gray-600">
-              Creazione automatica file XML conforme alle specifiche tecniche v1.7.1. Validazione pre-invio e controllo errori formali.
-            </p>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Fattura elettronica obbligatoria per tutti, ma spesso fatta male</h2>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Dal 2019 tutte le fatture tra soggetti IVA italiani devono transitare per il Sistema di Interscambio dell'Agenzia delle Entrate. Non puoi usare PDF via email, non puoi usare carta. Solo XML FatturaPA inviato tramite canale certificato SDI. Se il formato è sbagliato, o se usi il codice fiscale anziché la P.IVA nel campo giusto, la fattura viene scartata — e devi ricominciare da capo.
+              </p>
+              <p className="text-gray-600 leading-relaxed">
+                RescueManager gestisce la fatturazione elettronica completamente integrata con il gestionale: la fattura si crea dai dati già presenti (cliente, intervento, importo), l'XML viene generato e validato automaticamente, l'invio avviene via SFTP sul nostro nodo SDI certificato, e le notifiche di risposta vengono scaricate e associate alla fattura in automatico. Zero errori di formato, zero accessi manuali al portale AdE.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <div className="p-4 bg-gray-50 border-l-4 border-red-400">
+                <p className="text-sm font-semibold text-gray-900">Il problema comune</p>
+                <p className="text-sm text-gray-600 mt-1">Fatture scartate da SDI per errori XML, notifiche non gestite, conservazione sostitutiva non conforme, reinvii manuali. Tempo perso e rischio di sanzioni per mancato invio nei termini.</p>
+              </div>
+              <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
+                <p className="text-sm font-semibold text-gray-900">Con RescueManager</p>
+                <p className="text-sm text-gray-600 mt-1">XML generato e validato prima dell'invio, nodo SDI certificato, notifiche scaricate automaticamente, conservazione sostitutiva a norma, numerazione progressiva automatica.</p>
+              </div>
+            </div>
           </div>
-
-          <div className="p-6 border border-gray-200">
-            <Send className="h-6 w-6 text-green-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Invio Telematico SFTP</h3>
-            <p className="text-sm text-gray-600">
-              Trasmissione sicura via protocollo SFTP al Sistema di Interscambio. Firma digitale P7M e cifratura automatica dei file.
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-200">
-            <CheckCircle2 className="h-6 w-6 text-blue-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Gestione Notifiche SDI</h3>
-            <p className="text-sm text-gray-600">
-              Ricezione automatica di ricevute di consegna (RC), notifiche di accettazione (NS), mancata consegna (MC) e scarti (EC).
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-200">
-            <Download className="h-6 w-6 text-gray-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Fatture Passive</h3>
-            <p className="text-sm text-gray-600">
-              Import automatico fatture fornitori dal canale SDI. Parsing XML e registrazione in prima nota con collegamento contabile.
-            </p>
-          </div>
-        </div>
         </div>
       </section>
 
-      {/* AVANZATE */}
-      <section className="py-12 bg-gray-50 border-y border-gray-200">
+      {/* FEATURES */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Funzionalità Avanzate</h3>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-medium text-gray-800">Bollo Virtuale</div>
-                <div className="text-xs text-gray-500">Gestione imposta di bollo da €2,00 con annotazione automatica nel XML</div>
-              </div>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
+          <p className="text-gray-500 text-center mb-10">Dalla creazione della fattura alla conservazione legale, tutto automatico.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 border border-gray-200 bg-white">
+              <FileText className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Creazione fatture con validazione XML</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Compili la fattura con il form del gestionale: scegli il cliente (i dati fiscali sono già presenti), inserisci le righe con descrizione, quantità e importo, selezioni aliquota IVA. Il sistema genera automaticamente l'XML FatturaPA conforme alle specifiche v1.7.1 dell'Agenzia delle Entrate e lo valida prima dell'invio. Se c'è un errore di formato, te lo segnala immediatamente — prima di inviare, non dopo che SDI lo scarta.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-medium text-gray-800">Ritenuta d'Acconto</div>
-                <div className="text-xs text-gray-500">Calcolo automatico ritenuta 20% per professionisti con causale A</div>
-              </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Send className="h-6 w-6 text-green-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Invio via nodo SDI certificato</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">L'invio avviene tramite il nostro nodo SDI certificato, connesso al Sistema di Interscambio via protocollo SFTP con certificati digitali qualificati. La fattura viene firmata digitalmente (formato P7M), cifrata e trasmessa in modo sicuro. Ogni invio ha un ID di trasmissione univoco tracciato nel sistema. Non devi accedere al portale AdE, non devi fare niente manualmente — clicchi "Invia" e il sistema pensa a tutto.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-medium text-gray-800">Cassa Previdenziale</div>
-                <div className="text-xs text-gray-500">Gestione contributi previdenziali con aliquote personalizzabili</div>
-              </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <CheckCircle2 className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Notifiche SDI gestite automaticamente</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Dopo l'invio, SDI risponde con una serie di notifiche: Ricevuta di Consegna (RC, fattura consegnata al destinatario), Notifica di Scarto (NS, errore nella fattura — rarissimo con il sistema che valida prima), Mancata Consegna (MC, destinatario non raggiungibile), Notifica Esito (NE, il cliente accetta o rifiuta). Se il cliente non risponde entro 15 giorni, la fattura si considera automaticamente accettata (Decorrenza Termini). Il gestionale scarica tutte queste notifiche, le associa alla fattura e aggiorna lo stato — senza che tu debba controllare niente.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-medium text-gray-800">Conservazione Sostitutiva</div>
-                <div className="text-xs text-gray-500">Archiviazione digitale a norma con marca temporale e firma elettronica</div>
-              </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Download className="h-6 w-6 text-gray-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Fatture passive e conservazione</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le fatture che ricevi dai tuoi fornitori transitano anch'esse per SDI. RescueManager le scarica automaticamente, analizza l'XML, estrae i dati e le registra in prima nota. Non devi fare niente a mano — le fatture fornitori arrivano già nel gestionale pronte per la contabilità. Tutte le fatture (attive e passive) vengono conservate con marca temporale e firma digitale per 10 anni, come richiesto dalla normativa sulla conservazione sostitutiva.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-medium text-gray-800">Numerazione Automatica</div>
-                <div className="text-xs text-gray-500">Contatori progressivi per anno con gestione sezionali e note di credito</div>
-              </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FUNZIONI AVANZATE */}
+      <section className="py-12 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Funzioni avanzate incluse</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-4 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Bollo virtuale</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Per le fatture esenti IVA, l'imposta di bollo da €2,00 viene annotata automaticamente nel campo corretto dell'XML. Il sistema calcola quando il bollo è dovuto e lo gestisce in modo conforme, inclusa la dichiarazione trimestrale F24.</p>
+            </div>
+            <div className="p-4 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Nota di credito (TD04)</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Se devi stornare una fattura già accettata da SDI, non puoi eliminarla — devi emettere una Nota di Credito TD04. Il gestionale la crea automaticamente con tutti i dati della fattura originale, pronta per la validazione e l'invio. Il collegamento tra fattura originale e nota di credito è tracciato in modo bidirezionale.</p>
+            </div>
+            <div className="p-4 bg-gray-50">
+              <p className="font-bold text-gray-900 mb-2">Numerazione automatica</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Il gestionale assegna automaticamente il numero progressivo a ogni fattura, con contatori separati per anno. Se usi più sezionali (es. FT per fatture, NC per note di credito), puoi configurarli nel sistema. Il numero non viene mai duplicato o saltato.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* STATI */}
-      <section className="py-8">
+      <section className="py-10">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Stati Fattura SDI</h3>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-slate-500"></div>
-              <span className="text-sm text-gray-700">Bozza</span>
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-5">Stati fattura nel ciclo SDI</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[["bg-slate-400","Bozza","Fattura creata, non ancora inviata a SDI."],["bg-blue-500","Inviata","Trasmessa al Sistema di Interscambio."],["bg-amber-500","In elaborazione","SDI sta processando la trasmissione."],["bg-emerald-500","Consegnata","Fattura consegnata al destinatario da SDI."],["bg-red-500","Scartata","Errore nel formato — richiede correzione e reinvio."],["bg-purple-500","Mancata consegna","Destinatario non raggiunto — attende silenzio assenso."]].map(([c,l,d]) => (
+              <div key={l} className="flex gap-3 p-3 bg-gray-50">
+                <div className={`w-3 h-3 rounded-full ${c} mt-0.5 shrink-0`} />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{l}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VANTAGGI */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Cosa cambia nella tua operatività</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 bg-white border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Zero fatture scartate da SDI</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La validazione XML prima dell'invio blocca tutti gli errori di formato prima che raggiungano SDI. Errori come codice fiscale sbagliato, formato data non corretto, partita IVA non valida vengono segnalati immediatamente. Nel normale funzionamento, le fatture inviate vengono sempre accettate senza scarto.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-gray-700">Inviata</span>
+            <div className="p-6 bg-white border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Niente portale Agenzia Entrate</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Molti usano il portale web dell'AdE per inviare le fatture una per una, scaricare le notifiche a mano, archiviare i file manualmente. Con RescueManager tutto questo non serve. Il nodo SDI certificato gestisce tutto in modo automatico — tu crei la fattura nel gestionale e poi devi solo aspettare la conferma.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-              <span className="text-sm text-gray-700">In Elaborazione</span>
+            <div className="p-6 bg-white border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Fatture integrate con il CRM e la contabilità</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La fattura nasce dal trasporto o dal preventivo — i dati del cliente, dell'intervento e dell'importo sono già lì. Non devi reinserire niente. Una volta inviata e confermata, la fattura viene registrata automaticamente in prima nota e il credito verso il cliente viene aggiornato. Un flusso unico dall'intervento alla registrazione contabile.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-              <span className="text-sm text-gray-700">Consegnata</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <span className="text-sm text-gray-700">Scartata</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-              <span className="text-sm text-gray-700">Mancata Consegna</span>
+            <div className="p-6 bg-white border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-2">Commercialista felice</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">A fine periodo puoi esportare il registro delle fatture emesse e ricevute, il giornale di prima nota e i dati IVA in formato CSV o PDF. Il commercialista riceve dati già organizzati, senza dover ricostruire niente da file sparsi. Meno lavoro per entrambi, meno errori, meno costi di contabilità.</p>
             </div>
           </div>
         </div>
