@@ -46,11 +46,11 @@ export default function SDIPage() {
             <div className="space-y-3">
               <div className="p-4 bg-gray-50 border-l-4 border-red-400">
                 <p className="text-sm font-semibold text-gray-900">Il problema comune</p>
-                <p className="text-sm text-gray-600 mt-1">Fatture scartate da SDI per errori XML, notifiche non gestite, conservazione sostitutiva non conforme, reinvii manuali. Tempo perso e rischio di sanzioni per mancato invio nei termini.</p>
+                <p className="text-sm text-gray-600 mt-1">Fatture scartate da SDI per errori XML, notifiche non gestite, archiviazione non organizzata, reinvii manuali. Tempo perso e rischio di sanzioni per mancato invio nei termini.</p>
               </div>
               <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
                 <p className="text-sm font-semibold text-gray-900">Con RescueManager</p>
-                <p className="text-sm text-gray-600 mt-1">XML generato e validato prima dell'invio, nodo SDI certificato, notifiche scaricate automaticamente, conservazione sostitutiva a norma, numerazione progressiva automatica.</p>
+                <p className="text-sm text-gray-600 mt-1">XML generato e validato prima dell'invio, nodo SDI certificato, notifiche scaricate automaticamente, archiviazione digitale sicura, numerazione progressiva automatica.</p>
               </div>
             </div>
           </div>
@@ -61,7 +61,7 @@ export default function SDIPage() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Dalla creazione della fattura alla conservazione legale, tutto automatico.</p>
+          <p className="text-gray-500 text-center mb-10">Dalla creazione della fattura all&apos;archiviazione digitale, tutto automatico.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
               <FileText className="h-6 w-6 text-blue-600 mb-3" />
@@ -80,8 +80,11 @@ export default function SDIPage() {
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <Download className="h-6 w-6 text-gray-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Fatture passive e conservazione</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Le fatture che ricevi dai tuoi fornitori transitano anch'esse per SDI. RescueManager le scarica automaticamente, analizza l'XML, estrae i dati e le registra in prima nota. Non devi fare niente a mano — le fatture fornitori arrivano già nel gestionale pronte per la contabilità. Tutte le fatture (attive e passive) vengono conservate con marca temporale e firma digitale per 10 anni, come richiesto dalla normativa sulla conservazione sostitutiva.</p>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-bold text-gray-900">Fatture passive</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 uppercase tracking-wide">Prossimamente: import automatico</span>
+              </div>
+              <p className="text-sm text-gray-600 leading-relaxed">Le fatture che ricevi dai tuoi fornitori transitano anch&apos;esse per SDI. Con un click puoi sincronizzare le fatture ricevute: RescueManager le scarica dal nodo, analizza l&apos;XML ed estrae i dati pronti per la contabilità. L&apos;import completamente automatico in background è in arrivo. Tutte le fatture sono archiviate in modo sicuro e sempre accessibili — la conservazione sostitutiva a norma di legge è in sviluppo.</p>
             </div>
           </div>
         </div>
@@ -141,7 +144,7 @@ export default function SDIPage() {
             </div>
             <div className="p-6 bg-white border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Fatture integrate con il CRM e la contabilità</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">La fattura nasce dal trasporto o dal preventivo — i dati del cliente, dell'intervento e dell'importo sono già lì. Non devi reinserire niente. Una volta inviata e confermata, la fattura viene registrata automaticamente in prima nota e il credito verso il cliente viene aggiornato. Un flusso unico dall'intervento alla registrazione contabile.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Dal trasporto puoi aprire la fattura con i dati del cliente e dell&apos;intervento già precompilati — non reinserisci nulla. Una volta inviata e confermata, puoi registrare la fattura in prima nota con i dati già pronti. Un flusso unico dall&apos;intervento alla registrazione contabile.</p>
             </div>
             <div className="p-6 bg-white border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Commercialista felice</h3>

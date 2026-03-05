@@ -142,8 +142,44 @@ export async function POST(request: NextRequest) {
       metadata: { endpoint: 'contact_form', type, lead_id: lead.id },
     });
 
-    // TODO: Send notification email to staff
-    // TODO: Send confirmation email to customer
+    // Send emails via Resend API (graceful degradation if key not set)
+    const RESEND_KEY = process.env.RESEND_API_KEY;
+    if (RESEND_KEY) {
+      const isDemo = type === 'demo';
+      const subject = isDemo
+        ? `[Demo] Nuova richiesta da ${sanitizedName} — ${sanitizedCompany || 'privato'}`
+        : `[Contatto] Messaggio da ${sanitizedName}`;
+
+      const staffHtml = `
+        <h2>${isDemo ? 'Nuova richiesta demo' : 'Nuovo messaggio di contatto'}</h2>
+        <table style="border-collapse:collapse;width:100%">
+          <tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Nome</td><td style="padding:6px">${sanitizedName}</td></tr>
+          <tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Email</td><td style="padding:6px">${sanitizedEmail}</td></tr>
+          ${phone ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Telefono</td><td style="padding:6px">${phone}</td></tr>` : ''}
+          ${sanitizedCompany ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Azienda</td><td style="padding:6px">${sanitizedCompany}</td></tr>` : ''}
+          ${role ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Ruolo</td><td style="padding:6px">${role}</td></tr>` : ''}
+          ${vehicles ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Mezzi</td><td style="padding:6px">${vehicles}</td></tr>` : ''}
+          ${sanitizedMessage ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Messaggio</td><td style="padding:6px">${sanitizedMessage}</td></tr>` : ''}
+        </table>
+        <p style="margin-top:16px;font-size:12px;color:#64748b">Lead ID: ${lead.id}</p>
+      `;
+
+      const confirmHtml = isDemo
+        ? `<h2>Richiesta demo ricevuta!</h2><p>Ciao ${sanitizedName},</p><p>Abbiamo ricevuto la tua richiesta di demo per <strong>RescueManager</strong>. Ti contatteremo entro 24 ore per organizzare la dimostrazione personalizzata.</p><p>A presto,<br>Il team RescueManager</p>`
+        : `<h2>Messaggio ricevuto!</h2><p>Ciao ${sanitizedName},</p><p>Abbiamo ricevuto il tuo messaggio e ti risponderemo il prima possibile.</p><p>A presto,<br>Il team RescueManager</p>`;
+
+      const sendEmail = (to: string, subject: string, html: string) =>
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: 'noreply@rescuemanager.eu', to, subject, html }),
+        }).catch(err => console.error('[Contact] Email error:', err));
+
+      await Promise.allSettled([
+        sendEmail('info@rescuemanager.eu', subject, staffHtml),
+        sendEmail(sanitizedEmail, isDemo ? 'Richiesta demo RescueManager — ricevuta!' : 'Messaggio ricevuto — RescueManager', confirmHtml),
+      ]);
+    }
 
     return NextResponse.json({
       success: true,
