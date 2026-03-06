@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
-const VALID_MODULES = ['base', 'rvfu', 'sdi', 'rentri', 'contabilita'];
+const VALID_MODULES = [
+  'base', 'rvfu', 'sdi', 'rentri', 'contabilita',
+  'ricambi', 'piazzale', 'ai_validation', 'marketplace', 'gps_tracking',
+];
 const VALID_STATUSES = ['active', 'inactive', 'trial'];
 
 // GET — lista moduli attivi per org
