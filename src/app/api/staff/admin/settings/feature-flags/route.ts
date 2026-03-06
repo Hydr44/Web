@@ -84,6 +84,11 @@ export async function GET(request: Request) {
   }
 }
 
+export async function OPTIONS(request: Request) {
+  const origin = request.headers.get('origin');
+  return new NextResponse(null, { status: 204, headers: corsHeaders(origin) });
+}
+
 export async function PUT(request: Request) {
   try {
     const origin = request.headers.get('origin');
