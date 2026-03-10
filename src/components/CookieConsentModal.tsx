@@ -38,11 +38,27 @@ export default function CookieConsentModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
-      style={{ position: "fixed" }}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        padding: "1rem",
+      }}
     >
       <div
-        className="w-full max-w-[480px] max-h-[85vh] overflow-y-auto"
+        style={{
+          width: "100%",
+          maxWidth: "480px",
+          maxHeight: "85vh",
+          overflowY: "auto",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white border-2 border-[#0f172a] shadow-2xl">
