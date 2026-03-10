@@ -38,25 +38,11 @@ export default function CookieConsentModal() {
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.6)",
-        pointerEvents: "auto",
-      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
+      style={{ position: "fixed" }}
     >
-      {/* Banner centrato con flexbox — garantisce viewport centering */}
       <div
-        style={{
-          width: "min(92vw, 480px)",
-          maxHeight: "85vh",
-          overflowY: "auto",
-          pointerEvents: "auto",
-        }}
+        className="w-full max-w-[480px] max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white border-2 border-[#0f172a] shadow-2xl">
@@ -93,10 +79,10 @@ export default function CookieConsentModal() {
                 {/* Tipi cookie — compatto */}
                 <div className="grid grid-cols-2 gap-2 mb-5">
                   {[
-                    { icon: <Shield className="h-3.5 w-3.5" />, label: "Essenziali", desc: "Sempre attivi", color: "text-green-700 bg-green-50 border-green-200" },
-                    { icon: <Eye className="h-3.5 w-3.5" />, label: "Analytics", desc: "IP mascherato", color: "text-blue-700 bg-blue-50 border-blue-200" },
-                    { icon: <Settings className="h-3.5 w-3.5" />, label: "Funzionali", desc: "Preferenze", color: "text-purple-700 bg-purple-50 border-purple-200" },
-                    { icon: <Database className="h-3.5 w-3.5" />, label: "Marketing", desc: "Pubblicità", color: "text-orange-700 bg-orange-50 border-orange-200" },
+                    { icon: <Shield className="h-3.5 w-3.5" />, label: "Essenziali", desc: "Sempre attivi", color: "text-slate-700 bg-slate-50 border-slate-300" },
+                    { icon: <Eye className="h-3.5 w-3.5" />, label: "Analytics", desc: "IP mascherato", color: "text-slate-700 bg-slate-50 border-slate-300" },
+                    { icon: <Settings className="h-3.5 w-3.5" />, label: "Funzionali", desc: "Preferenze", color: "text-slate-700 bg-slate-50 border-slate-300" },
+                    { icon: <Database className="h-3.5 w-3.5" />, label: "Marketing", desc: "Pubblicità", color: "text-slate-700 bg-slate-50 border-slate-300" },
                   ].map((c) => (
                     <div key={c.label} className={`border rounded px-3 py-2 flex items-center gap-2 ${c.color}`}>
                       {c.icon}
@@ -152,22 +138,22 @@ export default function CookieConsentModal() {
                   {/* Essenziali — fissi */}
                   <div className="flex items-center justify-between border border-gray-200 px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-green-600" />
+                      <Shield className="h-4 w-4 text-slate-600" />
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Essenziali</p>
                         <p className="text-xs text-gray-500">Autenticazione e sicurezza</p>
                       </div>
                     </div>
-                    <div className="w-10 h-5 bg-green-500 rounded-full flex items-center justify-end px-0.5 flex-shrink-0">
+                    <div className="w-10 h-5 bg-slate-500 rounded-full flex items-center justify-end px-0.5 flex-shrink-0">
                       <div className="w-4 h-4 bg-white rounded-full" />
                     </div>
                   </div>
 
                   {/* Toggle row helper */}
                   {[
-                    { key: "analytics" as const, icon: <Eye className="h-4 w-4 text-blue-600" />, label: "Analytics", desc: "Statistiche visita anonimizzate", color: "bg-blue-500" },
-                    { key: "functional" as const, icon: <Settings className="h-4 w-4 text-purple-600" />, label: "Funzionali", desc: "Ricorda lingua e preferenze", color: "bg-purple-500" },
-                    { key: "marketing" as const, icon: <Database className="h-4 w-4 text-orange-600" />, label: "Marketing", desc: "Contenuti e pubblicità mirati", color: "bg-orange-500" },
+                    { key: "analytics" as const, icon: <Eye className="h-4 w-4 text-slate-600" />, label: "Analytics", desc: "Statistiche visita anonimizzate", color: "bg-blue-600" },
+                    { key: "functional" as const, icon: <Settings className="h-4 w-4 text-slate-600" />, label: "Funzionali", desc: "Ricorda lingua e preferenze", color: "bg-blue-600" },
+                    { key: "marketing" as const, icon: <Database className="h-4 w-4 text-slate-600" />, label: "Marketing", desc: "Contenuti e pubblicità mirati", color: "bg-blue-600" },
                   ].map((row) => (
                     <div key={row.key} className="flex items-center justify-between border border-gray-200 px-4 py-3">
                       <div className="flex items-center gap-2">

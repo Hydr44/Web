@@ -32,8 +32,8 @@ export default function CookiePolicyPage() {
         <div className="space-y-6">
 
           {/* Premessa normativa */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-            <p className="text-sm text-blue-900 leading-relaxed">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+            <p className="text-sm text-slate-900 leading-relaxed">
               La presente Cookie Policy è redatta in conformità all&apos;art. 122 del D.Lgs. 30 giugno 2003, n. 196 (Codice Privacy), al Provvedimento del Garante n. 231 del 10 giugno 2021 (&quot;Linee Guida Cookie&quot;), alla Direttiva 2002/58/CE (Direttiva ePrivacy) e al GDPR. Si riferisce all&apos;utilizzo di cookie e strumenti di tracciamento sul sito web e sulla Piattaforma web gestiti da <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista operante sotto il nome commerciale <strong>RescueManager</strong>, P. IVA 02166430856.
             </p>
           </div>
@@ -41,8 +41,8 @@ export default function CookiePolicyPage() {
           {/* 1. Identificazione Titolare */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
-                <Shield className="h-5 w-5 text-blue-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">1. Identificazione del Titolare</h2>
             </div>
@@ -58,23 +58,23 @@ export default function CookiePolicyPage() {
           {/* 2. Infrastruttura di Hosting */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
-                <Database className="h-5 w-5 text-indigo-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Database className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">2. Infrastruttura di Hosting e Implicazioni per i Cookie</h2>
             </div>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border border-orange-200 rounded-lg p-4 bg-orange-50/50">
+                <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">USA — Trasferimento extra-UE</span>
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium">USA — Trasferimento extra-UE</span>
                   </div>
                   <p className="font-semibold text-gray-900 mb-1">Vercel Inc.</p>
                   <p className="text-xs text-gray-600">Hosting sito web e frontend. I dati tecnici di connessione (incluso indirizzo IP e log di accesso) sono trattati sui server USA. Trasferimento lecito: EU-U.S. Data Privacy Framework (DPF) + SCC.</p>
                 </div>
-                <div className="border border-green-200 rounded-lg p-4 bg-green-50/50">
+                <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Germania — Solo UE/SEE</span>
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium">Germania — Solo UE/SEE</span>
                   </div>
                   <p className="font-semibold text-gray-900 mb-1">IONOS SE</p>
                   <p className="text-xs text-gray-600">Hosting API e backend. I log generati dalle chiamate API sono trattati esclusivamente nello Spazio Economico Europeo. Nessun trasferimento verso Paesi terzi.</p>
@@ -86,8 +86,8 @@ export default function CookiePolicyPage() {
           {/* 3. Cosa sono i Cookie */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
-                <Cookie className="h-5 w-5 text-purple-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Cookie className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">3. Cosa Sono i Cookie e gli Strumenti di Tracciamento</h2>
             </div>
@@ -99,8 +99,8 @@ export default function CookiePolicyPage() {
           {/* 4. Tipologie di Cookie */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
-                <Settings className="h-5 w-5 text-green-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Settings className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">4. Tipologie di Strumenti di Tracciamento Utilizzati</h2>
             </div>
@@ -108,13 +108,13 @@ export default function CookiePolicyPage() {
               <p>Conformemente al Provvedimento del Garante n. 231/2021, gli strumenti di tracciamento si distinguono in tecnici (esenti da consenso) e non tecnici (subordinati a consenso preventivo).</p>
 
               {/* 4.1 Cookie Tecnici */}
-              <div className="border border-green-200 rounded-xl overflow-hidden">
-                <div className="bg-green-50 px-5 py-3 flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-green-700" />
-                  <h3 className="font-semibold text-green-900">4.1 Cookie e Strumenti Tecnici — Esenti da Consenso</h3>
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="bg-slate-50 px-5 py-3 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-slate-700" />
+                  <h3 className="font-semibold text-slate-900">4.1 Cookie e Strumenti Tecnici — Esenti da Consenso</h3>
                 </div>
                 <div className="p-5">
-                  <p className="text-xs text-green-800 mb-4">Strettamente necessari per il funzionamento del sito e della Piattaforma. Esenti ex art. 122, comma 1, Codice Privacy.</p>
+                  <p className="text-xs text-slate-700 mb-4">Strettamente necessari per il funzionamento del sito e della Piattaforma. Esenti ex art. 122, comma 1, Codice Privacy.</p>
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse border border-gray-200 text-xs">
                       <thead><tr className="bg-gray-50"><th className="border border-gray-200 px-3 py-2 text-left">Nome / Categoria</th><th className="border border-gray-200 px-3 py-2 text-left">Finalità</th><th className="border border-gray-200 px-3 py-2 text-left">Durata</th><th className="border border-gray-200 px-3 py-2 text-left">Parte</th></tr></thead>
@@ -132,20 +132,20 @@ export default function CookiePolicyPage() {
               </div>
 
               {/* 4.2 Cookie Analytics */}
-              <div className="border border-blue-200 rounded-xl overflow-hidden">
-                <div className="bg-blue-50 px-5 py-3 flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-blue-700" />
-                  <h3 className="font-semibold text-blue-900">4.2 Cookie di Analytics — Subordinati a Consenso o Misure di Minimizzazione</h3>
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="bg-slate-50 px-5 py-3 flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-slate-700" />
+                  <h3 className="font-semibold text-slate-900">4.2 Cookie di Analytics — Subordinati a Consenso o Misure di Minimizzazione</h3>
                 </div>
                 <div className="p-5">
-                  <p className="text-xs text-blue-800 mb-3">I cookie analytics sono equiparati ai cookie tecnici ed esenti da consenso <strong>solo se</strong> vengono adottate le seguenti misure di minimizzazione (punto 7.2 Linee Guida Garante n. 231/2021):</p>
-                  <ul className="list-disc list-inside space-y-1 ml-2 text-xs text-blue-800 mb-3">
+                  <p className="text-xs text-slate-700 mb-3">I cookie analytics sono equiparati ai cookie tecnici ed esenti da consenso <strong>solo se</strong> vengono adottate le seguenti misure di minimizzazione (punto 7.2 Linee Guida Garante n. 231/2021):</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2 text-xs text-slate-700 mb-3">
                     <li>Mascheramento dell&apos;indirizzo IP (ultimo ottetto rimosso prima di qualsiasi elaborazione)</li>
                     <li>Elaborazione esclusivamente in forma aggregata, senza profilazione individuale</li>
                     <li>Limitazione alle interazioni con il solo Sito/Piattaforma del Titolare</li>
                   </ul>
-                  <p className="text-xs text-blue-700">In assenza delle predette misure, il Titolare acquisirà il consenso esplicito dell&apos;utente prima di installare tali strumenti.</p>
-                  <div className="mt-3 bg-white border border-blue-100 rounded-lg p-3 text-xs">
+                  <p className="text-xs text-slate-700">In assenza delle predette misure, il Titolare acquisirà il consenso esplicito dell&apos;utente prima di installare tali strumenti.</p>
+                  <div className="mt-3 bg-white border border-slate-200 rounded-lg p-3 text-xs">
                     <p><strong>Analytics aggregati</strong> (es. Matomo in-house o Google Analytics con IP anonimizzato) — Finalità: analisi statistica visite — Durata: 13 mesi — Prima/Terza parte (con IP mascherato)</p>
                   </div>
                 </div>
@@ -167,8 +167,8 @@ export default function CookiePolicyPage() {
           {/* 5. Dati Tecnici e Log */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-orange-600/10 flex items-center justify-center flex-shrink-0">
-                <Clock className="h-5 w-5 text-orange-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">5. Dati Tecnici e Log di Accesso</h2>
             </div>
@@ -177,13 +177,13 @@ export default function CookiePolicyPage() {
               <p>Indipendentemente dall&apos;utilizzo di cookie, i sistemi informatici della Piattaforma acquisiscono automaticamente log di accesso e connessione (incluso l&apos;indirizzo IP) per: sicurezza informatica, funzionamento e manutenzione, fatturazione.</p>
               <h3 className="font-semibold text-gray-900 mt-4">5.2 Localizzazione del Trattamento dei Log</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
-                  <p className="font-semibold text-orange-900">Log frontend (sito web)</p>
-                  <p className="text-orange-700 mt-1">Trattati anche da <strong>Vercel Inc. (USA)</strong>, con garanzie di trasferimento EU-U.S. DPF + SCC.</p>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                  <p className="font-semibold text-slate-900">Log frontend (sito web)</p>
+                  <p className="text-slate-700 mt-1">Trattati anche da <strong>Vercel Inc. (USA)</strong>, con garanzie di trasferimento EU-U.S. DPF + SCC.</p>
                 </div>
-                <div className="bg-green-50 border border-green-100 rounded-lg p-3">
-                  <p className="font-semibold text-green-900">Log API (backend)</p>
-                  <p className="text-green-700 mt-1">Trattati da <strong>IONOS SE (Germania)</strong>, esclusivamente all&apos;interno dell&apos;Unione Europea.</p>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                  <p className="font-semibold text-slate-900">Log API (backend)</p>
+                  <p className="text-slate-700 mt-1">Trattati da <strong>IONOS SE (Germania)</strong>, esclusivamente all&apos;interno dell&apos;Unione Europea.</p>
                 </div>
               </div>
               <h3 className="font-semibold text-gray-900 mt-4">5.3 Periodo di Conservazione dei Log</h3>
@@ -194,8 +194,8 @@ export default function CookiePolicyPage() {
           {/* 6. Gestione del Consenso */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-teal-600/10 flex items-center justify-center flex-shrink-0">
-                <Eye className="h-5 w-5 text-teal-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Eye className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">6. Gestione del Consenso</h2>
             </div>
@@ -208,8 +208,8 @@ export default function CookiePolicyPage() {
                 <li>Consente di chiudere il banner mantenendo le impostazioni predefinite (solo cookie tecnici attivi)</li>
                 <li>Non implementa meccanismi di &quot;cookie wall&quot; (blocco dell&apos;accesso in mancanza di consenso)</li>
               </ul>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-                <p className="text-xs text-blue-900"><strong>Privacy by Default (art. 25 GDPR):</strong> nessun cookie non tecnico è installato prima che l&apos;utente abbia espresso consenso attraverso un&apos;azione positiva e inequivocabile. Il semplice proseguimento della navigazione (scroll) non costituisce consenso valido.</p>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mt-2">
+                <p className="text-xs text-slate-900"><strong>Privacy by Default (art. 25 GDPR):</strong> nessun cookie non tecnico è installato prima che l&apos;utente abbia espresso consenso attraverso un&apos;azione positiva e inequivocabile. Il semplice proseguimento della navigazione (scroll) non costituisce consenso valido.</p>
               </div>
 
               <h3 className="font-semibold text-gray-900 mt-5">6.2 Revoca del Consenso e Gestione delle Preferenze</h3>
@@ -231,8 +231,8 @@ export default function CookiePolicyPage() {
           {/* 7. Aggiornamenti */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-gray-600/10 flex items-center justify-center flex-shrink-0">
-                <Clock className="h-5 w-5 text-gray-600" />
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-5 w-5 text-slate-700" />
               </div>
               <h2 className="text-xl font-bold text-gray-900">7. Aggiornamenti della Cookie Policy</h2>
             </div>
