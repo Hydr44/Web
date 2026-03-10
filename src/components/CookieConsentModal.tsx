@@ -25,6 +25,21 @@ export default function CookieConsentModal() {
     }
   }, []);
 
+  // Blocca scroll quando banner è visibile
+  useEffect(() => {
+    if (visible) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [visible]);
+
   const saveConsent = (prefs: typeof preferences) => {
     localStorage.setItem("cookie-consent", JSON.stringify(prefs));
     setVisible(false);
