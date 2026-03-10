@@ -25,21 +25,6 @@ export default function CookieConsentModal() {
     }
   }, []);
 
-  // Blocca scroll quando banner è visibile
-  useEffect(() => {
-    if (visible) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
-  }, [visible]);
-
   const saveConsent = (prefs: typeof preferences) => {
     localStorage.setItem("cookie-consent", JSON.stringify(prefs));
     setVisible(false);
@@ -61,10 +46,11 @@ export default function CookieConsentModal() {
         bottom: 0,
         zIndex: 9999,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         padding: "1rem",
+        paddingTop: "120px",
       }}
     >
       <div
