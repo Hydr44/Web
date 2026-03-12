@@ -172,12 +172,12 @@ export default function SessionsPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Monitor className="h-4 w-4" />
               Gestione Sessioni
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Sessioni <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Attive</span>
+              Sessioni <span className="text-blue-600">Attive</span>
             </h1>
             <p className="text-lg text-gray-500">
               Monitora e gestisci i dispositivi connessi al tuo account
@@ -188,9 +188,9 @@ export default function SessionsPage() {
 
       {/* Session Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6  bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Monitor className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -203,9 +203,9 @@ export default function SessionsPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -218,9 +218,9 @@ export default function SessionsPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Clock className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -235,7 +235,7 @@ export default function SessionsPage() {
       </div>
 
       {/* Current Session */}
-      <div className="p-6  bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-emerald-500/20/50 ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <div className="flex items-center gap-3 mb-4">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <h2 className="text-xl font-semibold text-gray-900">Sessione Corrente</h2>
@@ -339,7 +339,7 @@ export default function SessionsPage() {
       </div>
 
       {/* Security Tips */}
-      <div className="p-6  bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-200/50 ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">

@@ -129,13 +129,8 @@ export default async function BillingPage({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
-          <Wallet className="h-4 w-4" />
-          Abbonamento
-        </div>
-        
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Il tuo <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Abbonamento</span>
+          Abbonamento
         </h1>
         
         <p className="text-lg text-gray-500 max-w-2xl">
@@ -170,16 +165,16 @@ export default async function BillingPage({
 
       {/* Piano attuale */}
       {hasActivePlan ? (
-        <div className=" border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 p-6">
+        <div className=" border border-blue-200 bg-blue-50/30 p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14  bg-green-50 flex items-center justify-center">
-                <Shield className="h-7 w-7 text-green-600" />
+              <div className="w-14 h-14 bg-blue-50 flex items-center justify-center border border-blue-200">
+                <CreditCard className="h-7 w-7 text-blue-600" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold text-gray-900">Piano {currentPlanName}</h2>
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isTrial ? 'text-blue-600 bg-blue-50 border border-blue-200' : 'text-green-600 bg-emerald-500/10 border border-emerald-500/20'}`}>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isTrial ? 'text-blue-600 bg-blue-50 border border-blue-200' : 'text-blue-600 bg-blue-50 border border-blue-200'}`}>
                     <CheckCircle2 className="h-3 w-3" /> {isTrial ? 'Trial' : 'Attivo'}
                   </span>
                 </div>
@@ -232,17 +227,17 @@ export default async function BillingPage({
                 key={mod.name}
                 className={`p-4 rounded-lg border transition-colors ${
                   isActive
-                    ? "border-emerald-500/30 bg-emerald-500/5"
+                    ? "border-blue-200 bg-blue-50/50"
                     : "border-[#243044] bg-white opacity-50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <mod.Icon className={`h-4 w-4 ${isActive ? "text-green-600" : "text-gray-400"}`} />
+                    <mod.Icon className={`h-4 w-4 ${isActive ? "text-blue-600" : "text-gray-400"}`} />
                     <span className="text-sm font-medium text-gray-800">{mod.name}</span>
                   </div>
                   {isActive ? (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full text-green-600 bg-emerald-500/10 font-medium">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full text-blue-600 bg-blue-50 font-medium">
                       Attivo
                     </span>
                   ) : (

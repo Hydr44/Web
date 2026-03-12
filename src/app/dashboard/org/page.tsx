@@ -107,8 +107,8 @@ export default function OrgPage() {
             {/* Dettagli azienda */}
             <div className="p-6  bg-white border border-[#243044]">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-50 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
+                  <Building2 className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-gray-800">Informazioni Principali</h3>
@@ -150,8 +150,8 @@ export default function OrgPage() {
             {/* Contatti */}
             <div className="p-6  bg-white border border-[#243044]">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-green-50 flex items-center justify-center">
-                  <MapPin className="h-5 w-5 text-green-600" />
+                <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
+                  <MapPin className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-gray-800">Contatti</h3>
@@ -161,8 +161,8 @@ export default function OrgPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
-                  <div className="w-8 h-8 bg-blue-50 flex items-center justify-center shrink-0">
-                    <MapPin className="h-4 w-4 text-blue-600" />
+                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
+                    <MapPin className="h-4 w-4 text-gray-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-gray-500">Indirizzo</div>
@@ -173,8 +173,8 @@ export default function OrgPage() {
                 </div>
 
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
-                  <div className="w-8 h-8 bg-green-50 flex items-center justify-center shrink-0">
-                    <Phone className="h-4 w-4 text-green-600" />
+                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
+                    <Phone className="h-4 w-4 text-gray-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-gray-500">Telefono</div>
@@ -185,8 +185,8 @@ export default function OrgPage() {
                 </div>
 
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
-                  <div className="w-8 h-8 bg-purple-50 flex items-center justify-center shrink-0">
-                    <Mail className="h-4 w-4 text-purple-600" />
+                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
+                    <Mail className="h-4 w-4 text-gray-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-gray-500">Email</div>
@@ -197,8 +197,8 @@ export default function OrgPage() {
                 </div>
 
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
-                  <div className="w-8 h-8 bg-amber-50 flex items-center justify-center shrink-0">
-                    <Globe className="h-4 w-4 text-amber-600" />
+                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
+                    <Globe className="h-4 w-4 text-gray-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-gray-500">Sito Web</div>
@@ -218,7 +218,7 @@ export default function OrgPage() {
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna organizzazione trovata</h3>
           <p className="text-sm text-gray-500 mb-4">Crea o seleziona un&apos;organizzazione per gestire le informazioni aziendali</p>
-          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 text-gray-900 text-sm font-medium hover:shadow-lg shadow-black/20 transition-all duration-200">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
             <Building2 className="h-4 w-4" />
             Crea organizzazione
           </button>

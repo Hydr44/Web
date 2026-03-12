@@ -182,12 +182,12 @@ export default function AuditLogPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Shield className="h-4 w-4" />
               Audit Log
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Log di <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Sicurezza</span>
+              Log di <span className="text-blue-600">Sicurezza</span>
             </h1>
             <p className="text-lg text-gray-500">
               Monitora tutte le attività di sicurezza del tuo account
@@ -198,9 +198,9 @@ export default function AuditLogPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6  bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <CheckCircle className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -213,9 +213,9 @@ export default function AuditLogPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-red-50/30 border border-red-200/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <AlertTriangle className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -228,9 +228,9 @@ export default function AuditLogPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-blue-50/30 border border-blue-200/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Clock className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -243,9 +243,9 @@ export default function AuditLogPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Globe className="h-5 w-5 text-gray-900" />
             </div>
             <div>

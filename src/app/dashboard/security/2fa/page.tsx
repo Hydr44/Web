@@ -171,12 +171,12 @@ export default function TwoFactorAuthPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Smartphone className="h-4 w-4" />
               Autenticazione a Due Fattori
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Sicurezza <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">2FA</span>
+              Sicurezza <span className="text-blue-600">2FA</span>
             </h1>
             <p className="text-lg text-gray-500">
               Aggiungi un ulteriore livello di sicurezza al tuo account
@@ -189,7 +189,7 @@ export default function TwoFactorAuthPage() {
       <div className={`p-6  border ${
         twoFactorEnabled 
           ? 'bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border-emerald-500/20/50' 
-          : 'bg-gradient-to-r from-yellow-50/50 via-white to-orange-50/30 border-amber-500/20/50'
+          : 'bg-amber-50/30 border-amber-200'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -388,7 +388,7 @@ export default function TwoFactorAuthPage() {
       )}
 
       {/* Security Tips */}
-      <div className="p-6  bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 border border-blue-200/50 ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza 2FA</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">

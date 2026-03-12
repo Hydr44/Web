@@ -142,12 +142,12 @@ export default function PasswordPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Key className="h-4 w-4" />
               Gestione Password
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Cambia <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Password</span>
+              Cambia <span className="text-blue-600">Password</span>
             </h1>
             <p className="text-lg text-gray-500">
               Aggiorna la tua password per mantenere il tuo account sicuro
