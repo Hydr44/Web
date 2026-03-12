@@ -105,7 +105,7 @@ export default function OrgPage() {
           {/* Informazioni principali */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Dettagli azienda */}
-            <div className="p-6  bg-white border border-[#243044]">
+            <div className="p-6  bg-white border border-gray-200">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
                   <Building2 className="h-5 w-5 text-gray-600" />
@@ -119,28 +119,28 @@ export default function OrgPage() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-gray-400">Nome Azienda</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-[#243044] text-sm text-gray-800">
+                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
                     {orgData.name || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-medium text-gray-400">Partita IVA</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-[#243044] text-sm text-gray-800">
+                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
                     {orgData.vat_number || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-medium text-gray-400">Codice Fiscale</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-[#243044] text-sm text-gray-800">
+                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
                     {orgData.fiscal_code || "Non specificato"}
                   </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-medium text-gray-400">Settore</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-[#243044] text-sm text-gray-800">
+                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
                     {orgData.sector || "Non specificato"}
                   </div>
                 </div>
@@ -148,7 +148,7 @@ export default function OrgPage() {
             </div>
 
             {/* Contatti */}
-            <div className="p-6  bg-white border border-[#243044]">
+            <div className="p-6  bg-white border border-gray-200">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
                   <MapPin className="h-5 w-5 text-gray-600" />
@@ -160,7 +160,7 @@ export default function OrgPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
                   <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
                     <MapPin className="h-4 w-4 text-gray-600" />
                   </div>
@@ -172,7 +172,7 @@ export default function OrgPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
                   <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
                     <Phone className="h-4 w-4 text-gray-600" />
                   </div>
@@ -184,7 +184,7 @@ export default function OrgPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
                   <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
                     <Mail className="h-4 w-4 text-gray-600" />
                   </div>
@@ -196,7 +196,7 @@ export default function OrgPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-[#243044]">
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
                   <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
                     <Globe className="h-4 w-4 text-gray-600" />
                   </div>

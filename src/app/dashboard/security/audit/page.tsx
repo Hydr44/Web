@@ -137,13 +137,13 @@ export default function AuditLogPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "success":
-        return "text-green-600 bg-emerald-500/10 border-emerald-500/20";
+        return "text-green-600 bg-emerald-500/10 border-gray-200";
       case "failed":
         return "text-red-600 bg-red-50 border-red-200";
       case "info":
         return "text-blue-600 bg-blue-50 border-blue-200";
       default:
-        return "text-gray-500 bg-white border-[#243044]";
+        return "text-gray-500 bg-white border-gray-200";
     }
   };
 
@@ -182,7 +182,7 @@ export default function AuditLogPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Shield className="h-4 w-4" />
               Audit Log
             </div>
@@ -266,7 +266,7 @@ export default function AuditLogPage() {
           <input
             type="text"
             placeholder="Cerca per azione, dettagli o IP..."
-            className="w-full pl-10 pr-4 py-2  border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200"
+            className="w-full pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -275,7 +275,7 @@ export default function AuditLogPage() {
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
+            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -289,7 +289,7 @@ export default function AuditLogPage() {
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-[#243044] focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
+            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
             value={filterAction}
             onChange={(e) => setFilterAction(e.target.value)}
           >
@@ -308,8 +308,8 @@ export default function AuditLogPage() {
       </div>
 
       {/* Audit Logs */}
-      <div className="bg-white  shadow-lg shadow-black/20 border border-[#243044] overflow-hidden">
-        <div className="p-6 border-b border-[#243044]">
+      <div className="bg-white  shadow-lg shadow-black/20 border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
           <h3 className="text-xl font-semibold text-gray-900">Log di Sicurezza ({filteredLogs.length})</h3>
         </div>
         

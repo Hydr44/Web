@@ -192,7 +192,7 @@ export default function SettingsOverviewPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "complete":
-        return "text-green-600 bg-emerald-500/10 border-emerald-500/20";
+        return "text-green-600 bg-emerald-500/10 border-gray-200";
       case "partial":
         return "text-amber-600 bg-amber-500/10 border-amber-500/20";
       case "warning":
@@ -200,7 +200,7 @@ export default function SettingsOverviewPage() {
       case "incomplete":
         return "text-red-600 bg-red-50 border-red-200";
       default:
-        return "text-gray-500 bg-white border-[#243044]";
+        return "text-gray-500 bg-white border-gray-200";
     }
   };
 
@@ -231,13 +231,13 @@ export default function SettingsOverviewPage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+        <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-6 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
           <Settings className="h-4 w-4" />
           Dashboard Impostazioni
         </div>
         
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Centro <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Impostazioni</span>
+          Centro <span className="text-blue-600">Impostazioni</span>
         </h1>
         
         <p className="text-lg text-gray-500 max-w-2xl">
@@ -247,9 +247,9 @@ export default function SettingsOverviewPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6  bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Settings className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -262,15 +262,15 @@ export default function SettingsOverviewPage() {
           </div>
           <div className="w-full bg-gray-50 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-blue-600 to-emerald-500 h-2 rounded-full"
+              className="bg-blue-600 h-2 rounded-full"
               style={{ width: `${(stats.configuredSettings / stats.totalSettings) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-green-50/30 border border-emerald-500/20/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -286,9 +286,9 @@ export default function SettingsOverviewPage() {
           </div>
         </div>
 
-        <div className="p-6  bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Activity className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -318,33 +318,33 @@ export default function SettingsOverviewPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="p-6  bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-primary/20 ">
+      <div className="p-6  bg-gradient-to-r from-primary/5 via-white to-blue-50/30 border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Azioni Rapide</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/dashboard/settings/security"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Shield className="h-5 w-5 text-primary" />
             <span className="font-medium text-gray-900">Sicurezza</span>
           </Link>
           <Link
             href="/dashboard/billing"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <CreditCard className="h-5 w-5 text-primary" />
             <span className="font-medium text-gray-900">Fatturazione</span>
           </Link>
           <Link
             href="/dashboard/settings/notifications"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Bell className="h-5 w-5 text-primary" />
             <span className="font-medium text-gray-900">Notifiche</span>
           </Link>
           <Link
             href="/dashboard/settings/privacy"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Database className="h-5 w-5 text-primary" />
             <span className="font-medium text-gray-900">Privacy</span>
@@ -358,11 +358,11 @@ export default function SettingsOverviewPage() {
           <Link
             key={section.id}
             href={section.href}
-            className="block p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200"
+            className="block p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+                <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
                   <section.icon className="h-5 w-5 text-gray-900" />
                 </div>
                 <div>
@@ -397,7 +397,7 @@ export default function SettingsOverviewPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="p-6  bg-white border border-[#243044] ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Attività Recente</h2>
         <div className="space-y-3">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-white">

@@ -187,11 +187,11 @@ export default function NotificationsPage() {
       case "billing":
         return "bg-blue-50 border-blue-200";
       case "organization":
-        return "bg-emerald-500/10 border-emerald-500/20";
+        return "bg-emerald-500/10 border-gray-200";
       case "marketing":
         return "bg-purple-50 border-purple-200";
       default:
-        return "bg-white border-[#243044]";
+        return "bg-white border-gray-200";
     }
   };
 
@@ -231,7 +231,7 @@ export default function NotificationsPage() {
       {/* Notification Channels */}
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Email Notifications */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
@@ -255,7 +255,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
@@ -273,7 +273,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -289,7 +289,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -305,7 +305,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -321,7 +321,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -330,7 +330,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Push Notifications */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10  bg-emerald-600 flex items-center justify-center">
               <Smartphone className="h-5 w-5 text-gray-900" />
@@ -354,7 +354,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
@@ -372,7 +372,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -388,7 +388,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -404,7 +404,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -413,7 +413,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* SMS Notifications */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
               <Monitor className="h-5 w-5 text-gray-900" />
@@ -437,7 +437,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
@@ -455,7 +455,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 
@@ -471,7 +471,7 @@ export default function NotificationsPage() {
                       }))}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </div>
@@ -483,7 +483,7 @@ export default function NotificationsPage() {
       {/* Advanced Settings */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Quiet Hours */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Ore Silenziose</h2>
           
           <div className="space-y-4">
@@ -502,7 +502,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
             
@@ -520,7 +520,7 @@ export default function NotificationsPage() {
                         quietHours: { ...prev.preferences.quietHours, start: e.target.value }
                       }
                     }))}
-                    className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   />
                 </div>
                 <div>
@@ -535,7 +535,7 @@ export default function NotificationsPage() {
                         quietHours: { ...prev.preferences.quietHours, end: e.target.value }
                       }
                     }))}
-                    className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                    className="w-full px-4 py-3 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   />
                 </div>
               </div>
@@ -544,7 +544,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Frequency Settings */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Frequenza</h2>
           
           <div className="space-y-4">
@@ -556,7 +556,7 @@ export default function NotificationsPage() {
                   ...prev,
                   preferences: { ...prev.preferences, frequency: e.target.value }
                 }))}
-                className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                className="w-full px-4 py-3 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
               >
                 <option value="immediate">Immediata</option>
                 <option value="daily">Giornaliera</option>
@@ -576,7 +576,7 @@ export default function NotificationsPage() {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
@@ -584,7 +584,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Recent Notifications */}
-      <div className="p-6  bg-white border border-[#243044] ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Notifiche Recenti</h2>
         
         <div className="space-y-4">

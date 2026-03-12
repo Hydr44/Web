@@ -192,7 +192,7 @@ export default function ProfilePage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Profile Card */}
         <div className="lg:col-span-1">
-          <div className="p-6  bg-white border border-[#243044] ">
+          <div className="p-6  bg-white border border-gray-200 ">
             <div className="text-center">
               <div className="relative inline-block mb-4">
                 <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
@@ -232,7 +232,7 @@ export default function ProfilePage() {
 
         {/* Profile Form */}
         <div className="lg:col-span-2">
-          <div className="p-6  bg-white border border-[#243044] ">
+          <div className="p-6  bg-white border border-gray-200 ">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Informazioni Personali</h3>
             
             <div className="grid md:grid-cols-2 gap-6">

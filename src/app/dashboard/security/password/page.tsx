@@ -142,7 +142,7 @@ export default function PasswordPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Key className="h-4 w-4" />
               Gestione Password
             </div>
@@ -159,11 +159,11 @@ export default function PasswordPage() {
       {/* Password Info */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Current Password Info */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Informazioni Password</h2>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4  bg-white border border-[#243044]">
+            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
               <div>
                 <h3 className="font-medium text-gray-900">Ultimo cambio</h3>
                 <p className="text-sm text-gray-500">Password modificata</p>
@@ -174,7 +174,7 @@ export default function PasswordPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4  bg-emerald-500/10 border border-emerald-500/20">
+            <div className="flex items-center justify-between p-4  bg-emerald-500/10 border border-gray-200">
               <div>
                 <h3 className="font-medium text-green-900">Sicurezza</h3>
                 <p className="text-sm text-green-600">Password attiva e protetta</p>
@@ -198,7 +198,7 @@ export default function PasswordPage() {
         </div>
 
         {/* Change Password Form */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Cambia Password</h2>
           
           {error && (
@@ -209,7 +209,7 @@ export default function PasswordPage() {
           )}
 
           {success && (
-            <div className="mb-6 p-4  bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+            <div className="mb-6 p-4  bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <span className="text-green-800">{success}</span>
             </div>
@@ -225,7 +225,7 @@ export default function PasswordPage() {
                   type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Inserisci la password attuale"
                   required
                 />
@@ -248,7 +248,7 @@ export default function PasswordPage() {
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Inserisci la nuova password"
                   required
                 />
@@ -291,7 +291,7 @@ export default function PasswordPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Conferma la nuova password"
                   required
                 />

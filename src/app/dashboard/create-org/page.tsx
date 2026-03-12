@@ -157,7 +157,7 @@ export default function CreateOrgPage() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50/30 flex items-center justify-center px-4">
         <motion.div
           {...animations.scaleIn}
-          className="w-full max-w-md bg-white  shadow-xl p-8 border border-[#243044] text-center"
+          className="w-full max-w-md bg-white  shadow-xl p-8 border border-gray-200 text-center"
         >
           <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
@@ -189,7 +189,7 @@ export default function CreateOrgPage() {
           <div className="text-center mb-8">
             <motion.div
               {...animations.scaleIn}
-              className="inline-flex items-center gap-2 text-xs rounded-full ring-1 ring-primary/30 px-3 py-1.5 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium"
+              className="inline-flex items-center gap-2 text-xs rounded-full border border-blue-200 px-3 py-1.5 mb-6 bg-blue-50 text-blue-600 border border-blue-200 font-medium"
             >
               <Building2 className="h-3 w-3" />
               Crea Organizzazione
@@ -208,13 +208,13 @@ export default function CreateOrgPage() {
           {/* Form */}
           <motion.div
             {...animations.slideUp}
-            className="bg-white  shadow-xl p-8 border border-[#243044]"
+            className="bg-white  shadow-xl p-8 border border-gray-200"
           >
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Informazioni Principali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                     <Building2 className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Informazioni Principali</h3>
@@ -234,7 +234,7 @@ export default function CreateOrgPage() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="es. Autofficina Rossi"
-                      className="w-full pl-10 pr-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                       required
                       disabled={loading}
                     />
@@ -253,7 +253,7 @@ export default function CreateOrgPage() {
                     onChange={handleChange}
                     placeholder="Breve descrizione della tua attività..."
                     rows={3}
-                    className="w-full px-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                    className="w-full px-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                     disabled={loading}
                   />
                 </div>
@@ -262,7 +262,7 @@ export default function CreateOrgPage() {
               {/* Contatti */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                     <MapPin className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Contatti</h3>
@@ -282,11 +282,11 @@ export default function CreateOrgPage() {
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="Via, Città, CAP"
-                      className="w-full pl-10 pr-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                     {showAddressSuggestions && addressSuggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#243044]  shadow-lg shadow-black/20 z-10 max-h-48 overflow-y-auto">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200  shadow-lg shadow-black/20 z-10 max-h-48 overflow-y-auto">
                         {addressSuggestions.map((suggestion, index) => (
                           <button
                             key={index}
@@ -318,7 +318,7 @@ export default function CreateOrgPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+39 123 456 7890"
-                        className="w-full pl-10 pr-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                     </div>
@@ -337,7 +337,7 @@ export default function CreateOrgPage() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="info@azienda.com"
-                        className="w-full pl-10 pr-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                     </div>
@@ -358,7 +358,7 @@ export default function CreateOrgPage() {
                       value={formData.website}
                       onChange={handleChange}
                       placeholder="https://www.azienda.com"
-                      className="w-full pl-10 pr-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                   </div>
@@ -368,7 +368,7 @@ export default function CreateOrgPage() {
               {/* Dati Fiscali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                     <FileText className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Dati Fiscali</h3>
@@ -387,7 +387,7 @@ export default function CreateOrgPage() {
                       value={formData.vat}
                       onChange={handleChange}
                       placeholder="IT12345678901"
-                      className="w-full px-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                      className="w-full px-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                       disabled={loading}
                     />
                   </div>
@@ -405,14 +405,14 @@ export default function CreateOrgPage() {
                         value={formData.taxCode}
                         onChange={handleChange}
                         placeholder="RSSMRA80A01H501S"
-                        className="flex-1 px-3 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                        className="flex-1 px-3 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                         disabled={loading}
                       />
                       <button
                         type="button"
                         onClick={calculateCodiceFiscale}
                         disabled={calculatingCF || loading}
-                        className="px-4 py-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-gray-900  hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-4 py-3 bg-blue-600 text-gray-900  hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {calculatingCF ? (
                           <LoadingSpinner size="sm" color="white" />
@@ -441,7 +441,7 @@ export default function CreateOrgPage() {
               <button
                 type="submit"
                 disabled={loading || !formData.name.trim()}
-                className="w-full py-4 px-6  bg-gradient-to-r from-blue-600 to-emerald-500 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 px-6  bg-blue-600 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <LoadingSpinner size="sm" color="white" text="Creazione in corso..." />
@@ -469,7 +469,7 @@ export default function CreateOrgPage() {
               <motion.div 
                 key={benefit.title} 
                 {...animations.staggerItem}
-                className="p-4  bg-white/80 backdrop-blur-sm border border-[#243044]"
+                className="p-4  bg-white/80 backdrop-blur-sm border border-gray-200"
               >
                 <benefit.icon className="h-6 w-6 text-primary mb-2" />
                 <h3 className="font-semibold text-gray-900 mb-1">{benefit.title}</h3>

@@ -172,7 +172,7 @@ export default function SessionsPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Monitor className="h-4 w-4" />
               Gestione Sessioni
             </div>
@@ -245,7 +245,7 @@ export default function SessionsPage() {
         </p>
         
         {sessions.filter(session => session.isCurrent).map((session) => (
-          <div key={session.id} className="p-4  bg-white border border-emerald-500/20">
+          <div key={session.id} className="p-4  bg-white border border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {getDeviceIcon(session.device)}
@@ -267,7 +267,7 @@ export default function SessionsPage() {
       </div>
 
       {/* Other Sessions */}
-      <div className="p-6  bg-white border border-[#243044] ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">Altre Sessioni</h2>
@@ -288,7 +288,7 @@ export default function SessionsPage() {
         {sessions.filter(session => !session.isCurrent).length > 0 ? (
           <div className="space-y-4">
             {sessions.filter(session => !session.isCurrent).map((session) => (
-              <div key={session.id} className="p-4  bg-white border border-[#243044]">
+              <div key={session.id} className="p-4  bg-white border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {getDeviceIcon(session.device)}

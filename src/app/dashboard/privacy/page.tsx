@@ -134,13 +134,13 @@ export default function PrivacyPage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+        <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-6 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
           <Database className="h-4 w-4" />
           Centro Privacy
         </div>
         
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Privacy & <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Dati</span>
+          Privacy & <span className="text-blue-600">Dati</span>
         </h1>
         
         <p className="text-lg text-gray-500 max-w-2xl">
@@ -149,7 +149,7 @@ export default function PrivacyPage() {
       </header>
 
       {/* GDPR Status */}
-      <div className="p-6  bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border border-emerald-500/20/50 ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10  bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
             <Shield className="h-5 w-5 text-gray-900" />
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
         </div>
         
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="p-4  bg-emerald-500/10 border border-emerald-500/20">
+          <div className="p-4  bg-emerald-500/10 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-900">Consenso GDPR</span>
@@ -169,7 +169,7 @@ export default function PrivacyPage() {
             <p className="text-xs text-green-600">Attivo dal {new Date().toLocaleDateString('it-IT')}</p>
           </div>
           
-          <div className="p-4  bg-emerald-500/10 border border-emerald-500/20">
+          <div className="p-4  bg-emerald-500/10 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-900">Privacy Policy</span>
@@ -177,7 +177,7 @@ export default function PrivacyPage() {
             <p className="text-xs text-green-600">Accettata e aggiornata</p>
           </div>
           
-          <div className="p-4  bg-emerald-500/10 border border-emerald-500/20">
+          <div className="p-4  bg-emerald-500/10 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-900">Cookie Policy</span>
@@ -191,11 +191,11 @@ export default function PrivacyPage() {
       {/* Privacy Controls */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Data Collection */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Controlli Privacy</h2>
           
           <div className="space-y-6">
-            <div className="flex items-center justify-between p-4  bg-white border border-[#243044]">
+            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
               <div>
                 <h3 className="font-medium text-gray-900">Raccolta dati essenziali</h3>
                 <p className="text-sm text-gray-500">Dati necessari per il funzionamento</p>
@@ -207,11 +207,11 @@ export default function PrivacyPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataCollection: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4  bg-white border border-[#243044]">
+            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
               <div>
                 <h3 className="font-medium text-gray-900">Analytics anonime</h3>
                 <p className="text-sm text-gray-500">Dati aggregati per migliorare il servizio</p>
@@ -223,11 +223,11 @@ export default function PrivacyPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, analytics: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4  bg-white border border-[#243044]">
+            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
               <div>
                 <h3 className="font-medium text-gray-900">Marketing</h3>
                 <p className="text-sm text-gray-500">Comunicazioni promozionali</p>
@@ -239,14 +239,14 @@ export default function PrivacyPage() {
                   onChange={(e) => setPrivacySettings(prev => ({ ...prev, marketing: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#243044] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
         </div>
 
         {/* Data Management */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Gestione Dati</h2>
           
           <div className="space-y-6">
@@ -257,7 +257,7 @@ export default function PrivacyPage() {
               <select
                 value={privacySettings.dataRetention}
                 onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataRetention: e.target.value }))}
-                className="w-full px-4 py-3 border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                className="w-full px-4 py-3 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
               >
                 {dataRetentionOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -291,9 +291,9 @@ export default function PrivacyPage() {
       {/* Data Actions */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Export Data */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Download className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -329,9 +329,9 @@ export default function PrivacyPage() {
         </div>
 
         {/* Delete Account */}
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10  bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Trash2 className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -367,12 +367,12 @@ export default function PrivacyPage() {
       </div>
 
       {/* Privacy Documentation */}
-      <div className="p-6  bg-gradient-to-r from-gray-50/50 via-white to-slate-50/30 border border-[#243044] ">
+      <div className="p-6  bg-gradient-to-r from-gray-50/50 via-white to-slate-50/30 border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Documentazione Privacy</h2>
         <div className="grid md:grid-cols-3 gap-4">
           <Link
             href="/privacy-policy"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <FileText className="h-5 w-5 text-primary" />
             <div>
@@ -383,7 +383,7 @@ export default function PrivacyPage() {
           
           <Link
             href="/terms-of-use"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Shield className="h-5 w-5 text-primary" />
             <div>
@@ -394,7 +394,7 @@ export default function PrivacyPage() {
           
           <Link
             href="/cookie-policy"
-            className="flex items-center gap-3 p-4  bg-white border border-[#243044] hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
             <Settings className="h-5 w-5 text-primary" />
             <div>

@@ -95,7 +95,7 @@ export default function SecurityPage() {
   };
 
   const getSecurityScoreBg = (score: number) => {
-    if (score >= 80) return "bg-emerald-500/10 border-emerald-500/20";
+    if (score >= 80) return "bg-emerald-500/10 border-gray-200";
     if (score >= 60) return "bg-amber-500/10 border-amber-500/20";
     return "bg-red-50 border-red-200";
   };
@@ -180,7 +180,7 @@ export default function SecurityPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link
           href="/dashboard/security/password"
-          className="p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200 group"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
@@ -199,7 +199,7 @@ export default function SecurityPage() {
 
         <Link
           href="/dashboard/security/2fa"
-          className="p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200 group"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10  bg-emerald-600 flex items-center justify-center">
@@ -220,7 +220,7 @@ export default function SecurityPage() {
 
         <Link
           href="/dashboard/security/sessions"
-          className="p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200 group"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
@@ -239,7 +239,7 @@ export default function SecurityPage() {
 
         <Link
           href="/dashboard/security/audit"
-          className="p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200 group"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10  bg-amber-600 flex items-center justify-center">
@@ -258,7 +258,7 @@ export default function SecurityPage() {
 
         <Link
           href="/dashboard/security/audit"
-          className="p-6  bg-white border border-[#243044]  hover:shadow-md transition-all duration-200 group"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10  bg-amber-600 flex items-center justify-center">
@@ -278,11 +278,11 @@ export default function SecurityPage() {
 
       {/* Security Alerts */}
       {securityData.securityAlerts.length > 0 && (
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Avvisi Sicurezza</h2>
           <div className="space-y-4">
             {securityData.securityAlerts.map((alert, index) => (
-              <div key={index} className="flex items-center justify-between p-4  bg-white border border-[#243044]">
+              <div key={index} className="flex items-center justify-between p-4  bg-white border border-gray-200">
                 <div className="flex items-center gap-3">
                   {getAlertIcon(alert.type)}
                   <div>
@@ -300,11 +300,11 @@ export default function SecurityPage() {
       )}
 
       {/* Recent Activity */}
-      <div className="p-6  bg-white border border-[#243044] ">
+      <div className="p-6  bg-white border border-gray-200 ">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Attività Recente</h2>
         <div className="space-y-4">
           {securityData.recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center gap-4 p-4  bg-white border border-[#243044]">
+            <div key={index} className="flex items-center gap-4 p-4  bg-white border border-gray-200">
               <div className="flex-shrink-0">
                 {getStatusIcon(activity.status)}
               </div>
@@ -353,7 +353,7 @@ export default function SecurityPage() {
           <h3 className="text-lg font-medium text-gray-900">Azioni per raggiungere il 100%:</h3>
           
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3  bg-white border border-[#243044]">
+            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
                 <Shield className="h-4 w-4 text-gray-500" />
               </div>
@@ -369,7 +369,7 @@ export default function SecurityPage() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3 p-3  bg-white border border-[#243044]">
+            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
                 <Key className="h-4 w-4 text-gray-500" />
               </div>
@@ -385,7 +385,7 @@ export default function SecurityPage() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3 p-3  bg-white border border-[#243044]">
+            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
                 <Monitor className="h-4 w-4 text-gray-500" />
               </div>

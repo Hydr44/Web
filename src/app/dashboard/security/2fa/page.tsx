@@ -171,7 +171,7 @@ export default function TwoFactorAuthPage() {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
               <Smartphone className="h-4 w-4" />
               Autenticazione a Due Fattori
             </div>
@@ -188,7 +188,7 @@ export default function TwoFactorAuthPage() {
       {/* 2FA Status */}
       <div className={`p-6  border ${
         twoFactorEnabled 
-          ? 'bg-gradient-to-r from-green-50/50 via-white to-emerald-50/30 border-emerald-500/20/50' 
+          ? 'bg-white border-gray-200' 
           : 'bg-amber-50/30 border-amber-200'
       }`}>
         <div className="flex items-center justify-between">
@@ -253,7 +253,7 @@ export default function TwoFactorAuthPage() {
       )}
 
       {success && (
-        <div className="p-4  bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+        <div className="p-4  bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <span className="text-green-800">{success}</span>
         </div>
@@ -263,13 +263,13 @@ export default function TwoFactorAuthPage() {
       {!twoFactorEnabled && qrCode && (
         <div className="grid lg:grid-cols-2 gap-8">
           {/* QR Code Setup */}
-          <div className="p-6  bg-white border border-[#243044] ">
+          <div className="p-6  bg-white border border-gray-200 ">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Configurazione 2FA</h2>
             
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">1. Scansiona il QR Code</h3>
-                <div className="inline-block p-4 bg-white border border-[#243044] ">
+                <div className="inline-block p-4 bg-white border border-gray-200 ">
                   <img src={qrCode} alt="QR Code 2FA" className="w-48 h-48" />
                 </div>
                 <p className="text-sm text-gray-500 mt-4">
@@ -296,7 +296,7 @@ export default function TwoFactorAuthPage() {
           </div>
 
           {/* Verification */}
-          <div className="p-6  bg-white border border-[#243044] ">
+          <div className="p-6  bg-white border border-gray-200 ">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Verifica Configurazione</h2>
             
             <form onSubmit={handleVerifyCode} className="space-y-6">
@@ -308,7 +308,7 @@ export default function TwoFactorAuthPage() {
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-4 py-3 text-center text-2xl font-mono border border-[#243044]  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="123456"
                   maxLength={6}
                   required
@@ -337,7 +337,7 @@ export default function TwoFactorAuthPage() {
 
       {/* Backup Codes */}
       {twoFactorEnabled && backupCodes.length > 0 && (
-        <div className="p-6  bg-white border border-[#243044] ">
+        <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Codici di Backup</h2>

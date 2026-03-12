@@ -44,13 +44,13 @@ export default async function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <header className="text-center lg:text-left">
-        <div className="inline-flex items-center gap-2 text-sm rounded-full ring-1 ring-primary/30 px-4 py-2 mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary font-medium">
+        <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-6 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
           <Settings className="h-4 w-4" />
           Impostazioni Account
         </div>
         
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Le tue <span className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">impostazioni</span>
+          Le tue <span className="text-blue-600">impostazioni</span>
         </h1>
         
         <p className="text-lg text-gray-500 max-w-2xl">
@@ -61,9 +61,9 @@ export default async function SettingsPage() {
       {/* Sezioni impostazioni */}
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Profilo */}
-        <div className="p-6  bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
+        <div className="p-6  bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg shadow-black/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <User className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -77,9 +77,9 @@ export default async function SettingsPage() {
         </div>
 
         {/* Sicurezza */}
-        <div className="p-6  bg-gradient-to-br from-white to-blue-50/30 border border-primary/20 shadow-lg shadow-black/20">
+        <div className="p-6  bg-white border border-gray-200 shadow-lg shadow-black/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
               <Shield className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -93,9 +93,9 @@ export default async function SettingsPage() {
         </div>
 
         {/* Notifiche */}
-        <div className="p-6  bg-gradient-to-br from-white to-purple-50/30 border border-purple-200/50 shadow-lg shadow-black/20">
+        <div className="p-6  bg-white border border-gray-200 shadow-lg shadow-black/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
               <Bell className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -110,7 +110,7 @@ export default async function SettingsPage() {
       </div>
 
       {/* Form impostazioni */}
-      <div className="p-6  bg-gradient-to-br from-white to-gray-50/50 border border-[#243044] shadow-lg shadow-black/20">
+      <div className="p-6  bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg shadow-black/20">
         <SettingsClient
           userId={userId!}
           email={userEmail ?? ""}

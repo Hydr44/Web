@@ -140,7 +140,7 @@ export default async function BillingPage({
 
       {/* Success/Error Messages */}
       {sp.status === "success" && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20  p-4 flex items-center gap-3">
+        <div className="bg-emerald-500/10 border border-gray-200  p-4 flex items-center gap-3">
           <CheckCircle2 className="h-5 w-5 text-green-600" />
           <div>
             <span className="text-green-600 font-medium">Abbonamento attivato!</span>
@@ -201,7 +201,7 @@ export default async function BillingPage({
           </div>
         </div>
       ) : (
-        <div className=" border border-[#243044] bg-white p-6">
+        <div className=" border border-gray-200 bg-white p-6">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14  bg-gray-100/10 flex items-center justify-center">
               <Package className="h-7 w-7 text-gray-400" />
@@ -217,7 +217,7 @@ export default async function BillingPage({
       )}
 
       {/* Moduli attivi */}
-      <div className=" border border-[#243044] bg-white p-6">
+      <div className=" border border-gray-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Moduli</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {MODULES.map((mod) => {
@@ -228,7 +228,7 @@ export default async function BillingPage({
                 className={`p-4 rounded-lg border transition-colors ${
                   isActive
                     ? "border-blue-200 bg-blue-50/50"
-                    : "border-[#243044] bg-white opacity-50"
+                    : "border-gray-200 bg-white opacity-50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -256,7 +256,7 @@ export default async function BillingPage({
 
       {/* Portale fatturazione */}
       {hasStripeCustomer && (
-        <div className="bg-white  border border-[#243044] p-6">
+        <div className="bg-white  border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Portale Fatturazione</h3>
@@ -267,7 +267,7 @@ export default async function BillingPage({
             <Link
               href="/api/billing/portal"
               prefetch={false}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-[#243044] text-gray-600  hover:bg-gray-50 transition-colors duration-200 text-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-600  hover:bg-gray-50 transition-colors duration-200 text-sm"
             >
               <ExternalLink className="h-4 w-4" />
               Apri Portale
@@ -289,7 +289,7 @@ export default async function BillingPage({
             </p>
             <a
               href="mailto:info@rescuemanager.eu"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-[#243044] text-gray-600  hover:bg-white transition-colors duration-200 text-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600  hover:bg-white transition-colors duration-200 text-sm"
             >
               info@rescuemanager.eu
             </a>

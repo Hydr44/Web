@@ -174,7 +174,7 @@ export default function EditOrgPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white  shadow-xl p-8 border border-[#243044] text-center"
+          className="w-full max-w-md bg-white  shadow-xl p-8 border border-gray-200 text-center"
         >
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Organizzazione Aggiornata!</h2>
@@ -194,7 +194,7 @@ export default function EditOrgPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white  shadow-xl p-8 border border-[#243044] text-center"
+          className="w-full max-w-md bg-white  shadow-xl p-8 border border-gray-200 text-center"
         >
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Errore</h2>
@@ -203,7 +203,7 @@ export default function EditOrgPage() {
           </p>
           <Link
             href="/dashboard/org"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-emerald-500 text-gray-900 font-semibold  hover:shadow-lg shadow-black/20 transition-all duration-200"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-gray-900 font-semibold  hover:shadow-lg shadow-black/20 transition-all duration-200"
           >
             <ArrowLeft className="h-4 w-4" />
             Torna all'Organizzazione
@@ -232,7 +232,7 @@ export default function EditOrgPage() {
           </Link>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+            <div className="w-12 h-12  bg-blue-600 flex items-center justify-center">
               <Building2 className="h-6 w-6 text-gray-900" />
             </div>
             <div>
@@ -245,9 +245,9 @@ export default function EditOrgPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Informazioni Principali */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-[#243044]">
+          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-gray-900" />
               </div>
               <div>
@@ -267,7 +267,7 @@ export default function EditOrgPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   required
                   disabled={saving}
                 />
@@ -283,7 +283,7 @@ export default function EditOrgPage() {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -291,9 +291,9 @@ export default function EditOrgPage() {
           </div>
 
           {/* Contatti */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-[#243044]">
+          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
                 <MapPin className="h-5 w-5 text-gray-900" />
               </div>
               <div>
@@ -313,7 +313,7 @@ export default function EditOrgPage() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -328,7 +328,7 @@ export default function EditOrgPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -343,7 +343,7 @@ export default function EditOrgPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -358,7 +358,7 @@ export default function EditOrgPage() {
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -366,9 +366,9 @@ export default function EditOrgPage() {
           </div>
 
           {/* Dati Fiscali */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-[#243044]">
+          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-gradient-to-r from-blue-600 to-emerald-500 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
                 <FileText className="h-5 w-5 text-gray-900" />
               </div>
               <div>
@@ -388,7 +388,7 @@ export default function EditOrgPage() {
                   name="vat"
                   value={formData.vat}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -403,7 +403,7 @@ export default function EditOrgPage() {
                   name="tax_code"
                   value={formData.tax_code}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-[#243044]   focus:ring-blue-500 focus:border-primary"
+                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
                 />
               </div>
@@ -426,7 +426,7 @@ export default function EditOrgPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-end">
             <Link
               href="/dashboard/org"
-              className="px-6 py-3  border border-[#243044] text-gray-600 font-semibold hover:bg-white transition-all duration-200 text-center"
+              className="px-6 py-3  border border-gray-200 text-gray-600 font-semibold hover:bg-white transition-all duration-200 text-center"
             >
               Annulla
             </Link>
@@ -434,7 +434,7 @@ export default function EditOrgPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3  bg-gradient-to-r from-blue-600 to-emerald-500 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3  bg-blue-600 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (
                 <>
