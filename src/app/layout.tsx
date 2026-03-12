@@ -4,6 +4,7 @@ import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteHeader from "@/components/SiteHeader";
 import CookieConsentModal from "@/components/CookieConsentModal";
+import ChatwootWidget from "@/components/ChatwootWidget";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -223,6 +224,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </main>
             <CookieConsentModal />
             <SpeedInsights />
+            <ChatwootWidget />
           </>
         )}
       </body>
