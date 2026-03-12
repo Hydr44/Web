@@ -1,7 +1,12 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, Shield, FileText, BarChart3, ArrowRight, Zap, Car, Recycle } from "lucide-react";
+import { Check, Shield, FileText, ArrowRight, Car, Recycle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Prezzi e piani",
+  description:
+    "Scopri i prezzi di RescueManager: pacchetto base con gestione trasporti, piazzale e clienti, più moduli opzionali RVFU, fatturazione SDI e registro RENTRI. Nessun costo nascosto.",
+};
 
 export default function PrezziPage() {
   const baseFeatures = [
@@ -109,15 +114,13 @@ export default function PrezziPage() {
             {modules.map((mod) => (
               <div
                 key={mod.id}
-                className={`rounded-2xl border p-6 bg-white ${
-                  mod.color === "blue" ? "border-blue-200" :
-                  "border-green-200"
-                }`}
+                className={`rounded-2xl border p-6 bg-white ${mod.color === "blue" ? "border-blue-200" :
+                    "border-green-200"
+                  }`}
               >
-                <div className={`p-2.5 rounded-xl w-fit mb-4 text-white ${
-                  mod.color === "blue" ? "bg-blue-600" :
-                  "bg-green-600"
-                }`}>
+                <div className={`p-2.5 rounded-xl w-fit mb-4 text-white ${mod.color === "blue" ? "bg-blue-600" :
+                    "bg-green-600"
+                  }`}>
                   <mod.icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{mod.name}</h3>

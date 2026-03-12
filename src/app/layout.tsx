@@ -10,10 +10,64 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 // Revalida lo stato manutenzione ogni 60 secondi (invece di force-dynamic su tutto il sito)
 export const revalidate = 60;
 
+const SITE_URL = "https://www.rescuemanager.eu";
+
 export const metadata: Metadata = {
-  title: "RescueManager — Gestionale soccorso stradale",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    template: "%s — RescueManager",
+  },
   description:
-    "Dispatch su mappa, turni, rapportini, fatture e analisi in un'unica piattaforma per il soccorso stradale.",
+    "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e registro RENTRI in un'unica piattaforma.",
+  keywords: [
+    "gestionale soccorso stradale",
+    "software autodemolizione",
+    "RVFU radiazione veicoli",
+    "fatturazione elettronica SDI",
+    "registro RENTRI rifiuti",
+    "dispatch mappa autisti",
+    "rapportini digitali",
+    "RescueManager",
+  ],
+  authors: [{ name: "RescueManager", url: SITE_URL }],
+  creator: "RescueManager",
+  publisher: "RescueManager",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "it_IT",
+    url: SITE_URL,
+    siteName: "RescueManager",
+    title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    description:
+      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e registro RENTRI.",
+    images: [
+      {
+        url: "/670shots_so.png",
+        width: 1200,
+        height: 630,
+        alt: "RescueManager — Software gestionale soccorso stradale",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    description:
+      "Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e RENTRI. Un unico software.",
+    images: ["/670shots_so.png"],
+  },
   icons: {
     icon: [
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
@@ -69,12 +123,40 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   const showMaintenance = !isExcludedFromMaintenance && (await isWebsiteMaintenanceEnabled());
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "RescueManager",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web, Windows, macOS, iOS, Android",
+    description:
+      "Software gestionale per soccorso stradale e autodemolizioni. Gestione dispatch, autisti, piazzale, fatturazione SDI, radiazioni RVFU e registro RENTRI.",
+    url: SITE_URL,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "EUR",
+      availability: "https://schema.org/InStock",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "RescueManager",
+      url: SITE_URL,
+      email: "info@rescuemanager.eu",
+      telephone: "+393921723028",
+    },
+    inLanguage: "it",
+  };
+
   return (
     <html lang="it">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden flex flex-col">
         {showMaintenance ? (

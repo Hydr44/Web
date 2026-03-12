@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import Image from "next/image";
+import type { Metadata } from "next";
 import {
   Check,
   Truck,
@@ -14,6 +11,14 @@ import {
   Shield,
   Recycle,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Moduli e funzionalità",
+  description:
+    "Tutti i moduli di RescueManager: soccorso stradale, radiazioni RVFU, fatturazione SDI, registro RENTRI, app mobile autisti e analytics. Attivi solo quelli che ti servono.",
+};
 
 const MODULES = [
   {
@@ -111,9 +116,9 @@ const MODULES = [
 ];
 
 const COLOR_MAP: Record<string, { bg: string; icon: string; check: string }> = {
-  blue:  { bg: "bg-blue-50",  icon: "bg-[#2563EB]",  check: "text-[#2563EB]" },
+  blue: { bg: "bg-blue-50", icon: "bg-[#2563EB]", check: "text-[#2563EB]" },
   green: { bg: "bg-green-50", icon: "bg-[#10B981]", check: "text-[#10B981]" },
-  gray:  { bg: "bg-gray-50",  icon: "bg-gray-600",   check: "text-gray-600" },
+  gray: { bg: "bg-gray-50", icon: "bg-gray-600", check: "text-gray-600" },
 };
 
 export default function Prodotto() {

@@ -1,7 +1,6 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { 
+import {
   CheckCircle2,
   Code2,
   Wrench,
@@ -13,6 +12,12 @@ import {
   Phone
 } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: "Chi siamo",
+  description:
+    "RescueManager nasce dal settore: un software costruito per chi gestisce autodemolizioni e soccorso stradale, in sviluppo continuo con chi lo usa ogni giorno.",
+};
+
 export default function ChiSiamoPage() {
   return (
     <div className="bg-white">
@@ -22,8 +27,8 @@ export default function ChiSiamoPage() {
             Nato sul campo<span className="text-blue-500">.</span>
           </h1>
           <p className="text-lg text-slate-400 leading-relaxed max-w-3xl">
-            RescueManager non è nato in un ufficio di consulenza. È nato dalla frustrazione 
-            di vedere autodemolizioni e centri di soccorso stradale sommersi da carta, fogli Excel 
+            RescueManager non è nato in un ufficio di consulenza. È nato dalla frustrazione
+            di vedere autodemolizioni e centri di soccorso stradale sommersi da carta, fogli Excel
             e procedure manuali che rubano tempo e generano errori.
           </p>
         </div>
@@ -36,15 +41,15 @@ export default function ChiSiamoPage() {
               <div className="p-7 rounded-lg bg-gray-50 border border-gray-200">
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Perché esiste RescueManager</h2>
                 <p className="text-gray-600 leading-relaxed mb-3 text-sm">
-                  Chi gestisce un&apos;autodemolizione o un centro di soccorso stradale lo sa: 
-                  tra radiazioni RVFU, fatture elettroniche, registro RENTRI, confische, sequestri 
-                  e la gestione quotidiana dei mezzi e degli autisti, il lavoro amministrativo 
+                  Chi gestisce un&apos;autodemolizione o un centro di soccorso stradale lo sa:
+                  tra radiazioni RVFU, fatture elettroniche, registro RENTRI, confische, sequestri
+                  e la gestione quotidiana dei mezzi e degli autisti, il lavoro amministrativo
                   rischia di mangiarsi più tempo del lavoro vero.
                 </p>
                 <p className="text-gray-600 leading-relaxed text-sm">
-                  RescueManager è la risposta a questo problema. Un unico software che mette insieme 
-                  tutto quello che serve: dal soccorso stradale alla demolizione, dalla fattura SDI 
-                  al registro rifiuti. Senza dover saltare tra dieci programmi diversi, senza fogli 
+                  RescueManager è la risposta a questo problema. Un unico software che mette insieme
+                  tutto quello che serve: dal soccorso stradale alla demolizione, dalla fattura SDI
+                  al registro rifiuti. Senza dover saltare tra dieci programmi diversi, senza fogli
                   sparsi, senza doppie digitazioni.
                 </p>
               </div>
@@ -56,20 +61,20 @@ export default function ChiSiamoPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Sviluppo continuo</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">
-                    RescueManager è in sviluppo attivo. Ogni mese aggiungiamo funzionalità, 
-                    miglioriamo l&apos;interfaccia e ascoltiamo chi lo usa. Non è un prodotto finito 
+                    RescueManager è in sviluppo attivo. Ogni mese aggiungiamo funzionalità,
+                    miglioriamo l&apos;interfaccia e ascoltiamo chi lo usa. Non è un prodotto finito
                     messo in un cassetto — è un progetto vivo che cresce con le esigenze del settore.
                   </p>
                 </div>
-                
+
                 <div className="rounded-lg p-6 border border-gray-200">
                   <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center mb-3">
                     <Wrench className="h-5 w-5 text-[#10B981]" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Fatto per chi ci lavora</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">
-                    Ogni funzionalità nasce da un problema reale. Non aggiungiamo cose perché 
-                    &quot;fanno figo&quot; — le aggiungiamo perché qualcuno ne ha bisogno. 
+                    Ogni funzionalità nasce da un problema reale. Non aggiungiamo cose perché
+                    &quot;fanno figo&quot; — le aggiungiamo perché qualcuno ne ha bisogno.
                     Il risultato è un software che fa quello che deve, senza complicazioni inutili.
                   </p>
                 </div>
@@ -87,7 +92,7 @@ export default function ChiSiamoPage() {
               Un software, tante funzioni — tutte quelle che servono a un&apos;autodemolizione moderna
             </p>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               { icon: Zap, title: "Soccorso stradale", desc: "Dispatch, autisti, rapportini con foto e firma, calendario turni" },
@@ -116,17 +121,17 @@ export default function ChiSiamoPage() {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
           <p className="text-blue-100 mb-10 text-lg">
-            Raccontaci cosa fai e ti mostriamo come possiamo semplificarti il lavoro. 
+            Raccontaci cosa fai e ti mostriamo come possiamo semplificarti il lavoro.
             Dimostrazione gratuita, zero impegno.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link 
+            <Link
               href="/contatti"
               className="px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors"
             >
               CONTATTACI
             </Link>
-            <Link 
+            <Link
               href="tel:+393921723028"
               className="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors flex items-center gap-2"
             >
