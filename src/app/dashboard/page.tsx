@@ -107,8 +107,8 @@ export default function DashboardPanoramica() {
     return (
       <div className="space-y-8">
         <div className="text-center py-12">
-          <div className="w-12 h-12 bg-blue-600 flex items-center justify-center mx-auto mb-6">
-            <Building2 className="h-6 w-6 text-white" />
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100 mx-auto mb-6">
+            <Building2 className="h-6 w-6 " />
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900 mb-3">
             Benvenuto in RescueManager!
@@ -119,7 +119,7 @@ export default function DashboardPanoramica() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/dashboard/create-org"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600  font-bold text-sm hover:bg-blue-700 transition-colors"
             >
               <Building2 className="h-4 w-4" />
               Crea Organizzazione

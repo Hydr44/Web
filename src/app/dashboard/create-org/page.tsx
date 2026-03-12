@@ -214,7 +214,7 @@ export default function CreateOrgPage() {
               {/* Informazioni Principali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                     <Building2 className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Informazioni Principali</h3>
@@ -262,7 +262,7 @@ export default function CreateOrgPage() {
               {/* Contatti */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                     <MapPin className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Contatti</h3>
@@ -368,7 +368,7 @@ export default function CreateOrgPage() {
               {/* Dati Fiscali */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                     <FileText className="h-4 w-4 text-gray-900" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">Dati Fiscali</h3>

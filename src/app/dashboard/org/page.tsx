@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import Link from "next/link";
 import { 
   Building2, 
   MapPin, 
   Phone, 
   Mail, 
-  Globe,
-  Edit
+  FileText,
+  CreditCard,
+  Hash
 } from "lucide-react";
 
 export default function OrgPage() {
   const [loading, setLoading] = useState(true);
   const [orgData, setOrgData] = useState<any>(null);
+  const [orgSettings, setOrgSettings] = useState<any>(null);
 
   useEffect(() => {
     const loadOrgData = async () => {
@@ -37,20 +38,23 @@ export default function OrgPage() {
           .single();
         
         if (profile?.current_org) {
-          // Carica dati organizzazione
-          const { data: org, error: orgError } = await supabase
+          // Carica dati base organizzazione
+          const { data: org } = await supabase
             .from("orgs")
             .select("*")
             .eq("id", profile.current_org)
             .single();
           
-          if (orgError) {
-            console.warn("Errore caricamento organizzazione:", orgError);
-          } else if (org) {
-            setOrgData(org);
-          }
+          if (org) setOrgData(org);
 
-          // Statistiche non necessarie - tutto è nell'app desktop
+          // Carica dati completi da org_settings
+          const { data: settings } = await supabase
+            .from("org_settings")
+            .select("*")
+            .eq("org_id", profile.current_org)
+            .maybeSingle();
+
+          if (settings) setOrgSettings(settings);
         }
         
         setLoading(false);
@@ -71,6 +75,17 @@ export default function OrgPage() {
     );
   }
 
+  // Costruisci indirizzo formattato
+  const formatAddress = (addr: any) => {
+    if (!addr) return "Non specificato";
+    const parts = [];
+    if (addr.street) parts.push(addr.street);
+    if (addr.zip) parts.push(addr.zip);
+    if (addr.city) parts.push(`${addr.city}${addr.province ? ` (${addr.province})` : ''}`);
+    if (addr.country) parts.push(addr.country);
+    return parts.join(", ") || "Non specificato";
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -80,148 +95,133 @@ export default function OrgPage() {
             <h1 className="text-2xl font-semibold text-gray-900">Organizzazione</h1>
             {orgData && (
               <span className="px-2.5 py-1 bg-blue-50 border border-blue-500/30 text-xs font-mono text-blue-600">
-                {orgData.org_code || `ORG${String(orgData.id).slice(0, 3).toUpperCase()}`}
+                {orgData.number ? `ORG${String(orgData.number).padStart(4, "0")}` : `ORG${String(orgData.id).slice(0, 3).toUpperCase()}`}
               </span>
             )}
           </div>
           <p className="text-gray-500 mt-1">
-            Informazioni aziendali e dati fiscali
+            Informazioni operative e fiscali in sola lettura
           </p>
         </div>
-        
-        {orgData && (
-          <Link
-            href="/dashboard/org/edit"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-500 transition-colors font-medium"
-          >
-            <Edit className="h-4 w-4" />
-            Modifica
-          </Link>
-        )}
       </div>
 
       {orgData ? (
-        <>
-          {/* Informazioni principali */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Dettagli azienda */}
-            <div className="p-6  bg-white border border-gray-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
-                  <Building2 className="h-5 w-5 text-gray-600" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-gray-800">Informazioni Principali</h3>
-                  <p className="text-xs text-gray-400">Dati aziendali</p>
-                </div>
+        <div className="bg-white border border-gray-200 p-8 rounded-lg">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-16 w-16 bg-blue-50 flex items-center justify-center rounded-xl border border-blue-100">
+              <span className="text-2xl font-bold text-blue-600">
+                {(orgData.name || "O").charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">{orgData.name || "Azienda senza nome"}</h2>
+              <p className="text-sm text-gray-500">
+                Creata il {new Date(orgData.created_at).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+            {/* Colonne Dati Fiscali */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-gray-400" />
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Dati Aziendali</h3>
               </div>
-
-              <div className="space-y-3">
+              <div className="space-y-5">
                 <div>
-                  <label className="text-xs font-medium text-gray-400">Nome Azienda</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
-                    {orgData.name || "Non specificato"}
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Denominazione / Ragione Sociale</label>
+                  <p className="text-sm font-medium text-gray-900">{orgSettings?.company_name || orgData.name || "—"}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Partita IVA</label>
+                    <p className="text-sm font-medium text-gray-900 font-mono">{orgSettings?.vat || "—"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Cod. Fiscale</label>
+                    <p className="text-sm font-medium text-gray-900 font-mono">{orgSettings?.tax_code || "—"}</p>
                   </div>
                 </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-400">Partita IVA</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
-                    {orgData.vat_number || "Non specificato"}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Regime Fiscale</label>
+                    <p className="text-sm font-medium text-gray-900">{orgSettings?.regime_fiscale || "—"}</p>
                   </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-400">Codice Fiscale</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
-                    {orgData.fiscal_code || "Non specificato"}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-gray-400">Settore</label>
-                  <div className="mt-1 p-2.5 rounded-lg bg-white border border-gray-200 text-sm text-gray-800">
-                    {orgData.sector || "Non specificato"}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Prefisso Fattura</label>
+                    <p className="text-sm font-medium text-gray-900">{orgSettings?.invoice_prefix || "—"}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contatti */}
-            <div className="p-6  bg-white border border-gray-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gray-50 flex items-center justify-center border border-gray-200">
-                  <MapPin className="h-5 w-5 text-gray-600" />
-                </div>
+            {/* Colonne Contatti & Sede */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin className="h-5 w-5 text-gray-400" />
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Sede e Contatti</h3>
+              </div>
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-800">Contatti</h3>
-                  <p className="text-xs text-gray-400">Informazioni di contatto</p>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Indirizzo Sede Legale</label>
+                  <p className="text-sm font-medium text-gray-900">{formatAddress(orgSettings?.address)}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Telefono</label>
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                      <Phone className="h-3.5 w-3.5 text-gray-400" />
+                      {orgSettings?.phone || "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Email</label>
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-gray-900 truncate">
+                      <Mail className="h-3.5 w-3.5 text-gray-400" />
+                      {orgSettings?.email || "—"}
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">PEC</label>
+                    <p className="text-sm font-medium text-gray-900 truncate">{orgSettings?.pec || "—"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Sito Web</label>
+                    <p className="text-sm font-medium text-gray-900 truncate">{orgSettings?.website || "—"}</p>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
-                    <MapPin className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium text-gray-500">Indirizzo</div>
-                    <div className="text-sm text-gray-800 truncate">
-                      {orgData.address || "Non specificato"}
-                    </div>
-                  </div>
+            {/* Dati Bancari */}
+            <div className="md:col-span-2 pt-6 border-t border-gray-100">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCard className="h-5 w-5 text-gray-400" />
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Dati Bancari</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">IBAN</label>
+                  <p className="text-sm font-medium text-gray-900 font-mono">{orgSettings?.iban || "—"}</p>
                 </div>
-
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
-                    <Phone className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium text-gray-500">Telefono</div>
-                    <div className="text-sm text-gray-800">
-                      {orgData.phone || "Non specificato"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
-                    <Mail className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium text-gray-500">Email</div>
-                    <div className="text-sm text-gray-800 truncate">
-                      {orgData.email || "Non specificato"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-gray-200">
-                  <div className="w-8 h-8 bg-gray-50 flex items-center justify-center border border-gray-200 shrink-0">
-                    <Globe className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium text-gray-500">Sito Web</div>
-                    <div className="text-sm text-gray-800 truncate">
-                      {orgData.website || "Non specificato"}
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Banca Appoggio</label>
+                  <p className="text-sm font-medium text-gray-900">{orgSettings?.bank_name || "—"}</p>
                 </div>
               </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto mb-4">
+        <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
             <Building2 className="h-8 w-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna organizzazione trovata</h3>
-          <p className="text-sm text-gray-500 mb-4">Crea o seleziona un&apos;organizzazione per gestire le informazioni aziendali</p>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
-            <Building2 className="h-4 w-4" />
-            Crea organizzazione
-          </button>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Nessuna organizzazione</h3>
+          <p className="text-sm text-gray-500 mb-4">Non fai ancora parte di nessuna organizzazione.</p>
         </div>
       )}
     </div>

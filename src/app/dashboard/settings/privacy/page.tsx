@@ -297,7 +297,7 @@ export default function PrivacySettingsPage() {
         {/* Export Data */}
         <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
               <Download className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -325,7 +325,7 @@ export default function PrivacySettingsPage() {
             
             <button
               onClick={handleExportData}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white  hover:bg-blue-700 transition-colors duration-200 font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600   hover:bg-blue-700 transition-colors duration-200 font-medium"
             >
               <Download className="h-4 w-4" />
               Richiedi Export Dati
@@ -364,7 +364,7 @@ export default function PrivacySettingsPage() {
             
             <button
               onClick={handleDeleteAccount}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white  hover:bg-red-700 transition-colors duration-200 font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600   hover:bg-red-700 transition-colors duration-200 font-medium"
             >
               <Trash2 className="h-4 w-4" />
               Elimina Account

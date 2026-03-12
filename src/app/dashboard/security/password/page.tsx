@@ -42,8 +42,14 @@ export default function PasswordPage() {
           return;
         }
         
-        // Simula data di ultimo cambio password
-        setLastChanged("15 giorni fa");
+        // Usa la data reale di aggiornamento utente
+        if (user.updated_at) {
+          const updatedDate = new Date(user.updated_at);
+          const diffDays = Math.floor((Date.now() - updatedDate.getTime()) / (1000 * 60 * 60 * 24));
+          setLastChanged(diffDays === 0 ? "Oggi" : `${diffDays} giorni fa`);
+        } else {
+          setLastChanged("Sconosciuto");
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error loading password info:", error);
@@ -320,22 +326,6 @@ export default function PasswordPage() {
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {saving ? "Salvando..." : "Cambia Password"}
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => {
-                  setCurrentPassword("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                  setError(null);
-                  setSuccess(null);
-                }}
-                className="flex items-center gap-2 px-6 py-3 text-gray-500 hover:text-gray-800 transition-colors duration-200"
-              >
-                <X className="h-4 w-4" />
-                Annulla
               </button>
             </div>
           </form>

@@ -249,7 +249,7 @@ export default function SettingsOverviewPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="p-6  bg-white border border-gray-200 ">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
               <Settings className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -362,7 +362,7 @@ export default function SettingsOverviewPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                   <section.icon className="h-5 w-5 text-gray-900" />
                 </div>
                 <div>

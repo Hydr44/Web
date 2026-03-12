@@ -170,7 +170,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 transition-colors font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600   hover:bg-blue-700 transition-colors font-medium"
                 >
                   <Save className="h-4 w-4" />
                   Salva
@@ -179,7 +179,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600   hover:bg-blue-700 transition-colors font-medium"
               >
                 <Edit className="h-4 w-4" />
                 Modifica
@@ -195,7 +195,7 @@ export default function ProfilePage() {
           <div className="p-6  bg-white border border-gray-200 ">
             <div className="text-center">
               <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-24 h-24 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100  text-2xl font-bold">
                   {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
                 </div>
                 {editing && (

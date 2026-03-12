@@ -63,7 +63,7 @@ export default async function SettingsPage() {
         {/* Profilo */}
         <div className="p-6  bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 shadow-lg shadow-black/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
               <User className="h-5 w-5 text-gray-900" />
             </div>
             <div>
@@ -79,7 +79,7 @@ export default async function SettingsPage() {
         {/* Sicurezza */}
         <div className="p-6  bg-white border border-gray-200 shadow-lg shadow-black/20">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
               <Shield className="h-5 w-5 text-gray-900" />
             </div>
             <div>

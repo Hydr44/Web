@@ -143,11 +143,11 @@ export default function SecurityPage() {
       </header>
 
       {/* Security Score */}
-      <div className={`p-6  border ${getSecurityScoreBg(securityData.securityScore)} `}>
+      <div className="p-6 bg-white border border-gray-200 rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
+              <Shield className="h-5 w-5 " />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Score Sicurezza</h2>
@@ -183,8 +183,8 @@ export default function SecurityPage() {
           className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-              <Key className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
+              <Key className="h-5 w-5 " />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Password</h3>
@@ -237,96 +237,6 @@ export default function SecurityPage() {
           </div>
         </Link>
 
-        <Link
-          href="/dashboard/security/audit"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-amber-600 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Audit Log</h3>
-              <p className="text-sm text-gray-500">Log di sicurezza</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Monitora attività</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
-          </div>
-        </Link>
-
-        <Link
-          href="/dashboard/security/audit"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-amber-600 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Audit Log</h3>
-              <p className="text-sm text-gray-500">Attività di sicurezza</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Ultimo accesso: 2 ore fa</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
-          </div>
-        </Link>
-      </div>
-
-      {/* Security Alerts */}
-      {securityData.securityAlerts.length > 0 && (
-        <div className="p-6  bg-white border border-gray-200 ">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Avvisi Sicurezza</h2>
-          <div className="space-y-4">
-            {securityData.securityAlerts.map((alert, index) => (
-              <div key={index} className="flex items-center justify-between p-4  bg-white border border-gray-200">
-                <div className="flex items-center gap-3">
-                  {getAlertIcon(alert.type)}
-                  <div>
-                    <p className="font-medium text-gray-900">{alert.message}</p>
-                    <p className="text-sm text-gray-500">Raccomandazione di sicurezza</p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-primary text-gray-900 rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium">
-                  {alert.action}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Activity */}
-      <div className="p-6  bg-white border border-gray-200 ">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Attività Recente</h2>
-        <div className="space-y-4">
-          {securityData.recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center gap-4 p-4  bg-white border border-gray-200">
-              <div className="flex-shrink-0">
-                {getStatusIcon(activity.status)}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">{activity.action}</h3>
-                  <span className="text-sm text-gray-400">{activity.time}</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                  <span className="flex items-center gap-1">
-                    <Monitor className="h-3 w-3" />
-                    {activity.device}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Globe className="h-3 w-3" />
-                    {activity.location}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Security Progress */}
@@ -361,44 +271,6 @@ export default function SecurityPage() {
                 <p className="font-medium text-gray-900">Abilita l'autenticazione a due fattori</p>
                 <p className="text-sm text-gray-500">Aggiungi un ulteriore livello di sicurezza</p>
               </div>
-              <Link 
-                href="/dashboard/security/2fa"
-                className="px-4 py-2 bg-primary text-gray-900 rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
-              >
-                Configura
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <Key className="h-4 w-4 text-gray-500" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Aggiorna la tua password</p>
-                <p className="text-sm text-gray-500">Usa una password forte e unica</p>
-              </div>
-              <Link 
-                href="/dashboard/security/password"
-                className="px-4 py-2 bg-primary text-gray-900 rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
-              >
-                Cambia
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <Monitor className="h-4 w-4 text-gray-500" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Monitora le sessioni attive</p>
-                <p className="text-sm text-gray-500">Controlla i dispositivi connessi</p>
-              </div>
-              <Link 
-                href="/dashboard/security/sessions"
-                className="px-4 py-2 bg-primary text-gray-900 rounded-lg hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
-              >
-                Gestisci
-              </Link>
             </div>
           </div>
         </div>

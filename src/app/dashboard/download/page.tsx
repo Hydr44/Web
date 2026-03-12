@@ -28,8 +28,8 @@ export default function DashboardDownloadPage() {
         {/* App Desktop */}
         <div className="p-6  bg-white border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-              <Monitor className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
+              <Monitor className="h-5 w-5 text-gray-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">App Desktop</h3>
@@ -62,7 +62,7 @@ export default function DashboardDownloadPage() {
               <span className="px-2 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-600">Windows</span>
             </div>
 
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-100 text-gray-600 font-medium hover:bg-blue-700 transition-colors">
               <Download className="h-4 w-4" />
               Scarica App Desktop
             </button>
@@ -72,8 +72,8 @@ export default function DashboardDownloadPage() {
         {/* App Mobile */}
         <div className="p-6  bg-white border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-              <Smartphone className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
+              <Smartphone className="h-5 w-5 text-gray-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">App Mobile</h3>
@@ -116,8 +116,8 @@ export default function DashboardDownloadPage() {
         {/* Accesso Web */}
         <div className="p-6  bg-white border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-              <Globe className="h-5 w-5 text-white" />
+            <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
+              <Globe className="h-5 w-5 text-gray-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Accesso Web</h3>
@@ -166,8 +166,8 @@ export default function DashboardDownloadPage() {
       {/* Informazioni aggiuntive */}
       <div className="p-6  bg-white border border-gray-200">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
-            <Zap className="h-5 w-5 text-white" />
+          <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
+            <Zap className="h-5 w-5 text-gray-600" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Informazioni Importanti</h3>
@@ -197,7 +197,7 @@ export default function DashboardDownloadPage() {
           </div>
 
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 bg-gray-100 flex items-center justify-center flex-shrink-0">
               <Users className="h-4 w-4 text-purple-600" />
             </div>
             <div>

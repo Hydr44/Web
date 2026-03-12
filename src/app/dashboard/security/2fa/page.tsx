@@ -67,8 +67,9 @@ export default function TwoFactorAuthPage() {
       // Per ora simuliamo
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simula generazione QR code e backup codes
-      setQrCode("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij5RVyBjb2RlIGZvciAyRkE8L3RleHQ+PC9zdmc+");
+      // Genera un QR code reale (mock) tramite API
+      const otpUrl = encodeURIComponent(`otpauth://totp/RescueManager:Utente?secret=JBSWY3DPEHPK3PXP&issuer=RescueManager`);
+      setQrCode(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${otpUrl}`);
       setSecret("JBSWY3DPEHPK3PXP");
       setBackupCodes([
         "12345678",

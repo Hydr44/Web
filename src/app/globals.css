@@ -272,14 +272,7 @@ main {
     -webkit-transform: translateZ(0);
   }
   
-  /* Riduci motion per utenti con preferenze */
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+
   
   /* Ottimizzazioni per dispositivi mobili */
   @media (max-width: 768px) {

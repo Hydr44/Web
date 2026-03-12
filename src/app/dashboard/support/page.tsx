@@ -64,7 +64,7 @@ export default function SupportPage() {
           <p className="text-gray-500 mb-6">Ti risponderemo all'indirizzo <span className="text-gray-900">{userEmail}</span> entro 24 ore.</p>
           <button
             onClick={() => setSent(false)}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-2 bg-blue-600  rounded-lg hover:bg-blue-700 transition-colors"
           >
             Invia un'altra richiesta
           </button>
@@ -119,7 +119,7 @@ export default function SupportPage() {
           <button
             type="submit"
             disabled={sending}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600  rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {sending ? (
               <><div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Invio in corso...</>

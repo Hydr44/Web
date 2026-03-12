@@ -232,7 +232,7 @@ export default function EditOrgPage() {
           </Link>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12  bg-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
               <Building2 className="h-6 w-6 text-gray-900" />
             </div>
             <div>
@@ -247,7 +247,7 @@ export default function EditOrgPage() {
           {/* Informazioni Principali */}
           <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                 <Building2 className="h-5 w-5 text-gray-900" />
               </div>
               <div>
@@ -293,7 +293,7 @@ export default function EditOrgPage() {
           {/* Contatti */}
           <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                 <MapPin className="h-5 w-5 text-gray-900" />
               </div>
               <div>
@@ -368,7 +368,7 @@ export default function EditOrgPage() {
           {/* Dati Fiscali */}
           <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
                 <FileText className="h-5 w-5 text-gray-900" />
               </div>
               <div>
