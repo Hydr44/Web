@@ -251,6 +251,16 @@ main {
   border: 1px solid color-mix(in oklab, var(--primary), transparent 72%);
 }
 
+/* FIX SPINNER GLOBALE FORZATO */
+.rm-spin {
+  animation: rm-spin-anim 1s linear infinite !important;
+  transform-origin: center;
+}
+@keyframes rm-spin-anim {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* === Hero full-bleed image helpers === */
 /* maschera che sfuma l’immagine verso l’alto: la foto “si fonde” con lo sfondo */
 .hero-mask {

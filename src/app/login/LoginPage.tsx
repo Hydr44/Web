@@ -31,6 +31,9 @@ export default function LoginPage() {
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
+        // Aggiungiamo un ritardo artificiale di 1.5 secondi
+        // per permettere all'utente di visualizzare correttamente il loader
+        await new Promise(resolve => setTimeout(resolve, 1500));
         globalThis.location.href = redirectTo;
       } else {
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
@@ -158,7 +161,7 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <>
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full rm-spin" />
                   Accesso in corso...
                 </>
               ) : "ACCEDI"}
