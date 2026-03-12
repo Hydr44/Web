@@ -84,28 +84,28 @@ export default function NotFound() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
-              href="/prodotto"
+              href="/chi-siamo"
               className="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#0a1120] border border-slate-700 transition-colors"
             >
               <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
                 <Search className="h-4 w-4 text-blue-400" />
               </div>
               <div className="text-left">
-                <div className="font-medium text-white text-sm">Prodotto</div>
-                <div className="text-xs text-slate-500">Scopri le funzionalità</div>
+                <div className="font-medium text-white text-sm">Chi Siamo</div>
+                <div className="text-xs text-slate-500">Scopri la nostra storia</div>
               </div>
             </Link>
 
             <Link
-              href="/prezzi"
+              href="/demo"
               className="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#0a1120] border border-slate-700 transition-colors"
             >
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <RefreshCw className="h-4 w-4 text-emerald-400" />
               </div>
               <div className="text-left">
-                <div className="font-medium text-white text-sm">Prezzi</div>
-                <div className="text-xs text-slate-500">Scegli il tuo piano</div>
+                <div className="font-medium text-white text-sm">Richiedi Demo</div>
+                <div className="text-xs text-slate-500">Prova RescueManager</div>
               </div>
             </Link>
 
@@ -131,7 +131,7 @@ export default function NotFound() {
               </div>
               <div className="text-left">
                 <div className="font-medium text-white text-sm">Contatti</div>
-                <div className="text-xs text-slate-500">Richiedi una demo</div>
+                <div className="text-xs text-slate-500">Richiedi informazioni</div>
               </div>
             </Link>
           </div>

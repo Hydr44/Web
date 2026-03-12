@@ -75,6 +75,32 @@ export class AuthManager {
   }
 
   /**
+   * Traduci errori Supabase in italiano
+   */
+  private translateError(errorMessage: string): string {
+    const translations: Record<string, string> = {
+      'Invalid login credentials': 'Email o password non corretti.',
+      'Email not confirmed': 'Email non ancora confermata. Controlla la tua casella di posta.',
+      'User not found': 'Nessun account trovato con questa email.',
+      'Too many requests': 'Troppi tentativi. Riprova tra qualche minuto.',
+      'Network error': 'Errore di connessione. Verifica la tua rete.',
+      'Invalid email': 'Indirizzo email non valido.',
+      'Signup disabled': 'La registrazione non è disponibile al momento.',
+      'Email rate limit exceeded': 'Hai superato il limite di richieste. Riprova più tardi.',
+      'For security purposes, you can only request this after': 'Per motivi di sicurezza, puoi riprovare tra qualche secondo.',
+      'No user data received': 'Errore nella risposta del server. Riprova.',
+    };
+
+    for (const [eng, ita] of Object.entries(translations)) {
+      if (errorMessage.toLowerCase().includes(eng.toLowerCase())) {
+        return ita;
+      }
+    }
+
+    return 'Errore durante l\'accesso. Verifica le credenziali e riprova.';
+  }
+
+  /**
    * Login con email e password
    */
   async loginWithPassword(email: string, password: string): Promise<LoginResult> {
@@ -90,7 +116,7 @@ export class AuthManager {
 
       if (error) {
         console.error("Login error:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: this.translateError(error.message) };
       }
 
       if (data.user) {
@@ -101,10 +127,10 @@ export class AuthManager {
         return { success: true, user };
       }
 
-      return { success: false, error: "No user data received" };
+      return { success: false, error: this.translateError("No user data received") };
     } catch (error) {
       console.error("Login exception:", error);
-      return { success: false, error: "Errore imprevisto durante l'accesso" };
+      return { success: false, error: "Errore imprevisto durante l'accesso. Riprova." };
     }
   }
 

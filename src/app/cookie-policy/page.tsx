@@ -1,5 +1,4 @@
 // src/app/cookie-policy/page.tsx
-import { Cookie, Settings, Shield, Eye, Database, Clock } from "lucide-react";
 
 export default function CookiePolicyPage() {
   return (
@@ -44,7 +43,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Shield className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">1. Identificazione del Titolare</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">1. Identificazione del Titolare</h2>
             </div>
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
               <p><strong>Emmanuel Salvatore Scozzarini</strong> — Nome commerciale: <strong>RescueManager</strong></p>
@@ -61,7 +60,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Database className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">2. Infrastruttura di Hosting e Implicazioni per i Cookie</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">2. Infrastruttura di Hosting e Implicazioni per i Cookie</h2>
             </div>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,7 +88,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Cookie className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">3. Cosa Sono i Cookie e gli Strumenti di Tracciamento</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">3. Cosa Sono i Cookie e gli Strumenti di Tracciamento</h2>
             </div>
             <div className="text-gray-700 text-sm leading-relaxed">
               <p>I cookie sono piccoli file di testo che un sito web memorizza sul dispositivo dell&apos;utente (computer, tablet, smartphone) quando quest&apos;ultimo lo visita. Insieme ai cookie, possono essere impiegati altri strumenti di tracciamento analoghi, come pixel, tag, SDK, local storage e fingerprinting, che svolgono funzioni simili. Ai fini della presente Policy, tutti tali strumenti sono indicati collettivamente come <strong>&quot;strumenti di tracciamento&quot;</strong>.</p>
@@ -102,7 +101,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Settings className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">4. Tipologie di Strumenti di Tracciamento Utilizzati</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">4. Tipologie di Strumenti di Tracciamento Utilizzati</h2>
             </div>
             <div className="text-gray-700 space-y-5 text-sm leading-relaxed">
               <p>Conformemente al Provvedimento del Garante n. 231/2021, gli strumenti di tracciamento si distinguono in tecnici (esenti da consenso) e non tecnici (subordinati a consenso preventivo).</p>
@@ -170,7 +169,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Clock className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">5. Dati Tecnici e Log di Accesso</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">5. Dati Tecnici e Log di Accesso</h2>
             </div>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">5.1 Trattamento dei Log di Accesso</h3>
@@ -197,7 +196,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Eye className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">6. Gestione del Consenso</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">6. Gestione del Consenso</h2>
             </div>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">6.1 Banner di Gestione del Consenso</h3>
@@ -234,7 +233,7 @@ export default function CookiePolicyPage() {
               <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                 <Clock className="h-5 w-5 text-slate-700" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">7. Aggiornamenti della Cookie Policy</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">7. Aggiornamenti della Cookie Policy</h2>
             </div>
             <div className="text-gray-700 text-sm leading-relaxed">
               <p>Il Titolare, Emmanuel Salvatore Scozzarini (P. IVA 02166430856), si riserva il diritto di modificare la presente Cookie Policy in qualsiasi momento, in risposta a modifiche normative, tecnologiche o operative (ivi incluse variazioni nell&apos;infrastruttura di hosting o nei fornitori di servizi). Le modifiche sono comunicate agli utenti tramite avviso sul Sito e, ove opportuno, tramite nuova richiesta di consenso.</p>

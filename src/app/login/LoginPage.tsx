@@ -73,7 +73,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-xs text-slate-600">© 2025 RescueManager · rescuemanager.eu</p>
+        <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
       </div>
 
       {/* RIGHT — form panel */}
@@ -168,8 +168,8 @@ export default function LoginPage() {
           <div className="mt-8 pt-6 border-t border-gray-100 text-center">
             <p className="text-sm text-gray-500">
               Non hai un account?{" "}
-              <Link href="/register" className="text-blue-600 font-bold hover:underline">
-                Registrati
+              <Link href="/contatti" className="text-blue-600 font-bold hover:underline">
+                Richiedi Accesso
               </Link>
             </p>
           </div>

@@ -11,18 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 1,
         },
         {
-            url: `${baseUrl}/prodotto`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/prezzi`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.8,
-        },
-        {
             url: `${baseUrl}/chi-siamo`,
             lastModified: new Date(),
             changeFrequency: "monthly",
@@ -35,10 +23,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/blog`,
+            url: `${baseUrl}/demo`,
             lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.6,
+            changeFrequency: "monthly",
+            priority: 0.8,
         },
         {
             url: `${baseUrl}/download`,
@@ -60,6 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
         {
             url: `${baseUrl}/terms-of-use`,
+            lastModified: new Date(),
+            changeFrequency: "yearly",
+            priority: 0.3,
+        },
+        {
+            url: `${baseUrl}/dpa`,
             lastModified: new Date(),
             changeFrequency: "yearly",
             priority: 0.3,

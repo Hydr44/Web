@@ -31,13 +31,18 @@ export default function SiteFooter() {
             </div>
           </div>
 
-          {/* Prodotto */}
+          {/* Moduli */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Prodotto</h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/prodotto" className="text-slate-400 hover:text-white transition-colors">Moduli e funzionalità</Link></li>
-              <li><Link href="/download" className="text-slate-400 hover:text-white transition-colors">Accessi e download</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Richiedi demo</Link></li>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Moduli</h3>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Trasporti & Tracking</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Clienti & CRM</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Piazzale & Deposito</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Demolizioni RVFU</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Rifiuti RENTRI</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Fatturazione SDI</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Ricambi TecDoc</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Preventivi</Link></li>
             </ul>
           </div>
 
@@ -47,6 +52,8 @@ export default function SiteFooter() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Contattaci</Link></li>
               <li><Link href="/chi-siamo" className="text-slate-400 hover:text-white transition-colors">Chi siamo</Link></li>
+              <li><Link href="/download" className="text-slate-400 hover:text-white transition-colors">Download App</Link></li>
+              <li><Link href="/demo" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
             </ul>
           </div>
 
@@ -57,6 +64,7 @@ export default function SiteFooter() {
               <li><Link href="/privacy-policy" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms-of-use" className="text-slate-400 hover:text-white transition-colors">Termini d&apos;uso</Link></li>
               <li><Link href="/cookie-policy" className="text-slate-400 hover:text-white transition-colors">Cookie Policy</Link></li>
+              <li><Link href="/dpa" className="text-slate-400 hover:text-white transition-colors">DPA</Link></li>
             </ul>
           </div>
         </div>

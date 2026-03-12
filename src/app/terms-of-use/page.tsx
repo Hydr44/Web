@@ -1,5 +1,4 @@
 // src/app/terms-of-use/page.tsx
-import { FileText, Shield, CreditCard, Users, AlertTriangle, Scale, Lock, RefreshCcw, Landmark } from "lucide-react";
 
 export default function TermsOfUsePage() {
   return (
@@ -41,12 +40,7 @@ export default function TermsOfUsePage() {
 
           {/* 1. Identificazione delle Parti */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
-                <Users className="h-5 w-5 text-blue-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">1. Identificazione delle Parti e Oggetto del Contratto</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">1. Identificazione delle Parti e Oggetto del Contratto</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">1.1 Il Fornitore</h3>
               <p>Il presente contratto è stipulato tra <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista/imprenditore individuale, operante commercialmente sotto il nome <strong>RescueManager</strong>, con domicilio professionale in <strong>Via dello Smeraldo 18, Gela (CL), Sicilia</strong>, P. IVA <strong>02166430856</strong>.</p>
@@ -77,12 +71,7 @@ export default function TermsOfUsePage() {
 
           {/* 2. Conclusione del Contratto */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">2. Modalità di Conclusione del Contratto</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">2. Modalità di Conclusione del Contratto</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">2.1 Procedura Telematica</h3>
               <p>Il contratto si conclude mediante procedura telematica interamente gestita tramite la Piattaforma, ai sensi degli artt. 12 e 13 del D.Lgs. 70/2003. Il processo prevede: registrazione, selezione del piano, presentazione delle condizioni contrattuali, approvazione specifica delle clausole vessatorie (art. 1341 c.c.), inoltro dell&apos;ordine e conferma via e-mail.</p>
@@ -93,12 +82,7 @@ export default function TermsOfUsePage() {
 
           {/* 3. Licenza e Proprietà Intellettuale */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
-                <Lock className="h-5 w-5 text-purple-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">3. Licenza d&apos;Uso e Proprietà Intellettuale</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">3. Licenza d&apos;Uso e Proprietà Intellettuale</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">3.1 Concessione della Licenza</h3>
               <p>Il Fornitore concede al Cliente una licenza d&apos;uso <strong>non esclusiva, non trasferibile, non cedibile e revocabile</strong> per accedere alla Piattaforma durante il periodo di abbonamento. Il contratto SaaS non trasferisce alcun diritto di proprietà sul software, codice sorgente, banche dati, loghi o marchi.</p>
@@ -115,12 +99,7 @@ export default function TermsOfUsePage() {
 
           {/* 4. Corrispettivi e Pagamenti */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
-                <CreditCard className="h-5 w-5 text-indigo-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">4. Corrispettivi, Fatturazione e Pagamenti</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">4. Corrispettivi, Fatturazione e Pagamenti</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">4.1 Corrispettivi</h3>
               <p>I corrispettivi sono indicati nella sezione &quot;Prezzi&quot; del sito ufficiale, espressi in Euro (€) IVA esclusa. Le tariffe possono essere modificate con preavviso di 60 giorni.</p>
@@ -139,12 +118,7 @@ export default function TermsOfUsePage() {
 
           {/* 5. Durata e Rinnovo */}
           <section className="bg-white rounded-xl border border-amber-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-amber-600/10 flex items-center justify-center flex-shrink-0">
-                <RefreshCcw className="h-5 w-5 text-amber-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">5. Durata e Rinnovo Automatico</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">5. Durata e Rinnovo Automatico</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                 <p className="font-semibold text-amber-900 mb-2">⚠️ Clausola Vessatoria — Art. 1341, comma 2, c.c.</p>
@@ -161,12 +135,7 @@ export default function TermsOfUsePage() {
 
           {/* 6. Recesso e Rimborsi */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-teal-600/10 flex items-center justify-center flex-shrink-0">
-                <Scale className="h-5 w-5 text-teal-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">6. Recesso e Politiche di Rimborso</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">6. Recesso e Politiche di Rimborso</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">6.1 Diritto di Recesso</h3>
               <p>Trattandosi di contratto B2B, non si applica il recesso di 14 giorni ex artt. 52 ss. Codice del Consumo. Ciascuna Parte può recedere con preavviso di 30 giorni rispetto alla successiva data di rinnovo, o per giusta causa con effetto immediato previa diffida scritta.</p>
@@ -187,12 +156,7 @@ export default function TermsOfUsePage() {
 
           {/* 7. SLA e Limitazione Responsabilità */}
           <section className="bg-white rounded-xl border border-red-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-red-600/10 flex items-center justify-center flex-shrink-0">
-                <Shield className="h-5 w-5 text-red-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">7. Livello di Servizio (SLA) e Limitazioni di Responsabilità</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">7. Livello di Servizio (SLA) e Limitazioni di Responsabilità</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">7.1 Livello di Servizio (SLA)</h3>
               <p>Il Fornitore garantisce una disponibilità della Piattaforma pari ad almeno il <strong>99,5%</strong> su base mensile, escluse le finestre di manutenzione programmata (preavviso minimo 48 ore). In caso di mancato rispetto, il Cliente ha diritto a un credito sul servizio proporzionale al disservizio.</p>
@@ -209,12 +173,7 @@ export default function TermsOfUsePage() {
 
           {/* 8. Legge e Foro */}
           <section className="bg-white rounded-xl border border-indigo-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
-                <Landmark className="h-5 w-5 text-indigo-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">8. Legge Applicabile e Foro Competente</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">8. Legge Applicabile e Foro Competente</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">8.1 Legge Applicabile</h3>
               <p>Il presente contratto è regolato dalla legge italiana. Si applicano il Codice Civile, il D.Lgs. 70/2003, il D.Lgs. 231/2002 e ogni altra norma italiana ed europea applicabile.</p>
@@ -231,12 +190,7 @@ export default function TermsOfUsePage() {
 
           {/* 9. Disposizioni Generali */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-gray-600/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-gray-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">9. Disposizioni Generali</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">9. Disposizioni Generali</h2>
             <div className="text-gray-700 space-y-3 text-sm leading-relaxed">
               <p><strong>9.1 Modifiche ai Termini:</strong> comunicate con 30 giorni di preavviso. L&apos;utilizzo continuato costituisce accettazione.</p>
               <p><strong>9.2 Cessibilità:</strong> il Cliente non può cedere il contratto senza consenso scritto. Il Fornitore può cedere nell&apos;ambito di trasferimenti d&apos;azienda con preavviso di 30 giorni.</p>

@@ -1,5 +1,4 @@
 // src/app/privacy-policy/page.tsx
-import { Shield, Eye, Lock, Database, Users, Globe, AlertTriangle } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -40,12 +39,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 1. Titolare del Trattamento */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center flex-shrink-0">
-                <Shield className="h-5 w-5 text-blue-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">1. Titolare del Trattamento e Dati di Contatto</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">1. Titolare del Trattamento e Dati di Contatto</h2>
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
               <p><strong>Titolare del Trattamento:</strong> Emmanuel Salvatore Scozzarini</p>
               <p><strong>Nome commerciale:</strong> RescueManager</p>
@@ -60,12 +54,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 2. Dati Personali Raccolti */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-purple-600/10 flex items-center justify-center flex-shrink-0">
-                <Database className="h-5 w-5 text-purple-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">2. Dati Personali Raccolti e Trattati</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">2. Dati Personali Raccolti e Trattati</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">2.1 Dati dei Referenti e Rappresentanti del Cliente (raccolti direttamente)</h3>
               <ul className="list-disc list-inside space-y-1 ml-3">
@@ -90,12 +79,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 3. Finalità e Basi Giuridiche */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-green-600/10 flex items-center justify-center flex-shrink-0">
-                <Eye className="h-5 w-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">3. Finalità e Basi Giuridiche del Trattamento</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">3. Finalità e Basi Giuridiche del Trattamento</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
@@ -120,12 +104,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 4. Destinatari e Sub-responsabili */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center flex-shrink-0">
-                <Globe className="h-5 w-5 text-indigo-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">4. Destinatari, Sub-responsabili e Trasferimento dei Dati</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">4. Destinatari, Sub-responsabili e Trasferimento dei Dati</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">4.1 Categorie di Destinatari</h3>
               <ul className="list-disc list-inside space-y-1 ml-3">
@@ -202,12 +181,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 5. Periodo di Conservazione */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-teal-600/10 flex items-center justify-center flex-shrink-0">
-                <Lock className="h-5 w-5 text-teal-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">5. Periodo di Conservazione dei Dati</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">5. Periodo di Conservazione dei Dati</h2>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-200 rounded-lg text-sm">
                 <thead><tr className="bg-gray-50"><th className="border border-gray-200 px-3 py-2 text-left">Categoria di dato</th><th className="border border-gray-200 px-3 py-2 text-left">Periodo di conservazione</th></tr></thead>
@@ -226,12 +200,7 @@ export default function PrivacyPolicyPage() {
 
           {/* 6. Diritti dell'Interessato */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-orange-600/10 flex items-center justify-center flex-shrink-0">
-                <Users className="h-5 w-5 text-orange-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">6. Diritti dell&apos;Interessato</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">6. Diritti dell&apos;Interessato</h2>
             <div className="text-gray-700 space-y-3 text-sm leading-relaxed">
               <p>Ai sensi degli artt. 15-22 del GDPR, l&apos;interessato ha il diritto di:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -261,12 +230,7 @@ export default function PrivacyPolicyPage() {
 
           {/* Alert sicurezza misure */}
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-red-600/10 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">7. Misure di Sicurezza</h2>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-5">7. Misure di Sicurezza</h2>
             <div className="text-gray-700 space-y-2 text-sm leading-relaxed">
               <p>Il Titolare adotta le seguenti misure di sicurezza ai sensi dell&apos;art. 32 GDPR:</p>
               <ul className="list-disc list-inside space-y-1 ml-3">
