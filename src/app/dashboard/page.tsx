@@ -100,7 +100,50 @@ export default function DashboardPanoramica() {
   }, []);
 
   if (loading) {
-    return <LoadingPage text="Caricamento dashboard..." />;
+    return (
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div>
+          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
+        </div>
+
+        {/* Abbonamento Skeleton */}
+        <div className="p-6 border border-gray-100 bg-white">
+          <div className="w-32 h-3 bg-gray-200 rounded animate-pulse mb-4" />
+          <div className="flex items-center gap-3">
+             <div className="w-40 h-6 bg-gray-200 rounded animate-pulse" />
+             <div className="w-16 h-5 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="w-48 h-3 bg-gray-100 rounded animate-pulse mt-3" />
+        </div>
+
+        {/* Org Skeleton */}
+        <div className="p-6 border border-gray-100 bg-white flex gap-4 items-center">
+          <div className="w-10 h-10 bg-gray-100 rounded animate-pulse" />
+          <div className="space-y-2 flex-1">
+             <div className="w-1/3 h-5 bg-gray-200 rounded animate-pulse" />
+             <div className="w-1/2 h-3 bg-gray-100 rounded animate-pulse" />
+          </div>
+        </div>
+        
+        {/* Grid Skeletons */}
+        <div>
+          <div className="w-32 h-3 bg-gray-200 rounded animate-pulse mb-4" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-4 border border-gray-100 bg-white flex items-center">
+                <div className="w-9 h-9 bg-gray-100 rounded animate-pulse mr-3" />
+                <div className="space-y-2 flex-1">
+                  <div className="w-1/2 h-4 bg-gray-200 rounded animate-pulse" />
+                  <div className="w-3/4 h-3 bg-gray-100 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!hasOrganization) {

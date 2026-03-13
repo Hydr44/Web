@@ -124,8 +124,14 @@ export default function PrivacyPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="space-y-6 max-w-2xl">
+        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
+        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
+           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
+           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
+           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+        </div>
       </div>
     );
   }

@@ -164,8 +164,13 @@ export default function AuditLogPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="space-y-6">
+        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
+        <div className="h-[400px] bg-white border border-gray-100 rounded-lg p-6 space-y-4">
+           {[...Array(5)].map((_, i) => (
+             <div key={i} className="w-full h-12 bg-gray-50 rounded animate-pulse" />
+           ))}
+        </div>
       </div>
     );
   }

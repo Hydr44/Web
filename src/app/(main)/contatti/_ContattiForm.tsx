@@ -47,25 +47,25 @@ export default function ContattiForm() {
 
     if (isSubmitted) {
         return (
-            <div className="p-10 rounded-lg bg-gray-50 border border-gray-200 text-center">
-                <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-                    <CheckCircle2 className="h-7 w-7 text-green-600" />
+            <div className="p-10 rounded-lg bg-[#1a2536] border border-[#243044] text-center">
+                <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-5">
+                    <CheckCircle2 className="h-7 w-7 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Richiesta inviata!</h3>
-                <p className="text-gray-600 text-sm">Ti risponderemo il prima possibile all'indirizzo {formData.email}.</p>
+                <h3 className="text-xl font-bold text-white mb-2">Richiesta inviata!</h3>
+                <p className="text-slate-400 text-sm">Ti risponderemo il prima possibile all'indirizzo {formData.email}.</p>
             </div>
         );
     }
 
-    const inputClass = "w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent";
+    const inputClass = "w-full rounded-lg border border-[#243044] px-4 py-2.5 text-sm bg-[#141c27] text-slate-200 placeholder-slate-500 focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500/40 outline-none transition-colors";
 
     return (
-        <form onSubmit={handleSubmit} className="p-7 rounded-lg bg-white border border-gray-200 shadow-sm space-y-5">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Inviaci la tua richiesta</h3>
+        <form onSubmit={handleSubmit} className="p-7 rounded-lg bg-[#1a2536] border border-[#243044] shadow-sm space-y-5">
+            <h3 className="text-lg font-bold text-white mb-1">Inviaci la tua richiesta</h3>
 
             <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Nome e Cognome *</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Nome e Cognome *</label>
                     <input
                         required
                         value={formData.nome}
@@ -75,7 +75,7 @@ export default function ContattiForm() {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Tipo di richiesta *</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Tipo di richiesta *</label>
                     <select
                         required
                         value={formData.tipo_richiesta}
@@ -91,7 +91,7 @@ export default function ContattiForm() {
 
             <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Email *</label>
                     <input
                         required
                         type="email"
@@ -102,7 +102,7 @@ export default function ContattiForm() {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Telefono *</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Telefono *</label>
                     <input
                         required
                         type="tel"
@@ -115,7 +115,7 @@ export default function ContattiForm() {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Azienda</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Azienda</label>
                 <input
                     value={formData.azienda}
                     onChange={(e) => setFormData({ ...formData, azienda: e.target.value })}
@@ -127,7 +127,7 @@ export default function ContattiForm() {
             {formData.tipo_richiesta !== "info" && (
                 <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Ruolo in azienda</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Ruolo in azienda</label>
                         <select
                             value={formData.ruolo}
                             onChange={(e) => setFormData({ ...formData, ruolo: e.target.value })}
@@ -142,7 +142,7 @@ export default function ContattiForm() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Numero mezzi soccorso</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Numero mezzi soccorso</label>
                         <select
                             value={formData.mezzi}
                             onChange={(e) => setFormData({ ...formData, mezzi: e.target.value })}
@@ -159,7 +159,7 @@ export default function ContattiForm() {
             )}
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Note o Esigenze *</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Note o Esigenze *</label>
                 <textarea
                     required
                     rows={4}

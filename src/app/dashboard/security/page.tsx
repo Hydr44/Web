@@ -128,8 +128,55 @@ export default function SecurityPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div>
+          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
+        </div>
+
+        {/* Security Score Skeleton */}
+        <div className="p-6 bg-white border border-gray-100 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+             <div className="flex gap-3 items-center">
+                <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
+                <div className="space-y-2">
+                   <div className="w-40 h-5 bg-gray-200 rounded animate-pulse" />
+                   <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
+                </div>
+             </div>
+             <div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <div className="w-full h-3 bg-gray-100 rounded-full animate-pulse mb-4" />
+          <div className="w-1/3 h-4 bg-gray-100 rounded animate-pulse" />
+        </div>
+
+        {/* Quick Actions Skeletons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(3)].map((_, i) => (
+             <div key={i} className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
+                <div className="flex gap-3 items-center">
+                   <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
+                   <div className="space-y-2 flex-1">
+                      <div className="w-2/3 h-5 bg-gray-200 rounded animate-pulse" />
+                      <div className="w-full h-3 bg-gray-100 rounded animate-pulse" />
+                   </div>
+                </div>
+                <div className="flex justify-between items-center">
+                   <div className="w-1/2 h-4 bg-gray-100 rounded animate-pulse" />
+                   <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+                </div>
+             </div>
+          ))}
+        </div>
+        
+        {/* Footer actions skeleton */}
+        <div className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
+           <div className="w-64 h-6 bg-gray-200 rounded animate-pulse" />
+           <div className="w-full h-3 bg-gray-100 rounded-full animate-pulse" />
+           <div className="w-48 h-5 bg-gray-200 rounded animate-pulse" />
+           <div className="w-full h-12 bg-gray-50 border border-gray-100 rounded animate-pulse" />
+        </div>
       </div>
     );
   }
