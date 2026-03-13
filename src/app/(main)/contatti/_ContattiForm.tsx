@@ -47,25 +47,26 @@ export default function ContattiForm() {
 
     if (isSubmitted) {
         return (
-            <div className="p-10 rounded-lg bg-[#1a2536] border border-[#243044] text-center">
-                <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-5">
-                    <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+            <div className="p-10 bg-white border border-gray-200 text-center flex flex-col items-center">
+                <div className="w-16 h-16 bg-green-50 border border-green-100 flex items-center justify-center mb-5 shrink-0">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Richiesta inviata!</h3>
-                <p className="text-slate-400 text-sm">Ti risponderemo il prima possibile all'indirizzo {formData.email}.</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Richiesta inviata</h3>
+                <p className="text-gray-500 text-sm">Ti risponderemo il prima possibile all'indirizzo {formData.email}.</p>
             </div>
         );
     }
 
-    const inputClass = "w-full rounded-lg border border-[#243044] px-4 py-2.5 text-sm bg-[#141c27] text-slate-200 placeholder-slate-500 focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500/40 outline-none transition-colors";
+    const inputClass = "w-full border border-gray-200 px-4 py-3 text-sm bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors";
+    const labelClass = "block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2";
 
     return (
-        <form onSubmit={handleSubmit} className="p-7 rounded-lg bg-[#1a2536] border border-[#243044] shadow-sm space-y-5">
-            <h3 className="text-lg font-bold text-white mb-1">Inviaci la tua richiesta</h3>
+        <form onSubmit={handleSubmit} className="p-8 bg-white border border-gray-200 space-y-6">
+            <h3 className="text-xl font-bold text-gray-900 pb-4 border-b border-gray-100 uppercase tracking-wide">Inviaci la tua richiesta</h3>
 
             <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Nome e Cognome *</label>
+                    <label className={labelClass}>Nome e Cognome *</label>
                     <input
                         required
                         value={formData.nome}
@@ -75,7 +76,7 @@ export default function ContattiForm() {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Tipo di richiesta *</label>
+                    <label className={labelClass}>Tipo di richiesta *</label>
                     <select
                         required
                         value={formData.tipo_richiesta}
@@ -91,7 +92,7 @@ export default function ContattiForm() {
 
             <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Email *</label>
+                    <label className={labelClass}>Email *</label>
                     <input
                         required
                         type="email"
@@ -102,7 +103,7 @@ export default function ContattiForm() {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Telefono *</label>
+                    <label className={labelClass}>Telefono *</label>
                     <input
                         required
                         type="tel"
@@ -115,7 +116,7 @@ export default function ContattiForm() {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Azienda</label>
+                <label className={labelClass}>Azienda</label>
                 <input
                     value={formData.azienda}
                     onChange={(e) => setFormData({ ...formData, azienda: e.target.value })}
@@ -127,7 +128,7 @@ export default function ContattiForm() {
             {formData.tipo_richiesta !== "info" && (
                 <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Ruolo in azienda</label>
+                        <label className={labelClass}>Ruolo in azienda</label>
                         <select
                             value={formData.ruolo}
                             onChange={(e) => setFormData({ ...formData, ruolo: e.target.value })}
@@ -142,7 +143,7 @@ export default function ContattiForm() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Numero mezzi soccorso</label>
+                        <label className={labelClass}>Numero mezzi soccorso</label>
                         <select
                             value={formData.mezzi}
                             onChange={(e) => setFormData({ ...formData, mezzi: e.target.value })}
@@ -159,7 +160,7 @@ export default function ContattiForm() {
             )}
 
             <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Note o Esigenze *</label>
+                <label className={labelClass}>Note o Esigenze *</label>
                 <textarea
                     required
                     rows={4}
@@ -179,7 +180,7 @@ export default function ContattiForm() {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg bg-[#2563EB] text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 mt-4"
             >
                 {isSubmitting ? (
                     <>
