@@ -28,6 +28,7 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -56,6 +57,7 @@ export default function SiteHeader() {
       // Se l'utente si è disconnesso, chiudi il menu
       if (!newUser) {
         setMenuOpen(false);
+        setUserMenuOpen(false);
         setIsLoggingOut(false);
         setOrgs([]);
         setCurrentOrg(null);
@@ -80,29 +82,29 @@ export default function SiteHeader() {
   }, []);
 
   // Dropdown toggle
-  const handleMenuToggle = (e: React.MouseEvent) => {
+  const handleUserMenuToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setMenuOpen(!menuOpen);
+    setUserMenuOpen(!userMenuOpen);
   };
 
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (menuOpen && !target.closest('[data-dropdown]')) {
-        setMenuOpen(false);
+      if (userMenuOpen && !target.closest('[data-dropdown]')) {
+        setUserMenuOpen(false);
       }
     };
 
-    if (menuOpen) {
+    if (userMenuOpen) {
       document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [menuOpen]);
+  }, [userMenuOpen]);
 
   // Logout handler
   const handleLogout = async () => {
@@ -111,7 +113,7 @@ export default function SiteHeader() {
       return;
     }
 
-    setMenuOpen(false);
+    setUserMenuOpen(false);
     setIsLoggingOut(true);
     console.log("=== HEADER LOGOUT START ===");
     
@@ -268,14 +270,14 @@ export default function SiteHeader() {
                 {/* User dropdown */}
                 <div className="relative" data-dropdown>
                   <button
-                    onClick={handleMenuToggle}
+                    onClick={handleUserMenuToggle}
                     className={`inline-flex items-center gap-2 rounded px-3 py-2 border transition-colors max-w-[200px] sm:max-w-[240px] ${
-                      menuOpen 
+                      userMenuOpen 
                         ? 'border-blue-500 bg-blue-500/10' 
                         : 'border-slate-700 hover:border-slate-600'
                     }`}
                     aria-haspopup="menu"
-                    aria-expanded={menuOpen}
+                    aria-expanded={userMenuOpen}
                   >
                     <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
                       <User2 className="h-3 w-3 text-white" />
@@ -283,10 +285,10 @@ export default function SiteHeader() {
                     <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={user.email}>
                       {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
                     </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  {menuOpen && (
+                  {userMenuOpen && (
                     <div
                       role="menu"
                       className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-1.5 z-[9999]"
@@ -300,12 +302,12 @@ export default function SiteHeader() {
                       </div>
                       
                       <Link
-                        href="/dashboard/settings"
+                        href="/dashboard/profile"
                         className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5 transition-colors"
-                        onClick={() => setMenuOpen(false)}
+                        onClick={() => setUserMenuOpen(false)}
                       >
                         <User2 className="h-4 w-4" />
-                        Impostazioni
+                        Il Mio Profilo
                       </Link>
                       
                       <div className="border-t border-slate-700 my-1"></div>
