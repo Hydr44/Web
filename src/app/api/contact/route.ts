@@ -168,12 +168,21 @@ export async function POST(request: NextRequest) {
         ? `<h2>Richiesta demo ricevuta!</h2><p>Ciao ${sanitizedName},</p><p>Abbiamo ricevuto la tua richiesta di demo per <strong>RescueManager</strong>. Ti contatteremo entro 24 ore per organizzare la dimostrazione personalizzata.</p><p>A presto,<br>Il team RescueManager</p>`
         : `<h2>Messaggio ricevuto!</h2><p>Ciao ${sanitizedName},</p><p>Abbiamo ricevuto il tuo messaggio e ti risponderemo il prima possibile.</p><p>A presto,<br>Il team RescueManager</p>`;
 
-      const sendEmail = (to: string, subject: string, html: string) =>
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: 'noreply@rescuemanager.eu', to, subject, html }),
-        }).catch(err => console.error('[Contact] Email error:', err));
+      const sendEmail = async (to: string, subject: string, html: string) => {
+        try {
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: 'noreply@rescuemanager.eu', to, subject, html }),
+          });
+          if (!r.ok) {
+            const txt = await r.text();
+            console.error('[Contact] Email error da Resend:', r.status, txt);
+          }
+        } catch (err) {
+          console.error('[Contact] Email error di rete:', err);
+        }
+      };
 
       await Promise.allSettled([
         sendEmail('info@rescuemanager.eu', subject, staffHtml),

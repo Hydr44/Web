@@ -252,7 +252,7 @@ main {
 }
 
 /* FIX SPINNER GLOBALE FORZATO */
-.rm-spin {
+.animate-spin {
   animation: rm-spin-anim 1s linear infinite !important;
   transform-origin: center;
 }

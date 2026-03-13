@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const params = useSearchParams();
   const redirectTo = params.get("redirect") || "/dashboard";
 
@@ -31,10 +32,10 @@ export default function LoginPage() {
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        // Aggiungiamo un ritardo artificiale di 1.5 secondi
-        // per permettere all'utente di visualizzare correttamente il loader
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        globalThis.location.href = redirectTo;
+        // Aggiungiamo un ritardo artificiale 
+        await new Promise(resolve => setTimeout(resolve, 800));
+        router.push(redirectTo);
+        router.refresh(); // forza Next.js a riaggiornare lo state del server
       } else {
         setError(result.error || "Accesso non riuscito. Verifica le credenziali.");
       }
