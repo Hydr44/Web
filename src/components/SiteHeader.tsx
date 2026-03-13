@@ -193,38 +193,38 @@ export default function SiteHeader() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Funzioni base</div>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/trasporti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Trasporti & Tracking</div>
                         <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch, mappa e stati intervento</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/clienti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Clienti</div>
                         <div className="text-xs text-gray-500 mt-0.5">Anagrafica, storico servizi e statistiche</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/mezzi-autisti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Mezzi & Autisti</div>
                         <div className="text-xs text-gray-500 mt-0.5">Flotta, scadenze automatiche e turni</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/piazzale" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Piazzale</div>
                         <div className="text-xs text-gray-500 mt-0.5">Posizioni veicoli, stati e scadenze deposito</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/preventivi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Preventivi</div>
                         <div className="text-xs text-gray-500 mt-0.5">Offerte, accettazione e conversione ordine</div>
                       </Link>
                     </div>
                     <div>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Moduli speciali</div>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/rvfu" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Demolizioni RVFU</div>
                         <div className="text-xs text-gray-500 mt-0.5">Workflow D.Lgs 209/2003, radiazioni PRA</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/rentri" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Rifiuti RENTRI</div>
                         <div className="text-xs text-gray-500 mt-0.5">FIR digitali, registro, MUD automatico</div>
                       </Link>
-                      <Link href="/contatti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
+                      <Link href="/moduli/sdi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
                         <div className="text-sm font-semibold text-gray-900">Fatturazione & Contabilità</div>
                         <div className="text-xs text-gray-500 mt-0.5">SDI, prima nota, conservazione sostitutiva</div>
                       </Link>

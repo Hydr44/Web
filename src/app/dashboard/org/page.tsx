@@ -47,14 +47,22 @@ export default function OrgPage() {
           
           if (org) setOrgData(org);
 
-          // Carica dati completi da org_settings
-          const { data: settings } = await supabase
+          // Carica dati completi da org_settings (è uno store chiave-valore)
+          const { data: settingsArray } = await supabase
             .from("org_settings")
             .select("*")
-            .eq("org_id", profile.current_org)
-            .maybeSingle();
+            .eq("org_id", profile.current_org);
 
-          if (settings) setOrgSettings(settings);
+          if (settingsArray && settingsArray.length > 0) {
+            // Uniamo le impostazioni 'company' e 'billing' ecc in un unico oggetto per comodità
+            const combinedSettings: Record<string, any> = {};
+            settingsArray.forEach((item) => {
+              if (item.value && typeof item.value === 'object') {
+                Object.assign(combinedSettings, item.value);
+              }
+            });
+            setOrgSettings(combinedSettings);
+          }
         }
         
         setLoading(false);
