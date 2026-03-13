@@ -162,7 +162,7 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <>
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full rm-spin" />
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Accesso in corso...
                 </>
               ) : "ACCEDI"}
