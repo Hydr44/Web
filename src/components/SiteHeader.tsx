@@ -291,48 +291,52 @@ export default function SiteHeader() {
                   {userMenuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-[#1e293b] shadow-2xl border border-slate-700 p-1.5 z-[9999]"
+                      className="absolute right-0 top-full mt-1 w-64 bg-white shadow-xl border border-gray-200 p-2 z-[9999]"
                     >
-                      <div className="p-3 border-b border-slate-700">
-                        <div className="text-xs text-slate-500 uppercase tracking-wide">Account</div>
-                        <div className="text-sm font-medium text-white truncate" title={user.email}>{user.email}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="text-xs text-gray-400 uppercase tracking-widest mb-1 font-bold">Account</div>
+                        <div className="text-sm font-semibold text-gray-900 truncate" title={user.email}>{user.email}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
                           {user.isGoogle ? "Google Account" : "Email Account"}
                         </div>
                       </div>
                       
-                      <Link
-                        href="/dashboard/profile"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5 transition-colors"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        <User2 className="h-4 w-4" />
-                        Il Mio Profilo
-                      </Link>
+                      <div className="py-2">
+                        <Link
+                          href="/dashboard/profile"
+                          className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <User2 className="h-4 w-4" />
+                          <span className="font-medium">Il Mio Profilo</span>
+                        </Link>
+                      </div>
                       
-                      <div className="border-t border-slate-700 my-1"></div>
+                      <div className="border-t border-gray-100"></div>
                       
-                      <button
-                        className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                          isLoggingOut 
-                            ? 'text-slate-500 cursor-not-allowed' 
-                            : 'text-red-400 hover:bg-red-500/10'
-                        }`}
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                      >
-                        {isLoggingOut ? (
-                          <>
-                            <div className="h-4 w-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
-                            Disconnessione...
-                          </>
-                        ) : (
-                          <>
-                            <LogOut className="h-4 w-4" />
-                            Esci dall&apos;account
-                          </>
-                        )}
-                      </button>
+                      <div className="pt-2">
+                        <button
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors font-medium ${
+                            isLoggingOut 
+                              ? 'text-gray-400 cursor-not-allowed' 
+                              : 'text-red-600 hover:bg-red-50 hover:text-red-700'
+                          }`}
+                          onClick={handleLogout}
+                          disabled={isLoggingOut}
+                        >
+                          {isLoggingOut ? (
+                            <>
+                              <div className="h-4 w-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                              Disconnessione...
+                            </>
+                          ) : (
+                            <>
+                              <LogOut className="h-4 w-4" />
+                              Esci dall'account
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
