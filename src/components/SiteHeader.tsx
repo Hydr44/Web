@@ -32,6 +32,7 @@ export default function SiteHeader() {
   const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutSuccess, setLogoutSuccess] = useState(false);
   const [prodottoOpen, setProdottoOpen] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -58,6 +59,7 @@ export default function SiteHeader() {
           setMenuOpen(false);
           setUserMenuOpen(false);
           setIsLoggingOut(true);
+          setLogoutSuccess(true);
           
           setTimeout(() => {
             setUser(null);
@@ -65,6 +67,11 @@ export default function SiteHeader() {
             setCurrentOrg(null);
             setIsLoggingOut(false);
           }, 1500);
+          
+          // Auto-dismiss toast dopo 3 secondi
+          setTimeout(() => {
+            setLogoutSuccess(false);
+          }, 3000);
           
           return prevUser; // Congela la UI per 1.5s
         }
@@ -151,6 +158,21 @@ export default function SiteHeader() {
   };
 
   return (
+    <>
+      {/* Toast notification logout success */}
+      {logoutSuccess && (
+        <div className="fixed top-32 left-1/2 transform -translate-x-1/2 z-[10000] animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 shadow-lg flex items-center gap-3">
+            <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+              <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-green-800">Disconnessione avvenuta con successo</span>
+          </div>
+        </div>
+      )}
+    
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-28">
@@ -416,5 +438,6 @@ export default function SiteHeader() {
         )}
       </div>
     </header>
+    </>
   );
 }

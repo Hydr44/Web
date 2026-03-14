@@ -130,6 +130,7 @@ export default function DashboardShell({
 }>) {
   const path = usePathname();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [logoutSuccess, setLogoutSuccess] = React.useState(false);
   const [frozenOrgName, setFrozenOrgName] = React.useState(orgName);
   const [frozenUserEmail, setFrozenUserEmail] = React.useState(userEmail);
 
@@ -142,6 +143,21 @@ export default function DashboardShell({
   }, [orgName, userEmail, isLoggingOut]);
 
   return (
+    <>
+      {/* Toast notification logout success */}
+      {logoutSuccess && (
+        <div className="fixed top-32 left-1/2 transform -translate-x-1/2 z-[10000] animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 shadow-lg flex items-center gap-3">
+            <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+              <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-green-800">Disconnessione avvenuta con successo</span>
+          </div>
+        </div>
+      )}
+
     <div className="min-h-screen bg-gray-50 pt-28">
       <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
         {/* Sidebar */}
@@ -195,6 +211,7 @@ export default function DashboardShell({
               onClick={async () => {
                 if (isLoggingOut) return;
                 setIsLoggingOut(true);
+                setLogoutSuccess(true);
                 try {
                   const { authManager } = await import("@/lib/auth");
                   await authManager.logout();
@@ -203,6 +220,8 @@ export default function DashboardShell({
                 } finally {
                   // Reset dopo timeout per congelamento dati
                   setTimeout(() => setIsLoggingOut(false), 1500);
+                  // Auto-dismiss toast dopo 3 secondi
+                  setTimeout(() => setLogoutSuccess(false), 3000);
                 }
               }}
               disabled={isLoggingOut}
@@ -235,5 +254,6 @@ export default function DashboardShell({
         </section>
       </div>
     </div>
+    </>
   );
 }
