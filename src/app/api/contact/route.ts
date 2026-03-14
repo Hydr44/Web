@@ -43,8 +43,6 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       company,
-      role,
-      vehicles,
       message
     } = body;
 
@@ -112,13 +110,9 @@ export async function POST(request: NextRequest) {
         email: sanitizedEmail,
         phone: phone || null,
         company: sanitizedCompany,
-        role: role || null,
-        vehicles: vehicles || null,
-        message: sanitizedMessage,
+        notes: sanitizedMessage,
         status: 'new',
-        priority: type === 'quote' ? 'high' : 'medium',
-        ip_address: ip,
-        user_agent: userAgent
+        priority: type === 'quote' ? 'high' : 'medium'
       })
       .select()
       .single();
@@ -155,8 +149,6 @@ export async function POST(request: NextRequest) {
           <tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Email</td><td style="padding:6px">${sanitizedEmail}</td></tr>
           ${phone ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Telefono</td><td style="padding:6px">${phone}</td></tr>` : ''}
           ${sanitizedCompany ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Azienda</td><td style="padding:6px">${sanitizedCompany}</td></tr>` : ''}
-          ${role ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Ruolo</td><td style="padding:6px">${role}</td></tr>` : ''}
-          ${vehicles ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Mezzi</td><td style="padding:6px">${vehicles}</td></tr>` : ''}
           ${sanitizedMessage ? `<tr><td style="padding:6px;font-weight:bold;background:#f8fafc">Messaggio</td><td style="padding:6px">${sanitizedMessage}</td></tr>` : ''}
         </table>
         <p style="margin-top:16px;font-size:12px;color:#64748b">Lead ID: ${lead.id}</p>
