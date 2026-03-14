@@ -5,7 +5,7 @@ const TIMEOUT_MS = 8000;
 
 interface ServiceCheck {
   name: string;
-  module: 'sdi' | 'rentri' | 'rvfu' | 'infra';
+  module: 'sdi' | 'rentri' | 'rvfu' | 'infra' | 'leads';
   url: string;
   description: string;
   port: number;
@@ -56,6 +56,14 @@ const SERVICES: ServiceCheck[] = [
     url: 'https://rvfu.rescuemanager.eu/health',
     port: 3002,
     description: 'Proxy RVFU per portale demolizioni ACI'
+  },
+  // ─── LEADS ───
+  {
+    name: 'lead-api',
+    module: 'leads',
+    url: 'http://lead-api.rescuemanager.eu/health',
+    port: 3006,
+    description: 'API gestione lead: demo, preventivi, conversione'
   },
   // ─── INFRA ───
   {
