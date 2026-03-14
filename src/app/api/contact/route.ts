@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
           const r = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ from: 'noreply@rescuemanager.eu', to, subject, html }),
+            body: JSON.stringify({ from: 'RescueManager <noreply@rescuemanager.eu>', to, subject, html }),
           });
           if (!r.ok) {
             const txt = await r.text();
