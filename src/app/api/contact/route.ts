@@ -45,8 +45,7 @@ export async function POST(request: NextRequest) {
       company,
       role,
       vehicles,
-      message,
-      additional_data
+      message
     } = body;
 
     // Validate required fields
@@ -116,7 +115,6 @@ export async function POST(request: NextRequest) {
         role: role || null,
         vehicles: vehicles || null,
         message: sanitizedMessage,
-        additional_data: additional_data || null,
         status: 'new',
         priority: type === 'quote' ? 'high' : 'medium',
         ip_address: ip,
