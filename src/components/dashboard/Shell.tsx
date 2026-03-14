@@ -130,6 +130,16 @@ export default function DashboardShell({
 }>) {
   const path = usePathname();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [frozenOrgName, setFrozenOrgName] = React.useState(orgName);
+  const [frozenUserEmail, setFrozenUserEmail] = React.useState(userEmail);
+
+  // Aggiorna i dati congelati quando cambiano (se non in logout)
+  React.useEffect(() => {
+    if (!isLoggingOut) {
+      setFrozenOrgName(orgName);
+      setFrozenUserEmail(userEmail);
+    }
+  }, [orgName, userEmail, isLoggingOut]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28">
@@ -137,15 +147,15 @@ export default function DashboardShell({
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-28 lg:h-[calc(100vh-112px)] p-4 bg-white border-r border-gray-200">
           <nav aria-label="Menu dashboard" className="h-full flex flex-col">
-            {userEmail && (
+            {frozenUserEmail && (
               <div className="mb-4 p-3 border border-gray-200 bg-gray-50">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-[#0f172a] flex items-center justify-center shrink-0">
                     <User className="h-3.5 w-3.5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 text-sm truncate" title={orgName || userEmail}>{orgName || userEmail}</div>
-                    <div className="text-xs text-gray-400 truncate" title={userEmail}>{userEmail}</div>
+                    <div className="font-bold text-gray-900 text-sm truncate" title={frozenOrgName || frozenUserEmail}>{frozenOrgName || frozenUserEmail}</div>
+                    <div className="text-xs text-gray-400 truncate" title={frozenUserEmail}>{frozenUserEmail}</div>
                   </div>
                 </div>
               </div>
@@ -190,6 +200,9 @@ export default function DashboardShell({
                   await authManager.logout();
                 } catch (err) {
                   globalThis.location.href = "/";
+                } finally {
+                  // Reset dopo timeout per congelamento dati
+                  setTimeout(() => setIsLoggingOut(false), 1500);
                 }
               }}
               disabled={isLoggingOut}

@@ -52,16 +52,37 @@ export default function SiteHeader() {
     // Listener per cambiamenti di autenticazione
     const removeListener = addAuthListener(async (newUser) => {
       console.log("Auth state changed:", newUser?.email);
-      setUser(newUser);
+      setUser((prevUser) => {
+        // Se l'utente si è appena disconnesso
+        if (prevUser && !newUser) {
+          setMenuOpen(false);
+          setUserMenuOpen(false);
+          setIsLoggingOut(true);
+          
+          setTimeout(() => {
+            setUser(null);
+            setOrgs([]);
+            setCurrentOrg(null);
+            setIsLoggingOut(false);
+          }, 1500);
+          
+          return prevUser; // Congela la UI per 1.5s
+        }
+        
+        // Se era già un visitatore normale
+        if (!newUser) {
+          setMenuOpen(false);
+          setUserMenuOpen(false);
+          setOrgs([]);
+          setCurrentOrg(null);
+          return null;
+        }
+
+        return newUser;
+      });
       
-      // Se l'utente si è disconnesso, chiudi il menu
-      if (!newUser) {
-        setMenuOpen(false);
-        setUserMenuOpen(false);
-        setOrgs([]);
-        setCurrentOrg(null);
-      } else {
-        // Carica organizzazioni per l'utente autenticato
+      // Carica organizzazioni per il nuovo utente autenticato
+      if (newUser) {
         try {
           const { supabaseBrowser } = await import("@/lib/supabase-browser");
           const supabase = supabaseBrowser();
@@ -257,7 +278,9 @@ export default function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            {user || isLoggingOut ? (
+            {pathname === "/login" || pathname === "/register" ? (
+             <div className="w-4 sm:w-8" />
+            ) : user || isLoggingOut ? (
               <>
                 <Link
                   href="/dashboard"
