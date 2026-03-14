@@ -212,33 +212,23 @@ export async function POST(request: NextRequest) {
         staffBody
       );
 
-      const confirmBody = isDemo
-        ? `
+      const confirmBody = `
 <p>Ciao <strong>${sanitizedName}</strong>,</p>
-<p>Grazie per l'interesse in <strong>RescueManager</strong>! Abbiamo ricevuto la tua richiesta di demo.</p>
-<p>Il nostro team ti contatterà entro <strong>24 ore</strong> per:</p>
+<p>Grazie per averci contattato! Apprezziamo molto il tuo interesse in <strong>RescueManager</strong>.</p>
+<p>Abbiamo ricevuto la tua richiesta e il nostro team ti contatterà entro <strong>24 ore</strong> per:</p>
 <ul style="margin: 16px 0; padding-left: 24px; color: #6b7280;">
-  <li>Organizzare una dimostrazione personalizzata</li>
   <li>Rispondere a tutte le tue domande</li>
   <li>Discutere le tue esigenze specifiche</li>
+  <li>Organizzare una dimostrazione personalizzata${isDemo ? '' : ' (se interessato)'}</li>
 </ul>
-<p style="text-align: center; margin: 24px 0;">
-  <a href="https://rescuemanager.eu" class="cta">Visita il nostro sito</a>
-</p>
-<p>Se hai domande urgenti, contattaci a <strong>info@rescuemanager.eu</strong> o chiama <strong>+39 392 172 3028</strong>.</p>
-<p>A presto,<br><strong>Il team RescueManager</strong></p>`
-        : `
-<p>Ciao <strong>${sanitizedName}</strong>,</p>
-<p>Abbiamo ricevuto il tuo messaggio e lo apprezziamo molto!</p>
-<p>Ti risponderemo il prima possibile, solitamente entro <strong>24 ore</strong>.</p>
 <p style="text-align: center; margin: 24px 0;">
   <a href="https://rescuemanager.eu" class="cta">Scopri RescueManager</a>
 </p>
-<p>Nel frattempo, puoi visitare il nostro sito o contattarci direttamente a <strong>info@rescuemanager.eu</strong>.</p>
-<p>Grazie,<br><strong>Il team RescueManager</strong></p>`;
+<p>Nel frattempo, se hai domande urgenti, contattaci a <strong>info@rescuemanager.eu</strong> o chiama <strong>+39 392 172 3028</strong>.</p>
+<p>A presto,<br><strong>Il team RescueManager</strong></p>`;
 
       const confirmHtml = wrapTemplate(
-        isDemo ? '✅ Richiesta Demo Ricevuta' : '✅ Messaggio Ricevuto',
+        'Grazie per averci contattato',
         confirmBody
       );
 
@@ -260,7 +250,7 @@ export async function POST(request: NextRequest) {
 
       await Promise.allSettled([
         sendEmail('info@rescuemanager.eu', subject, staffHtml),
-        sendEmail(sanitizedEmail, isDemo ? 'Richiesta demo RescueManager — ricevuta!' : 'Messaggio ricevuto — RescueManager', confirmHtml),
+        sendEmail(sanitizedEmail, 'RescueManager', confirmHtml),
       ]);
     }
 
