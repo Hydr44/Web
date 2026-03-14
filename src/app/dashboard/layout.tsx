@@ -13,6 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const [userEmail, setUserEmail] = useState("");
+  const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -27,6 +28,11 @@ export default function DashboardLayout({
         if (error || !user) {
           router.push("/login?redirect=/dashboard");
           return;
+        }
+
+        const { data: orgs } = await supabase.from('orgs').select('name').limit(1);
+        if (orgs && orgs.length > 0) {
+          setOrgName(orgs[0].name);
         }
         
         setUserEmail(user.email || "Utente");
@@ -55,31 +61,25 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        {/* Sidebar Skeleton (solo Desktop) */}
-        <div className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
-          <div className="h-16 border-b border-gray-200 flex items-center px-6">
-            <div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />
-            <div className="w-24 h-5 bg-gray-200 rounded ml-3 animate-pulse" />
+      <div className="min-h-screen bg-gray-50 pt-28">
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
+          {/* Sidebar Skeleton (solo Desktop) */}
+          <div className="lg:sticky lg:top-28 lg:h-[calc(100vh-112px)] p-4 bg-white border-r border-gray-200 hidden lg:flex flex-col">
+            <div className="space-y-3">
+               <div className="w-full h-16 bg-gray-100 rounded animate-pulse mb-6" />
+               {[...Array(7)].map((_, i) => (
+                  <div key={i} className="w-full h-10 bg-gray-100 rounded animate-pulse border border-transparent" />
+               ))}
+            </div>
+            
+            <div className="mt-auto pt-4">
+              <div className="w-full h-10 bg-gray-100 rounded animate-pulse" />
+            </div>
           </div>
-          <div className="p-4 space-y-3 mt-4">
-             {[...Array(6)].map((_, i) => (
-                <div key={i} className="w-full h-10 bg-gray-100 rounded animate-pulse border border-transparent" />
-             ))}
-          </div>
-        </div>
-        
-        {/* Main Content Skeleton */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-           {/* Header */}
-           <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 sticky top-0">
-              <div className="w-8 h-8 md:w-32 md:h-6 bg-gray-200 rounded animate-pulse" />
-              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-           </div>
-           
-           {/* Content Background Simulation */}
-           <div className="flex-1 bg-gray-50/50 p-4 md:p-8">
-              <div className="max-w-4xl mx-auto space-y-8 mt-2">
+          
+          {/* Main Content Skeleton */}
+          <section className="p-6 lg:p-8 overflow-auto">
+            <div className="max-w-6xl mx-auto space-y-8 mt-2">
                  {/* Title Skeleton */}
                  <div className="space-y-2">
                    <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
@@ -93,12 +93,7 @@ export default function DashboardLayout({
                     <div className="w-full h-10 bg-gray-50 rounded mt-4 animate-pulse" />
                  </div>
                  
-                 <div className="w-full h-32 bg-white border border-gray-100 p-6 space-y-4 rounded shadow-sm">
-                    <div className="w-40 h-4 bg-gray-200 rounded animate-pulse" />
-                    <div className="w-56 h-6 bg-gray-200 rounded animate-pulse" />
-                 </div>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                    {[...Array(4)].map((_, i) => (
                      <div key={i} className="h-24 bg-white border border-gray-100 rounded shadow-sm flex items-center p-4">
                        <div className="w-10 h-10 bg-gray-100 rounded animate-pulse mr-4" />
@@ -109,15 +104,15 @@ export default function DashboardLayout({
                      </div>
                    ))}
                  </div>
-              </div>
-           </div>
+            </div>
+          </section>
         </div>
       </div>
     );
   }
 
   return (
-    <DashboardShell userEmail={userEmail}>
+    <DashboardShell userEmail={userEmail} orgName={orgName}>
       <Breadcrumbs />
       {children}
     </DashboardShell>

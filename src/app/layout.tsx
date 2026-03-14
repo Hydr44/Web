@@ -20,15 +20,15 @@ export const metadata: Metadata = {
     template: "%s — RescueManager",
   },
   description:
-    "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e registro RENTRI in un'unica piattaforma.",
+    "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, Registro dei Veicoli Fuori Uso (RVFU) e registro RENTRI in un'unica piattaforma.",
   keywords: [
     "gestionale soccorso stradale",
     "software autodemolizione",
-    "RVFU radiazione veicoli",
-    "fatturazione elettronica SDI",
+    "registro veicoli fuori uso",
+    "fatturazione elettronica",
     "registro RENTRI rifiuti",
     "dispatch mappa autisti",
-    "rapportini digitali",
+    "gestione officina",
     "RescueManager",
   ],
   authors: [{ name: "RescueManager", url: SITE_URL }],
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
     siteName: "RescueManager",
     title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e registro RENTRI.",
+      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, Registro dei Veicoli Fuori Uso e registro RENTRI.",
     images: [
       {
-        url: "/670shots_so.png",
-        width: 1200,
-        height: 630,
-        alt: "RescueManager — Software gestionale soccorso stradale",
+        url: "/logoufficiale_1024.png",
+        width: 1024,
+        height: 1024,
+        alt: "RescueManager Logo — Software gestionale",
       },
     ],
   },
@@ -66,8 +66,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
     description:
-      "Dispatch su mappa, turni, rapportini, fatture SDI, radiazioni RVFU e RENTRI. Un unico software.",
-    images: ["/670shots_so.png"],
+      "Dispatch su mappa, turni, fatturazione elettronica, Registro Veicoli Fuori Uso e RENTRI. Un unico software.",
+    images: ["/logoufficiale_1024.png"],
   },
   icons: {
     icon: [
@@ -131,7 +131,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Windows, macOS, iOS, Android",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Gestione dispatch, autisti, piazzale, fatturazione SDI, radiazioni RVFU e registro RENTRI.",
+      "Software gestionale per soccorso stradale e autodemolizioni. Gestione dispatch, autisti, piazzale, fatturazione elettronica, Registro dei Veicoli Fuori Uso e registro RENTRI.",
     url: SITE_URL,
     offers: {
       "@type": "Offer",

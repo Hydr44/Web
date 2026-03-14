@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { authManager, addAuthListener, type AuthUser } from "@/lib/auth";
-import { LogOut, User2, Menu, X, ChevronDown, Home } from "lucide-react";
+import { LogOut, User2, Menu, X, ChevronDown, Home, Building2 } from "lucide-react";
 
 type NavItem = { label: string; href: string; match?: (path: string) => boolean };
 
@@ -19,7 +19,7 @@ const PRODOTTO_MODULES = [
   { label: "Trasporti", desc: "Gestione completa trasporti e tracking GPS" },
   { label: "RENTRI", desc: "Registro Elettronico Nazionale Tracciabilità Rifiuti" },
   { label: "Ricambi TecDoc", desc: "Magazzino ricambi con integrazione TecDoc" },
-  { label: "SDI - Fatturazione Elettronica", desc: "Fatturazione elettronica via Sistema di Interscambio" },
+  { label: "Fatturazione Elettronica", desc: "Fatturazione elettronica via Sistema di Interscambio" },
   { label: "Contabilità", desc: "Prima nota e piano dei conti" },
 ];
 
@@ -67,8 +67,9 @@ export default function SiteHeader() {
           const { supabaseBrowser } = await import("@/lib/supabase-browser");
           const supabase = supabaseBrowser();
           const { data: orgsData } = await supabase.from("orgs").select("id, name");
-          if (orgsData) {
+          if (orgsData && orgsData.length > 0) {
             setOrgs(orgsData);
+            setCurrentOrg(orgsData[0].name);
           }
         } catch (error) {
           console.error("Error loading organizations:", error);
@@ -219,7 +220,7 @@ export default function SiteHeader() {
                     <div>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Moduli speciali</div>
                       <Link href="/moduli/rvfu" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Demolizioni RVFU</div>
+                        <div className="text-sm font-semibold text-gray-900">Registro Veicoli Fuori Uso</div>
                         <div className="text-xs text-gray-500 mt-0.5">Workflow D.Lgs 209/2003, radiazioni PRA</div>
                       </Link>
                       <Link href="/moduli/rentri" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
@@ -227,8 +228,8 @@ export default function SiteHeader() {
                         <div className="text-xs text-gray-500 mt-0.5">FIR digitali, registro, MUD automatico</div>
                       </Link>
                       <Link href="/moduli/sdi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Fatturazione & Contabilità</div>
-                        <div className="text-xs text-gray-500 mt-0.5">SDI, prima nota, conservazione sostitutiva</div>
+                        <div className="text-sm font-semibold text-gray-900">Fatturazione Elettronica</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Prima nota, conservazione sostitutiva e TS</div>
                       </Link>
                     </div>
                   </div>
@@ -257,7 +258,7 @@ export default function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            {user ? (
+            {user || isLoggingOut ? (
               <>
                 <Link
                   href="/dashboard"
@@ -279,13 +280,13 @@ export default function SiteHeader() {
                     aria-haspopup="menu"
                     aria-expanded={userMenuOpen}
                   >
-                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
                       <User2 className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={user.email}>
-                      {user.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user.email}
+                    <span className="text-xs text-slate-300 max-w-[100px] sm:max-w-[140px] truncate font-medium" title={currentOrg || user?.email}>
+                      {currentOrg || (user?.email && user.email.length > 20 ? `${user.email.split('@')[0].substring(0, 8)}...@${user.email.split('@')[1]}` : user?.email)}
                     </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 shrink-0 ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {userMenuOpen && (
@@ -295,20 +296,20 @@ export default function SiteHeader() {
                     >
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-xs text-gray-400 uppercase tracking-widest mb-1 font-bold">Account</div>
-                        <div className="text-sm font-semibold text-gray-900 truncate" title={user.email}>{user.email}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {user.isGoogle ? "Google Account" : "Email Account"}
+                        <div className="text-sm font-semibold text-gray-900 truncate" title={currentOrg || user?.email}>{currentOrg || user?.email}</div>
+                        <div className="text-xs text-gray-500 mt-0.5 truncate" title={user?.email}>
+                          {user?.email}
                         </div>
                       </div>
                       
                       <div className="py-2">
                         <Link
-                          href="/dashboard/profile"
+                          href="/dashboard/org"
                           className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
                           onClick={() => setUserMenuOpen(false)}
                         >
-                          <User2 className="h-4 w-4" />
-                          <span className="font-medium">Il Mio Profilo</span>
+                          <Building2 className="h-4 w-4" />
+                          <span className="font-medium">La Mia Organizzazione</span>
                         </Link>
                       </div>
                       

@@ -123,11 +123,14 @@ const NavGroup: React.FC<{ item: Item; activePath: string }> = ({ item, activePa
 export default function DashboardShell({
   children,
   userEmail,
+  orgName,
 }: Readonly<{
   children: React.ReactNode;
   userEmail?: string;
+  orgName?: string;
 }>) {
   const path = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28">
@@ -138,12 +141,12 @@ export default function DashboardShell({
             {userEmail && (
               <div className="mb-4 p-3 border border-gray-200 bg-gray-50">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#0f172a] flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[#0f172a] flex items-center justify-center shrink-0">
                     <User className="h-3.5 w-3.5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 text-sm truncate">{userEmail}</div>
-                    <div className="text-xs text-gray-400">Account attivo</div>
+                    <div className="font-bold text-gray-900 text-sm truncate" title={orgName || userEmail}>{orgName || userEmail}</div>
+                    <div className="text-xs text-gray-400 truncate" title={userEmail}>{userEmail}</div>
                   </div>
                 </div>
               </div>
@@ -181,15 +184,33 @@ export default function DashboardShell({
 
             <button
               onClick={async () => {
-                const { supabaseBrowser } = await import("@/lib/supabase-browser");
-                const supabase = supabaseBrowser();
-                await supabase.auth.signOut();
-                globalThis.location.href = "/login";
+                if (isLoggingOut) return;
+                setIsLoggingOut(true);
+                try {
+                  const { authManager } = await import("@/lib/auth");
+                  await authManager.logout();
+                } catch (err) {
+                  globalThis.location.href = "/";
+                }
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              disabled={isLoggingOut}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${
+                isLoggingOut 
+                  ? "text-gray-400 cursor-not-allowed" 
+                  : "text-red-500 hover:bg-red-50 hover:text-red-600"
+              }`}
             >
-              <LogOut className="h-4 w-4" />
-              Esci
+              {isLoggingOut ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span className="truncate">Disconnessione...</span>
+                </>
+              ) : (
+                <>
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  Esci dall'account
+                </>
+              )}
             </button>
           </nav>
         </aside>

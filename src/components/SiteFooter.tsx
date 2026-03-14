@@ -17,7 +17,7 @@ export default function SiteFooter() {
             </div>
             <p className="text-sm text-slate-400 mb-5 leading-relaxed">
               Software gestionale per autodemolizioni e soccorso stradale. 
-              RVFU, SDI, RENTRI integrati.
+              Registro Veicoli Fuori Uso, Fatturazione Elettronica, RENTRI integrati.
             </p>
             <div className="space-y-2 text-sm">
               <a href="mailto:info@rescuemanager.eu" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
@@ -38,11 +38,9 @@ export default function SiteFooter() {
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Trasporti & Tracking</Link></li>
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Clienti & CRM</Link></li>
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Piazzale & Deposito</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Demolizioni RVFU</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Registro Veicoli Fuori Uso</Link></li>
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Rifiuti RENTRI</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Fatturazione SDI</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Ricambi TecDoc</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Preventivi</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Fatturazione Elettronica</Link></li>
             </ul>
           </div>
 
