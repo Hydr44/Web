@@ -28,11 +28,13 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
+    let isSuccess = false;
+
     try {
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        // Aggiungiamo un ritardo artificiale 
+        isSuccess = true;
         await new Promise(resolve => setTimeout(resolve, 800));
         router.push(redirectTo);
         router.refresh(); // forza Next.js a riaggiornare lo state del server
@@ -42,7 +44,9 @@ export default function LoginPage() {
     } catch {
       setError("Errore imprevisto durante l'accesso. Riprova.");
     } finally {
-      setIsLoading(false);
+      if (!isSuccess) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -158,13 +162,13 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
             >
               {isLoading ? (
-                <>
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Accesso in corso...
-                </>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>Accesso in corso...</span>
+                </div>
               ) : "ACCEDI"}
             </button>
           </form>

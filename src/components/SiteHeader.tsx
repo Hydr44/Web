@@ -58,7 +58,6 @@ export default function SiteHeader() {
       if (!newUser) {
         setMenuOpen(false);
         setUserMenuOpen(false);
-        setIsLoggingOut(false);
         setOrgs([]);
         setCurrentOrg(null);
       } else {

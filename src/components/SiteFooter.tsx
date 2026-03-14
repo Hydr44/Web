@@ -35,12 +35,12 @@ export default function SiteFooter() {
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Moduli</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Trasporti & Tracking</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Clienti & CRM</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Piazzale & Deposito</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Registro Veicoli Fuori Uso</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Rifiuti RENTRI</Link></li>
-              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Fatturazione Elettronica</Link></li>
+              <li><Link href="/moduli/trasporti" className="text-slate-400 hover:text-white transition-colors">Trasporti & Tracking</Link></li>
+              <li><Link href="/moduli/clienti" className="text-slate-400 hover:text-white transition-colors">Clienti & CRM</Link></li>
+              <li><Link href="/moduli/piazzale" className="text-slate-400 hover:text-white transition-colors">Piazzale & Deposito</Link></li>
+              <li><Link href="/moduli/rvfu" className="text-slate-400 hover:text-white transition-colors">Registro Veicoli Fuori Uso</Link></li>
+              <li><Link href="/moduli/rentri" className="text-slate-400 hover:text-white transition-colors">Rifiuti RENTRI</Link></li>
+              <li><Link href="/moduli/sdi" className="text-slate-400 hover:text-white transition-colors">Fatturazione Elettronica</Link></li>
             </ul>
           </div>
 
@@ -50,7 +50,6 @@ export default function SiteFooter() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Contattaci</Link></li>
               <li><Link href="/chi-siamo" className="text-slate-400 hover:text-white transition-colors">Chi siamo</Link></li>
-              <li><Link href="/download" className="text-slate-400 hover:text-white transition-colors">Download App</Link></li>
               <li><Link href="/demo" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
             </ul>
           </div>

@@ -32,7 +32,6 @@ const NAV: Item[] = [
   { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet },
   { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
   { label: "Privacy", href: "/dashboard/privacy", icon: Database },
-  { label: "Download", href: "/dashboard/download", icon: Download },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 
