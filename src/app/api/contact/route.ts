@@ -138,9 +138,10 @@ export async function POST(request: NextRequest) {
     const RESEND_KEY = process.env.RESEND_API_KEY;
     if (RESEND_KEY) {
       const isDemo = type === 'demo';
-      const subject = isDemo
+      const staffSubject = isDemo
         ? `[Demo] Nuova richiesta da ${sanitizedName} — ${sanitizedCompany || 'privato'}`
         : `[Contatto] Messaggio da ${sanitizedName}`;
+      const clientSubject = 'RescueManager';
 
       // Template wrapper per email professionali
       const wrapTemplate = (title: string, bodyHtml: string) => `
@@ -249,8 +250,8 @@ export async function POST(request: NextRequest) {
       };
 
       await Promise.allSettled([
-        sendEmail('info@rescuemanager.eu', subject, staffHtml),
-        sendEmail(sanitizedEmail, 'RescueManager', confirmHtml),
+        sendEmail('info@rescuemanager.eu', staffSubject, staffHtml),
+        sendEmail(sanitizedEmail, clientSubject, confirmHtml),
       ]);
     }
 
