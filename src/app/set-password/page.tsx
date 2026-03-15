@@ -19,41 +19,54 @@ export default function SetPasswordPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const tokenHash = searchParams.get('token_hash');
-    const type = searchParams.get('type');
+    const init = async () => {
+      // 1. Prova PKCE flow (token_hash come query param)
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
 
-    // Funzione per verificare la sessione con retry
-    const checkSession = async (retries = 3) => {
-      for (let i = 0; i < retries; i++) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session) {
+      if (tokenHash && type === 'recovery') {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+        if (error) {
+          setErrorMsg('Link non valido o scaduto. Chiedi un nuovo link all\'amministratore.');
+          setStage('error');
+        } else {
           setStage('form');
-          return;
         }
-        // Aspetta un po' prima di riprovare (per dare tempo a Supabase di rilevare il token dall'hash)
-        if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, 500));
+        return;
       }
-      setErrorMsg('Link non valido o scaduto. Chiedi un nuovo link all\'amministratore.');
-      setStage('error');
+
+      // 2. Implicit flow: leggi access_token e refresh_token direttamente dall'hash URL
+      const hash = window.location.hash.substring(1); // rimuove il #
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (accessToken && refreshToken) {
+        // Imposta la sessione esplicitamente con i token dall'URL
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (error) {
+          setErrorMsg('Link non valido o scaduto. Chiedi un nuovo link all\'amministratore.');
+          setStage('error');
+        } else {
+          setStage('form');
+        }
+        return;
+      }
+
+      // 3. Nessun token trovato - verifica se c'è già una sessione attiva
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setStage('form');
+      } else {
+        setErrorMsg('Nessun token di recupero trovato. Usa il link ricevuto via email.');
+        setStage('error');
+      }
     };
 
-    if (tokenHash && type === 'recovery') {
-      // PKCE flow: exchange token_hash for session
-      supabase.auth
-        .verifyOtp({ token_hash: tokenHash, type: 'recovery' })
-        .then(({ error }) => {
-          if (error) {
-            setErrorMsg('Link non valido o scaduto. Chiedi un nuovo link all\'amministratore.');
-            setStage('error');
-          } else {
-            setStage('form');
-          }
-        });
-    } else {
-      // Implicit flow: Supabase rileva automaticamente il token dall'hash URL
-      // Aspettiamo che la sessione sia disponibile
-      checkSession();
-    }
+    init();
   }, []);
 
   const passwordStrength = (): { score: number; label: string; color: string } => {
