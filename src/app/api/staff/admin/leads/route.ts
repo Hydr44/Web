@@ -49,7 +49,11 @@ export async function POST(request: Request) {
     const origin = request.headers.get('origin');
     const body = await request.json();
     
-    const { name, email, phone, company, type, priority, source, notes } = body;
+    const {
+      name, email, phone, company, type, priority, source, notes,
+      vat_number, codice_fiscale, pec, address_street, address_city,
+      address_province, address_postal_code, forma_giuridica, codice_ateco
+    } = body;
     
     if (!name) {
       return NextResponse.json({ 
@@ -72,6 +76,15 @@ export async function POST(request: Request) {
         priority: priority || 'medium',
         source: source || 'admin',
         notes: notes || null,
+        vat_number: vat_number || null,
+        codice_fiscale: codice_fiscale || null,
+        pec: pec || null,
+        address_street: address_street || null,
+        address_city: address_city || null,
+        address_province: address_province || null,
+        address_postal_code: address_postal_code || null,
+        forma_giuridica: forma_giuridica || null,
+        codice_ateco: codice_ateco || null,
       })
       .select()
       .single();
