@@ -87,6 +87,11 @@ export default function PublicQuotePage() {
       });
       const data = await res.json();
       if (data.success) {
+        // Se c'è un checkout URL Stripe, reindirizza
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+          return;
+        }
         setActionResult({ type: 'success', message: data.message });
         // Refresh quote
         const refreshRes = await fetch(`/api/quotes/${uuid}`);
@@ -321,11 +326,10 @@ export default function PublicQuotePage() {
               <button onClick={() => handleAction('accept')} disabled={!!actionLoading}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50">
                 {actionLoading === 'accept' ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <><Loader2 className="h-5 w-5 animate-spin" /> Reindirizzamento...</>
                 ) : (
-                  <Check className="h-5 w-5" />
+                  <><Check className="h-5 w-5" /> Accetta e Procedi al Pagamento</>
                 )}
-                Accetta Preventivo
               </button>
               <button onClick={() => setShowModifyForm(!showModifyForm)} disabled={!!actionLoading}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors font-medium border border-blue-500/30 disabled:opacity-50">

@@ -417,7 +417,32 @@ $$ LANGUAGE plpgsql;
 COMMENT ON FUNCTION expire_quotes IS 'Scade preventivi automaticamente (da eseguire con cron)';
 
 -- =====================================================
--- 15. GRANT PERMISSIONS
+-- 15. TABELLA LEAD_MESSAGES (Chat Staff↔Lead)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS lead_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+  direction TEXT NOT NULL CHECK (direction IN ('outgoing', 'incoming')),
+  subject TEXT,
+  body TEXT NOT NULL,
+  sent_by_staff_id UUID REFERENCES auth.users(id),
+  sent_by_name TEXT,
+  read_at TIMESTAMPTZ,
+  email_message_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_lead_messages_lead_id ON lead_messages(lead_id);
+CREATE INDEX IF NOT EXISTS idx_lead_messages_created_at ON lead_messages(created_at DESC);
+
+COMMENT ON TABLE lead_messages IS 'Messaggi tra staff e lead (outgoing=staff→lead, incoming=lead→staff)';
+
+GRANT ALL ON lead_messages TO authenticated;
+GRANT ALL ON lead_messages TO service_role;
+
+-- =====================================================
+-- 16. GRANT PERMISSIONS
 -- =====================================================
 
 -- Grant su tabelle nuove

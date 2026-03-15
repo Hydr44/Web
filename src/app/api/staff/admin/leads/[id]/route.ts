@@ -49,7 +49,10 @@ export async function PUT(
 
     const allowedFields = [
       'name', 'email', 'phone', 'company', 'type', 'status',
-      'priority', 'source', 'notes', 'assigned_to'
+      'priority', 'source', 'notes', 'assigned_to',
+      'vat_number', 'codice_fiscale', 'pec',
+      'address_street', 'address_city', 'address_province', 'address_postal_code',
+      'forma_giuridica', 'codice_ateco'
     ];
 
     const updateData: Record<string, unknown> = {
