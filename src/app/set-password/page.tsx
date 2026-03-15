@@ -22,6 +22,21 @@ export default function SetPasswordPage() {
     const tokenHash = searchParams.get('token_hash');
     const type = searchParams.get('type');
 
+    // Funzione per verificare la sessione con retry
+    const checkSession = async (retries = 3) => {
+      for (let i = 0; i < retries; i++) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          setStage('form');
+          return;
+        }
+        // Aspetta un po' prima di riprovare (per dare tempo a Supabase di rilevare il token dall'hash)
+        if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      setErrorMsg('Link non valido o scaduto. Chiedi un nuovo link all\'amministratore.');
+      setStage('error');
+    };
+
     if (tokenHash && type === 'recovery') {
       // PKCE flow: exchange token_hash for session
       supabase.auth
@@ -35,15 +50,9 @@ export default function SetPasswordPage() {
           }
         });
     } else {
-      // Implicit flow fallback: check if already has active session from hash redirect
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
-          setStage('form');
-        } else {
-          setErrorMsg('Nessun token di recupero trovato. Usa il link ricevuto via email.');
-          setStage('error');
-        }
-      });
+      // Implicit flow: Supabase rileva automaticamente il token dall'hash URL
+      // Aspettiamo che la sessione sia disponibile
+      checkSession();
     }
   }, []);
 
