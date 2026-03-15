@@ -109,12 +109,30 @@ export default function PublicQuotePage() {
     }
   };
 
+  const BrandHeader = ({ status }: { status?: { label: string; color: string } }) => (
+    <header className="border-b border-slate-800 bg-[#0f172a] sticky top-0 z-10">
+      <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <Link href="/" className="text-lg font-extrabold text-white tracking-tight">
+          RESCUE<span className="text-blue-500">MANAGER</span>
+        </Link>
+        {status && (
+          <span className={`text-xs font-bold px-3 py-1 uppercase tracking-widest ${status.color}`}>
+            {status.label}
+          </span>
+        )}
+      </div>
+    </header>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Caricamento preventivo...</p>
+      <div className="min-h-screen bg-[#0f172a] flex flex-col">
+        <BrandHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-10 w-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-slate-400 text-sm">Caricamento preventivo...</p>
+          </div>
         </div>
       </div>
     );
@@ -122,14 +140,20 @@ export default function PublicQuotePage() {
 
   if (error || !quote) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
-        <div className="text-center max-w-md">
-          <X className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-slate-100 mb-2">Preventivo non trovato</h1>
-          <p className="text-slate-400 text-sm mb-6">{error || 'Il link potrebbe essere scaduto o non valido.'}</p>
-          <Link href="/" className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-            Vai al sito
-          </Link>
+      <div className="min-h-screen bg-[#0f172a] flex flex-col">
+        <BrandHeader />
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 border-2 border-red-500/50 bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+              <X className="h-8 w-8 text-red-400" />
+            </div>
+            <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-2">Errore</p>
+            <h1 className="text-2xl font-extrabold text-white mb-3">Preventivo non trovato</h1>
+            <p className="text-slate-400 text-sm mb-8">{error || 'Il link potrebbe essere scaduto o non valido.'}</p>
+            <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors uppercase tracking-wide">
+              Vai al sito
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -143,82 +167,79 @@ export default function PublicQuotePage() {
     quote.billing_frequency === 'quarterly' ? 'Trimestrale' : 'Mensile';
 
   const statusConfig: Record<string, { label: string; color: string; icon: typeof Check }> = {
-    draft: { label: 'Bozza', color: 'bg-slate-500/15 text-slate-400', icon: FileText },
-    sent: { label: 'In attesa', color: 'bg-blue-500/15 text-blue-400', icon: Clock },
-    viewed: { label: 'In attesa', color: 'bg-blue-500/15 text-blue-400', icon: Clock },
-    accepted: { label: 'Accettato', color: 'bg-emerald-500/15 text-emerald-400', icon: Check },
-    paid: { label: 'Pagato', color: 'bg-green-500/15 text-green-400', icon: Check },
-    rejected: { label: 'Rifiutato', color: 'bg-red-500/15 text-red-400', icon: X },
-    expired: { label: 'Scaduto', color: 'bg-amber-500/15 text-amber-400', icon: Clock },
+    draft: { label: 'Bozza', color: 'text-slate-400', icon: FileText },
+    sent: { label: 'In attesa risposta', color: 'text-blue-400', icon: Clock },
+    viewed: { label: 'In attesa risposta', color: 'text-blue-400', icon: Clock },
+    accepted: { label: 'Accettato', color: 'text-emerald-400', icon: Check },
+    paid: { label: 'Pagato', color: 'text-emerald-400', icon: Check },
+    rejected: { label: 'Rifiutato', color: 'text-red-400', icon: X },
+    expired: { label: 'Scaduto', color: 'text-amber-400', icon: Clock },
   };
 
   const currentStatus = quote.is_expired ? statusConfig.expired : (statusConfig[quote.status] || statusConfig.draft);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-blue-400">RescueManager</Link>
-          <span className={`text-xs px-3 py-1 rounded-full ${currentStatus.color}`}>
-            {currentStatus.label}
-          </span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#0f172a]">
+      <BrandHeader status={currentStatus} />
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-6 py-8 space-y-5">
         {/* Action Result Banner */}
         {actionResult && (
-          <div className={`px-4 py-3 rounded-lg text-sm ${actionResult.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+          <div className={`px-4 py-3 border-l-4 text-sm font-medium ${
+            actionResult.type === 'success'
+              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+              : 'border-red-500 bg-red-500/10 text-red-400'
+          }`}>
             {actionResult.message}
           </div>
         )}
 
         {/* Quote Header */}
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6">
+        <div className="bg-slate-900 border border-slate-800 p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Preventivo</p>
-              <h1 className="text-2xl font-bold text-slate-100">{quote.quote_number}</h1>
+              <p className="text-xs font-bold text-blue-500 uppercase tracking-widest mb-2">Preventivo</p>
+              <h1 className="text-3xl font-extrabold text-white">{quote.quote_number}</h1>
               {(quote.lead_name || quote.lead_company) && (
-                <p className="text-sm text-slate-400 mt-1">
-                  Per: {quote.lead_name}{quote.lead_company ? ` — ${quote.lead_company}` : ''}
+                <p className="text-sm text-slate-400 mt-2">
+                  Per: <span className="text-slate-300 font-medium">{quote.lead_name}</span>{quote.lead_company ? ` — ${quote.lead_company}` : ''}
                 </p>
               )}
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500">Data</p>
-              <p className="text-sm text-slate-300">{new Date(quote.quote_date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-              <p className="text-xs text-slate-500 mt-2">Validità</p>
-              <p className={`text-sm ${quote.is_expired ? 'text-red-400' : 'text-slate-300'}`}>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Data emissione</p>
+              <p className="text-sm text-slate-300 mt-1">{new Date(quote.quote_date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-3">Valido fino al</p>
+              <p className={`text-sm mt-1 font-medium ${quote.is_expired ? 'text-red-400' : 'text-slate-300'}`}>
                 {new Date(quote.expiry_date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
-                {quote.is_expired && ' (Scaduto)'}
+                {quote.is_expired && ' — Scaduto'}
               </p>
             </div>
           </div>
         </div>
 
         {/* Plan */}
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6">
-          <h2 className="text-lg font-semibold text-slate-100 mb-4">Piano Selezionato</h2>
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-slate-900 border border-slate-800 p-6">
+          <div className="flex items-start justify-between mb-6 pb-6 border-b border-slate-800">
             <div>
-              <p className="text-2xl font-bold text-blue-400">{PLAN_LABELS[quote.plan_type] || quote.plan_type}</p>
-              <p className="text-xs text-slate-500 mt-0.5">Contratto {durationLabel} · Fatturazione {billingLabel}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Piano</p>
+              <p className="text-2xl font-extrabold text-white">{PLAN_LABELS[quote.plan_type] || quote.plan_type}</p>
+              <p className="text-xs text-slate-500 mt-1">Contratto {durationLabel} · Fatturazione {billingLabel}</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-emerald-400">{fmt(quote.monthly_total)}</p>
-              <p className="text-xs text-slate-500">/mese (IVA esclusa)</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Totale mensile</p>
+              <p className="text-3xl font-extrabold text-blue-400">{fmt(quote.monthly_total)}</p>
+              <p className="text-xs text-slate-500">/mese IVA esclusa</p>
             </div>
           </div>
 
           {/* Base Modules */}
-          <div className="mb-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Moduli Base Inclusi</p>
+          <div className="mb-5">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Moduli Base Inclusi</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {(quote.base_modules || []).map(mod => (
-                <div key={mod} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-700/30 text-sm text-slate-300">
-                  <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                <div key={mod} className="flex items-center gap-2 px-3 py-2 bg-slate-800 text-sm text-slate-300">
+                  <Check className="h-3 w-3 text-blue-500 shrink-0" />
                   {MODULE_LABELS[mod] || mod}
                 </div>
               ))}
@@ -227,14 +248,13 @@ export default function PublicQuotePage() {
 
           {/* Special Modules */}
           {quote.special_modules && quote.special_modules.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Moduli Speciali</p>
+            <div className="mb-5">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Moduli Speciali</p>
               <div className="space-y-2">
                 {quote.special_modules.map(mod => (
-                  <div key={mod} className="flex items-center justify-between px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <span className="text-sm text-blue-300 flex items-center gap-2">
-                      <Shield className="h-3.5 w-3.5" /> {MODULE_LABELS[mod] || mod}
-                    </span>
+                  <div key={mod} className="flex items-center gap-2 px-3 py-2 bg-blue-600/10 border-l-2 border-blue-500">
+                    <Shield className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                    <span className="text-sm text-blue-300 font-medium">{MODULE_LABELS[mod] || mod}</span>
                   </div>
                 ))}
               </div>
@@ -243,16 +263,16 @@ export default function PublicQuotePage() {
 
           {/* Customizations */}
           {quote.customizations && (
-            <div className="mt-4 p-3 rounded-lg bg-slate-700/30">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Personalizzazioni</p>
+            <div className="p-4 bg-slate-800 border-l-2 border-slate-600">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Personalizzazioni</p>
               <p className="text-sm text-slate-300">{quote.customizations}</p>
             </div>
           )}
         </div>
 
         {/* Pricing Breakdown */}
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6">
-          <h2 className="text-lg font-semibold text-slate-100 mb-4">Riepilogo Economico</h2>
+        <div className="bg-slate-900 border border-slate-800 p-6">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Riepilogo Economico</p>
 
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
@@ -284,10 +304,10 @@ export default function PublicQuotePage() {
               </div>
             )}
 
-            <div className="border-t border-slate-700 pt-3 mt-3">
+            <div className="border-t-2 border-blue-600/30 pt-4 mt-4">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-slate-100">Totale Mensile</span>
-                <span className="text-2xl font-bold text-emerald-400">{fmt(quote.monthly_total)}/mese</span>
+                <span className="text-base font-bold text-white uppercase tracking-wide">Totale Mensile</span>
+                <span className="text-2xl font-extrabold text-blue-400">{fmt(quote.monthly_total)}/mese</span>
               </div>
               {quote.yearly_total && (
                 <div className="flex justify-between text-sm mt-1">
@@ -301,9 +321,9 @@ export default function PublicQuotePage() {
 
         {/* Special Terms */}
         {quote.special_terms && (
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6">
-            <h2 className="text-lg font-semibold text-slate-100 mb-2">Condizioni Speciali</h2>
-            <p className="text-sm text-slate-300 whitespace-pre-wrap">{quote.special_terms}</p>
+          <div className="bg-slate-900 border border-slate-800 p-6">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Condizioni Speciali</p>
+            <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{quote.special_terms}</p>
           </div>
         )}
 
@@ -311,7 +331,7 @@ export default function PublicQuotePage() {
         {quote.pdf_url && (
           <div className="flex justify-center">
             <a href={quote.pdf_url} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition-colors text-sm">
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors text-sm font-medium border border-slate-700">
               <Download className="h-4 w-4" /> Scarica PDF
             </a>
           </div>
@@ -319,39 +339,39 @@ export default function PublicQuotePage() {
 
         {/* Actions */}
         {isActionable && (
-          <div className="bg-slate-800/50 rounded-xl border border-emerald-500/20 p-6">
-            <h2 className="text-lg font-semibold text-slate-100 mb-4">Rispondi al preventivo</h2>
+          <div className="bg-slate-900 border border-slate-800 p-6">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-5">Rispondi al preventivo</p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <button onClick={() => handleAction('accept')} disabled={!!actionLoading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50">
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-bold text-sm uppercase tracking-wide disabled:opacity-50">
                 {actionLoading === 'accept' ? (
-                  <><Loader2 className="h-5 w-5 animate-spin" /> Reindirizzamento...</>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Reindirizzamento...</>
                 ) : (
-                  <><Check className="h-5 w-5" /> Accetta e Procedi al Pagamento</>
+                  <><Check className="h-4 w-4" /> Accetta e Procedi al Pagamento</>
                 )}
               </button>
               <button onClick={() => setShowModifyForm(!showModifyForm)} disabled={!!actionLoading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors font-medium border border-blue-500/30 disabled:opacity-50">
-                <MessageSquare className="h-5 w-5" /> Richiedi Modifiche
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors font-medium text-sm disabled:opacity-50">
+                <MessageSquare className="h-4 w-4" /> Richiedi Modifiche
               </button>
               <button onClick={() => setShowRejectForm(!showRejectForm)} disabled={!!actionLoading}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors text-sm border border-red-500/20 disabled:opacity-50">
+                className="flex items-center justify-center gap-2 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-colors text-sm border border-red-500/20 disabled:opacity-50">
                 <X className="h-4 w-4" /> Rifiuta
               </button>
             </div>
 
             {/* Reject Form */}
             {showRejectForm && (
-              <div className="bg-red-500/5 rounded-lg border border-red-500/20 p-4 mt-2">
-                <p className="text-sm text-red-400 mb-2">Motivo del rifiuto (opzionale):</p>
+              <div className="bg-red-500/5 border-l-4 border-red-500 p-4 mt-3">
+                <p className="text-sm text-red-400 font-medium mb-2">Motivo del rifiuto (opzionale):</p>
                 <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 resize-none h-20 focus:outline-none focus:border-red-500/50"
-                  placeholder="Spiega perché hai rifiutato il preventivo..." />
+                  className="w-full bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-200 resize-none h-20 focus:outline-none focus:border-red-500/50"
+                  placeholder="Spiega perché stai rifiutando il preventivo..." />
                 <div className="flex justify-end gap-2 mt-2">
                   <button onClick={() => setShowRejectForm(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200">Annulla</button>
                   <button onClick={() => handleAction('reject', { reason: rejectReason })} disabled={!!actionLoading}
-                    className="px-4 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+                    className="px-4 py-1.5 text-xs bg-red-600 text-white hover:bg-red-700 font-bold uppercase tracking-wide disabled:opacity-50">
                     Conferma Rifiuto
                   </button>
                 </div>
@@ -360,16 +380,16 @@ export default function PublicQuotePage() {
 
             {/* Modify Form */}
             {showModifyForm && (
-              <div className="bg-blue-500/5 rounded-lg border border-blue-500/20 p-4 mt-2">
-                <p className="text-sm text-blue-400 mb-2">Descrivi le modifiche desiderate:</p>
+              <div className="bg-blue-500/5 border-l-4 border-blue-500 p-4 mt-3">
+                <p className="text-sm text-blue-400 font-medium mb-2">Descrivi le modifiche desiderate:</p>
                 <textarea value={modificationText} onChange={e => setModificationText(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 resize-none h-24 focus:outline-none focus:border-blue-500/50"
-                  placeholder="es. Vorrei aggiungere il modulo RENTRI, ridurre il prezzo base, cambiare la durata del contratto..." />
+                  className="w-full bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-200 resize-none h-24 focus:outline-none focus:border-blue-500/50"
+                  placeholder="es. Aggiungere il modulo RENTRI, ridurre il prezzo base, cambiare durata contratto..." />
                 <div className="flex justify-end gap-2 mt-2">
                   <button onClick={() => setShowModifyForm(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200">Annulla</button>
                   <button onClick={() => handleAction('request_modification', { modification_text: modificationText })}
                     disabled={!!actionLoading || !modificationText.trim()}
-                    className="px-4 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                    className="px-4 py-1.5 text-xs bg-blue-600 text-white hover:bg-blue-700 font-bold uppercase tracking-wide disabled:opacity-50">
                     Invia Richiesta
                   </button>
                 </div>
@@ -378,38 +398,38 @@ export default function PublicQuotePage() {
           </div>
         )}
 
-        {/* Status messages for non-actionable states */}
+        {/* Status messages */}
         {quote.status === 'accepted' && (
-          <div className="bg-emerald-500/10 rounded-xl border border-emerald-500/20 p-6 text-center">
-            <Check className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-emerald-400">Preventivo Accettato</h2>
+          <div className="bg-slate-900 border-l-4 border-emerald-500 p-6">
+            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Accettato</p>
+            <p className="text-white font-bold">Preventivo Accettato</p>
             <p className="text-sm text-slate-400 mt-1">Ti contatteremo a breve per completare la procedura di attivazione.</p>
           </div>
         )}
 
         {quote.status === 'paid' && (
-          <div className="bg-green-500/10 rounded-xl border border-green-500/20 p-6 text-center">
-            <Check className="h-12 w-12 text-green-400 mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-green-400">Pagamento Completato</h2>
-            <p className="text-sm text-slate-400 mt-1">Il tuo account è stato attivato. Accedi all&apos;area personale per iniziare.</p>
-            <Link href="/login" className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
-              Accedi
+          <div className="bg-slate-900 border-l-4 border-emerald-500 p-6">
+            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Pagato</p>
+            <p className="text-white font-bold">Pagamento Completato</p>
+            <p className="text-sm text-slate-400 mt-2">Il tuo account è stato attivato. Accedi all&apos;area personale per iniziare.</p>
+            <Link href="/login" className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors uppercase tracking-wide">
+              Accedi a RescueManager
             </Link>
           </div>
         )}
 
         {quote.status === 'rejected' && (
-          <div className="bg-red-500/10 rounded-xl border border-red-500/20 p-6 text-center">
-            <X className="h-12 w-12 text-red-400 mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-red-400">Preventivo Rifiutato</h2>
+          <div className="bg-slate-900 border-l-4 border-red-500 p-6">
+            <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Rifiutato</p>
+            <p className="text-white font-bold">Preventivo Rifiutato</p>
             <p className="text-sm text-slate-400 mt-1">Hai rifiutato questo preventivo. Contattaci per un nuovo preventivo personalizzato.</p>
           </div>
         )}
 
         {quote.is_expired && !['accepted', 'paid', 'rejected'].includes(quote.status) && (
-          <div className="bg-amber-500/10 rounded-xl border border-amber-500/20 p-6 text-center">
-            <Clock className="h-12 w-12 text-amber-400 mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-amber-400">Preventivo Scaduto</h2>
+          <div className="bg-slate-900 border-l-4 border-amber-500 p-6">
+            <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Scaduto</p>
+            <p className="text-white font-bold">Preventivo Scaduto</p>
             <p className="text-sm text-slate-400 mt-1">Questo preventivo è scaduto. Contattaci per un nuovo preventivo aggiornato.</p>
           </div>
         )}
@@ -417,7 +437,7 @@ export default function PublicQuotePage() {
         {/* Footer */}
         <footer className="text-center pt-8 pb-12 border-t border-slate-800">
           <p className="text-xs text-slate-600">
-            I prezzi indicati sono IVA esclusa. Il servizio è soggetto ai{' '}
+            I prezzi sono IVA esclusa. Il servizio è soggetto ai{' '}
             <Link href="/terms-of-use" className="text-slate-500 hover:text-slate-400 underline">Termini e Condizioni</Link>.
           </p>
           <p className="text-xs text-slate-600 mt-1">
