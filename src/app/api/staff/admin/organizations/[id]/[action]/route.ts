@@ -139,6 +139,20 @@ export async function POST(
       }
 
       case 'delete': {
+        // 1. Nullifica leads.demo_org_id (FK constraint)
+        await supabaseAdmin
+          .from('leads')
+          .update({ demo_org_id: null })
+          .eq('demo_org_id', orgId);
+
+        // 2. Elimina tabelle dipendenti
+        await supabaseAdmin.from('lead_demos').delete().eq('demo_org_id', orgId);
+        await supabaseAdmin.from('org_subscriptions').delete().eq('org_id', orgId);
+        await supabaseAdmin.from('company_settings').delete().eq('org_id', orgId);
+        await supabaseAdmin.from('operators').delete().eq('org_id', orgId);
+        await supabaseAdmin.from('org_modules').delete().eq('org_id', orgId);
+
+        // 3. Rimuovi membri
         const { error: membersError } = await supabaseAdmin
           .from('org_members')
           .delete()
@@ -151,6 +165,7 @@ export async function POST(
           }, { status: 500 });
         }
 
+        // 4. Elimina org
         const { error: orgError } = await supabaseAdmin
           .from('orgs')
           .delete()
