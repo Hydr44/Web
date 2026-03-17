@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Check, ArrowRight, Mail } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function QuoteSuccessPage() {
@@ -79,30 +79,61 @@ export default function QuoteSuccessPage() {
             Riceverai a breve una email con le istruzioni di accesso.
           </p>
 
-          {/* Info blocks */}
-          <div className="space-y-3 mb-10">
-            <div className="flex items-start gap-4 p-5 bg-slate-900 border border-slate-800">
-              <div className="w-8 h-8 bg-blue-600/20 border border-blue-600/30 flex items-center justify-center shrink-0 mt-0.5">
-                <Mail className="h-4 w-4 text-blue-400" />
+          {/* Prossimi passi checklist */}
+          <div className="bg-slate-900 border border-slate-800 p-6 mb-10">
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">Prossimi Passi</p>
+            <div className="space-y-4">
+              {/* Step 1 */}
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                  1
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white mb-1">Controlla la tua email</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Ti abbiamo inviato un&apos;email con il link per impostare la tua password.
+                    Controlla anche la cartella spam se non la vedi.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold text-white mb-1">Email di Attivazione</p>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Controlla la tua casella email per le credenziali di accesso.
-                  Se non la ricevi entro pochi minuti, controlla la cartella spam.
-                </p>
+              
+              {/* Step 2 */}
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                  2
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white mb-1">Imposta la tua password</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Clicca sul link nell&apos;email per creare la tua password personale e accedere alla piattaforma.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-4 p-5 bg-slate-900 border border-slate-800">
-              <div className="w-8 h-8 bg-blue-600/20 border border-blue-600/30 flex items-center justify-center shrink-0 mt-0.5">
-                <ArrowRight className="h-4 w-4 text-blue-400" />
+
+              {/* Step 3 */}
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                  3
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white mb-1">Completa i dati aziendali</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Verifica e completa P.IVA, indirizzo, PEC e codice destinatario SDI per la fatturazione elettronica.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold text-white mb-1">Prossimi Passi</p>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Il nostro team ti contatterà per guidarti nell&apos;onboarding
-                  e nella configurazione iniziale della piattaforma.
-                </p>
+
+              {/* Step 4 */}
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                  4
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-white mb-1">Inizia ad usare RescueManager</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Accedi alla piattaforma web e scarica l&apos;applicazione desktop per gestire la tua attività.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
