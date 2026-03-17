@@ -105,19 +105,19 @@ export default function SetPasswordPage() {
         <span className="text-lg font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
       </Link>
       <div>
-        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Account Demo</p>
+        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Account Attivato</p>
         <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
           Quasi pronto<span className="text-blue-500">.</span>
         </h2>
         <p className="text-slate-400 text-base mb-10 max-w-sm">
-          Imposta la tua password per accedere alla demo completa di RescueManager.
+          Imposta la tua password per accedere a RescueManager e completare la configurazione della tua organizzazione.
         </p>
         <div className="space-y-3">
           {[
             'Accesso completo a tutti i moduli inclusi',
-            'Dati aziendali preconfigurati',
-            'Supporto dedicato durante la demo',
-            'Nessuna carta di credito richiesta',
+            'Piattaforma web + applicazione desktop',
+            'Integrazione RENTRI & SDI certificata',
+            'Supporto tecnico dedicato',
           ].map((f) => (
             <div key={f} className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
@@ -215,7 +215,7 @@ export default function SetPasswordPage() {
             </Link>
           </div>
 
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Account Demo</p>
+          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Account Attivato</p>
           <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Imposta la password.</h1>
           <p className="text-sm text-gray-500 mb-8">Scegli una password sicura per il tuo account RescueManager.</p>
 

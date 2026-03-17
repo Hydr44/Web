@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase-browser';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   Building2, FileText, CheckCircle, ArrowRight, Loader2,
   AlertCircle, Copy, Check, Info
@@ -105,9 +107,18 @@ export default function OnboardingPage() {
     setSaving(true);
     setError('');
 
+    const payload: Record<string, any> = {
+      org_id: orgId,
+      address_country: 'IT',
+      updated_at: new Date().toISOString()
+    };
+    for (const [k, v] of Object.entries(data)) {
+      payload[k] = v || null;
+    }
+
     const { error: err } = await supabase
       .from('company_settings')
-      .upsert({ ...data, org_id: orgId, address_country: 'IT', updated_at: new Date().toISOString() }, { onConflict: 'org_id' });
+      .upsert(payload, { onConflict: 'org_id' });
 
     if (err) { setError(`Errore salvataggio: ${err.message}`); setSaving(false); return; }
     setSaving(false);
@@ -123,7 +134,7 @@ export default function OnboardingPage() {
         .update({ onboarding_completed: true })
         .eq('current_org', orgId);
     }
-    router.push('/staff');
+    router.push('/dashboard');
   };
 
   const copyCode = () => {
@@ -135,139 +146,178 @@ export default function OnboardingPage() {
   const set = (field: keyof CompanyData, value: string) =>
     setData(d => ({ ...d, [field]: value }));
 
+  const LeftPanel = () => (
+    <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
+      <Link href="/" className="inline-flex items-center gap-3">
+        <div className="relative w-10 h-10 overflow-hidden">
+          <Image src="/logo_128.png" alt="RescueManager" fill className="object-cover" priority />
+        </div>
+        <span className="text-lg font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
+      </Link>
+      <div>
+        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Configurazione iniziale</p>
+        <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
+          Quasi pronto<span className="text-blue-500">.</span>
+        </h2>
+        <p className="text-slate-400 text-base mb-10 max-w-sm">
+          Completa la configurazione della tua organizzazione per iniziare a usare RescueManager.
+        </p>
+        <div className="space-y-3">
+          {[
+            { n: 1, label: 'Dati Aziendali', done: step > 1 },
+            { n: 2, label: 'Codice SDI', done: step > 2 },
+          ].map(s => (
+            <div key={s.n} className="flex items-center gap-3">
+              <div className={`w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 ${s.done ? 'bg-emerald-500 text-white' : step === s.n ? 'bg-blue-500 text-white' : 'border border-slate-600 text-slate-500'}`}>
+                {s.done ? '✓' : s.n}
+              </div>
+              <span className={`text-sm ${s.done ? 'text-emerald-400' : step === s.n ? 'text-white font-medium' : 'text-slate-500'}`}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
-        <Loader2 className="h-8 w-8 text-blue-400 animate-spin" />
+      <div className="min-h-screen flex">
+        <LeftPanel />
+        <div className="flex-1 bg-white flex items-center justify-center">
+          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 px-6 py-12">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen flex">
+      <LeftPanel />
+      <div className="flex-1 bg-white flex items-start justify-center p-8 lg:p-12 overflow-y-auto">
+      <div className="w-full max-w-xl">
 
-        {/* Progress */}
-        <div className="flex items-center gap-3 mb-8">
-          {[
-            { n: 1, label: 'Dati Azienda', icon: Building2 },
-            { n: 2, label: 'Codice SDI', icon: FileText },
-            { n: 3, label: 'Completato', icon: CheckCircle },
-          ].map((s, i) => (
-            <div key={s.n} className="flex items-center gap-3 flex-1">
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${step === s.n ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : step > s.n ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800/50 text-slate-500'}`}>
-                <s.icon className="h-4 w-4" />
-                <span className="text-xs font-medium">{s.label}</span>
-              </div>
-              {i < 2 && <div className={`h-px flex-1 ${step > s.n ? 'bg-emerald-500/40' : 'bg-slate-700'}`} />}
+        {/* Mobile logo */}
+        <div className="lg:hidden mb-8">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="relative w-8 h-8 overflow-hidden">
+              <Image src="/logo_128.png" alt="RescueManager" fill className="object-cover" />
+            </div>
+            <span className="text-base font-extrabold text-[#0f172a]">RESCUE<span className="text-blue-600">MANAGER</span></span>
+          </Link>
+        </div>
+
+        {/* Step indicator mobile */}
+        <div className="lg:hidden flex items-center gap-2 mb-6">
+          {[{n:1,l:'Dati'},{n:2,l:'SDI'}].map((s,i) => (
+            <div key={s.n} className="flex items-center gap-2">
+              <div className={`w-6 h-6 flex items-center justify-center text-xs font-bold ${step === s.n ? 'bg-blue-600 text-white' : step > s.n ? 'bg-emerald-500 text-white' : 'border border-gray-300 text-gray-400'}`}>{step > s.n ? '✓' : s.n}</div>
+              <span className={`text-xs ${step === s.n ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>{s.l}</span>
+              {i < 1 && <div className="w-8 h-px bg-gray-200" />}
             </div>
           ))}
         </div>
 
         {/* ─── STEP 1: Dati Aziendali ─── */}
         {step === 1 && (
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-6">
-            <div className="mb-6">
-              <h1 className="text-xl font-bold text-slate-100 mb-1">Verifica i dati aziendali</h1>
-              <p className="text-sm text-slate-400">
-                Questi dati verranno usati per la fatturazione e per la configurazione della tua organizzazione.
-                Sono stati pre-compilati dal nostro team — verifica e completa se necessario.
-              </p>
-            </div>
+          <div>
+            <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Passo 1 di 2</p>
+            <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Dati aziendali.</h1>
+            <p className="text-sm text-gray-500 mb-8">Verifica e completa i dati della tua organizzazione. I campi con * sono obbligatori.</p>
 
             {error && (
-              <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 flex items-start gap-2 text-sm text-red-700">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 {error}
               </div>
             )}
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Ragione Sociale *</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Ragione Sociale *</label>
                   <input value={data.company_name} onChange={e => set('company_name', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="Nome azienda" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">P.IVA *</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">P.IVA *</label>
                   <input value={data.vat_number} onChange={e => set('vat_number', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="IT12345678901" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Codice Fiscale</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Codice Fiscale</label>
                   <input value={data.codice_fiscale} onChange={e => set('codice_fiscale', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50" />
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Forma Giuridica</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Forma Giuridica</label>
                   <select value={data.forma_giuridica} onChange={e => set('forma_giuridica', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50">
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                     <option value="">— Seleziona —</option>
                     {FORMA_GIURIDICA_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">PEC</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">PEC</label>
                   <input value={data.pec} onChange={e => set('pec', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="info@pec.esempio.it" type="email" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Telefono</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Telefono</label>
                   <input value={data.phone} onChange={e => set('phone', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50" />
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">Indirizzo Sede Legale</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Indirizzo Sede Legale <span className="text-gray-400 font-normal normal-case">(opzionale)</span></label>
                 <input value={data.address_street} onChange={e => set('address_street', e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                  className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="Via Roma 1" />
               </div>
 
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Città</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Città</label>
                   <input value={data.address_city} onChange={e => set('address_city', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50" />
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Prov.</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Prov.</label>
                   <input value={data.address_province} onChange={e => set('address_province', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     maxLength={2} placeholder="MI" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">CAP</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">CAP</label>
                   <input value={data.address_postal_code} onChange={e => set('address_postal_code', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     maxLength={5} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Codice ATECO</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Codice ATECO</label>
                   <input value={data.codice_ateco} onChange={e => set('codice_ateco', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="es. 38.31" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">IBAN</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">IBAN</label>
                   <input value={data.iban} onChange={e => set('iban', e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50"
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="IT60 X054 2811 1010 0000 0123 456" />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-end mt-8">
               <button onClick={handleSaveCompany} disabled={saving || !data.company_name || !data.vat_number}
-                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50">
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 uppercase tracking-wide">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Salva e Continua <ArrowRight className="h-4 w-4" />
               </button>
@@ -277,48 +327,43 @@ export default function OnboardingPage() {
 
         {/* ─── STEP 2: Codice Destinatario SDI ─── */}
         {step === 2 && (
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-6">
-            <div className="mb-6">
-              <h1 className="text-xl font-bold text-slate-100 mb-1">Codice Destinatario SDI</h1>
-              <p className="text-sm text-slate-400">
-                Questo è il codice che dovrai fornire ai tuoi clienti e fornitori per ricevere
-                fatture elettroniche attraverso la piattaforma RescueManager.
-              </p>
-            </div>
+          <div>
+            <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Passo 2 di 2</p>
+            <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Codice SDI.</h1>
+            <p className="text-sm text-gray-500 mb-8">
+              Questo codice ti permette di ricevere fatture elettroniche direttamente su RescueManager.
+            </p>
 
-            <div className="bg-slate-900/50 rounded-xl border border-blue-500/30 p-6 mb-6 text-center">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Il tuo Codice Destinatario SDI</p>
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <span className="text-4xl font-bold font-mono text-blue-400 tracking-widest">{SDI_CODE}</span>
+            <div className="border border-blue-200 bg-blue-50 p-6 mb-6 text-center">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Il tuo Codice Destinatario SDI</p>
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <span className="text-4xl font-bold font-mono text-[#0f172a] tracking-widest">{SDI_CODE}</span>
                 <button onClick={copyCode}
-                  className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-200">
-                  {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                  className="p-2 border border-gray-200 hover:bg-white transition-colors text-gray-500 hover:text-gray-800">
+                  {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-slate-500">
-                Questo codice è unico per la tua organizzazione su RescueManager
-              </p>
+              <p className="text-xs text-gray-500">Codice univoco della tua organizzazione su RescueManager</p>
             </div>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-700/50">
-                <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+            <div className="space-y-3 mb-8">
+              <div className="flex items-start gap-3 p-4 border border-gray-200">
+                <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-slate-200 mb-1">Come usarlo</p>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    Comunica questo codice ai tuoi fornitori quando richiedono il &quot;Codice Destinatario&quot; o 
-                    &quot;Codice Univoco Ufficio&quot; per l&apos;invio di fatture elettroniche. 
+                  <p className="text-sm font-bold text-gray-900 mb-1">Come usarlo</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Comunicalo ai tuoi fornitori quando richiedono il &quot;Codice Destinatario&quot; per l&apos;invio di fatture elettroniche.
                     Le fatture arriveranno direttamente nel modulo Fatturazione di RescueManager.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/30 border border-slate-700/50">
-                <FileText className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 p-4 border border-gray-200">
+                <FileText className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-slate-200 mb-1">Dove inserirlo</p>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    Registra questo codice anche sul portale dell&apos;Agenzia delle Entrate 
-                    (sezione &quot;Fatture e Corrispettivi&quot; → &quot;Registrazione dell&apos;indirizzo telematico&quot;) 
+                  <p className="text-sm font-bold text-gray-900 mb-1">Dove registrarlo</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Registralo sul portale dell&apos;Agenzia delle Entrate
+                    (Fatture e Corrispettivi → Registrazione indirizzo telematico)
                     per ricevere automaticamente tutte le fatture passive.
                   </p>
                 </div>
@@ -327,11 +372,11 @@ export default function OnboardingPage() {
 
             <div className="flex justify-between">
               <button onClick={() => setStep(1)}
-                className="px-4 py-2.5 bg-slate-700/50 text-slate-300 rounded-xl hover:bg-slate-700 transition-colors text-sm border border-slate-600/50">
+                className="px-5 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium">
                 Indietro
               </button>
               <button onClick={handleComplete} disabled={saving}
-                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-sm font-medium disabled:opacity-50">
+                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 uppercase tracking-wide">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                 Accedi alla Piattaforma
               </button>
@@ -339,6 +384,7 @@ export default function OnboardingPage() {
           </div>
         )}
 
+      </div>
       </div>
     </div>
   );
