@@ -58,51 +58,51 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
   }, [redirectUrl, onComplete]);
 
   return (
-    <div className="rounded-2xl bg-[#1a2536] border border-[#243044] p-6 sm:p-8">
-      <div className="text-center space-y-5">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 sm:p-12">
+      <div className="text-center space-y-6">
         {/* Logo */}
-        <div className="mx-auto mb-2">
+        <div className="mx-auto mb-4">
           <img
             src="/assets/logos/logo-principale-a-colori.svg"
             alt="RescueManager"
-            className="h-8 w-auto mx-auto"
+            className="h-10 w-auto mx-auto"
           />
         </div>
 
         {/* Success Icon */}
-        <div className="mx-auto h-12 w-12 bg-emerald-600 rounded-xl flex items-center justify-center">
-          <CheckCircle className="h-6 w-6 text-white" />
+        <div className="mx-auto h-16 w-16 bg-emerald-500 rounded-full flex items-center justify-center">
+          <CheckCircle className="h-8 w-8 text-white" />
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-slate-100 mb-1.5">
+          <h3 className="text-2xl font-extrabold text-[#0f172a] mb-2">
             Autenticazione completata
           </h3>
-          <p className="text-sm text-slate-400">
+          <p className="text-base text-gray-600">
             Reindirizzamento alla desktop app in corso...
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
-          <Monitor className="h-4 w-4 text-blue-400" />
-          <span className="text-sm text-slate-400">
+        <div className="flex items-center justify-center gap-3 py-4">
+          <Monitor className="h-5 w-5 text-blue-600" />
+          <span className="text-lg font-semibold text-gray-900">
             {isRedirecting ? "Reindirizzamento..." : `${countdown}s`}
           </span>
-          <ArrowRight className="h-4 w-4 text-blue-400" />
+          <ArrowRight className="h-5 w-5 text-blue-600" />
         </div>
 
         {!isRedirecting && (
-          <div className="w-full bg-[#243044] rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
             <div
-              className="bg-blue-500 h-full rounded-full transition-all duration-100 ease-linear"
+              className="bg-blue-600 h-full rounded-full transition-all duration-100 ease-linear"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>
         )}
 
-        <div className="text-xs text-slate-500">
+        <div className="text-sm text-gray-500 pt-4">
           Se il reindirizzamento non funziona,{" "}
-          <a href={redirectUrl} className="text-blue-400 hover:underline">
+          <a href={redirectUrl} className="text-blue-600 font-semibold hover:underline">
             clicca qui
           </a>
         </div>

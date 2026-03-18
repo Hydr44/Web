@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight, CheckCircle, Monitor } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -280,129 +280,133 @@ function DesktopOAuthContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-6 sm:p-8 space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto mb-4">
-            <img
-              src="/assets/logos/logo-principale-a-colori.svg"
-              alt="RescueManager"
-              className="h-10 w-auto mx-auto"
-            />
-          </div>
-          <h2 className="text-xl font-semibold text-slate-100 mb-1.5">
-            Accesso Desktop App
-          </h2>
-          <p className="text-sm text-slate-400">
-            Accedi per continuare con l'applicazione desktop
-          </p>
+    <div className="min-h-screen flex">
+      {/* LEFT — brand panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
+        <div className="inline-flex items-center">
+          <img 
+            src="/assets/logos/logo-principale-bianco.svg" 
+            alt="RescueManager"
+            className="h-auto w-40"
+          />
         </div>
 
-        {/* Form */}
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-xs font-medium text-slate-400 mb-1.5">
-              Email
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 border border-[#243044] bg-[#141c27] text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600 text-sm"
-                placeholder="inserisci@email.com"
-              />
-            </div>
+        <div>
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Desktop App</p>
+          <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
+            Accedi alla<br />tua applicazione<span className="text-blue-500">.</span>
+          </h2>
+          <p className="text-slate-400 text-base mb-10 max-w-sm">
+            Gestisci trasporti, ricambi, RENTRI, SDI e RVFU dalla tua applicazione desktop.
+          </p>
+          <div className="space-y-3">
+            {["Sincronizzazione automatica","Accesso offline ai dati","Notifiche desktop in tempo reale","Performance ottimizzate"].map((f) => (
+              <div key={f} className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
+                <span className="text-sm text-slate-300">{f}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
+      </div>
+
+      {/* RIGHT — form panel */}
+      <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 text-center">
+            <img 
+              src="/assets/logos/logo-principale-a-colori.svg" 
+              alt="RescueManager"
+              className="h-auto w-48 mx-auto"
+            />
           </div>
 
-          {/* Password */}
-          <div>
-            <label htmlFor="password" className="block text-xs font-medium text-slate-400 mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-2.5 border border-[#243044] bg-[#141c27] text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600 text-sm"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
+          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Accesso Desktop</p>
+          <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Bentornato.</h1>
+          <p className="text-sm text-gray-500 mb-8">Inserisci le credenziali del tuo account.</p>
 
-          {/* Error/Success Messages */}
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 text-xs">
+            <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          {success && (
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-2 text-xs flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              {error}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm"
+                  placeholder="inserisci@email.com"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-colors text-sm ${
-              isLoading
-                ? "bg-[#243044] text-slate-600 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-500"
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Accesso in corso...
-              </>
-            ) : (
-              <>
-                <LogIn className="h-4 w-4" />
-                Accedi
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </button>
-        </form>
+            <div>
+              <label htmlFor="password" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
 
-        {/* Footer */}
-        <div className="text-center space-y-2">
-          <p className="text-xs text-slate-500">
-            Non hai un account?{" "}
-            <a href="/register" className="text-blue-400 hover:underline">
-              Registrati
-            </a>
-          </p>
-          <p className="text-[10px] text-slate-600">
-            Accedendo, accetti i{" "}
-            <a href="/terms-of-use" className="text-slate-500 hover:underline">Termini</a>{" "}
-            e la{" "}
-            <a href="/privacy-policy" className="text-slate-500 hover:underline">Privacy Policy</a>
-          </p>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>Accesso in corso...</span>
+                </div>
+              ) : "ACCEDI"}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-500">
+              Non hai un account?{" "}
+              <a href="/contatti" className="text-blue-600 font-bold hover:underline">
+                Richiedi Accesso
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
