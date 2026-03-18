@@ -3,7 +3,7 @@
 ## 1) Hero
 - **Eyebrow**: App Base
 - **Titolo**: Mezzi & Autisti.
-- **Sottotitolo**: Gestione flotta veicoli e personale operativo. Scadenze automatiche, tracking GPS, turni e assegnazioni intelligenti.
+- **Sottotitolo**: Gestione flotta veicoli e personale operativo. Scadenze automatiche, turni e assegnazioni intelligenti.
 
 ## 2) Problema / Perché serve
 Gestire mezzi e autisti senza un sistema centrale significa:
@@ -22,6 +22,9 @@ Ogni mezzo ha una scheda completa con:
 - Documenti (libretto, assicurazione, revisione)
 - Foto del mezzo
 - Scadenze automatiche per revisione, assicurazione, bollo e tachigrafo
+
+
+
 
 ### 3.2 Gestione Autisti
 Per ogni autista gestisci:
@@ -53,7 +56,6 @@ Quando assegni un trasporto, il sistema suggerisce:
 - Autisti disponibili in quel momento
 - Mezzi con caratteristiche adatte (es. carro attrezzi, pianale)
 
-Se hai il tracking GPS attivo, vedi la posizione in tempo reale di ogni mezzo.
 
 ## 4) Come funziona
 1. **Crea anagrafica mezzi e autisti**

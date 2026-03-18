@@ -40,8 +40,7 @@ Per ogni cliente vedi:
 - Fatturato generato
 - Frequenza ordini
 
-### 3.5 Note e promemoria
-Aggiungi note interne, promemoria e tag per organizzare e segmentare i clienti (es. "VIP", "Pagamento lento", "Flotta aziendale").
+
 
 ## 4) Tipologie di clienti
 

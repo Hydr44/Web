@@ -279,23 +279,6 @@ function DesktopOAuthContent() {
     );
   }
 
-  // Notifica chiusura finestra per permettere riapertura
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Invia messaggio alla desktop app che la finestra sta per chiudersi
-      if (typeof window !== 'undefined' && (window as any).opener) {
-        try {
-          (window as any).opener.postMessage({ type: 'oauth-window-closed' }, '*');
-        } catch (e) {
-          console.log('[DesktopOAuth] Could not notify parent window');
-        }
-      }
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
   return (
     <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-6 sm:p-8 space-y-6">
