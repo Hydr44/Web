@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { authManager, addAuthListener, type AuthUser } from "@/lib/auth";
@@ -177,17 +176,14 @@ export default function SiteHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-28">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="relative w-24 h-24 rounded-2xl overflow-hidden">
-              <Image
-                src="/logo_128.png"
-                alt="RescueManager"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            <span className="hidden sm:block text-xl font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
+          <Link href="/" className="flex items-center">
+            <img
+              src="/assets/logos/logo-principale-bianco.svg"
+              alt="RescueManager"
+              width={180}
+              height={60}
+              className="h-12 w-auto"
+            />
           </Link>
 
           {/* Navigation */}

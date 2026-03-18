@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { 
   Home, 
   ArrowLeft, 
@@ -17,17 +16,14 @@ export default function NotFound() {
       <div className="max-w-2xl mx-auto text-center">
         {/* Logo */}
         <div className="mb-8">
-          <Link href="/" className="inline-flex flex-col items-center gap-3 group">
-            <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-lg">
-              <Image 
-                src="/logo_128.png" 
-                alt="RescueManager" 
-                fill
-                priority 
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-            <span className="text-xl font-bold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
+          <Link href="/" className="inline-flex items-center justify-center group">
+            <img
+              src="/assets/logos/logo-principale-bianco.svg"
+              alt="RescueManager"
+              width={200}
+              height={67}
+              className="h-14 w-auto transition-opacity duration-300 group-hover:opacity-80"
+            />
           </Link>
         </div>
 
