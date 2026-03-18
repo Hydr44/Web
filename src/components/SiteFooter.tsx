@@ -12,8 +12,14 @@ export default function SiteFooter() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <span className="text-xl font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">.</span></span>
+            <div className="mb-4">
+              <img
+                src="/assets/logos/logo-principale-a-colori.svg"
+                alt="RescueManager"
+                width={160}
+                height={53}
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-sm text-slate-400 mb-5 leading-relaxed">
               Software gestionale per autodemolizioni e soccorso stradale. 

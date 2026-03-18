@@ -178,7 +178,7 @@ export default function SiteHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <img
-              src="/assets/logos/logo-principale-bianco.svg"
+              src="/assets/logos/logo-principale-a-colori.svg"
               alt="RescueManager"
               width={180}
               height={60}
