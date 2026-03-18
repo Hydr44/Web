@@ -56,11 +56,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* LEFT — brand panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
-        <Link href="/" className="inline-flex items-center gap-3">
-          <div className="relative w-10 h-10 overflow-hidden">
-            <Image src="/logo_128.png" alt="RescueManager" fill className="object-cover" priority />
-          </div>
-          <span className="text-lg font-extrabold text-white tracking-tight">RESCUE<span className="text-blue-500">MANAGER</span></span>
+        <Link href="/" className="inline-flex items-center">
+          <img 
+            src="/assets/logos/logo-principale-bianco.svg" 
+            alt="RescueManager"
+            width={160}
+            height={53}
+            className="h-auto"
+          />
         </Link>
 
         <div>
@@ -89,11 +92,14 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 text-center">
-            <Link href="/" className="inline-flex flex-col items-center gap-2">
-              <div className="relative w-12 h-12 overflow-hidden">
-                <Image src="/logo_128.png" alt="RescueManager" fill className="object-cover" />
-              </div>
-              <span className="text-xl font-extrabold text-[#0f172a]">RESCUE<span className="text-blue-600">MANAGER</span></span>
+            <Link href="/" className="inline-flex items-center justify-center">
+              <img 
+                src="/assets/logos/logo-principale-colori.svg" 
+                alt="RescueManager"
+                width={200}
+                height={67}
+                className="h-auto"
+              />
             </Link>
           </div>
 
