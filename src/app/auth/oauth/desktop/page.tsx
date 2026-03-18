@@ -279,15 +279,36 @@ function DesktopOAuthContent() {
     );
   }
 
+  // Notifica chiusura finestra per permettere riapertura
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Invia messaggio alla desktop app che la finestra sta per chiudersi
+      if (typeof window !== 'undefined' && (window as any).opener) {
+        try {
+          (window as any).opener.postMessage({ type: 'oauth-window-closed' }, '*');
+        } catch (e) {
+          console.log('[DesktopOAuth] Could not notify parent window');
+        }
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 space-y-8">
+    <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-6 sm:p-8 space-y-6">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-14 w-14 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
-            <Monitor className="h-7 w-7 text-white" />
+          <div className="mx-auto mb-4">
+            <img
+              src="/assets/logos/logo-principale-a-colori.svg"
+              alt="RescueManager"
+              className="h-10 w-auto mx-auto"
+            />
           </div>
-          <h2 className="text-2xl font-semibold text-slate-100 mb-2">
+          <h2 className="text-xl font-semibold text-slate-100 mb-1.5">
             Accesso Desktop App
           </h2>
           <p className="text-sm text-slate-400">
@@ -296,10 +317,10 @@ function DesktopOAuthContent() {
         </div>
 
         {/* Form */}
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="email" className="block text-xs font-medium text-slate-400 mb-1.5">
               Email
             </label>
             <div className="relative">
@@ -312,7 +333,7 @@ function DesktopOAuthContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-3 border border-[#243044] bg-[#141c27] text-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600"
+                className="w-full pl-10 pr-3 py-2.5 border border-[#243044] bg-[#141c27] text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600 text-sm"
                 placeholder="inserisci@email.com"
               />
             </div>
@@ -320,7 +341,7 @@ function DesktopOAuthContent() {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="password" className="block text-xs font-medium text-slate-400 mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -333,7 +354,7 @@ function DesktopOAuthContent() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 border border-[#243044] bg-[#141c27] text-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600"
+                className="w-full pl-10 pr-12 py-2.5 border border-[#243044] bg-[#141c27] text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-600 text-sm"
                 placeholder="••••••••"
               />
               <button
@@ -348,13 +369,13 @@ function DesktopOAuthContent() {
 
           {/* Error/Success Messages */}
           {error && (
-            <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 text-sm">
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 text-xs">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 text-sm flex items-center gap-2">
+            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-2 text-xs flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
               {error}
             </div>
@@ -364,7 +385,7 @@ function DesktopOAuthContent() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-colors text-sm ${
               isLoading
                 ? "bg-[#243044] text-slate-600 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-500"
@@ -378,27 +399,26 @@ function DesktopOAuthContent() {
             ) : (
               <>
                 <LogIn className="h-4 w-4" />
-                Accedi alla Desktop App
+                Accedi
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
           </button>
-
-          <p className="text-xs text-slate-500 text-center">
-            Accedendo, accetti i{" "}
-            <a href="/terms-of-use" className="text-blue-400 hover:underline">Termini d'Uso</a>{" "}
-            e la{" "}
-            <a href="/privacy-policy" className="text-blue-400 hover:underline">Privacy Policy</a>
-          </p>
         </form>
 
         {/* Footer */}
-        <div className="text-center text-sm text-slate-500">
-          <p>
+        <div className="text-center space-y-2">
+          <p className="text-xs text-slate-500">
             Non hai un account?{" "}
             <a href="/register" className="text-blue-400 hover:underline">
-              Registrati qui
+              Registrati
             </a>
+          </p>
+          <p className="text-[10px] text-slate-600">
+            Accedendo, accetti i{" "}
+            <a href="/terms-of-use" className="text-slate-500 hover:underline">Termini</a>{" "}
+            e la{" "}
+            <a href="/privacy-policy" className="text-slate-500 hover:underline">Privacy Policy</a>
           </p>
         </div>
       </div>

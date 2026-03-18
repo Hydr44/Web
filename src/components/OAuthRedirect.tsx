@@ -58,14 +58,24 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
   }, [redirectUrl, onComplete]);
 
   return (
-    <div className="rounded-2xl bg-[#1a2536] border border-[#243044] p-8">
-      <div className="text-center space-y-6">
-        <div className="mx-auto h-14 w-14 bg-emerald-600 rounded-xl flex items-center justify-center">
-          <CheckCircle className="h-7 w-7 text-white" />
+    <div className="rounded-2xl bg-[#1a2536] border border-[#243044] p-6 sm:p-8">
+      <div className="text-center space-y-5">
+        {/* Logo */}
+        <div className="mx-auto mb-2">
+          <img
+            src="/assets/logos/logo-principale-a-colori.svg"
+            alt="RescueManager"
+            className="h-8 w-auto mx-auto"
+          />
+        </div>
+
+        {/* Success Icon */}
+        <div className="mx-auto h-12 w-12 bg-emerald-600 rounded-xl flex items-center justify-center">
+          <CheckCircle className="h-6 w-6 text-white" />
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-slate-100 mb-2">
+          <h3 className="text-lg font-semibold text-slate-100 mb-1.5">
             Autenticazione completata
           </h3>
           <p className="text-sm text-slate-400">
@@ -76,7 +86,7 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
         <div className="flex items-center justify-center gap-2">
           <Monitor className="h-4 w-4 text-blue-400" />
           <span className="text-sm text-slate-400">
-            {isRedirecting ? "Reindirizzamento..." : `Reindirizzamento in ${countdown} secondi`}
+            {isRedirecting ? "Reindirizzamento..." : `${countdown}s`}
           </span>
           <ArrowRight className="h-4 w-4 text-blue-400" />
         </div>
@@ -91,7 +101,7 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
         )}
 
         <div className="text-xs text-slate-500">
-          Se il reindirizzamento non funziona automaticamente,{" "}
+          Se il reindirizzamento non funziona,{" "}
           <a href={redirectUrl} className="text-blue-400 hover:underline">
             clicca qui
           </a>
