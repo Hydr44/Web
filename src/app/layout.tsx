@@ -11,7 +11,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 // Revalida lo stato manutenzione ogni 60 secondi (invece di force-dynamic su tutto il sito)
 export const revalidate = 60;
 
-const SITE_URL = "https://www.rescuemanager.eu";
+const SITE_URL = "https://rescuemanager.eu";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -34,6 +34,18 @@ export const metadata: Metadata = {
   authors: [{ name: "RescueManager", url: SITE_URL }],
   creator: "RescueManager",
   publisher: "RescueManager",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+    other: [
+      {
+        rel: "icon",
+        url: "/android-chrome-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
+  },
   robots: {
     index: true,
     follow: true,
@@ -55,10 +67,11 @@ export const metadata: Metadata = {
       "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, Registro dei Veicoli Fuori Uso e registro RENTRI.",
     images: [
       {
-        url: "/logoufficiale_1024.png",
-        width: 1024,
-        height: 1024,
-        alt: "RescueManager Logo — Software gestionale",
+        url: "/assets/logos/logo-principale-colori.svg",
+        width: 1200,
+        height: 630,
+        alt: "RescueManager",
+        type: "image/svg+xml",
       },
     ],
   },
@@ -66,22 +79,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
     description:
-      "Dispatch su mappa, turni, fatturazione elettronica, Registro Veicoli Fuori Uso e RENTRI. Un unico software.",
-    images: ["/logoufficiale_1024.png"],
-  },
-  icons: {
-    icon: [
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.ico", sizes: "32x32" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: "/logoufficiale_1024.png",
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "default",
+      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, RVFU e RENTRI.",
+    images: ["/assets/logos/logo-principale-colori.svg"],
   },
 };
 

@@ -1,0 +1,27 @@
+# RescueManager robots.txt
+# Consenti tutti i crawler
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /staff/
+Disallow: /.next/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://www.rescuemanager.eu/sitemap.xml
+
+# Crawl delay (opzionale)
+Crawl-delay: 1
+
+# User-agent specifici
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
