@@ -1,40 +1,50 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, Shield, Eye, Database } from "lucide-react";
+import { useCookieConsent, type CookiePreferences } from "@/hooks/useCookieConsent";
 
 export default function CookieConsentModal() {
+  const { 
+    preferences, 
+    hasConsent, 
+    isLoading,
+    acceptAll: handleAcceptAll, 
+    rejectNonEssential: handleRejectNonEssential, 
+    savePreferences: handleSavePreferences 
+  } = useCookieConsent();
+
   const [visible, setVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [preferences, setPreferences] = useState({
-    essential: true,
-    analytics: false,
-    functional: false,
-    marketing: false,
-  });
+  const [localPreferences, setLocalPreferences] = useState<CookiePreferences>(preferences);
 
+  // Mostra banner solo se non c'è consenso
   useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
-    if (consent) {
-      try {
-        setPreferences(JSON.parse(consent));
-      } catch {
-        // ignora
-      }
-    } else {
+    if (!isLoading && hasConsent === false) {
       setTimeout(() => setVisible(true), 600);
     }
-  }, []);
+  }, [isLoading, hasConsent]);
 
-  const saveConsent = (prefs: typeof preferences) => {
-    localStorage.setItem("cookie-consent", JSON.stringify(prefs));
+  // Sincronizza preferenze locali con quelle globali
+  useEffect(() => {
+    setLocalPreferences(preferences);
+  }, [preferences]);
+
+  const acceptAll = () => {
+    handleAcceptAll();
     setVisible(false);
   };
 
-  const acceptAll = () => saveConsent({ essential: true, analytics: true, functional: true, marketing: true });
-  const rejectNonEssential = () => saveConsent({ essential: true, analytics: false, functional: false, marketing: false });
-  const savePreferences = () => saveConsent(preferences);
+  const rejectNonEssential = () => {
+    handleRejectNonEssential();
+    setVisible(false);
+  };
 
-  if (!visible) return null;
+  const saveCustomPreferences = () => {
+    handleSavePreferences(localPreferences);
+    setVisible(false);
+  };
+
+  if (isLoading || !visible) return null;
 
   return (
     <div
@@ -181,8 +191,8 @@ export default function CookieConsentModal() {
                         </div>
                       </div>
                       <button
-                        onClick={() => setPreferences(p => ({ ...p, [row.key]: !p[row.key] }))}
-                        className={`w-10 h-5 rounded-full flex items-center transition-colors flex-shrink-0 px-0.5 ${preferences[row.key] ? `${row.color} justify-end` : "bg-gray-300 justify-start"}`}
+                        onClick={() => setLocalPreferences(p => ({ ...p, [row.key]: !p[row.key] }))}
+                        className={`w-10 h-5 rounded-full flex items-center transition-colors flex-shrink-0 px-0.5 ${localPreferences[row.key] ? `${row.color} justify-end` : "bg-gray-300 justify-start"}`}
                       >
                         <div className="w-4 h-4 bg-white rounded-full" />
                       </button>
@@ -192,7 +202,7 @@ export default function CookieConsentModal() {
 
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={savePreferences}
+                    onClick={saveCustomPreferences}
                     className="w-full px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-colors"
                   >
                     SALVA PREFERENZE
