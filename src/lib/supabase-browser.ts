@@ -18,6 +18,12 @@ export const supabaseBrowser = () =>
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storage: typeof window !== "undefined" ? window.localStorage : undefined,
+        debug: false, // Disabilita log per evitare errori visibili
+      },
+      global: {
+        headers: {
+          'x-client-info': 'rescuemanager-web',
+        },
       },
     }
   );

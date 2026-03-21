@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com",
               "font-src 'self' data: https://fonts.gstatic.com",
               "connect-src 'self' https: wss: https://www.google-analytics.com https://analytics.google.com",
-              "frame-src 'self' https://help.rescuemanager.eu",
+              "frame-src 'self' https://help.rescuemanager.eu https://vercel.live",
               "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'none'",

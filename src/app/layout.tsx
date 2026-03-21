@@ -6,6 +6,7 @@ import SiteHeader from "@/components/SiteHeader";
 import CookieConsentModal from "@/components/CookieConsentModal";
 import CookieSettingsButton from "@/components/CookieSettingsButton";
 import ConditionalScripts from "@/components/ConditionalScripts";
+import ConsoleFilter from "@/components/ConsoleFilter";
 import ChatwootWidget from "@/components/ChatwootWidget";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -223,6 +224,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1 min-h-0">
               {children}
             </main>
+            <ConsoleFilter />
             <CookieConsentModal />
             <CookieSettingsButton />
             <ConditionalScripts />
