@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live",
+              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com",
               "font-src 'self' data: https://fonts.gstatic.com",
