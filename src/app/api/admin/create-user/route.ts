@@ -25,31 +25,26 @@ export async function POST(req: Request) {
     if (!email) return bad("email mancante", 400);
     if (!orgId) return bad("orgId mancante", 400);
 
-    // 1) Bypass dev (NON in prod)
-    const adminSecret = process.env.ADMIN_API_SECRET || "";
-    const devBypass = adminSecret && req.headers.get("x-admin-secret") === adminSecret;
+    // Verifica autenticazione e autorizzazione (SEMPRE richiesta)
+    const cookieStore = await nextCookies();
+    const supabase = createRouteHandlerClient({ cookies: async () => cookieStore });
 
-    if (!devBypass) {
-      const cookieStore = await nextCookies();
-      const supabase = createRouteHandlerClient({ cookies: async () => cookieStore });
+    const { data: auth, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !auth?.user) return bad("non autenticato", 401);
 
-      const { data: auth, error: authErr } = await supabase.auth.getUser();
-      if (authErr || !auth?.user) return bad("non autenticato", 401);
+    const { data: me, error: meErr } = await supabase
+      .from("users")
+      .select("ruolo")
+      .eq("org_id", orgId)
+      .eq("email", auth.user.email)
+      .maybeSingle();
 
-      const { data: me, error: meErr } = await supabase
-        .from("users")
-        .select("ruolo")
-        .eq("org_id", orgId)
-        .eq("email", auth.user.email)
-        .maybeSingle();
-
-      if (meErr) {
-        console.error("permessi lookup error", meErr);
-        return bad("errore verificando i permessi", 500);
-      }
-      const allowed = !!me && ["admin", "dispatcher"].includes((me.ruolo || "").toLowerCase());
-      if (!allowed) return bad("permessi insufficienti", 403);
+    if (meErr) {
+      console.error("permessi lookup error", meErr);
+      return bad("errore verificando i permessi", 500);
     }
+    const allowed = !!me && ["admin", "dispatcher"].includes((me.ruolo || "").toLowerCase());
+    if (!allowed) return bad("permessi insufficienti", 403);
 
     // 2) Admin client
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;

@@ -3,21 +3,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import jwt from 'jsonwebtoken';
+import { verifyOAuthToken } from '@/lib/jwt-secure';
 
 export const runtime = 'nodejs';
-
-// JWT Secret per desktop app (dovrebbe essere in env)
-const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
-
-// Verifica token OAuth
-function verifyOAuthToken(token: string) {
-  try {
-    return jwt.verify(token, JWT_SECRET) as any;
-  } catch {
-    return null;
-  }
-}
 
 export async function GET(request: NextRequest) {
   console.log('[operator/list] API called');

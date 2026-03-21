@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import jwt from 'jsonwebtoken';
+import { verifyOAuthToken } from "@/lib/jwt-secure";
 
 export const runtime = "nodejs";
-
-// Verifica token OAuth
-function verifyOAuthToken(token: string) {
-  try {
-    const secret = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
-    return jwt.verify(token, secret);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * GET /api/sync/pull
