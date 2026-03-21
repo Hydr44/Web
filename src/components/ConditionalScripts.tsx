@@ -40,8 +40,6 @@ export default function ConditionalScripts() {
                 cookie_flags: 'SameSite=None;Secure',
                 page_path: window.location.pathname,
               });
-              
-              console.log('[Analytics] Google Analytics caricato con IP anonimizzato');
             `}
           </Script>
         </>
@@ -61,8 +59,6 @@ export default function ConditionalScripts() {
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${process.env.NEXT_PUBLIC_META_PIXEL_ID}');
             fbq('track', 'PageView');
-            
-            console.log('[Analytics] Meta Pixel caricato');
           `}
         </Script>
       )}
@@ -79,8 +75,6 @@ export default function ConditionalScripts() {
               r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
               a.appendChild(r);
             })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-            
-            console.log('[Analytics] Hotjar caricato');
           `}
         </Script>
       )}
@@ -95,7 +89,6 @@ export default function ConditionalScripts() {
 function ConsentChangeListener() {
   useEffect(() => {
     const handleConsentChange = () => {
-      console.log("[Analytics] Consenso modificato, ricarico pagina...");
       // Ricarica la pagina per applicare le nuove preferenze
       setTimeout(() => {
         window.location.reload();

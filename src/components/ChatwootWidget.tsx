@@ -20,7 +20,10 @@ export default function ChatwootWidget() {
     s.src = `${CHATWOOT_BASE_URL}/packs/js/sdk.js`;
     s.async = true;
     s.onload = () => setLoaded(true);
-    s.onerror = () => console.warn("[Chatwoot] errore nel caricare lo script");
+    s.onerror = () => {
+      // Silenzioso - non loggare errori visibili agli utenti
+      setLoaded(false);
+    };
     document.head.appendChild(s);
 
     return () => {
@@ -52,10 +55,9 @@ export default function ChatwootWidget() {
       setTimeout(tryBump, 600);
       setTimeout(tryBump, 1500);
 
-      // Log utile in console
-      console.log("[Chatwoot] SDK avviato");
+      // SDK avviato con successo
     } catch (e) {
-      console.warn("[Chatwoot] init error", e);
+      // Silenzioso - errore gestito internamente
     }
   }, [loaded, started]);
 

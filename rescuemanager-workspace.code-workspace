@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../Desktop/File logo"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "rescuemanager-workspace"
+	}
+}

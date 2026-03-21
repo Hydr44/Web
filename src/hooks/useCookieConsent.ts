@@ -82,8 +82,14 @@ export function useCookieConsent() {
       const supabase = supabaseBrowser();
       const sessionId = getSessionId();
 
-      // Ottieni user_id se autenticato
-      const { data: { user } } = await supabase.auth.getUser();
+      // Ottieni user_id se autenticato (silenzioso se non loggato)
+      let user = null;
+      try {
+        const { data } = await supabase.auth.getUser();
+        user = data.user;
+      } catch {
+        // Utente non autenticato - normale per visitatori
+      }
 
       // Ottieni IP e user agent (se disponibili)
       let ipAddress: string | null = null;
