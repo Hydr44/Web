@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const MONITORING_URL = 'http://217.154.118.37:3999/health';
+const MONITORING_URL = 'http://monitoring.rescuemanager.eu/health';
 const TIMEOUT_MS = 8000;
 
 // Mapping dei servizi ai moduli per l'admin panel
