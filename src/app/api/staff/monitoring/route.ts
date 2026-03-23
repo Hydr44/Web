@@ -16,62 +16,62 @@ const SERVICES: ServiceCheck[] = [
   {
     name: 'sdi-sftp-server',
     module: 'sdi',
-    url: 'http://sdi-sftp.rescuemanager.eu/health',
-    port: 3004,
+    url: `http://${VPS_IP}:3005/health`,
+    port: 3005,
     description: 'Server SFTP per fatturazione elettronica SDI'
-  },
-  {
-    name: 'sdi-sftp-status',
-    module: 'sdi',
-    url: 'http://sdi-sftp.rescuemanager.eu/api/sdi-sftp/status',
-    port: 3004,
-    description: 'Stato canale SFTP SDI (file pending, esiti EO)'
   },
   // ─── RENTRI ───
   {
     name: 'rentri-api',
     module: 'rentri',
-    url: 'https://rentri-test.rescuemanager.eu/api/rentri/status',
+    url: `http://${VPS_IP}:3003/health`,
     port: 3003,
     description: 'API principale RENTRI (32 endpoint, cluster x2)'
   },
   {
-    name: 'rentri-polling',
+    name: 'rentri-server',
     module: 'rentri',
-    url: `http://${VPS_IP}:3001/health`,
-    port: 3001,
-    description: 'Polling transazioni RENTRI'
-  },
-  {
-    name: 'rentri-cert-upload',
-    module: 'rentri',
-    url: `http://${VPS_IP}:3456/health`,
-    port: 3456,
-    description: 'Upload certificati .p12 RENTRI'
+    url: `http://${VPS_IP}:3200/health`,
+    port: 3200,
+    description: 'Server RENTRI'
   },
   // ─── RVFU ───
   {
-    name: 'rvfu-proxy',
+    name: 'rvfu-proxy-direct',
     module: 'rvfu',
-    url: 'https://rvfu.rescuemanager.eu/health',
-    port: 3002,
+    url: `http://${VPS_IP}:3009/health`,
+    port: 3009,
     description: 'Proxy RVFU per portale demolizioni ACI'
   },
   // ─── LEADS ───
   {
     name: 'lead-api',
     module: 'leads',
-    url: 'http://lead-api.rescuemanager.eu/health',
+    url: `http://${VPS_IP}:3006/health`,
     port: 3006,
     description: 'API gestione lead: demo, preventivi, conversione'
   },
   // ─── INFRA ───
   {
+    name: 'assist-server',
+    module: 'infra',
+    url: `http://${VPS_IP}:3100/health`,
+    port: 3100,
+    description: 'Server assistenza e richieste posizione cliente'
+  },
+  {
     name: 'oauth-proxy',
     module: 'infra',
-    url: 'https://oauth.rescuemanager.eu/health',
-    port: 3005,
+    url: `http://${VPS_IP}:3008/health`,
+    port: 3008,
     description: 'Proxy OAuth2 per autenticazione servizi esterni'
+  },
+  {
+    name: 'ebay-oauth',
+    module: 'infra',
+    url: `http://${VPS_IP}:3007/health`,
+    port: 3007,
+    description: 'OAuth eBay'
   },
 ];
 
