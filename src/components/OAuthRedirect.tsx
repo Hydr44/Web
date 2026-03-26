@@ -58,24 +58,15 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
   }, [redirectUrl, onComplete]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 sm:p-12">
+    <div className="bg-white border border-gray-200 p-8 sm:p-12">
       <div className="text-center space-y-6">
-        {/* Logo */}
-        <div className="mx-auto mb-4">
-          <img
-            src="/assets/logos/logo-principale-a-colori.svg"
-            alt="RescueManager"
-            className="h-10 w-auto mx-auto"
-          />
-        </div>
-
         {/* Success Icon */}
-        <div className="mx-auto h-16 w-16 bg-emerald-500 rounded-full flex items-center justify-center">
+        <div className="mx-auto h-16 w-16 bg-blue-600 flex items-center justify-center">
           <CheckCircle className="h-8 w-8 text-white" />
         </div>
 
         <div>
-          <h3 className="text-2xl font-extrabold text-[#0f172a] mb-2">
+          <h3 className="text-2xl font-extrabold text-gray-900 mb-2">
             Autenticazione completata
           </h3>
           <p className="text-base text-gray-600">
@@ -92,9 +83,9 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
         </div>
 
         {!isRedirecting && (
-          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-100 h-2 overflow-hidden">
             <div
-              className="bg-blue-600 h-full rounded-full transition-all duration-100 ease-linear"
+              className="bg-blue-600 h-full transition-all duration-100 ease-linear"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>
