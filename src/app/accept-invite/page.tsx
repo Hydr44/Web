@@ -116,10 +116,8 @@ function AcceptInviteContent() {
       setAccepting(true);
       setError('');
 
-      // Registra utente - il trigger handle_new_user gestirà automaticamente:
-      // - Creazione profilo con org dell'invito
-      // - Aggiunta a org_members con ruolo dell'invito
-      // - Marcatura invito come accettato
+      // 1. Registra utente (il trigger handle_new_user crea SOLO la riga in profiles,
+      //    NON gestisce org_members né current_org — vedi migration 20260315)
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: invite.email,
         password: password,
@@ -133,14 +131,48 @@ function AcceptInviteContent() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Registrazione fallita');
 
-      // Login automatico
+      const userId = authData.user.id;
+      const role = invite.role || 'operator';
+
+      // 2. Login automatico (RLS: serve sessione utente per i prossimi insert)
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: invite.email,
         password: password,
       });
-
       if (signInError) {
         console.warn('Auto-login failed:', signInError);
+      }
+
+      // 3. Aggiungi a org_members con il ruolo dell'invito (idempotente con upsert)
+      const { error: memberError } = await supabase
+        .from('org_members')
+        .upsert(
+          { user_id: userId, org_id: invite.org_id, role },
+          { onConflict: 'org_id,user_id' }
+        );
+      if (memberError) {
+        console.error('[accept-invite] org_members upsert error:', memberError);
+        throw new Error(`Impossibile aggiungerti al team: ${memberError.message}`);
+      }
+
+      // 4. Setta profiles.current_org così il sito/desktop sanno qual è l'org corrente
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ current_org: invite.org_id })
+        .eq('id', userId);
+      if (profileError) {
+        console.warn('[accept-invite] profiles.current_org update error:', profileError);
+        // non bloccare: l'utente può comunque accedere via org_members
+      }
+
+      // 5. Marca invito come accettato
+      const { error: inviteError } = await supabase
+        .from('org_invites')
+        .update({ status: 'accepted', accepted_at: new Date().toISOString() })
+        .eq('token', token);
+      if (inviteError) {
+        console.warn('[accept-invite] org_invites update error:', inviteError);
+        // non bloccare
       }
 
       setStep('success');

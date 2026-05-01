@@ -30,11 +30,39 @@ export default function DashboardLayout({
           return;
         }
 
-        const { data: orgs } = await supabase.from('orgs').select('name').limit(1);
-        if (orgs && orgs.length > 0) {
-          setOrgName(orgs[0].name);
+        // Prendi l'org DELL'UTENTE: prima da profiles.current_org, fallback a org_members.
+        // Niente "select * limit 1" che pesca a caso la prima org del DB.
+        let userOrgId: string | null = null;
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('current_org')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (profile?.current_org) {
+          userOrgId = profile.current_org as string;
+        } else {
+          const { data: mem } = await supabase
+            .from('org_members')
+            .select('org_id')
+            .eq('user_id', user.id)
+            .limit(1)
+            .maybeSingle();
+          userOrgId = mem?.org_id || null;
         }
-        
+
+        if (userOrgId) {
+          // Preferisci company_name salvato in org_settings (Info Azienda),
+          // altrimenti fallback al nome di orgs.
+          const [{ data: org }, { data: settings }] = await Promise.all([
+            supabase.from('orgs').select('name').eq('id', userOrgId).maybeSingle(),
+            supabase.from('org_settings').select('value').eq('org_id', userOrgId).eq('key', 'company').maybeSingle(),
+          ]);
+          const companyName = (settings?.value as { company_name?: string } | null)?.company_name;
+          setOrgName(companyName || org?.name || '');
+        } else {
+          setOrgName('');
+        }
+
         setUserEmail(user.email || "Utente");
         setLoading(false);
       } catch (error) {
