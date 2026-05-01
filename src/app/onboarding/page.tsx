@@ -10,11 +10,6 @@ import {
   AlertCircle, Copy, Check, Info
 } from 'lucide-react';
 
-const FORMA_GIURIDICA_OPTIONS = [
-  'SRL', 'SRL Semplificata', 'SPA', 'SNC', 'SAS',
-  'Società Cooperativa', 'Impresa Individuale', 'Associazione', 'Altro'
-];
-
 const SDI_CODE = process.env.NEXT_PUBLIC_SDI_RECIPIENT_CODE || '';
 const SDI_CONFIGURED = SDI_CODE.length > 0;
 
@@ -22,22 +17,20 @@ type CompanyData = {
   company_name: string;
   vat_number: string;
   codice_fiscale: string;
-  pec: string;
   phone: string;
+  email: string;
   address_street: string;
+  address_civico: string;
   address_city: string;
   address_province: string;
   address_postal_code: string;
-  forma_giuridica: string;
-  codice_ateco: string;
   iban: string;
-  sdi_recipient_code: string;
 };
 
 const empty: CompanyData = {
-  company_name: '', vat_number: '', codice_fiscale: '', pec: '', phone: '',
-  address_street: '', address_city: '', address_province: '', address_postal_code: '',
-  forma_giuridica: '', codice_ateco: '', iban: '', sdi_recipient_code: ''
+  company_name: '', vat_number: '', codice_fiscale: '', phone: '', email: '',
+  address_street: '', address_civico: '', address_city: '', address_province: '', address_postal_code: '',
+  iban: ''
 };
 
 export default function OnboardingPage() {
@@ -72,30 +65,29 @@ export default function OnboardingPage() {
       if (profile?.current_org) {
         setOrgId(profile.current_org);
 
-        // Carica company_settings pre-compilate
-        const { data: cs } = await supabase
-          .from('company_settings')
-          .select('*')
+        // Carica org_settings.key='company' pre-compilato (fonte autoritativa)
+        const { data: row } = await supabase
+          .from('org_settings')
+          .select('value')
           .eq('org_id', profile.current_org)
-          .single();
+          .eq('key', 'company')
+          .maybeSingle();
 
-        if (cs) {
-          setData({
-            company_name: cs.company_name || '',
-            vat_number: cs.vat_number || '',
-            codice_fiscale: cs.codice_fiscale || '',
-            pec: cs.pec || '',
-            phone: cs.phone || '',
-            address_street: cs.address_street || '',
-            address_city: cs.address_city || '',
-            address_province: cs.address_province || '',
-            address_postal_code: cs.address_postal_code || '',
-            forma_giuridica: cs.forma_giuridica || '',
-            codice_ateco: cs.codice_ateco || '',
-            iban: cs.iban || '',
-            sdi_recipient_code: cs.sdi_recipient_code || SDI_CODE || ''
-          });
-        }
+        const v: any = row?.value || {};
+        const addr = (v.address && typeof v.address === 'object') ? v.address : {};
+        setData({
+          company_name: v.company_name || '',
+          vat_number: v.vat || v.piva || '',
+          codice_fiscale: v.tax_code || '',
+          phone: v.phone || '',
+          email: v.email || '',
+          address_street: addr.street || '',
+          address_civico: addr.civico || '',
+          address_city: addr.city || '',
+          address_province: addr.province || '',
+          address_postal_code: addr.zip || '',
+          iban: v.iban || '',
+        });
       }
 
       setLoading(false);
@@ -108,20 +100,41 @@ export default function OnboardingPage() {
     setSaving(true);
     setError('');
 
-    const payload: Record<string, any> = {
-      org_id: orgId,
-      address_country: 'IT',
-      updated_at: new Date().toISOString()
+    // Costruisci JSONB allineato al SetupWizard desktop (fonte autoritativa)
+    const value: Record<string, any> = {
+      company_name: data.company_name || null,
+      vat: data.vat_number || null,
+      piva: data.vat_number || null, // alias retrocompat
+      tax_code: data.codice_fiscale || null,
+      phone: data.phone || null,
+      email: data.email || null,
+      iban: data.iban || null,
+      address: {
+        street: data.address_street || null,
+        civico: data.address_civico || null,
+        city: data.address_city || null,
+        zip: data.address_postal_code || null,
+        province: data.address_province || null,
+        country: 'IT',
+      },
     };
-    for (const [k, v] of Object.entries(data)) {
-      payload[k] = v || null;
-    }
 
     const { error: err } = await supabase
-      .from('company_settings')
-      .upsert(payload, { onConflict: 'org_id' });
+      .from('org_settings')
+      .upsert({
+        org_id: orgId,
+        key: 'company',
+        value,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'org_id,key' });
 
     if (err) { setError(`Errore salvataggio: ${err.message}`); setSaving(false); return; }
+
+    // Aggiorna anche orgs.name per coerenza con sidebar/UI
+    if (data.company_name) {
+      await supabase.from('orgs').update({ name: data.company_name }).eq('id', orgId);
+    }
+
     setSaving(false);
     setStep(2);
   };
@@ -260,18 +273,10 @@ export default function OnboardingPage() {
                     className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Forma Giuridica</label>
-                  <select value={data.forma_giuridica} onChange={e => set('forma_giuridica', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
-                    <option value="">— Seleziona —</option>
-                    {FORMA_GIURIDICA_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">PEC</label>
-                  <input value={data.pec} onChange={e => set('pec', e.target.value)}
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Email</label>
+                  <input value={data.email} onChange={e => set('email', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="info@pec.esempio.it" type="email" />
+                    placeholder="info@azienda.it" type="email" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Telefono</label>
@@ -280,11 +285,19 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Indirizzo Sede Legale <span className="text-gray-400 font-normal normal-case">(opzionale)</span></label>
-                <input value={data.address_street} onChange={e => set('address_street', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="Via Roma 1" />
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Indirizzo Sede Legale <span className="text-gray-400 font-normal normal-case">(opzionale)</span></label>
+                  <input value={data.address_street} onChange={e => set('address_street', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Via Roma" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Civico</label>
+                  <input value={data.address_civico} onChange={e => set('address_civico', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="1" />
+                </div>
               </div>
 
               <div className="grid grid-cols-4 gap-4">
@@ -307,19 +320,11 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Codice ATECO</label>
-                  <input value={data.codice_ateco} onChange={e => set('codice_ateco', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="es. 38.31" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">IBAN</label>
-                  <input value={data.iban} onChange={e => set('iban', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="IT60 X054 2811 1010 0000 0123 456" />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">IBAN <span className="text-gray-400 font-normal normal-case">(opzionale)</span></label>
+                <input value={data.iban} onChange={e => set('iban', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-mono"
+                  placeholder="IT60 X054 2811 1010 0000 0123 456" />
               </div>
             </div>
 
