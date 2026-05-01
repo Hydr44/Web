@@ -1,6 +1,5 @@
 // src/app/api/auth/oauth/desktop/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 
@@ -9,35 +8,19 @@ export const runtime = "nodejs";
  * GET /api/auth/oauth/desktop?app_id=desktop_app&redirect_uri=http://localhost:3001/auth/callback&state=random_state
  */
 export async function GET(request: NextRequest) {
-  // Log immediato all'inizio per verificare che l'endpoint viene chiamato
-  console.log('=== OAUTH DESKTOP ENDPOINT CALLED ===');
-  console.log('Request URL:', request.url);
-  console.log('Request method:', request.method);
-  console.log('Headers:', {
-    'user-agent': request.headers.get('user-agent'),
-    'origin': request.headers.get('origin'),
-    'referer': request.headers.get('referer'),
-  });
-  
   try {
-    console.log('=== OAUTH DESKTOP ENDPOINT START ===');
     const { searchParams } = new URL(request.url);
     const appId = searchParams.get('app_id');
     const redirectUri = searchParams.get('redirect_uri');
     const state = searchParams.get('state');
 
-    console.log('OAuth params:', { appId, redirectUri, state });
-
-    // Validazione parametri
     if (!appId || !redirectUri || !state) {
-      console.error('Missing parameters:', { appId, redirectUri, state });
       return NextResponse.json(
         { error: 'Missing required parameters: app_id, redirect_uri, state' },
         { status: 400 }
       );
     }
 
-    // Validazione app_id
     if (appId !== 'desktop_app') {
       return NextResponse.json(
         { error: 'Invalid app_id' },
@@ -45,70 +28,45 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validazione redirect_uri
     if (!redirectUri.startsWith('desktop://') && !redirectUri.startsWith('http://localhost:') && !redirectUri.startsWith('http://127.0.0.1:')) {
-      console.error('Invalid redirect_uri:', redirectUri);
       return NextResponse.json(
         { error: 'Invalid redirect_uri. Must start with desktop://, http://localhost: or http://127.0.0.1:' },
         { status: 400 }
       );
     }
-    
-    console.log('Redirect URI validated:', redirectUri);
 
-    // Genera state temporaneo (senza database per evitare RLS)
     const stateCode = `state_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-    console.log('Generated state code:', stateCode);
-    
-    // Codifica i parametri OAuth in base64 per passaggio sicuro
+
     const oauthParams = {
       app_id: appId,
       redirect_uri: redirectUri,
-      state: state,
+      state,
       state_code: stateCode,
-      expires_at: Date.now() + 10 * 60 * 1000 // 10 minuti
+      expires_at: Date.now() + 10 * 60 * 1000,
     };
-    
-    const encodedParams = Buffer.from(JSON.stringify(oauthParams)).toString('base64');
-    console.log('Encoded OAuth params:', encodedParams);
-    console.log('Encoded params length:', encodedParams.length);
 
-    // Redirect alla pagina di login OAuth
-    // Usa request.nextUrl.origin per ottenere l'URL base corretto
+    const encodedParams = Buffer.from(JSON.stringify(oauthParams)).toString('base64');
+
     const origin = request.nextUrl.origin;
     const loginUrl = new URL('/auth/oauth/desktop', origin);
     loginUrl.searchParams.set('params', encodedParams);
-    
-    const finalUrl = loginUrl.toString();
-    console.log('=== REDIRECT INFO ===');
-    console.log('Origin:', origin);
-    console.log('Login URL path:', '/auth/oauth/desktop');
-    console.log('Final redirect URL:', finalUrl);
-    console.log('URL length:', finalUrl.length);
-    console.log('========================');
 
-    // Verifica che l'URL non sia troppo lungo (alcuni browser hanno limiti)
+    const finalUrl = loginUrl.toString();
+
     if (finalUrl.length > 2000) {
-      console.error('WARNING: Redirect URL is very long:', finalUrl.length);
-      // Se l'URL è troppo lungo, usa un approccio alternativo
       return NextResponse.json({
         error: 'URL too long',
         redirect_url: finalUrl
       }, { status: 400 });
     }
 
-    // SEMPRE usa HTML redirect per questo endpoint
-    // Il browser esterno aperto da Electron potrebbe non seguire redirect HTTP
-    console.log('Using HTML redirect (always for desktop OAuth)');
-    
-    // Escape dell'URL per sicurezza in HTML/JavaScript
     const escapedUrl = finalUrl
-      .replace(/\\/g, '\\\\')
-      .replace(/'/g, "\\'")
-      .replace(/"/g, '&quot;')
-      .replace(/\n/g, '\\n')
-      .replace(/\r/g, '\\r');
-    
+      .replaceAll('\\', '\\\\')
+      .replaceAll("'", "\\'")
+      .replaceAll('"', '&quot;')
+      .replaceAll('\n', '\\n')
+      .replaceAll('\r', '\\r');
+
     const htmlRedirect = `<!DOCTYPE html>
 <html lang="it">
 <head>
@@ -156,31 +114,16 @@ export async function GET(request: NextRequest) {
   </style>
   <script>
     (function() {
-      console.log('[OAuth Redirect] Page loaded');
-      console.log('[OAuth Redirect] Target URL:', ${JSON.stringify(finalUrl)});
-      
-      // Prova immediatamente con href
       try {
         window.location.href = ${JSON.stringify(finalUrl)};
-        console.log('[OAuth Redirect] window.location.href set');
-      } catch (e) {
-        console.error('[OAuth Redirect] Error setting href:', e);
-      }
-      
-      // Fallback con replace dopo 50ms
+      } catch (e) {}
       setTimeout(function() {
         try {
           window.location.replace(${JSON.stringify(finalUrl)});
-          console.log('[OAuth Redirect] window.location.replace called');
-        } catch (e) {
-          console.error('[OAuth Redirect] Error with replace:', e);
-        }
+        } catch (e) {}
       }, 50);
-      
-      // Ultimo fallback dopo 200ms
       setTimeout(function() {
         if (window.location.href.indexOf('/auth/oauth/desktop') !== -1) {
-          console.warn('[OAuth Redirect] Still on same page, forcing redirect');
           document.body.innerHTML = '<div class="container"><h2>Reindirizzamento manuale necessario</h2><p><a href="' + ${JSON.stringify(finalUrl)} + '">Clicca qui per continuare</a></p></div>';
         }
       }, 200);
@@ -195,9 +138,7 @@ export async function GET(request: NextRequest) {
   </div>
 </body>
 </html>`;
-    
-    console.log('HTML redirect page created, length:', htmlRedirect.length);
-    
+
     return new NextResponse(htmlRedirect, {
       status: 200,
       headers: {
@@ -209,7 +150,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('OAuth desktop error:', error);
+    console.error('[OAuth Desktop] Internal error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
