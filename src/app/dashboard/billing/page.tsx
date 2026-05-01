@@ -80,6 +80,19 @@ export default async function BillingPage({
     userOrgId = mem?.org_id || null;
   }
 
+  // Solo owner può accedere a fatturazione/abbonamento (server-side guard)
+  if (userOrgId) {
+    const { data: membership } = await supabase
+      .from("org_members")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("org_id", userOrgId)
+      .maybeSingle();
+    if (!membership || membership.role !== "owner") {
+      redirect("/dashboard?err=role_forbidden_billing");
+    }
+  }
+
   // Carica abbonamento da org_subscriptions (tabella reale)
   let subscription: any = null;
   if (userOrgId) {

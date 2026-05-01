@@ -1,4 +1,15 @@
+"use client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
+
 export default function PaymentMethodsPage() {
+  return (
+    <RoleGuard allow={["owner"]} blockedMessage="I metodi di pagamento sono gestiti solo dal proprietario dell'organizzazione.">
+      <PaymentMethodsContent />
+    </RoleGuard>
+  );
+}
+
+function PaymentMethodsContent() {
   return (
     <div className="space-y-6">
       <header>

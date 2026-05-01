@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutGrid,
-  Download,
   Wallet,
   Building2,
   LifeBuoy,
@@ -14,9 +13,9 @@ import {
   Shield,
   Database,
   User,
-  Bell,
 } from "lucide-react";
 import * as React from "react";
+import { useUserRole } from "@/lib/useUserRole";
 
 type Item = {
   label: string;
@@ -24,12 +23,14 @@ type Item = {
   icon?: React.ElementType;
   children?: Item[];
   badge?: string;
+  /** Role minimo per vedere questa voce. Default: tutti i membri */
+  ownerOnly?: boolean;
 };
 
 const NAV: Item[] = [
   { label: "Panoramica", href: "/dashboard", icon: LayoutGrid },
   { label: "Organizzazione", href: "/dashboard/org", icon: Building2 },
-  { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet },
+  { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet, ownerOnly: true },
   { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
   { label: "Privacy", href: "/dashboard/privacy", icon: Database },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
@@ -129,6 +130,7 @@ export default function DashboardShell({
   orgName?: string;
 }>) {
   const path = usePathname();
+  const { isOwner } = useUserRole();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [logoutSuccess, setLogoutSuccess] = React.useState(false);
   const [frozenOrgName, setFrozenOrgName] = React.useState(orgName);
@@ -182,7 +184,7 @@ export default function DashboardShell({
             </div>
 
             <div className="flex-1 space-y-0.5">
-              {NAV.map((item) => {
+              {NAV.filter(item => !item.ownerOnly || isOwner).map((item) => {
                 if (item.children?.length) {
                   return (
                     <div key={item.label}>

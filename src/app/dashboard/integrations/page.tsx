@@ -1,4 +1,15 @@
+"use client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
+
 export default function IntegrationsPage() {
+  return (
+    <RoleGuard allow={["owner", "admin"]} blockedMessage="Le integrazioni sono gestite solo da proprietario o amministratore.">
+      <IntegrationsContent />
+    </RoleGuard>
+  );
+}
+
+function IntegrationsContent() {
   return (
     <div className="space-y-6">
       <header>
