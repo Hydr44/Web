@@ -148,7 +148,8 @@ export async function POST(
         // 2. Elimina tabelle dipendenti
         await supabaseAdmin.from('lead_demos').delete().eq('demo_org_id', orgId);
         await supabaseAdmin.from('org_subscriptions').delete().eq('org_id', orgId);
-        await supabaseAdmin.from('company_settings').delete().eq('org_id', orgId);
+        // org_settings ha sostituito company_settings (Mag 2026): cancella TUTTI i record dell'org
+        await supabaseAdmin.from('org_settings').delete().eq('org_id', orgId);
         await supabaseAdmin.from('operators').delete().eq('org_id', orgId);
         await supabaseAdmin.from('org_modules').delete().eq('org_id', orgId);
 

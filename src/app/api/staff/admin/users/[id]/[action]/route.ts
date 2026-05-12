@@ -144,11 +144,8 @@ export async function POST(
         }
 
         // ── Step 2: SET NULL su created_by (preserva dati business) ──
+        // company_settings + export_* sono deprecate (Mag 2026) → rimosse dalla lista
         const nullifyCreatedBy = [
-          'company_settings',
-          'export_templates',
-          'export_configurations',
-          'export_history',
           'yard_vehicles',
           'accounting_entries',
           'invoice_payments',
@@ -168,12 +165,7 @@ export async function POST(
             // Non bloccante — la tabella potrebbe non esistere o non avere record
           }
         }
-
-        // ── Step 3: SET NULL su updated_by ──
-        for (const table of ['company_settings', 'export_templates']) {
-          const { error } = await supabaseAdmin.from(table).update({ updated_by: null }).eq('updated_by', userId);
-          if (error) console.error(`  nullify ${table}.updated_by:`, error.message);
-        }
+        // Nota: org_settings non ha created_by/updated_by come colonne dedicate (JSONB-based)
 
         // ── Step 4: SET NULL su leads.assigned_to (referenzia profiles.id) ──
         {
