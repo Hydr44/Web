@@ -41,11 +41,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     // ─── 2. org_settings.company (merge JSONB) ──────────────────────
+    //    + propagazione in sdi/billing per chiavi specifiche che da Mag 2026
+    //    desktop salva separate (PEC, regime_fiscale, IBAN, codice_destinatario)
     if (body.company && typeof body.company === 'object') {
+      // 2a. company
       const { data: existing } = await supabaseAdmin
         .from('org_settings').select('value').eq('org_id', orgId).eq('key', 'company').maybeSingle();
       const prev = (existing?.value as Record<string, any>) || {};
-      // Merge superficiale (l'address è sub-object, lo merge separatamente)
       const merged: Record<string, any> = { ...prev, ...body.company };
       if (body.company.address && typeof body.company.address === 'object') {
         merged.address = { ...(prev.address || {}), ...body.company.address };
@@ -55,9 +57,35 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }, { onConflict: 'org_id,key' });
       if (error) errors.push(`org_settings.company: ${error.message}`);
 
-      // Sync orgs.name col company_name se cambiato
       if (typeof merged.company_name === 'string' && merged.company_name && !orgUpdate.name) {
         await supabaseAdmin.from('orgs').update({ name: merged.company_name }).eq('id', orgId);
+      }
+
+      // 2b. Propaga PEC + regime_fiscale + codice_destinatario in org_settings.sdi
+      const sdiFields: Record<string, any> = {};
+      if (body.company.pec !== undefined) sdiFields.pec = body.company.pec;
+      if (body.company.regime_fiscale !== undefined) sdiFields.regime_fiscale = body.company.regime_fiscale;
+      if (body.company.codice_destinatario !== undefined) sdiFields.codice_destinatario = body.company.codice_destinatario;
+
+      if (Object.keys(sdiFields).length) {
+        const { data: sdiExist } = await supabaseAdmin
+          .from('org_settings').select('value').eq('org_id', orgId).eq('key', 'sdi').maybeSingle();
+        const sdiMerged = { ...((sdiExist?.value as Record<string, any>) || {}), ...sdiFields };
+        const { error: sdiErr } = await supabaseAdmin.from('org_settings').upsert({
+          org_id: orgId, key: 'sdi', value: sdiMerged, updated_at: new Date().toISOString(),
+        }, { onConflict: 'org_id,key' });
+        if (sdiErr) errors.push(`org_settings.sdi: ${sdiErr.message}`);
+      }
+
+      // 2c. Propaga IBAN in org_settings.billing (se presente)
+      if (body.company.iban !== undefined) {
+        const { data: billExist } = await supabaseAdmin
+          .from('org_settings').select('value').eq('org_id', orgId).eq('key', 'billing').maybeSingle();
+        const billMerged = { ...((billExist?.value as Record<string, any>) || {}), iban: body.company.iban };
+        const { error: billErr } = await supabaseAdmin.from('org_settings').upsert({
+          org_id: orgId, key: 'billing', value: billMerged, updated_at: new Date().toISOString(),
+        }, { onConflict: 'org_id,key' });
+        if (billErr) errors.push(`org_settings.billing: ${billErr.message}`);
       }
     }
 

@@ -113,8 +113,17 @@ export async function GET(request: Request, { params }: { params: { id: string }
       created_at: org.created_at,
       updated_at: org.updated_at,
       converted_from_lead_id: org.converted_from_lead_id,
-      // Company
-      company: settingsMap.company || null,
+      // Company — merge con sdi/billing per dati frammentati (PEC, regime_fiscale, ecc.)
+      // Da Maggio 2026 desktop salva PEC/regime/IBAN in chiavi separate (sdi, billing).
+      // Componiamo una vista unificata per l'admin UI.
+      company: {
+        ...(settingsMap.company || {}),
+        // Override con valori più freschi se presenti in chiavi specializzate
+        pec: settingsMap.sdi?.pec || settingsMap.company?.pec || null,
+        regime_fiscale: settingsMap.sdi?.regime_fiscale || settingsMap.company?.regime_fiscale || 'RF01',
+        codice_destinatario: settingsMap.sdi?.codice_destinatario || settingsMap.company?.codice_destinatario || null,
+        iban: settingsMap.billing?.iban || settingsMap.invoices?.defaultFields?.iban || settingsMap.company?.iban || null,
+      },
       // Features toggles (org_settings.features JSONB)
       features: settingsMap.features || null,
       // Tutte le settings (per altre key future)

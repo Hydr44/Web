@@ -54,9 +54,16 @@ export default function DashboardLayout({
           // Preferisci company_name salvato in org_settings (Info Azienda),
           // altrimenti fallback al nome di orgs.
           const [{ data: org }, { data: settings }] = await Promise.all([
-            supabase.from('orgs').select('name').eq('id', userOrgId).maybeSingle(),
+            supabase.from('orgs').select('name, web_access_enabled').eq('id', userOrgId).maybeSingle(),
             supabase.from('org_settings').select('value').eq('org_id', userOrgId).eq('key', 'company').maybeSingle(),
           ]);
+
+          // Check accesso web disabilitato dall'admin RescueManager
+          if (org && org.web_access_enabled === false) {
+            router.push('/no-access?reason=web_disabled');
+            return;
+          }
+
           const companyName = (settings?.value as { company_name?: string } | null)?.company_name;
           setOrgName(companyName || org?.name || '');
         } else {
