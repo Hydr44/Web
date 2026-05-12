@@ -44,47 +44,54 @@ export async function POST(request: Request) {
     }
 
     try {
-      // Aggiorna quote con subscription/payment info
+      // Carica quote per leggere flag auto_activate_on_payment
+      const { data: quote } = await supabaseAdmin
+        .from('lead_quotes')
+        .select('auto_activate_on_payment, lead_id, quote_number')
+        .eq('id', quote_id)
+        .single();
+
       const updatePayload: Record<string, any> = {
         status: 'paid',
         paid_at: new Date().toISOString(),
+        activation_pending: true,  // Sempre true: admin vede pending finché non attiva
       };
+      if (session.subscription) updatePayload.stripe_subscription_id = session.subscription;
+      if (session.payment_intent) updatePayload.stripe_payment_intent_id = session.payment_intent;
 
-      if (session.subscription) {
-        updatePayload.stripe_subscription_id = session.subscription;
+      await supabaseAdmin.from('lead_quotes').update(updatePayload).eq('id', quote_id);
+
+      // Activity log
+      if (quote?.lead_id) {
+        await supabaseAdmin.from('lead_activities').insert({
+          lead_id: quote.lead_id,
+          activity_type: 'payment_received',
+          title: `Pagamento ricevuto — ${quote.quote_number || ''}`,
+          description: `Stripe checkout completato`,
+          performed_by_type: 'system',
+          related_quote_id: quote_id,
+          metadata: { stripe_session: session.id, subscription: session.subscription, amount: session.amount_total },
+        });
       }
-      if (session.payment_intent) {
-        updatePayload.stripe_payment_intent_id = session.payment_intent;
-      }
 
-      console.log('[STRIPE-LEADS] Updating quote status to paid');
-      await supabaseAdmin
-        .from('lead_quotes')
-        .update(updatePayload)
-        .eq('id', quote_id);
-
-      // Chiama VPS convert endpoint
-      console.log('[STRIPE-LEADS] Calling VPS convert endpoint:', LEAD_API_URL);
-      const convertRes = await fetch(`${LEAD_API_URL}/api/leads/convert`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': VPS_API_KEY,
-        },
-        body: JSON.stringify({
-          quote_id,
-          stripe_subscription_id: session.subscription || null,
-          stripe_payment_intent_id: session.payment_intent || null,
-        }),
-      });
-
-      console.log('[STRIPE-LEADS] VPS response status:', convertRes.status);
-      
-      if (convertRes.ok) {
-        console.log('[STRIPE-LEADS] Lead converted successfully, quote_id:', quote_id);
+      // Auto-activate solo se flag esplicitamente true sul quote
+      if (quote?.auto_activate_on_payment === true) {
+        console.log('[STRIPE-LEADS] auto_activate_on_payment=true → calling convert');
+        const convertRes = await fetch(`${LEAD_API_URL}/api/leads/convert`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': VPS_API_KEY },
+          body: JSON.stringify({
+            quote_id,
+            stripe_subscription_id: session.subscription || null,
+            stripe_payment_intent_id: session.payment_intent || null,
+          }),
+        });
+        if (!convertRes.ok) {
+          const errData = await convertRes.json().catch(() => ({}));
+          console.error('[STRIPE-LEADS] Auto-convert failed:', errData);
+        }
       } else {
-        const errData = await convertRes.json().catch(() => ({}));
-        console.error('[STRIPE-LEADS] Convert failed:', errData);
+        console.log('[STRIPE-LEADS] Manual activation required for quote', quote_id);
       }
     } catch (err: any) {
       console.error('[STRIPE-LEADS] Error processing payment:', err.message);

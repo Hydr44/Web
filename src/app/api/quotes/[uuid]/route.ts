@@ -35,15 +35,33 @@ export async function GET(
       );
     }
 
-    // Track view
+    // Track view (incrementa contatore sempre, aggiorna status solo prima volta)
+    const now = new Date().toISOString();
+    const viewedCount = (quote.viewed_count || 0) + 1;
+    const updatePayload: Record<string, any> = {
+      viewed_count: viewedCount,
+      last_viewed_at: now,
+    };
     if (quote.status === 'sent' && !quote.viewed_at) {
-      await supabaseAdmin
-        .from('lead_quotes')
-        .update({ status: 'viewed', viewed_at: new Date().toISOString() })
-        .eq('id', quote.id);
+      updatePayload.status = 'viewed';
+      updatePayload.viewed_at = now;
       quote.status = 'viewed';
-      quote.viewed_at = new Date().toISOString();
+      quote.viewed_at = now;
     }
+    await supabaseAdmin.from('lead_quotes').update(updatePayload).eq('id', quote.id);
+
+    // Activity log
+    try {
+      await supabaseAdmin.from('lead_activities').insert({
+        lead_id: quote.lead_id,
+        activity_type: 'quote_viewed',
+        title: `Preventivo ${quote.quote_number} visualizzato`,
+        description: `View #${viewedCount}`,
+        performed_by_type: 'lead',
+        related_quote_id: quote.id,
+        metadata: { view_count: viewedCount },
+      });
+    } catch {}
 
     // Strip internal fields
     const publicQuote = {
@@ -176,13 +194,20 @@ export async function POST(
         allow_promotion_codes: false,
       });
 
-      // Aggiorna quote con session ID e status accepted
+      // Audit accept
+      const clientIp = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim()
+        || request.headers.get('x-real-ip') || null;
+      const userAgent = request.headers.get('user-agent') || null;
+
       await supabaseAdmin
         .from('lead_quotes')
         .update({
           status: 'accepted',
           accepted_at: new Date().toISOString(),
           stripe_checkout_session_id: session.id,
+          acceptance_ip: clientIp,
+          acceptance_user_agent: userAgent,
+          acceptance_signature_data: body.signature_data || null,
         })
         .eq('id', quote.id);
 
@@ -191,6 +216,19 @@ export async function POST(
         .from('leads')
         .update({ status: 'quote_sent', updated_at: new Date().toISOString() })
         .eq('id', quote.lead_id);
+
+      // Activity log
+      try {
+        await supabaseAdmin.from('lead_activities').insert({
+          lead_id: quote.lead_id,
+          activity_type: 'quote_accepted',
+          title: `Preventivo ${quote.quote_number} accettato`,
+          description: `IP: ${clientIp || '—'}`,
+          performed_by_type: 'lead',
+          related_quote_id: quote.id,
+          metadata: { ip: clientIp, user_agent: userAgent },
+        });
+      } catch {}
 
       return NextResponse.json({
         success: true,
@@ -208,10 +246,30 @@ export async function POST(
       }
 
       const reason = body.reason || '';
+      const clientIp = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim()
+        || request.headers.get('x-real-ip') || null;
+
       await supabaseAdmin
         .from('lead_quotes')
-        .update({ status: 'rejected' })
+        .update({
+          status: 'rejected',
+          rejected_at: new Date().toISOString(),
+          rejection_reason: reason || null,
+          rejection_ip: clientIp,
+        })
         .eq('id', quote.id);
+
+      try {
+        await supabaseAdmin.from('lead_activities').insert({
+          lead_id: quote.lead_id,
+          activity_type: 'quote_rejected',
+          title: `Preventivo ${quote.quote_number} rifiutato`,
+          description: reason || null,
+          performed_by_type: 'lead',
+          related_quote_id: quote.id,
+          metadata: { ip: clientIp, reason },
+        });
+      } catch {}
 
       // Log modification request if reason provided
       if (reason) {
