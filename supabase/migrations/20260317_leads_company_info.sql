@@ -27,18 +27,24 @@ COMMENT ON COLUMN leads.forma_giuridica     IS 'Forma giuridica: SRL, SNC, SAS, 
 COMMENT ON COLUMN leads.codice_ateco        IS 'Codice ATECO attività';
 
 -- =====================================================
--- 2. CAMPI AGGIUNTIVI SU COMPANY_SETTINGS
+-- 2. CAMPI AGGIUNTIVI SU COMPANY_SETTINGS (DEPRECATA)
 -- =====================================================
+-- Da Maggio 2026 company_settings è deprecata in favore di org_settings.key='company' (JSONB).
+-- Skippa l'ALTER se la tabella non esiste più.
 
-ALTER TABLE company_settings
-  ADD COLUMN IF NOT EXISTS codice_fiscale     TEXT,
-  ADD COLUMN IF NOT EXISTS pec                TEXT,
-  ADD COLUMN IF NOT EXISTS forma_giuridica    TEXT,
-  ADD COLUMN IF NOT EXISTS codice_ateco       TEXT,
-  ADD COLUMN IF NOT EXISTS iban               TEXT,
-  ADD COLUMN IF NOT EXISTS sdi_recipient_code TEXT;
-
-COMMENT ON COLUMN company_settings.sdi_recipient_code IS 'Codice destinatario SdI per ricezione fatture elettroniche';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'company_settings') THEN
+    ALTER TABLE company_settings
+      ADD COLUMN IF NOT EXISTS codice_fiscale     TEXT,
+      ADD COLUMN IF NOT EXISTS pec                TEXT,
+      ADD COLUMN IF NOT EXISTS forma_giuridica    TEXT,
+      ADD COLUMN IF NOT EXISTS codice_ateco       TEXT,
+      ADD COLUMN IF NOT EXISTS iban               TEXT,
+      ADD COLUMN IF NOT EXISTS sdi_recipient_code TEXT;
+    COMMENT ON COLUMN company_settings.sdi_recipient_code IS 'Codice destinatario SdI per ricezione fatture elettroniche';
+  END IF;
+END $$;
 
 -- =====================================================
 -- 3. FLAG ONBOARDING SU PROFILES

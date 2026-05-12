@@ -140,7 +140,25 @@ ALTER TABLE lead_quotes
   ADD COLUMN IF NOT EXISTS external_payment_date DATE,
   ADD COLUMN IF NOT EXISTS external_payment_notes TEXT,
   ADD COLUMN IF NOT EXISTS external_payment_recorded_by UUID REFERENCES auth.users(id),
-  ADD COLUMN IF NOT EXISTS external_payment_recorded_at TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS external_payment_recorded_at TIMESTAMPTZ,
+
+  -- Allegati: PDF aggiuntivi, brochure, contratti, listini
+  ADD COLUMN IF NOT EXISTS attachments JSONB DEFAULT '[]'::jsonb,
+    -- [{filename, storage_path, mime_type, size_bytes}]
+
+  -- Setup avanzato
+  ADD COLUMN IF NOT EXISTS setup_description TEXT,  -- cosa include il setup fee
+  ADD COLUMN IF NOT EXISTS includes_onboarding BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS onboarding_hours INT,
+  ADD COLUMN IF NOT EXISTS includes_training BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS training_hours INT,
+  ADD COLUMN IF NOT EXISTS includes_data_import BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS sla_response_hours INT,
+
+  -- Riferimento commerciale interno
+  ADD COLUMN IF NOT EXISTS internal_reference TEXT,  -- es. "OPPORTUNITY-2026-Q2-042"
+  ADD COLUMN IF NOT EXISTS commission_rate NUMERIC(5,2),  -- per agenti/referral
+  ADD COLUMN IF NOT EXISTS commission_recipient UUID REFERENCES auth.users(id);
 
 CREATE INDEX IF NOT EXISTS idx_lead_quotes_lead_status ON lead_quotes(lead_id, status);
 CREATE INDEX IF NOT EXISTS idx_lead_quotes_pending_activation ON lead_quotes(activation_pending) WHERE activation_pending = TRUE;
@@ -192,6 +210,26 @@ CREATE TRIGGER trg_lead_activities_touch
 -- =====================================================
 -- 4. EMAIL TEMPLATES & CAMPAIGNS
 -- =====================================================
+-- Drop versioni vecchie con schema diverso (verificato che sono vuote).
+-- Se ci fossero dati la migration fallirebbe e andrebbe gestita a mano.
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='email_campaigns') THEN
+    IF NOT EXISTS (SELECT 1 FROM email_campaigns LIMIT 1) THEN
+      DROP TABLE email_campaigns CASCADE;
+    ELSE
+      RAISE EXCEPTION 'email_campaigns ha dati esistenti — gestire manualmente lo schema';
+    END IF;
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='email_templates') THEN
+    IF NOT EXISTS (SELECT 1 FROM email_templates LIMIT 1) THEN
+      DROP TABLE email_templates CASCADE;
+    ELSE
+      RAISE EXCEPTION 'email_templates ha dati esistenti — gestire manualmente lo schema';
+    END IF;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS email_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -317,7 +355,7 @@ CREATE TABLE IF NOT EXISTS lead_documents (
 CREATE INDEX IF NOT EXISTS idx_lead_documents_lead ON lead_documents(lead_id);
 
 -- =====================================================
--- 8. ESTENSIONE lead_demos (trial unit flessibile)
+-- 8. ESTENSIONE lead_demos (trial unit flessibile + distinzione demo vs trial)
 -- =====================================================
 
 ALTER TABLE lead_demos
@@ -328,7 +366,33 @@ ALTER TABLE lead_demos
   ADD COLUMN IF NOT EXISTS trial_extended_count INT DEFAULT 0,
   ADD COLUMN IF NOT EXISTS auto_extend_on_engagement BOOLEAN DEFAULT FALSE,
   ADD COLUMN IF NOT EXISTS conversion_offer_sent BOOLEAN DEFAULT FALSE,
-  ADD COLUMN IF NOT EXISTS related_quote_id UUID REFERENCES lead_quotes(id) ON DELETE SET NULL;
+  ADD COLUMN IF NOT EXISTS related_quote_id UUID REFERENCES lead_quotes(id) ON DELETE SET NULL,
+
+  -- ★ Distinzione fondamentale showcase (dati finti) vs trial (account reale)
+  ADD COLUMN IF NOT EXISTS demo_type TEXT DEFAULT 'trial'
+    CHECK (demo_type IN ('showcase', 'trial', 'pilot')),
+    -- showcase = ambiente con dati seed finti (~20 veicoli, clienti demo, trasporti)
+    -- trial = account reale vuoto del cliente, dati propri, scadenza
+    -- pilot = trial supervisionato con SLA e onboarding affiancato
+  ADD COLUMN IF NOT EXISTS seed_data BOOLEAN DEFAULT FALSE,
+    -- Solo per demo_type='showcase' o 'pilot': popola con dati realistici
+  ADD COLUMN IF NOT EXISTS seed_profile TEXT,
+    -- Quale profilo seed: 'autodemolitore_piccolo' | 'autodemolitore_grande' | 'officina' | 'flotta'
+  ADD COLUMN IF NOT EXISTS access_email TEXT,
+    -- email login: per showcase può essere demo+xxx@rescuemanager.eu, per trial = email lead
+  ADD COLUMN IF NOT EXISTS access_password_set BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS show_in_marketing BOOLEAN DEFAULT FALSE,
+    -- Se l'org demo è esposta nel sito (live demo pubblica)
+  ADD COLUMN IF NOT EXISTS pilot_assigned_to UUID REFERENCES auth.users(id),
+    -- Staff responsabile del pilot
+  ADD COLUMN IF NOT EXISTS pilot_objectives TEXT,
+    -- Obiettivi del pilot da raggiungere prima della conversione
+  ADD COLUMN IF NOT EXISTS conversion_probability INT CHECK (conversion_probability BETWEEN 0 AND 100);
+
+CREATE INDEX IF NOT EXISTS idx_lead_demos_type ON lead_demos(demo_type, status);
+
+-- Aggiorna esistenti: tutti i demo legacy come 'trial' (è quello che facevano)
+UPDATE lead_demos SET demo_type = 'trial' WHERE demo_type IS NULL;
 
 -- =====================================================
 -- 9. SETTINGS GLOBALI AUTOMAZIONE
