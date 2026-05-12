@@ -115,6 +115,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
       converted_from_lead_id: org.converted_from_lead_id,
       // Company
       company: settingsMap.company || null,
+      // Features toggles (org_settings.features JSONB)
+      features: settingsMap.features || null,
       // Tutte le settings (per altre key future)
       settings: settingsMap,
       // Subscription
