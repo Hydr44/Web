@@ -34,7 +34,8 @@ export async function POST(
             is_admin,
             current_org,
             provider,
-            google_id
+            google_id,
+            onboarding_completed
           `)
           .eq('id', userId)
           .single();
@@ -46,7 +47,74 @@ export async function POST(
           }, { status: 404, headers });
         }
 
-        responseData = { success: true, user };
+        // Carica auth metadata (last_sign_in_at, email_confirmed_at, status)
+        let lastSignIn: string | null = null;
+        let emailConfirmedAt: string | null = null;
+        let status: string = 'active';
+        try {
+          const { data: authData } = await supabaseAdmin.auth.admin.getUserById(userId);
+          if (authData?.user) {
+            lastSignIn = authData.user.last_sign_in_at || null;
+            emailConfirmedAt = authData.user.email_confirmed_at || null;
+            if (authData.user.banned_until && new Date(authData.user.banned_until) > new Date()) {
+              status = 'suspended';
+            }
+          }
+        } catch { /* ignore */ }
+
+        // Memberships
+        const { data: memberRows } = await supabaseAdmin
+          .from('org_members')
+          .select('org_id, role, created_at')
+          .eq('user_id', userId);
+
+        const orgIds = (memberRows || []).map(m => m.org_id);
+        const orgsMap: Record<string, any> = {};
+        if (orgIds.length) {
+          const { data: orgsData } = await supabaseAdmin
+            .from('orgs').select('id, name').in('id', orgIds);
+          for (const o of orgsData || []) orgsMap[o.id] = o;
+        }
+        const memberships = (memberRows || []).map(m => ({
+          org_id: m.org_id,
+          org_name: orgsMap[m.org_id]?.name || '(senza nome)',
+          role: m.role,
+          joined_at: m.created_at,
+          is_current: m.org_id === user.current_org,
+        }));
+
+        // Org corrente (current_org name)
+        let orgName: string | null = null;
+        if (user.current_org) {
+          orgName = orgsMap[user.current_org]?.name || null;
+          if (!orgName) {
+            const { data: cur } = await supabaseAdmin.from('orgs').select('name').eq('id', user.current_org).maybeSingle();
+            orgName = cur?.name || null;
+          }
+        }
+
+        // Sessioni ultime 30gg
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+        const { data: sessions } = await supabaseAdmin
+          .from('user_sessions')
+          .select('id, ip_address, user_agent, started_at, last_activity_at, ended_at')
+          .eq('user_id', userId)
+          .gt('started_at', thirtyDaysAgo)
+          .order('started_at', { ascending: false })
+          .limit(30);
+
+        responseData = {
+          success: true,
+          user: {
+            ...user,
+            last_sign_in_at: lastSignIn,
+            email_confirmed_at: emailConfirmedAt,
+            status,
+            org_name: orgName,
+            memberships,
+            recent_sessions: sessions || [],
+          },
+        };
         break;
       }
 
