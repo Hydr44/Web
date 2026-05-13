@@ -167,7 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_lead_quotes_parent ON lead_quotes(parent_quote_id
 -- Allarga enum status per supportare nuovi stati
 ALTER TABLE lead_quotes DROP CONSTRAINT IF EXISTS lead_quotes_status_check;
 ALTER TABLE lead_quotes ADD CONSTRAINT lead_quotes_status_check
-  CHECK (status IN ('draft','sent','viewed','accepted','rejected','paid','pending_activation','activated','expired','cancelled','superseded'));
+  CHECK (status IN ('draft','pending_approval','sent','viewed','accepted','rejected','paid','pending_activation','activated','expired','cancelled','superseded'));
 
 -- =====================================================
 -- 3. LEAD ACTIVITIES (timeline unificata)
