@@ -117,7 +117,7 @@ export default function PublicAppointmentPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
-          <div className="text-5xl mb-4">⚠️</div>
+          <div className="text-4xl mb-4 text-amber-500 font-bold">!</div>
           <h1 className="text-xl font-semibold text-slate-900 mb-2">Appuntamento non trovato</h1>
           <p className="text-sm text-slate-600">{error || 'Il link potrebbe essere scaduto o non valido.'}</p>
         </div>
@@ -138,18 +138,18 @@ export default function PublicAppointmentPage() {
             <p className="text-lg text-blue-700 font-semibold mt-2">{day}</p>
             <p className="text-base text-slate-700">{time}</p>
             <p className="text-xs text-slate-500 mt-2">
-              {appt.meeting_mode === 'video' && '📹 Videocall'}
-              {appt.meeting_mode === 'phone' && '📞 Telefono'}
-              {appt.meeting_mode === 'in_person' && '📍 In presenza'}
+              {appt.meeting_mode === 'video' && 'Videochiamata'}
+              {appt.meeting_mode === 'phone' && 'Telefono'}
+              {appt.meeting_mode === 'in_person' && 'In presenza'}
             </p>
           </div>
           {appt.meeting_url && (
             <p className="text-sm">
-              <a href={appt.meeting_url} className="text-blue-600 hover:underline">Apri link videocall</a>
+              <a href={appt.meeting_url} className="text-blue-600 hover:underline">Apri link videochiamata</a>
             </p>
           )}
-          {appt.meeting_phone && <p className="text-sm text-slate-700">📞 {appt.meeting_phone}</p>}
-          {appt.meeting_address && <p className="text-sm text-slate-700">📍 {appt.meeting_address}</p>}
+          {appt.meeting_phone && <p className="text-sm text-slate-700">Telefono: {appt.meeting_phone}</p>}
+          {appt.meeting_address && <p className="text-sm text-slate-700">{appt.meeting_address}</p>}
           <p className="text-xs text-slate-500 mt-6">A breve riceverai un'email di conferma con il file calendario.</p>
           <button onClick={() => setShowCancel(true)} className="text-xs text-slate-500 hover:text-red-600 mt-4 underline">
             Devi annullare? Clicca qui
@@ -242,9 +242,9 @@ export default function PublicAppointmentPage() {
           </div>
 
           <div className="text-xs text-slate-500 mb-4">
-            {appt.meeting_mode === 'video' && '📹 La chiamata sarà in videocall'}
-            {appt.meeting_mode === 'phone' && '📞 La chiamata sarà telefonica'}
-            {appt.meeting_mode === 'in_person' && '📍 In presenza'}
+            {appt.meeting_mode === 'video' && 'La chiamata sarà in videochiamata'}
+            {appt.meeting_mode === 'phone' && 'La chiamata sarà telefonica'}
+            {appt.meeting_mode === 'in_person' && 'Incontro in presenza'}
           </div>
 
           <button

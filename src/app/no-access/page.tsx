@@ -89,7 +89,7 @@ function NoAccessContent() {
 
           {reason === 'web_disabled' && (
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4 text-xs text-blue-300">
-              💡 <strong>Suggerimento</strong>: puoi continuare a lavorare usando l'<strong>app desktop</strong> mentre risolviamo la questione.
+              <strong>Nota</strong>: puoi continuare a lavorare usando l'<strong>app desktop</strong> mentre risolviamo la questione.
             </div>
           )}
 
@@ -100,9 +100,12 @@ function NoAccessContent() {
           </button>
         </div>
 
-        <p className="text-center text-[11px] text-slate-600 mt-4">
-          © {new Date().getFullYear()} RescueManager · Gestionale per autodemolizioni
-        </p>
+        <div className="text-center text-[11px] text-slate-600 mt-4 leading-relaxed">
+          <p className="font-medium text-slate-500">RescueManager S.r.l.</p>
+          <p>Via dello Smeraldo 18, 93012 Gela (CL)</p>
+          <p>P.IVA 02176370852 &middot; Capitale sociale &euro; 100,00</p>
+          <p className="mt-1">© {new Date().getFullYear()} &middot; <a href="https://rescuemanager.eu" className="hover:text-slate-400">rescuemanager.eu</a></p>
+        </div>
       </div>
     </div>
   );

@@ -141,7 +141,7 @@ VALUES
 
   ('appointment_confirmation', 'Conferma appuntamento', 'custom',
    'Appuntamento confermato — {{appointment_date}} ore {{appointment_time}}',
-   '<p>Ciao {{lead_name}},</p><p>il tuo appuntamento <b>{{appointment_title}}</b> è confermato.</p><p>📅 {{appointment_date}}<br>🕒 {{appointment_time}}<br>⏱ {{duration}} min</p><p>{{meeting_link_or_location}}</p><p>Trovi il file .ics in allegato per aggiungerlo al calendario.</p>',
+   '<p>Buongiorno {{lead_name}},</p><p>il tuo appuntamento <b>{{appointment_title}}</b> è confermato.</p><p>Data: {{appointment_date}}<br>Ora: {{appointment_time}}<br>Durata: {{duration}} min</p><p>{{meeting_link_or_location}}</p><p>Trovi il file .ics in allegato per aggiungerlo al calendario.</p>',
    'Appuntamento confermato {{appointment_date}} {{appointment_time}}. {{meeting_link_or_location}}',
    TRUE,
    '["lead_name","appointment_title","appointment_date","appointment_time","duration","meeting_link_or_location"]'::jsonb),

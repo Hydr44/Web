@@ -441,7 +441,7 @@ export default function PublicQuotePage() {
             <Link href="/terms-of-use" className="text-slate-500 hover:text-slate-400 underline">Termini e Condizioni</Link>.
           </p>
           <p className="text-xs text-slate-600 mt-1">
-            RescueManager di Scozzarini Emmanuel — P.IVA 02166430856 — info@rescuemanager.eu
+            RescueManager di RescueManager S.r.l. — P.IVA 02176370852 — info@rescuemanager.eu
           </p>
         </footer>
       </main>

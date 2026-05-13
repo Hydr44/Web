@@ -27,7 +27,7 @@ export default function DPAPage() {
         {/* Premessa */}
         <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5">
           <p className="text-sm text-blue-900 leading-relaxed">
-            Il presente Data Processing Agreement (&quot;DPA&quot;) è parte integrante dei Termini e Condizioni di Servizio conclusi tra il Cliente (di seguito &quot;Titolare del Trattamento&quot;) e Emmanuel Salvatore Scozzarini, libero professionista operante sotto il nome commerciale RescueManager, P. IVA 02166430856 (di seguito &quot;Responsabile del Trattamento&quot; o &quot;RescueManager&quot;), e disciplina il trattamento dei dati personali effettuato da RescueManager per conto del Cliente nell&apos;ambito dell&apos;erogazione del Servizio SaaS, ai sensi dell&apos;art. 28 del GDPR.
+            Il presente Data Processing Agreement (&quot;DPA&quot;) è parte integrante dei Termini e Condizioni di Servizio conclusi tra il Cliente (di seguito &quot;Titolare del Trattamento&quot;) e RescueManager S.r.l., società a responsabilità limitata operante con il marchio RescueManager, P.IVA 02176370852 (di seguito &quot;Responsabile del Trattamento&quot; o &quot;RescueManager&quot;), e disciplina il trattamento dei dati personali effettuato da RescueManager per conto del Cliente nell&apos;ambito dell&apos;erogazione del Servizio SaaS, ai sensi dell&apos;art. 28 del GDPR.
           </p>
         </div>
 
@@ -41,10 +41,10 @@ export default function DPAPage() {
               <p>Le Parti concordano e riconoscono che, in relazione ai dati personali inseriti dal Cliente nella Piattaforma nell&apos;esercizio della propria attività operativa:</p>
               <ul className="list-disc list-inside space-y-2 ml-3">
                 <li><strong>Il Cliente</strong> agisce in qualità di <strong>Titolare del Trattamento</strong> ai sensi dell&apos;art. 4, n. 7, GDPR, in quanto determina autonomamente le finalità e i mezzi del trattamento dei dati relativi alla propria attività</li>
-                <li><strong>Emmanuel Salvatore Scozzarini</strong>, operante come RescueManager, agisce in qualità di <strong>Responsabile del Trattamento</strong> ai sensi dell&apos;art. 4, n. 8, GDPR, in quanto tratta i predetti dati esclusivamente per conto del Cliente. Il Responsabile del Trattamento è una persona fisica; non sussiste pertanto alcuna distinzione tra la persona giuridica del fornitore e la persona fisica del titolare dell&apos;impresa.</li>
+                <li><strong>RescueManager S.r.l.</strong>, operante come RescueManager, agisce in qualità di <strong>Responsabile del Trattamento</strong> ai sensi dell&apos;art. 4, n. 8, GDPR, in quanto tratta i predetti dati esclusivamente per conto del Cliente. Il Responsabile del Trattamento è una persona fisica; non sussiste pertanto alcuna distinzione tra la persona giuridica del fornitore e la persona fisica del titolare dell&apos;impresa.</li>
               </ul>
               <h3 className="font-semibold text-gray-900 mt-4">1.2 Nomina</h3>
-              <p>Con la sottoscrizione dei Termini e Condizioni (e la conseguente accettazione del presente DPA, che ne costituisce parte integrante), il Cliente nomina formalmente Emmanuel Salvatore Scozzarini quale Responsabile del Trattamento ai sensi dell&apos;art. 28, par. 1, GDPR. Il Responsabile accetta tale nomina.</p>
+              <p>Con la sottoscrizione dei Termini e Condizioni (e la conseguente accettazione del presente DPA, che ne costituisce parte integrante), il Cliente nomina formalmente RescueManager S.r.l. quale Responsabile del Trattamento ai sensi dell&apos;art. 28, par. 1, GDPR. Il Responsabile accetta tale nomina.</p>
             </div>
           </section>
 
@@ -193,12 +193,12 @@ export default function DPAPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-slate-400 mb-1">Responsabile del Trattamento</p>
-                <p className="font-semibold">Emmanuel Salvatore Scozzarini</p>
-                <p className="text-slate-300">RescueManager — P. IVA 02166430856</p>
+                <p className="font-semibold">RescueManager S.r.l.</p>
+                <p className="text-slate-300">RescueManager S.r.l. — P.IVA 02176370852 — Capitale sociale Euro 100,00</p>
               </div>
               <div>
                 <p className="text-slate-400 mb-1">Recapiti</p>
-                <p>Via dello Smeraldo 18, Gela (CL), Sicilia</p>
+                <p>Via dello Smeraldo 18, 93012 Gela (CL)</p>
                 <p><a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
                 <p><a href="https://www.rescuemanager.eu" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
               </div>

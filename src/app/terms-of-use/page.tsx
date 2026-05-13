@@ -39,8 +39,8 @@ export default function TermsOfUsePage() {
             <h2 className="text-xl font-bold text-gray-900 mb-5">1. Identificazione delle Parti e Oggetto del Contratto</h2>
             <div className="text-gray-700 space-y-4 text-sm leading-relaxed">
               <h3 className="font-semibold text-gray-900">1.1 Il Fornitore</h3>
-              <p>Il presente contratto è stipulato tra <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista/imprenditore individuale, operante commercialmente sotto il nome <strong>RescueManager</strong>, con domicilio professionale in <strong>Via dello Smeraldo 18, Gela (CL), Sicilia</strong>, P. IVA <strong>02166430856</strong>.</p>
-              <p>Il Fornitore è una persona fisica che esercita attività d&apos;impresa in forma individuale. Non sussiste pertanto alcuna separazione tra il patrimonio dell&apos;impresa e il patrimonio personale del titolare, ai sensi degli artt. 2082 e 2740 del Codice Civile.</p>
+              <p>Il presente contratto è stipulato tra <strong>RescueManager S.r.l.</strong>, società a responsabilità limitata di diritto italiano con sede legale in <strong>Via dello Smeraldo 18, 93012 Gela (CL), Italia</strong>, capitale sociale Euro 100,00 interamente versato, codice fiscale e P. IVA <strong>02176370852</strong>, PEC <a href="mailto:rescuemanager@legalmail.it" className="text-blue-600 hover:underline">rescuemanager@legalmail.it</a> (di seguito &quot;Fornitore&quot; o &quot;RescueManager&quot;).</p>
+              <p>Il Fornitore è una società di capitali costituita ai sensi degli artt. 2462 e ss. del Codice Civile. La responsabilità per le obbligazioni sociali è limitata al patrimonio della società.</p>
 
               <h3 className="font-semibold text-gray-900 mt-4">1.2 Il Cliente</h3>
               <p>Il Cliente è esclusivamente un soggetto professionale operante nel settore dell&apos;autodemolizione, del commercio di veicoli fuori uso, della gestione di rottami e attività affini. Il presente contratto è esplicitamente escluso dall&apos;ambito di applicazione del Codice del Consumo (D.Lgs. 206/2005).</p>
@@ -83,7 +83,7 @@ export default function TermsOfUsePage() {
               <h3 className="font-semibold text-gray-900">3.1 Concessione della Licenza</h3>
               <p>Il Fornitore concede al Cliente una licenza d&apos;uso <strong>non esclusiva, non trasferibile, non cedibile e revocabile</strong> per accedere alla Piattaforma durante il periodo di abbonamento. Il contratto SaaS non trasferisce alcun diritto di proprietà sul software, codice sorgente, banche dati, loghi o marchi.</p>
               <h3 className="font-semibold text-gray-900 mt-4">3.2 Protezione del Software</h3>
-              <p>La Piattaforma RescueManager è di proprietà esclusiva di Emmanuel Salvatore Scozzarini ed è protetta ai sensi degli artt. 1 e 2, n. 8, della Legge 22 aprile 1941, n. 633. Tutti i diritti sono riservati.</p>
+              <p>La Piattaforma RescueManager è di proprietà esclusiva di RescueManager S.r.l. ed è protetta ai sensi degli artt. 1 e 2, n. 8, della Legge 22 aprile 1941, n. 633. Tutti i diritti sono riservati.</p>
               <h3 className="font-semibold text-gray-900 mt-4">3.3 Diritti Inderogabili dell&apos;Utente</h3>
               <p>In conformità all&apos;art. 64-ter della Legge 633/1941, il Cliente ha il diritto inderogabile di effettuare copie di riserva dei propri dati e di osservare il funzionamento del programma. Qualsiasi clausola contraria è nulla di diritto.</p>
               <h3 className="font-semibold text-gray-900 mt-4">3.4 Divieti</h3>
@@ -102,7 +102,7 @@ export default function TermsOfUsePage() {
               <h3 className="font-semibold text-gray-900 mt-4">4.2 Pagamenti tramite Stripe</h3>
               <p>I pagamenti sono gestiti da <strong>Stripe Payments Europe, Ltd.</strong> (Irlanda), certificato PCI-DSS. I dati della carta non sono archiviati sui server del Fornitore.</p>
               <h3 className="font-semibold text-gray-900 mt-4">4.3 Fatturazione Elettronica</h3>
-              <p>Il Fornitore, Emmanuel Salvatore Scozzarini P. IVA 02166430856, emette fattura elettronica tramite SDI per ogni canone addebitato.</p>
+              <p>Il Fornitore, RescueManager S.r.l. P.IVA 02176370852, emette fattura elettronica tramite SDI per ogni canone addebitato.</p>
               <h3 className="font-semibold text-gray-900 mt-4">4.4 Interessi di Mora</h3>
               <p>In caso di ritardo, si applicano il D.Lgs. 231/2002: interessi al tasso BCE + 8 punti percentuali dal giorno successivo alla scadenza, più indennizzo forfettario di €40,00 per fattura insoluta.</p>
               <h3 className="font-semibold text-gray-900 mt-4">4.5 Sospensione per Morosità</h3>
@@ -175,10 +175,10 @@ export default function TermsOfUsePage() {
               <p>Il presente contratto è regolato dalla legge italiana. Si applicano il Codice Civile, il D.Lgs. 70/2003, il D.Lgs. 231/2002 e ogni altra norma italiana ed europea applicabile.</p>
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                 <p className="font-semibold text-indigo-900 mb-2">⚠️ Clausola Vessatoria — Art. 1341, comma 2, c.c.</p>
-                <p className="text-indigo-800 text-xs"><strong>Contenuto sintetico:</strong> qualsiasi controversia è devoluta in via esclusiva al Foro del domicilio professionale del Fornitore (Gela, CL), con deroga alla competenza territoriale ordinaria.</p>
+                <p className="text-indigo-800 text-xs"><strong>Contenuto sintetico:</strong> qualsiasi controversia è devoluta in via esclusiva al Foro del sede legale del Fornitore (Gela, CL), con deroga alla competenza territoriale ordinaria.</p>
               </div>
               <h3 className="font-semibold text-gray-900 mt-4">8.2 Foro Competente</h3>
-              <p>Per qualsiasi controversia è competente in via esclusiva il <strong>Foro di Caltanissetta</strong> (luogo del domicilio professionale del Fornitore: Via dello Smeraldo 18, Gela, CL). Tale clausola deroga alla competenza ordinaria ex artt. 18, 19, 20 c.p.c.</p>
+              <p>Per qualsiasi controversia è competente in via esclusiva il <strong>Foro di Caltanissetta</strong> (luogo del sede legale del Fornitore: Via dello Smeraldo 18, Gela, CL). Tale clausola deroga alla competenza ordinaria ex artt. 18, 19, 20 c.p.c.</p>
               <h3 className="font-semibold text-gray-900 mt-4">8.3 Tentativo di Conciliazione</h3>
               <p>Le Parti si impegnano a tentare in buona fede la risoluzione amichevole entro 30 giorni dalla comunicazione scritta del disaccordo, prima di adire l&apos;Autorità Giudiziaria.</p>
             </div>
@@ -201,15 +201,16 @@ export default function TermsOfUsePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-slate-400 mb-1">Titolare / Fornitore</p>
-                <p className="font-semibold">Emmanuel Salvatore Scozzarini</p>
-                <p className="text-slate-300">RescueManager</p>
+                <p className="font-semibold">RescueManager S.r.l.</p>
+                <p className="text-slate-300">RescueManager S.r.l.</p>
               </div>
               <div>
                 <p className="text-slate-400 mb-1">Recapiti</p>
-                <p>Via dello Smeraldo 18, Gela (CL)</p>
-                <p><a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
+                <p>Via dello Smeraldo 18, 93012 Gela (CL)</p>
+                <p>PEC <a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
+                <p>Email <a href="mailto:info@rescuemanager.eu" className="text-blue-400 hover:underline">info@rescuemanager.eu</a></p>
                 <p><a href="https://www.rescuemanager.eu" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
-                <p className="text-slate-400 text-xs mt-1">P. IVA: 02166430856</p>
+                <p className="text-slate-400 text-xs mt-1">P.IVA 02176370852 &middot; Capitale sociale &euro; 100,00</p>
               </div>
             </div>
           </div>

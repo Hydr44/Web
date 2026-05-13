@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
         {/* Premessa */}
         <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5">
           <p className="text-sm text-blue-900 leading-relaxed">
-            La presente Informativa descrive le modalità con cui <strong>Emmanuel Salvatore Scozzarini</strong>, libero professionista operante sotto il nome commerciale <strong>RescueManager</strong> (di seguito &quot;Titolare&quot;), tratta i dati personali degli utenti e dei rappresentanti delle aziende clienti che accedono e utilizzano la Piattaforma RescueManager, in conformità al Regolamento (UE) 2016/679 (GDPR), al D.Lgs. 30 giugno 2003, n. 196 (Codice Privacy) come modificato dal D.Lgs. 101/2018, e a ogni altra normativa applicabile.
+            La presente Informativa descrive le modalità con cui <strong>RescueManager S.r.l.</strong>, società a responsabilità limitata operante con il marchio <strong>RescueManager</strong> (di seguito &quot;Titolare&quot;), tratta i dati personali degli utenti e dei rappresentanti delle aziende clienti che accedono e utilizzano la Piattaforma RescueManager, in conformità al Regolamento (UE) 2016/679 (GDPR), al D.Lgs. 30 giugno 2003, n. 196 (Codice Privacy) come modificato dal D.Lgs. 101/2018, e a ogni altra normativa applicabile.
           </p>
         </div>
 
@@ -38,11 +38,11 @@ export default function PrivacyPolicyPage() {
           <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-5">1. Titolare del Trattamento e Dati di Contatto</h2>
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 text-sm space-y-2">
-              <p><strong>Titolare del Trattamento:</strong> Emmanuel Salvatore Scozzarini</p>
+              <p><strong>Titolare del Trattamento:</strong> RescueManager S.r.l.</p>
               <p><strong>Nome commerciale:</strong> RescueManager</p>
               <p><strong>Qualifica:</strong> Libero Professionista / Imprenditore Individuale</p>
-              <p><strong>Domicilio Professionale:</strong> Via dello Smeraldo 18, Gela (CL), Sicilia</p>
-              <p><strong>Partita IVA:</strong> 02166430856</p>
+              <p><strong>Sede legale:</strong> Via dello Smeraldo 18, 93012 Gela (CL), Italia</p>
+              <p><strong>Partita IVA:</strong> 02176370852</p>
               <p><strong>Indirizzo e-mail (PEC):</strong> <a href="mailto:rescuemanager@legalmail.it" className="text-blue-600 hover:underline">rescuemanager@legalmail.it</a></p>
               <p><strong>Sito web:</strong> <a href="https://www.rescuemanager.eu" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
             </div>
@@ -247,12 +247,12 @@ export default function PrivacyPolicyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-slate-400 mb-1">Titolare del Trattamento</p>
-                <p className="font-semibold">Emmanuel Salvatore Scozzarini</p>
-                <p className="text-slate-300">RescueManager — P. IVA 02166430856</p>
+                <p className="font-semibold">RescueManager S.r.l.</p>
+                <p className="text-slate-300">RescueManager S.r.l. — P.IVA 02176370852 — Capitale sociale Euro 100,00</p>
               </div>
               <div>
                 <p className="text-slate-400 mb-1">Recapiti</p>
-                <p>Via dello Smeraldo 18, Gela (CL), Sicilia</p>
+                <p>Via dello Smeraldo 18, 93012 Gela (CL)</p>
                 <p><a href="mailto:rescuemanager@legalmail.it" className="text-blue-400 hover:underline">rescuemanager@legalmail.it</a></p>
                 <p><a href="https://www.rescuemanager.eu" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">www.rescuemanager.eu</a></p>
               </div>

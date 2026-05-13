@@ -76,9 +76,17 @@ export default function SiteFooter() {
       {/* Bottom bar */}
       <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-6 py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-            <span>&copy; {year} RescueManager. Tutti i diritti riservati.</span>
-            <span>P.IVA 02166430856</span>
+          <div className="flex flex-col gap-3 text-xs text-slate-500">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <span className="font-semibold text-slate-300">RescueManager S.r.l.</span>
+              <span className="text-slate-600">&copy; {year} &middot; Tutti i diritti riservati</span>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-500">
+              <span>Via dello Smeraldo 18, 93012 Gela (CL)</span>
+              <span>P.IVA 02176370852</span>
+              <span>Capitale sociale &euro; 100,00</span>
+              <span>PEC <a href="mailto:rescuemanager@legalmail.it" className="hover:text-slate-300">rescuemanager@legalmail.it</a></span>
+            </div>
           </div>
         </div>
       </div>
