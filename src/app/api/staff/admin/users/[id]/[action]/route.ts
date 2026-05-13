@@ -211,8 +211,7 @@ export async function POST(
           }
         }
 
-        // ── Step 2: SET NULL su created_by (preserva dati business) ──
-        // company_settings + export_* sono deprecate (Mag 2026) → rimosse dalla lista
+        // ── Step 2: SET NULL su created_by/colonne FK auth.users (preserva dati business) ──
         const nullifyCreatedBy = [
           'yard_vehicles',
           'accounting_entries',
@@ -225,32 +224,65 @@ export async function POST(
           'rentri_formulari',
           'rentri_org_certificates',
           'rentri_ai_validations',
+          // v2 lead system
+          'lead_quotes',
+          'lead_appointments',
+          'lead_tasks',
+          'lead_documents',
+          'email_campaigns',
+          'email_templates',
+          'quote_templates',
+          'lead_demos',
+          'orgs',
         ];
         for (const table of nullifyCreatedBy) {
           const { error } = await supabaseAdmin.from(table).update({ created_by: null }).eq('created_by', userId);
-          if (error) {
+          if (error && !error.message.includes('column') && !error.message.includes('does not exist')) {
             console.error(`  nullify ${table}.created_by:`, error.message);
-            // Non bloccante — la tabella potrebbe non esistere o non avere record
           }
         }
-        // Nota: org_settings non ha created_by/updated_by come colonne dedicate (JSONB-based)
 
-        // ── Step 4: SET NULL su leads.assigned_to (referenzia profiles.id) ──
-        {
-          const { error } = await supabaseAdmin.from('leads').update({ assigned_to: null }).eq('assigned_to', userId);
-          if (error) console.error('  nullify leads.assigned_to:', error.message);
+        // ── Step 3: Tutti i campi FK a auth.users esposti in tabelle v2 ──
+        // Lead system: assigned_to/performed_by/sent_by/uploaded_by/approved_by/activated_by/etc.
+        const nullifyFKs: Array<[string, string]> = [
+          ['leads', 'assigned_to'],
+          ['leads', 'first_contact_by'],
+          ['leads', 'demo_account_id'],
+          ['lead_quotes', 'approved_by'],
+          ['lead_quotes', 'discount_approved_by'],
+          ['lead_quotes', 'activated_by'],
+          ['lead_quotes', 'external_payment_recorded_by'],
+          ['lead_quotes', 'commission_recipient'],
+          ['lead_appointments', 'assigned_to'],
+          ['lead_appointments', 'pilot_assigned_to'],
+          ['lead_tasks', 'assigned_to'],
+          ['lead_tasks', 'completed_by'],
+          ['lead_activities', 'performed_by'],
+          ['lead_demos', 'demo_account_id'],
+          ['lead_demos', 'pilot_assigned_to'],
+          ['lead_documents', 'uploaded_by'],
+          ['email_campaigns', 'sent_by'],
+          ['lead_automation_settings', 'updated_by'],
+          ['maintenance_mode', 'started_by'],
+          ['org_subscriptions', 'created_by'],
+        ];
+        for (const [table, col] of nullifyFKs) {
+          const { error } = await supabaseAdmin.from(table).update({ [col]: null }).eq(col, userId);
+          if (error && !error.message.includes('column') && !error.message.includes('does not exist')) {
+            console.error(`  nullify ${table}.${col}:`, error.message);
+          }
         }
 
-        // ── Step 5: SET NULL su maintenance_mode.started_by ──
-        {
-          const { error } = await supabaseAdmin.from('maintenance_mode').update({ started_by: null }).eq('started_by', userId);
-          if (error) console.error('  nullify maintenance_mode.started_by:', error.message);
-        }
-
-        // ── Step 6: DELETE org_invites per questo utente ──
-        {
-          const { error } = await supabaseAdmin.from('org_invites').delete().eq('invited_by', userId);
-          if (error) console.error('  cleanup org_invites.invited_by:', error.message);
+        // ── Step 4: DELETE record dipendenti (FK senza ON DELETE SET NULL) ──
+        const deleteRows: Array<[string, string]> = [
+          ['org_invites', 'invited_by'],
+          ['org_invites', 'accepted_by'],
+        ];
+        for (const [table, col] of deleteRows) {
+          const { error } = await supabaseAdmin.from(table).delete().eq(col, userId);
+          if (error && !error.message.includes('does not exist')) {
+            console.error(`  delete ${table}.${col}:`, error.message);
+          }
         }
 
         // ── Step 7: Elimina profilo (profiles.id → auth.users.id) ──
