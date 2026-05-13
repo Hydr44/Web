@@ -137,6 +137,59 @@ export async function POST(
         );
       }
 
+      // ─── FLOW APPROVAZIONE INTERNA (requires_approval=true) ──────────
+      // Cliente clicca "Accetto" → status=accepted ma NO Stripe.
+      // L'admin riceve notifica + task automatica, dopo approvazione
+      // verrà generato/inviato il link Stripe.
+      if (quote.requires_approval === true) {
+        const clientIp = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim()
+          || request.headers.get('x-real-ip') || null;
+        const userAgent = request.headers.get('user-agent') || null;
+
+        await supabaseAdmin
+          .from('lead_quotes')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+            acceptance_ip: clientIp,
+            acceptance_user_agent: userAgent,
+            acceptance_signature_data: body.signature_data || null,
+          })
+          .eq('id', quote.id);
+
+        // Activity log
+        try {
+          await supabaseAdmin.from('lead_activities').insert({
+            lead_id: quote.lead_id,
+            activity_type: 'quote_accepted',
+            title: `Cliente ha accettato il preventivo ${quote.quote_number} — IN ATTESA DI APPROVAZIONE INTERNA`,
+            description: `Da approvare prima di inviare link pagamento. IP: ${clientIp || '—'}`,
+            performed_by_type: 'lead',
+            related_quote_id: quote.id,
+            metadata: { ip: clientIp, user_agent: userAgent, requires_internal_approval: true },
+          });
+        } catch {}
+
+        // Task automatica per lo staff: "Approvare preventivo X"
+        try {
+          await supabaseAdmin.from('lead_tasks').insert({
+            lead_id: quote.lead_id,
+            title: `Approvare preventivo ${quote.quote_number} accettato dal cliente`,
+            description: `Il cliente ha accettato il preventivo. Approva per inviare il link di pagamento.`,
+            priority: 'high',
+            status: 'open',
+            due_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(), // entro 24h
+          });
+        } catch {}
+
+        return NextResponse.json({
+          success: true,
+          requires_approval: true,
+          message: 'Grazie! Abbiamo ricevuto la tua accettazione. Un nostro responsabile la approverà a breve e ti invierà il link per il pagamento via email.',
+        });
+      }
+
+      // ─── FLOW STANDARD: Stripe checkout subito ────────────────────────
       // Determina intervallo e importo Stripe
       const isYearly = quote.contract_duration === 'yearly';
       const isBiennial = quote.contract_duration === 'biennial';
