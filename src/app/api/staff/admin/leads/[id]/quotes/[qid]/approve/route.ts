@@ -168,25 +168,15 @@ export async function POST(
         payment_link_url: session.url,
       }).eq('id', params.qid);
 
-      // Invia email cliente con link Stripe (via VPS — usa template brandato)
+      // Invia email cliente con link Stripe — usa builder brandato dedicato VPS
       if (lead?.email) {
         try {
-          await fetch(`${LEAD_API_URL}/api/leads/${quote.lead_id}/email/send`, {
+          await fetch(`${LEAD_API_URL}/api/leads/${quote.lead_id}/quotes/${quote.id}/send-payment-link`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-api-key': VPS_API_KEY },
             body: JSON.stringify({
-              subject: `Approvato — Procedi al pagamento del preventivo ${quote.quote_number}`,
-              body_html: `
-                <p>Buongiorno {{lead_name}},</p>
-                <p>la tua accettazione del preventivo <b>${quote.quote_number}</b> è stata approvata.</p>
-                <p>Puoi procedere al pagamento sicuro tramite il link qui sotto:</p>
-                <p style="margin:24px 0;">
-                  <a href="${session.url}" style="background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;display:inline-block;">Procedi al pagamento &rarr;</a>
-                </p>
-                <p>Una volta completato il pagamento riceverai conferma e accesso alla piattaforma.</p>
-                <p>A presto.</p>
-              `,
-              related_quote_id: quote.id,
+              checkout_url: session.url,
+              staff_id: body.approved_by || null,
             }),
           });
         } catch (e: any) {
