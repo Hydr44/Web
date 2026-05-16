@@ -3,6 +3,108 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const TIMEOUT_MS = 8000;
 
+const ISO_24H_AGO = () => new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+// ─── Piattaforma: health-check Vercel (website) ───
+
+async function fetchVercelHealth() {
+  const start = Date.now();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const res = await fetch('https://rescuemanager.eu/api/health', {
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    clearTimeout(timeout);
+    const latency = Date.now() - start;
+    return {
+      status: res.ok ? 'online' : 'degraded',
+      http_status: res.status,
+      latency_ms: latency,
+      checked_at: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      status: 'offline',
+      http_status: null,
+      latency_ms: Date.now() - start,
+      error: error instanceof Error ? error.message : 'unreachable',
+      checked_at: new Date().toISOString(),
+    };
+  }
+}
+
+// ─── Piattaforma: health-check Supabase (query leggera) ───
+
+async function fetchSupabaseHealth() {
+  const start = Date.now();
+  try {
+    const { error } = await supabaseAdmin
+      .from('invoices')
+      .select('id', { count: 'exact', head: true })
+      .limit(1);
+    const latency = Date.now() - start;
+    if (error) {
+      return { status: 'degraded', latency_ms: latency, error: error.message, checked_at: new Date().toISOString() };
+    }
+    return { status: 'online', latency_ms: latency, checked_at: new Date().toISOString() };
+  } catch (error) {
+    return {
+      status: 'offline',
+      latency_ms: Date.now() - start,
+      error: error instanceof Error ? error.message : 'unreachable',
+      checked_at: new Date().toISOString(),
+    };
+  }
+}
+
+// ─── Piattaforma: coda email (outbox_emails) ───
+
+async function fetchEmailOutboxStats() {
+  try {
+    const ieri = ISO_24H_AGO();
+
+    const counts = await Promise.all(
+      (['queued', 'sent', 'failed'] as const).map(async (st) => {
+        const { count } = await supabaseAdmin
+          .from('outbox_emails')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', st);
+        return [st, count || 0] as const;
+      })
+    );
+    const byStatus = Object.fromEntries(counts) as Record<'queued' | 'sent' | 'failed', number>;
+
+    const { count: failed24h } = await supabaseAdmin
+      .from('outbox_emails')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'failed')
+      .gte('created_at', ieri);
+
+    const { data: latestFailed } = await supabaseAdmin
+      .from('outbox_emails')
+      .select('id, to_addr, subject, error, created_at')
+      .eq('status', 'failed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      stats: {
+        queued: byStatus.queued,
+        sent: byStatus.sent,
+        failed: byStatus.failed,
+        failed_24h: failed24h || 0,
+      },
+      latest_failed: latestFailed || null,
+    };
+  } catch (error) {
+    console.error('[MONITORING] Errore query outbox_emails:', error);
+    return null;
+  }
+}
+
 // ─── SDI Details: chiama /api/sdi-sftp/status sul VPS ───
 
 async function fetchSdiStatus() {
@@ -73,6 +175,108 @@ async function fetchSdiFattureStats() {
   }
 }
 
+// ─── SDI Events: scarti e notifiche (sdi_events) ───
+
+async function fetchSdiEventsStats() {
+  try {
+    const ieri = ISO_24H_AGO();
+
+    // Scarti totali (NotificaScarto / NS)
+    const { count: scartiTotali } = await supabaseAdmin
+      .from('sdi_events')
+      .select('id', { count: 'exact', head: true })
+      .in('event_type', ['NotificaScarto', 'NS']);
+
+    // Scarti 24h
+    const { count: scarti24h } = await supabaseAdmin
+      .from('sdi_events')
+      .select('id', { count: 'exact', head: true })
+      .in('event_type', ['NotificaScarto', 'NS'])
+      .gte('created_at', ieri);
+
+    // Ultimi 5 eventi
+    const { data: ultimiEventi } = await supabaseAdmin
+      .from('sdi_events')
+      .select('id, invoice_id, event_type, payload, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    // Ultimo scarto con dettaglio
+    const { data: ultimoScarto } = await supabaseAdmin
+      .from('sdi_events')
+      .select('id, invoice_id, event_type, payload, created_at')
+      .in('event_type', ['NotificaScarto', 'NS'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      stats: {
+        scarti_totali: scartiTotali || 0,
+        scarti_24h: scarti24h || 0,
+      },
+      ultimi_eventi: ultimiEventi || [],
+      ultimo_scarto: ultimoScarto || null,
+    };
+  } catch (error) {
+    console.error('[MONITORING] Errore query sdi_events:', error);
+    return null;
+  }
+}
+
+// ─── RENTRI Movimenti: registri di carico/scarico ───
+
+async function fetchRentriMovimentiStats() {
+  try {
+    const ieri = ISO_24H_AGO();
+
+    const { count: totale } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id', { count: 'exact', head: true });
+
+    const { count: errori } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id', { count: 'exact', head: true })
+      .eq('stato', 'errore');
+
+    const { count: inTrasmissione } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id', { count: 'exact', head: true })
+      .eq('stato', 'in_trasmissione');
+
+    const { count: trasmessi24h } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', ieri);
+
+    const { count: errori24h } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id', { count: 'exact', head: true })
+      .eq('stato', 'errore')
+      .gte('created_at', ieri);
+
+    const { data: ultimiMovimenti } = await supabaseAdmin
+      .from('rentri_movimenti')
+      .select('id, tipo_operazione, codice_eer, quantita, stato, error, data_operazione, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    return {
+      stats: {
+        totale: totale || 0,
+        errori: errori || 0,
+        in_trasmissione: inTrasmissione || 0,
+        trasmessi_24h: trasmessi24h || 0,
+        errori_24h: errori24h || 0,
+      },
+      ultimi_movimenti: ultimiMovimenti || [],
+    };
+  } catch (error) {
+    console.error('[MONITORING] Errore query rentri_movimenti:', error);
+    return null;
+  }
+}
+
 // ─── RENTRI FIR: ultimi formulari e statistiche ───
 
 async function fetchRentriFirStats() {
@@ -139,13 +343,27 @@ async function fetchRentriFirStats() {
 // ─── GET Handler ───
 
 export async function GET() {
-  const [sdiStatus, sdiFatture, rentriFir] = await Promise.all([
+  const [
+    sdiStatus, sdiFatture, sdiEvents,
+    rentriFir, rentriMovimenti,
+    vercelHealth, supabaseHealth, emailOutbox,
+  ] = await Promise.all([
     fetchSdiStatus(),
     fetchSdiFattureStats(),
+    fetchSdiEventsStats(),
     fetchRentriFirStats(),
+    fetchRentriMovimentiStats(),
+    fetchVercelHealth(),
+    fetchSupabaseHealth(),
+    fetchEmailOutboxStats(),
   ]);
 
   return NextResponse.json({
+    platform: {
+      vercel: vercelHealth,
+      supabase: supabaseHealth,
+      email_outbox: emailOutbox,
+    },
     sdi: {
       sftp_status: sdiStatus
         ? {
@@ -166,9 +384,11 @@ export async function GET() {
           }
         : null,
       fatture: sdiFatture,
+      events: sdiEvents,
     },
     rentri: {
       fir: rentriFir,
+      movimenti: rentriMovimenti,
     },
     checkedAt: new Date().toISOString(),
   });
