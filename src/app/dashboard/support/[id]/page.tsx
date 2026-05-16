@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Send, Paperclip, X, FileText } from "lucide-react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type TicketDetail = {
   id: string;
@@ -76,6 +77,21 @@ export default function TicketDetailPage() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Realtime: nuovi messaggi sul ticket → ricarica thread
+  useEffect(() => {
+    if (!id) return;
+    const supabase = supabaseBrowser();
+    const channel = supabase
+      .channel(`ticket-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "ticket_messages", filter: `ticket_id=eq.${id}` },
+        () => { load(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, load]);
 
   const uploadFile = async (file: File) => {
     if (!id) return;

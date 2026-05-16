@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {
   Mail, Phone, Send, MessageSquareText, Plus, ArrowLeft, Loader2, RefreshCw,
 } from "lucide-react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type TicketListItem = {
   id: string;
@@ -68,6 +69,20 @@ export default function SupportPage() {
   }, []);
 
   useEffect(() => { loadTickets(); }, [loadTickets]);
+
+  // Realtime: cambi sui propri ticket (es. risposta staff) → aggiorna lista live
+  useEffect(() => {
+    const supabase = supabaseBrowser();
+    const channel = supabase
+      .channel("support-tickets-list")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "support_tickets" },
+        () => { loadTickets(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [loadTickets]);
 
   const openChatwoot = () => {
     const cw = (window as unknown as { $chatwoot?: { toggle: (s: string) => void } }).$chatwoot;

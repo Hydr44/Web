@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { notifyStaffNewTicket, notifyCustomerTicketOpened } from '@/lib/support-email';
 import { normalizeAttachments } from '@/lib/support-attachments';
+import { checkRateLimit, getRateLimitIdentifier } from '@/lib/security';
 
 export const runtime = 'nodejs';
 
@@ -32,6 +33,17 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit: max 5 nuovi ticket per IP ogni 10 minuti
+  const rlId = getRateLimitIdentifier(request, 'ip');
+  const rl = await checkRateLimit(rlId, 5, 10 * 60 * 1000);
+  if (!rl.allowed) {
+    const min = Math.ceil((rl.resetAt - Date.now()) / 60000);
+    return NextResponse.json(
+      { error: `Troppe richieste. Riprova tra ${min} minut${min === 1 ? 'o' : 'i'}.` },
+      { status: 429 }
+    );
+  }
+
   const supabase = await supabaseServer();
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) {
