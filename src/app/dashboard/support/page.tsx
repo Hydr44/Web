@@ -1,201 +1,317 @@
 "use client";
-import { useState, useEffect } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import { Mail, Phone, Send, CheckCircle2, MessageSquareText } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  Mail, Phone, Send, MessageSquareText, Plus, ArrowLeft, Loader2, RefreshCw,
+} from "lucide-react";
+
+type TicketListItem = {
+  id: string;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  last_message_at: string;
+  created_at: string;
+};
+
+type TicketMessage = {
+  id: string;
+  sender_type: "customer" | "staff" | "system";
+  sender_name: string | null;
+  body: string;
+  created_at: string;
+};
+
+const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
+  open:        { label: "Aperto",        cls: "bg-blue-100 text-blue-700" },
+  pending:     { label: "In attesa",     cls: "bg-amber-100 text-amber-700" },
+  in_progress: { label: "In lavorazione", cls: "bg-indigo-100 text-indigo-700" },
+  resolved:    { label: "Risolto",       cls: "bg-green-100 text-green-700" },
+  closed:      { label: "Chiuso",        cls: "bg-gray-100 text-gray-600" },
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  domanda: "Domanda generale",
+  bug: "Segnalazione problema",
+  funzionalita: "Richiesta funzionalità",
+  fatturazione: "Fatturazione",
+  altro: "Altro",
+};
+
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_LABELS[status] || STATUS_LABELS.open;
+  return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>;
+}
 
 export default function SupportPage() {
-  const [userEmail, setUserEmail] = useState("");
-  const [tipo, setTipo] = useState("domanda");
-  const [oggetto, setOggetto] = useState("");
-  const [messaggio, setMessaggio] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [view, setView] = useState<"list" | "new" | "detail">("list");
+  const [tickets, setTickets] = useState<TicketListItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const supabase = supabaseBrowser();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) setUserEmail(user.email);
-    };
-    loadUser();
+  // form nuovo ticket
+  const [category, setCategory] = useState("domanda");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // dettaglio
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<{ ticket: TicketListItem; messages: TicketMessage[] } | null>(null);
+  const [reply, setReply] = useState("");
+  const [replying, setReplying] = useState(false);
+
+  const loadTickets = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/support/tickets");
+      if (!res.ok) throw new Error("Errore caricamento");
+      const data = await res.json();
+      setTickets(data.tickets || []);
+    } catch {
+      setError("Impossibile caricare i ticket.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const openChatwoot = () => {
-    if ((window as any).$chatwoot) {
-      (window as any).$chatwoot.toggle("open");
-    } else {
-      alert("La live chat non è ancora pronta. Attendi qualche istante.");
+  useEffect(() => { loadTickets(); }, [loadTickets]);
+
+  const openDetail = async (id: string) => {
+    setActiveId(id);
+    setView("detail");
+    setDetail(null);
+    try {
+      const res = await fetch(`/api/support/tickets/${id}`);
+      if (!res.ok) throw new Error();
+      setDetail(await res.json());
+    } catch {
+      setError("Impossibile caricare il ticket.");
+      setView("list");
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const submitNew = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!oggetto.trim() || !messaggio.trim()) {
-      setError("Compila tutti i campi.");
+    if (subject.trim().length < 3 || message.trim().length < 5) {
+      setError("Compila oggetto e messaggio.");
       return;
     }
-    setSending(true);
+    setSubmitting(true);
     setError(null);
     try {
-      // Inoltra la richiesta all'API per scatenare l'email invece del solo salvataggio DB
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/support/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "contact", // Tipo generico
-          source: "dashboard_support",
-          name: "Utente Dashboard", // Fallback (potremmo prendere metadata.full_name)
-          email: userEmail || "utente@rescuemanager.eu",
-          message: `[${tipo.toUpperCase()}] ${oggetto}\n\n${messaggio}`,
-        }),
+        body: JSON.stringify({ subject, category, message }),
       });
-
-      if (!res.ok) {
-        throw new Error("Errore API");
-      }
-
-      setSent(true);
-      setOggetto("");
-      setMessaggio("");
+      if (!res.ok) throw new Error();
+      setSubject("");
+      setMessage("");
+      setCategory("domanda");
+      await loadTickets();
+      setView("list");
     } catch {
-      setError("Errore durante l'invio. Scrivi direttamente a info@rescuemanager.eu");
+      setError("Errore durante l'invio. Riprova o scrivi a supporto@rescuemanager.eu");
     } finally {
-      setSending(false);
+      setSubmitting(false);
+    }
+  };
+
+  const submitReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeId || reply.trim().length < 2) return;
+    setReplying(true);
+    try {
+      const res = await fetch(`/api/support/tickets/${activeId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: reply }),
+      });
+      if (!res.ok) throw new Error();
+      setReply("");
+      await openDetail(activeId);
+    } catch {
+      setError("Errore invio risposta.");
+    } finally {
+      setReplying(false);
     }
   };
 
   return (
     <div className="max-w-4xl space-y-8">
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Supporto Clienti</h1>
-        <p className="text-gray-500 text-lg">Come possiamo aiutarti oggi?</p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* CARD LIVE CHAT */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-5">
-            <MessageSquareText className="h-8 w-8 text-blue-600" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Live Chat</h2>
-          <p className="text-gray-500 mb-6 text-sm">
-            Parla direttamente con un nostro operatore. Tempo medio di risposta: 5 minuti.
-          </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Supporto Clienti</h1>
+          <p className="text-gray-500 text-lg">Apri un ticket: ti rispondiamo via email e qui in area riservata.</p>
+        </div>
+        {view === "list" && (
           <button
-            onClick={openChatwoot}
-            className="mt-auto px-6 py-3 w-full bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition shadow-md shadow-slate-200"
+            onClick={() => { setView("new"); setError(null); }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shrink-0"
           >
-            Avvia Chat
+            <Plus className="h-4 w-4" /> Nuovo ticket
           </button>
-        </div>
-
-        {/* CARD CONTATTI DIRETTI */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-6">Contatti diretti</h2>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
-                <Mail className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Email</div>
-                <a href="mailto:info@rescuemanager.eu" className="text-gray-900 font-medium hover:text-blue-600 transition">info@rescuemanager.eu</a>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
-                <Phone className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Telefono e WhatsApp</div>
-                <a href="tel:+393921723028" className="text-gray-900 font-medium hover:text-blue-600 transition">+39 392 172 3028</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Invia un messaggio email</h2>
-        
-        {sent ? (
-          <div className="bg-white rounded-xl border border-green-200 shadow-sm p-10 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Richiesta inviata!</h2>
-            <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-              Ti risponderemo via email all'indirizzo <span className="text-gray-900 font-medium">{userEmail}</span> il prima possibile.
-            </p>
-            <button
-              onClick={() => setSent(false)}
-              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
-            >
-              Invia un'altra richiesta
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-5">
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg font-medium">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Tipo di richiesta</label>
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
-              >
-                <option value="domanda">Domanda generale</option>
-                <option value="bug">Segnalazione problema (Bug)</option>
-                <option value="funzionalita">Richiesta nuova funzionalità</option>
-                <option value="fatturazione">Problemi di fatturazione</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Oggetto</label>
-              <input
-                type="text"
-                value={oggetto}
-                onChange={(e) => setOggetto(e.target.value)}
-                placeholder="Riassumi il motivo del contatto"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Messaggio</label>
-              <textarea
-                value={messaggio}
-                onChange={(e) => setMessaggio(e.target.value)}
-                placeholder="Descrivi dettagliatamente la tua richiesta..."
-                rows={5}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={sending}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold disabled:opacity-50"
-            >
-              {sending ? (
-                <><div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Inviando...</>
-              ) : (
-                <><Send className="h-5 w-5" /> Invia Messaggio</>
-              )}
-            </button>
-          </form>
         )}
       </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg font-medium">{error}</div>
+      )}
+
+      {/* Contatti rapidi */}
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+            <Mail className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email</div>
+            <a href="mailto:supporto@rescuemanager.eu" className="text-sm text-gray-900 font-medium hover:text-blue-600">supporto@rescuemanager.eu</a>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+            <Phone className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Telefono</div>
+            <a href="tel:+393921723028" className="text-sm text-gray-900 font-medium hover:text-blue-600">+39 392 172 3028</a>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+            <MessageSquareText className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="text-sm text-gray-600">Risposta media<br /><span className="font-semibold text-gray-900">entro 24h lavorative</span></div>
+        </div>
+      </div>
+
+      {/* LISTA */}
+      {view === "list" && (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+            <h2 className="font-bold text-gray-900">I tuoi ticket</h2>
+            <button onClick={loadTickets} className="text-gray-400 hover:text-gray-700" title="Aggiorna">
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
+          {loading ? (
+            <div className="p-10 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-blue-600" /></div>
+          ) : tickets.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+              <p className="mb-4">Nessun ticket aperto.</p>
+              <button onClick={() => setView("new")} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                Apri il primo ticket
+              </button>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {tickets.map(t => (
+                <li key={t.id}>
+                  <button onClick={() => openDetail(t.id)} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-gray-900 truncate">{t.subject}</span>
+                        <StatusBadge status={t.status} />
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {CATEGORY_LABELS[t.category] || t.category} · aggiornato {fmt(t.last_message_at)}
+                      </div>
+                    </div>
+                    <span className="text-gray-300 text-xs shrink-0">#{t.id.slice(0, 8)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* NUOVO */}
+      {view === "new" && (
+        <form onSubmit={submitNew} className="bg-white rounded-xl border border-gray-200 p-8 space-y-5">
+          <button type="button" onClick={() => setView("list")} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900">
+            <ArrowLeft className="h-4 w-4" /> Torna ai ticket
+          </button>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Tipo di richiesta</label>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Oggetto</label>
+            <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Riassumi il problema" maxLength={200}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" required />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Messaggio</label>
+            <textarea value={message} onChange={e => setMessage(e.target.value)} rows={6} maxLength={5000}
+              placeholder="Descrivi nel dettaglio la tua richiesta..."
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" required />
+          </div>
+          <button type="submit" disabled={submitting}
+            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold disabled:opacity-50">
+            {submitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Invio...</> : <><Send className="h-5 w-5" /> Apri ticket</>}
+          </button>
+        </form>
+      )}
+
+      {/* DETTAGLIO */}
+      {view === "detail" && (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <button onClick={() => { setView("list"); loadTickets(); }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-3">
+              <ArrowLeft className="h-4 w-4" /> Torna ai ticket
+            </button>
+            {detail ? (
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="font-bold text-gray-900">{detail.ticket.subject}</h2>
+                <StatusBadge status={detail.ticket.status} />
+              </div>
+            ) : <Loader2 className="h-5 w-5 animate-spin text-blue-600" />}
+          </div>
+
+          {detail && (
+            <>
+              <div className="p-5 space-y-4 max-h-[420px] overflow-y-auto bg-gray-50">
+                {detail.messages.map(m => {
+                  const isStaff = m.sender_type === "staff";
+                  return (
+                    <div key={m.id} className={`flex ${isStaff ? "justify-start" : "justify-end"}`}>
+                      <div className={`max-w-[80%] rounded-xl px-4 py-3 ${isStaff ? "bg-white border border-gray-200" : "bg-blue-600 text-white"}`}>
+                        <div className={`text-[10px] mb-1 ${isStaff ? "text-gray-400" : "text-blue-100"}`}>
+                          {isStaff ? (m.sender_name || "Supporto") : "Tu"} · {fmt(m.created_at)}
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap break-words">{m.body}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <form onSubmit={submitReply} className="p-4 border-t border-gray-100">
+                {["resolved", "closed"].includes(detail.ticket.status) && (
+                  <p className="text-xs text-gray-500 mb-2">Questo ticket è {STATUS_LABELS[detail.ticket.status].label.toLowerCase()}: rispondendo verrà riaperto.</p>
+                )}
+                <div className="flex gap-2">
+                  <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Scrivi una risposta..."
+                    className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <button type="submit" disabled={replying || reply.trim().length < 2}
+                    className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5 text-sm font-medium">
+                    {replying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Invia
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
