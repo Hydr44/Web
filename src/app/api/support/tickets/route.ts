@@ -5,7 +5,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { notifyStaffNewTicket } from '@/lib/support-email';
+import { notifyStaffNewTicket, notifyCustomerTicketOpened } from '@/lib/support-email';
+import { normalizeAttachments } from '@/lib/support-attachments';
 
 export const runtime = 'nodejs';
 
@@ -20,7 +21,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('support_tickets')
-    .select('id, subject, category, priority, status, last_message_at, created_at')
+    .select('id, subject, category, priority, status, last_message_at, created_at, customer_unread')
     .order('last_message_at', { ascending: false })
     .limit(100);
 
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
   }
 
-  let body: { subject?: string; category?: string; message?: string };
+  let body: { subject?: string; category?: string; message?: string; attachments?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
   const subject = (body.subject || '').trim();
   const message = (body.message || '').trim();
   const category = CATEGORIES.includes(body.category || '') ? body.category! : 'domanda';
+  const attachments = normalizeAttachments(body.attachments);
 
   if (subject.length < 3 || message.length < 5) {
     return NextResponse.json({ error: 'Oggetto e messaggio obbligatori' }, { status: 400 });
@@ -88,12 +90,13 @@ export async function POST(request: NextRequest) {
     sender_id: user.id,
     sender_name: customerName,
     body: message,
+    attachments,
   });
   if (mErr) {
     return NextResponse.json({ error: mErr.message }, { status: 500 });
   }
 
-  // Notifica staff (non blocca la risposta)
+  // Notifiche email (non bloccano la risposta)
   notifyStaffNewTicket({
     id: ticket.id,
     subject,
@@ -101,6 +104,11 @@ export async function POST(request: NextRequest) {
     customer_email: user.email!,
     customer_name: customerName,
     body: message,
+  }).catch(() => {});
+  notifyCustomerTicketOpened({
+    id: ticket.id,
+    subject,
+    customer_email: user.email!,
   }).catch(() => {});
 
   return NextResponse.json({ ok: true, ticket_id: ticket.id }, { status: 201 });

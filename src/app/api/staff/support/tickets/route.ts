@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   let q = supabaseAdmin
     .from('support_tickets')
-    .select('id, subject, category, priority, status, customer_email, customer_name, assigned_to, org_id, last_message_at, created_at, resolved_at, closed_at')
+    .select('id, subject, category, priority, status, customer_email, customer_name, assigned_to, org_id, staff_unread, last_message_at, created_at, resolved_at, closed_at')
     .order('last_message_at', { ascending: false })
     .limit(300);
 

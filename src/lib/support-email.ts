@@ -5,6 +5,13 @@
 
 const SUPPORT_FROM = 'Supporto RescueManager <supporto@rescuemanager.eu>';
 const SUPPORT_INBOX = 'supporto@rescuemanager.eu';
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu').replace(/\/$/, '');
+
+const ticketUrl = (id: string) => `${SITE_URL}/dashboard/support/${id}`;
+
+function ctaButton(href: string, label: string) {
+  return `<a href="${href}" style="display:inline-block;margin-top:16px;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px">${label}</a>`;
+}
 
 function wrap(title: string, bodyHtml: string) {
   return `<!DOCTYPE html><html lang="it"><body style="margin:0;background:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a">
@@ -73,14 +80,29 @@ export function notifyStaffCustomerReply(t: {
   return send(SUPPORT_INBOX, `[Supporto] Re: ${t.subject}`, html, t.customer_email);
 }
 
+/** Notifica al cliente: ticket aperto/ricevuto. */
+export function notifyCustomerTicketOpened(t: {
+  id: string; subject: string; customer_email: string;
+}) {
+  const num = t.id.slice(0, 8).toUpperCase();
+  const html = wrap(`Ticket aperto #${num}`, `
+    <p style="margin:0 0 8px">Abbiamo ricevuto la tua richiesta di supporto:</p>
+    <p style="margin:0 0 4px"><b>Oggetto:</b> ${esc(t.subject)}</p>
+    <p style="margin:0 0 4px"><b>Numero ticket:</b> #${num}</p>
+    <p style="margin:12px 0 0;font-size:14px">Ti risponderemo al più presto. Puoi seguire la conversazione e rispondere dalla tua area riservata.</p>
+    ${ctaButton(ticketUrl(t.id), 'Vai al ticket')}`);
+  return send(t.customer_email, `Ticket aperto #${num}: ${t.subject}`, html, SUPPORT_INBOX);
+}
+
 /** Notifica al cliente: lo staff ha risposto. */
 export function notifyCustomerStaffReply(t: {
   id: string; subject: string; customer_email: string; body: string;
 }) {
-  const html = wrap('Risposta dal supporto', `
+  const html = wrap('Abbiamo risposto al tuo ticket', `
     <p style="margin:0 0 12px">Abbiamo risposto alla tua richiesta <b>"${esc(t.subject)}"</b>:</p>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:14px">${nl2br(t.body)}</div>
-    <p style="margin:16px 0 0;font-size:13px;color:#475569">Puoi rispondere direttamente dalla tua area riservata, sezione Supporto.</p>`);
+    <p style="margin:16px 0 0;font-size:13px;color:#475569">Accedi all'area riservata per vedere la risposta completa, eventuali allegati e rispondere.</p>
+    ${ctaButton(ticketUrl(t.id), 'Apri il ticket e rispondi')}`);
   return send(t.customer_email, `Re: ${t.subject} — Supporto RescueManager`, html, SUPPORT_INBOX);
 }
 

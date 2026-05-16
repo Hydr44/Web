@@ -28,11 +28,17 @@ export async function GET(
 
   const { data: messages, error: mErr } = await supabase
     .from('ticket_messages')
-    .select('id, sender_type, sender_name, body, created_at')
+    .select('id, sender_type, sender_name, body, attachments, created_at')
     .eq('ticket_id', params.id)
     .order('created_at', { ascending: true });
 
   if (mErr) return NextResponse.json({ error: mErr.message }, { status: 500 });
+
+  // Il cliente ha visto il ticket → azzera "non letto" lato cliente
+  await supabase
+    .from('support_tickets')
+    .update({ customer_unread: false })
+    .eq('id', params.id);
 
   return NextResponse.json({ ticket, messages: messages || [] });
 }

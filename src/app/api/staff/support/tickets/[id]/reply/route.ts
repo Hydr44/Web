@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getStaffFromRequest } from '@/lib/staff-auth';
 import { notifyCustomerStaffReply } from '@/lib/support-email';
+import { normalizeAttachments } from '@/lib/support-attachments';
 
 export const runtime = 'nodejs';
 
@@ -13,14 +14,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const staff = await getStaffFromRequest(request);
   if (!staff) return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401 });
 
-  let body: { message?: string; close?: boolean };
+  let body: { message?: string; close?: boolean; attachments?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ success: false, error: 'Body non valido' }, { status: 400 });
   }
   const message = (body.message || '').trim();
-  if (message.length < 1 || message.length > 5000) {
+  const attachments = normalizeAttachments(body.attachments);
+  if ((message.length < 1 && attachments.length === 0) || message.length > 5000) {
     return NextResponse.json({ success: false, error: 'Messaggio non valido' }, { status: 400 });
   }
 
@@ -37,15 +39,24 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { error: mErr } = await supabaseAdmin.from('ticket_messages').insert({
     ticket_id: ticket.id,
     sender_type: 'staff',
-    sender_id: staff.sub || null,
+    // Lo staff non è un utente auth.users: sender_id (FK auth.users) resta null,
+    // l'identità è tracciata da sender_name.
+    sender_id: null,
     sender_name: staffName,
-    body: message,
+    body: message || '(allegato)',
+    attachments,
   });
   if (mErr) return NextResponse.json({ success: false, error: mErr.message }, { status: 500 });
 
-  // Una risposta staff porta il ticket in "in_progress" (o lo chiude se richiesto)
+  // Risposta staff: per il cliente è da leggere, per lo staff è già letto.
+  // Porta il ticket in "in_progress" (o lo chiude se richiesto).
   const newStatus = body.close ? 'resolved' : 'in_progress';
-  const upd: Record<string, unknown> = { status: newStatus, updated_at: new Date().toISOString() };
+  const upd: Record<string, unknown> = {
+    status: newStatus,
+    updated_at: new Date().toISOString(),
+    customer_unread: true,
+    staff_unread: false,
+  };
   if (body.close) upd.resolved_at = new Date().toISOString();
   await supabaseAdmin.from('support_tickets').update(upd).eq('id', ticket.id);
 

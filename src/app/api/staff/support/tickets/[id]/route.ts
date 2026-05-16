@@ -27,9 +27,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   const { data: messages } = await supabaseAdmin
     .from('ticket_messages')
-    .select('id, sender_type, sender_name, body, created_at')
+    .select('id, sender_type, sender_name, body, attachments, created_at')
     .eq('ticket_id', params.id)
     .order('created_at', { ascending: true });
+
+  // Lo staff ha aperto il ticket → azzera "non letto" lato staff
+  await supabaseAdmin
+    .from('support_tickets')
+    .update({ staff_unread: false })
+    .eq('id', params.id);
 
   return NextResponse.json({ success: true, ticket, messages: messages || [] });
 }

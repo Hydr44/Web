@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Mail, Phone, Send, MessageSquareText, Plus, ArrowLeft, Loader2, RefreshCw,
 } from "lucide-react";
@@ -12,22 +13,15 @@ type TicketListItem = {
   status: string;
   last_message_at: string;
   created_at: string;
-};
-
-type TicketMessage = {
-  id: string;
-  sender_type: "customer" | "staff" | "system";
-  sender_name: string | null;
-  body: string;
-  created_at: string;
+  customer_unread?: boolean;
 };
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  open:        { label: "Aperto",        cls: "bg-blue-100 text-blue-700" },
-  pending:     { label: "In attesa",     cls: "bg-amber-100 text-amber-700" },
+  open:        { label: "Aperto",         cls: "bg-blue-100 text-blue-700" },
+  pending:     { label: "In attesa",      cls: "bg-amber-100 text-amber-700" },
   in_progress: { label: "In lavorazione", cls: "bg-indigo-100 text-indigo-700" },
-  resolved:    { label: "Risolto",       cls: "bg-green-100 text-green-700" },
-  closed:      { label: "Chiuso",        cls: "bg-gray-100 text-gray-600" },
+  resolved:    { label: "Risolto",        cls: "bg-green-100 text-green-700" },
+  closed:      { label: "Chiuso",         cls: "bg-gray-100 text-gray-600" },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -47,22 +41,16 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function SupportPage() {
-  const [view, setView] = useState<"list" | "new" | "detail">("list");
+  const router = useRouter();
+  const [view, setView] = useState<"list" | "new">("list");
   const [tickets, setTickets] = useState<TicketListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // form nuovo ticket
   const [category, setCategory] = useState("domanda");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // dettaglio
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [detail, setDetail] = useState<{ ticket: TicketListItem; messages: TicketMessage[] } | null>(null);
-  const [reply, setReply] = useState("");
-  const [replying, setReplying] = useState(false);
 
   const loadTickets = useCallback(async () => {
     setLoading(true);
@@ -81,18 +69,10 @@ export default function SupportPage() {
 
   useEffect(() => { loadTickets(); }, [loadTickets]);
 
-  const openDetail = async (id: string) => {
-    setActiveId(id);
-    setView("detail");
-    setDetail(null);
-    try {
-      const res = await fetch(`/api/support/tickets/${id}`);
-      if (!res.ok) throw new Error();
-      setDetail(await res.json());
-    } catch {
-      setError("Impossibile caricare il ticket.");
-      setView("list");
-    }
+  const openChatwoot = () => {
+    const cw = (window as unknown as { $chatwoot?: { toggle: (s: string) => void } }).$chatwoot;
+    if (cw) cw.toggle("open");
+    else alert("La live chat si sta caricando, riprova tra qualche istante.");
   };
 
   const submitNew = async (e: React.FormEvent) => {
@@ -110,35 +90,17 @@ export default function SupportPage() {
         body: JSON.stringify({ subject, category, message }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
       setSubject("");
       setMessage("");
       setCategory("domanda");
-      await loadTickets();
-      setView("list");
+      // Va direttamente alla pagina del ticket creato
+      if (data.ticket_id) router.push(`/dashboard/support/${data.ticket_id}`);
+      else { await loadTickets(); setView("list"); }
     } catch {
       setError("Errore durante l'invio. Riprova o scrivi a supporto@rescuemanager.eu");
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const submitReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeId || reply.trim().length < 2) return;
-    setReplying(true);
-    try {
-      const res = await fetch(`/api/support/tickets/${activeId}/reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: reply }),
-      });
-      if (!res.ok) throw new Error();
-      setReply("");
-      await openDetail(activeId);
-    } catch {
-      setError("Errore invio risposta.");
-    } finally {
-      setReplying(false);
     }
   };
 
@@ -147,7 +109,7 @@ export default function SupportPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Supporto Clienti</h1>
-          <p className="text-gray-500 text-lg">Apri un ticket: ti rispondiamo via email e qui in area riservata.</p>
+          <p className="text-gray-500 text-lg">Apri un ticket o avvia la live chat: ti rispondiamo via email e qui in area riservata.</p>
         </div>
         {view === "list" && (
           <button
@@ -163,31 +125,46 @@ export default function SupportPage() {
         <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg font-medium">{error}</div>
       )}
 
-      {/* Contatti rapidi */}
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
-            <Mail className="h-5 w-5 text-blue-600" />
+      {/* Live chat + contatti */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-5">
+            <MessageSquareText className="h-8 w-8 text-blue-600" />
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email</div>
-            <a href="mailto:supporto@rescuemanager.eu" className="text-sm text-gray-900 font-medium hover:text-blue-600">supporto@rescuemanager.eu</a>
-          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Live Chat</h2>
+          <p className="text-gray-500 mb-6 text-sm">
+            Parla in tempo reale con un nostro operatore. Risposta media: pochi minuti.
+          </p>
+          <button
+            onClick={openChatwoot}
+            className="mt-auto px-6 py-3 w-full bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition shadow-md shadow-slate-200"
+          >
+            Avvia Chat
+          </button>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
-            <Phone className="h-5 w-5 text-blue-600" />
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-6">Contatti diretti</h2>
+          <div className="space-y-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+                <Mail className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Email</div>
+                <a href="mailto:supporto@rescuemanager.eu" className="text-gray-900 font-medium hover:text-blue-600 transition">supporto@rescuemanager.eu</a>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+                <Phone className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Telefono e WhatsApp</div>
+                <a href="tel:+393921723028" className="text-gray-900 font-medium hover:text-blue-600 transition">+39 392 172 3028</a>
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Telefono</div>
-            <a href="tel:+393921723028" className="text-sm text-gray-900 font-medium hover:text-blue-600">+39 392 172 3028</a>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
-            <MessageSquareText className="h-5 w-5 text-blue-600" />
-          </div>
-          <div className="text-sm text-gray-600">Risposta media<br /><span className="font-semibold text-gray-900">entro 24h lavorative</span></div>
         </div>
       </div>
 
@@ -213,11 +190,19 @@ export default function SupportPage() {
             <ul className="divide-y divide-gray-100">
               {tickets.map(t => (
                 <li key={t.id}>
-                  <button onClick={() => openDetail(t.id)} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition flex items-center justify-between gap-4">
+                  <button
+                    onClick={() => router.push(`/dashboard/support/${t.id}`)}
+                    className="w-full text-left px-5 py-4 hover:bg-gray-50 transition flex items-center justify-between gap-4"
+                  >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-gray-900 truncate">{t.subject}</span>
                         <StatusBadge status={t.status} />
+                        {t.customer_unread && (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 animate-pulse">
+                            Nuova risposta
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-gray-500">
                         {CATEGORY_LABELS[t.category] || t.category} · aggiornato {fmt(t.last_message_at)}
@@ -260,57 +245,6 @@ export default function SupportPage() {
             {submitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Invio...</> : <><Send className="h-5 w-5" /> Apri ticket</>}
           </button>
         </form>
-      )}
-
-      {/* DETTAGLIO */}
-      {view === "detail" && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <button onClick={() => { setView("list"); loadTickets(); }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-3">
-              <ArrowLeft className="h-4 w-4" /> Torna ai ticket
-            </button>
-            {detail ? (
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="font-bold text-gray-900">{detail.ticket.subject}</h2>
-                <StatusBadge status={detail.ticket.status} />
-              </div>
-            ) : <Loader2 className="h-5 w-5 animate-spin text-blue-600" />}
-          </div>
-
-          {detail && (
-            <>
-              <div className="p-5 space-y-4 max-h-[420px] overflow-y-auto bg-gray-50">
-                {detail.messages.map(m => {
-                  const isStaff = m.sender_type === "staff";
-                  return (
-                    <div key={m.id} className={`flex ${isStaff ? "justify-start" : "justify-end"}`}>
-                      <div className={`max-w-[80%] rounded-xl px-4 py-3 ${isStaff ? "bg-white border border-gray-200" : "bg-blue-600 text-white"}`}>
-                        <div className={`text-[10px] mb-1 ${isStaff ? "text-gray-400" : "text-blue-100"}`}>
-                          {isStaff ? (m.sender_name || "Supporto") : "Tu"} · {fmt(m.created_at)}
-                        </div>
-                        <div className="text-sm whitespace-pre-wrap break-words">{m.body}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <form onSubmit={submitReply} className="p-4 border-t border-gray-100">
-                {["resolved", "closed"].includes(detail.ticket.status) && (
-                  <p className="text-xs text-gray-500 mb-2">Questo ticket è {STATUS_LABELS[detail.ticket.status].label.toLowerCase()}: rispondendo verrà riaperto.</p>
-                )}
-                <div className="flex gap-2">
-                  <input value={reply} onChange={e => setReply(e.target.value)} placeholder="Scrivi una risposta..."
-                    className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-                  <button type="submit" disabled={replying || reply.trim().length < 2}
-                    className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5 text-sm font-medium">
-                    {replying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Invia
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-        </div>
       )}
     </div>
   );

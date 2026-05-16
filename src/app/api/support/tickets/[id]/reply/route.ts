@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { notifyStaffCustomerReply } from '@/lib/support-email';
+import { normalizeAttachments } from '@/lib/support-attachments';
 
 export const runtime = 'nodejs';
 
@@ -18,14 +19,15 @@ export async function POST(
     return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
   }
 
-  let body: { message?: string };
+  let body: { message?: string; attachments?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Body non valido' }, { status: 400 });
   }
   const message = (body.message || '').trim();
-  if (message.length < 2 || message.length > 5000) {
+  const attachments = normalizeAttachments(body.attachments);
+  if ((message.length < 2 && attachments.length === 0) || message.length > 5000) {
     return NextResponse.json({ error: 'Messaggio non valido' }, { status: 400 });
   }
 
@@ -48,17 +50,20 @@ export async function POST(
     sender_type: 'customer',
     sender_id: user.id,
     sender_name: senderName,
-    body: message,
+    body: message || '(allegato)',
+    attachments,
   });
   if (mErr) return NextResponse.json({ error: mErr.message }, { status: 500 });
 
-  // Una risposta del cliente riapre un ticket risolto/chiuso
+  // Il cliente ha risposto: lato staff è da leggere, lato cliente già letto.
+  // Una risposta del cliente riapre un ticket risolto/chiuso.
+  const upd: Record<string, unknown> = { staff_unread: true, customer_unread: false };
   if (['resolved', 'closed'].includes(ticket.status)) {
-    await supabase
-      .from('support_tickets')
-      .update({ status: 'open', resolved_at: null, closed_at: null })
-      .eq('id', ticket.id);
+    upd.status = 'open';
+    upd.resolved_at = null;
+    upd.closed_at = null;
   }
+  await supabase.from('support_tickets').update(upd).eq('id', ticket.id);
 
   notifyStaffCustomerReply({
     id: ticket.id,
