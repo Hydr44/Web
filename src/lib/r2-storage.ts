@@ -6,18 +6,23 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-if (!process.env.R2_ENDPOINT || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
-  throw new Error('Missing R2 credentials');
-}
+let _s3Client: S3Client | null = null;
 
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+function getS3Client(): S3Client {
+  if (_s3Client) return _s3Client;
+  if (!process.env.R2_ENDPOINT || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+    throw new Error('Missing R2 credentials (R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)');
+  }
+  _s3Client = new S3Client({
+    region: 'auto',
+    endpoint: process.env.R2_ENDPOINT,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  });
+  return _s3Client;
+}
 
 /**
  * Upload file to R2
@@ -37,7 +42,7 @@ export async function uploadToR2(
       Metadata: metadata,
     });
 
-    await s3Client.send(command);
+    await getS3Client().send(command);
 
     const url = `${process.env.R2_ENDPOINT}/${process.env.R2_BUCKET_NAME}/${key}`;
     console.log(`[R2] File uploaded: ${key}`);
@@ -59,7 +64,7 @@ export async function downloadFromR2(key: string): Promise<Buffer> {
       Key: key,
     });
 
-    const response = await s3Client.send(command);
+    const response = await getS3Client().send(command);
     const chunks: Uint8Array[] = [];
 
     if (response.Body) {
@@ -88,7 +93,7 @@ export async function deleteFromR2(key: string): Promise<void> {
       Key: key,
     });
 
-    await s3Client.send(command);
+    await getS3Client().send(command);
     console.log(`[R2] File deleted: ${key}`);
   } catch (error) {
     console.error(`[R2] Error deleting file:`, error);
@@ -110,7 +115,7 @@ export async function getSignedUploadUrl(
     Key: key,
     ContentType: contentType,
   });
-  return getSignedUrl(s3Client, command, { expiresIn });
+  return getSignedUrl(getS3Client(), command, { expiresIn });
 }
 
 /**
@@ -123,7 +128,7 @@ export async function getSignedDownloadUrl(key: string, expiresIn: number = 3600
       Key: key,
     });
 
-    const url = await getSignedUrl(s3Client, command, { expiresIn });
+    const url = await getSignedUrl(getS3Client(), command, { expiresIn });
     console.log(`[R2] Signed URL generated: ${key}`);
 
     return url;
@@ -143,7 +148,7 @@ export async function listR2Files(prefix: string): Promise<string[]> {
       Prefix: prefix,
     });
 
-    const response = await s3Client.send(command);
+    const response = await getS3Client().send(command);
     const files = response.Contents?.map((obj) => obj.Key || '') || [];
 
     console.log(`[R2] Listed ${files.length} files with prefix: ${prefix}`);
@@ -230,7 +235,7 @@ export async function healthCheck(): Promise<boolean> {
       MaxKeys: 1,
     });
 
-    await s3Client.send(command);
+    await getS3Client().send(command);
     console.log('[R2] Health check: OK');
     return true;
   } catch (error) {
