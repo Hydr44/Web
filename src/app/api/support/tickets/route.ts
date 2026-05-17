@@ -11,7 +11,9 @@ import { checkRateLimit, getRateLimitIdentifier } from '@/lib/security';
 
 export const runtime = 'nodejs';
 
-const CATEGORIES = ['domanda', 'bug', 'funzionalita', 'fatturazione', 'altro'];
+const CATEGORIES = ['domanda', 'bug', 'funzionalita', 'fatturazione', 'altro', 'chat'];
+const MIN_SUBJECT = 3;
+const MIN_MESSAGE = 10;
 
 export async function GET() {
   const supabase = await supabaseServer();
@@ -62,11 +64,20 @@ export async function POST(request: NextRequest) {
   const category = CATEGORIES.includes(body.category || '') ? body.category! : 'domanda';
   const attachments = normalizeAttachments(body.attachments);
 
-  if (subject.length < 3 || message.length < 5) {
-    return NextResponse.json({ error: 'Oggetto e messaggio obbligatori' }, { status: 400 });
+  if (subject.length < MIN_SUBJECT) {
+    return NextResponse.json(
+      { error: `L'oggetto deve contenere almeno ${MIN_SUBJECT} caratteri.` }, { status: 400 });
   }
-  if (subject.length > 200 || message.length > 5000) {
-    return NextResponse.json({ error: 'Testo troppo lungo' }, { status: 400 });
+  if (subject.length > 200) {
+    return NextResponse.json({ error: "L'oggetto non può superare i 200 caratteri." }, { status: 400 });
+  }
+  if (message.length < MIN_MESSAGE) {
+    return NextResponse.json(
+      { error: `Il messaggio deve contenere almeno ${MIN_MESSAGE} caratteri: descrivi il problema con qualche dettaglio in più.` },
+      { status: 400 });
+  }
+  if (message.length > 5000) {
+    return NextResponse.json({ error: 'Il messaggio non può superare i 5000 caratteri.' }, { status: 400 });
   }
 
   // org corrente (best effort)
@@ -96,6 +107,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: tErr?.message || 'Errore creazione ticket' }, { status: 500 });
   }
 
+  const isChat = category === 'chat';
+
   const { error: mErr } = await supabase.from('ticket_messages').insert({
     ticket_id: ticket.id,
     sender_type: 'customer',
@@ -108,9 +121,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: mErr.message }, { status: 500 });
   }
 
+  // Messaggio di sistema automatico: conferma presa in carico + tempi attesi
+  await supabase.from('ticket_messages').insert({
+    ticket_id: ticket.id,
+    sender_type: 'system',
+    sender_id: null,
+    sender_name: 'RescueManager',
+    body: isChat
+      ? 'Chat avviata. Un operatore prenderà in carico la conversazione il prima possibile (orari ufficio Lun–Ven 9:00–18:00, di norma entro 1 ora). Resta su questa pagina per la risposta in tempo reale.'
+      : 'Grazie, abbiamo ricevuto la tua richiesta. Un operatore ti risponderà a breve — tempo medio di risposta entro 24 ore lavorative. Riceverai una notifica via email a ogni aggiornamento.',
+  });
+
   // Notifiche email (non bloccano la risposta)
   notifyStaffNewTicket({
     id: ticket.id,
+    isChat,
     subject,
     category,
     customer_email: user.email!,
@@ -120,7 +145,10 @@ export async function POST(request: NextRequest) {
   notifyCustomerTicketOpened({
     id: ticket.id,
     subject,
+    category,
     customer_email: user.email!,
+    customer_name: customerName,
+    isChat,
   }).catch(() => {});
 
   return NextResponse.json({ ok: true, ticket_id: ticket.id }, { status: 201 });

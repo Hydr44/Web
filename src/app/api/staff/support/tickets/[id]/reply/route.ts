@@ -65,6 +65,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     subject: ticket.subject,
     customer_email: ticket.customer_email,
     body: message,
+    operator: staffName,
   }).catch(() => {});
 
   return NextResponse.json({ success: true });

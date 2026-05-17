@@ -169,6 +169,15 @@ export default function TicketDetailPage() {
 
           <div className="p-6 space-y-4 max-h-[480px] overflow-y-auto bg-gray-50">
             {messages.map(m => {
+              if (m.sender_type === "system") {
+                return (
+                  <div key={m.id} className="flex justify-center">
+                    <div className="max-w-[90%] text-center text-xs text-gray-500 bg-gray-100 border border-gray-200 rounded-lg px-4 py-2">
+                      {m.body}
+                    </div>
+                  </div>
+                );
+              }
               const isStaff = m.sender_type === "staff";
               return (
                 <div key={m.id} className={`flex ${isStaff ? "justify-start" : "justify-end"}`}>

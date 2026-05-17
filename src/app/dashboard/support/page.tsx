@@ -31,7 +31,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   funzionalita: "Richiesta funzionalità",
   fatturazione: "Fatturazione",
   altro: "Altro",
+  chat: "Chat dal vivo",
 };
+
+// Categorie selezionabili nel form ticket (la chat ha il suo pulsante dedicato)
+const FORM_CATEGORIES = ["domanda", "bug", "funzionalita", "fatturazione", "altro"];
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -84,16 +88,39 @@ export default function SupportPage() {
     return () => { supabase.removeChannel(channel); };
   }, [loadTickets]);
 
-  const openChatwoot = () => {
-    const cw = (window as unknown as { $chatwoot?: { toggle: (s: string) => void } }).$chatwoot;
-    if (cw) cw.toggle("open");
-    else alert("La live chat si sta caricando, riprova tra qualche istante.");
+  const [startingChat, setStartingChat] = useState(false);
+
+  // Live chat nativa: crea un ticket categoria "chat" e va alla pagina realtime
+  const startLiveChat = async () => {
+    setStartingChat(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/support/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: "Chat dal vivo",
+          category: "chat",
+          message: "Ho avviato una chat dal vivo e ho bisogno di assistenza.",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Errore");
+      router.push(`/dashboard/support/${data.ticket_id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossibile avviare la chat.");
+      setStartingChat(false);
+    }
   };
 
   const submitNew = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (subject.trim().length < 3 || message.trim().length < 5) {
-      setError("Compila oggetto e messaggio.");
+    if (subject.trim().length < 3) {
+      setError("L'oggetto deve contenere almeno 3 caratteri.");
+      return;
+    }
+    if (message.trim().length < 10) {
+      setError("Il messaggio deve contenere almeno 10 caratteri: aggiungi qualche dettaglio in più.");
       return;
     }
     setSubmitting(true);
@@ -104,16 +131,15 @@ export default function SupportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, category, message }),
       });
-      if (!res.ok) throw new Error();
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Errore");
       setSubject("");
       setMessage("");
       setCategory("domanda");
-      // Va direttamente alla pagina del ticket creato
       if (data.ticket_id) router.push(`/dashboard/support/${data.ticket_id}`);
       else { await loadTickets(); setView("list"); }
-    } catch {
-      setError("Errore durante l'invio. Riprova o scrivi a supporto@rescuemanager.eu");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Errore durante l'invio. Riprova o scrivi a supporto@rescuemanager.eu");
     } finally {
       setSubmitting(false);
     }
@@ -146,15 +172,16 @@ export default function SupportPage() {
           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-5">
             <MessageSquareText className="h-8 w-8 text-blue-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Live Chat</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Chat dal vivo</h2>
           <p className="text-gray-500 mb-6 text-sm">
-            Parla in tempo reale con un nostro operatore. Risposta media: pochi minuti.
+            Parla in tempo reale con un operatore. Negli orari di ufficio (Lun–Ven 9:00–18:00) risposta entro pochi minuti.
           </p>
           <button
-            onClick={openChatwoot}
-            className="mt-auto px-6 py-3 w-full bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition shadow-md shadow-slate-200"
+            onClick={startLiveChat}
+            disabled={startingChat}
+            className="mt-auto px-6 py-3 w-full bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition shadow-md shadow-slate-200 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            Avvia Chat
+            {startingChat ? <><Loader2 className="h-5 w-5 animate-spin" /> Avvio...</> : "Avvia chat dal vivo"}
           </button>
         </div>
 
@@ -241,7 +268,7 @@ export default function SupportPage() {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Tipo di richiesta</label>
             <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-              {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              {FORM_CATEGORIES.map(v => <option key={v} value={v}>{CATEGORY_LABELS[v]}</option>)}
             </select>
           </div>
           <div>

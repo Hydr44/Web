@@ -64,16 +64,29 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .from('support_tickets')
     .update(patch)
     .eq('id', params.id)
-    .select('subject, customer_email, status')
+    .select('id, subject, customer_email, status')
     .single();
 
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
 
   if (patch.status === 'resolved' || patch.status === 'closed') {
+    // Recupera l'ultima risposta staff per includerla nel riepilogo email
+    const { data: lastStaff } = await supabaseAdmin
+      .from('ticket_messages')
+      .select('body, sender_name')
+      .eq('ticket_id', ticket.id)
+      .eq('sender_type', 'staff')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     notifyCustomerStatus({
+      id: ticket.id,
       subject: ticket.subject,
       customer_email: ticket.customer_email,
       status: ticket.status,
+      lastReply: lastStaff?.body ?? null,
+      operator: lastStaff?.sender_name ?? null,
     }).catch(() => {});
   }
 
