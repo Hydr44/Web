@@ -14,7 +14,8 @@ const FLAG_DEFINITIONS = [
   { id: 'fatture_enabled', name: 'Fatturazione', description: 'Emissione fatture, note di credito, pagamenti', category: 'modules', default: true },
   { id: 'contabilita_enabled', name: 'Contabilità', description: 'Piano dei conti, partita doppia, prima nota', category: 'modules', default: true },
   { id: 'vendite_enabled', name: 'Modulo Vendite', description: 'Preventivi, ordini, dashboard vendite', category: 'modules', default: true },
-  { id: 'marketplace_enabled', name: 'Marketplace B2B', description: 'Vetrina ricambi, ordini B2B tra demolitori', category: 'modules', default: false },
+  // NB: marketplace gestito come feature PER-ORG (ClientControlsPanel), non come
+  // flag globale → rimosso il duplicato globale per evitare un toggle inerte.
   { id: 'assist_enabled', name: 'Assistenza Clienti', description: 'Sistema assist remoto, ticket supporto', category: 'modules', default: true },
   { id: 'etichette_enabled', name: 'Etichette & Stampe', description: 'Generazione etichette, stampa documenti', category: 'modules', default: true },
   { id: 'calendario_enabled', name: 'Calendario', description: 'Calendario attività, scadenze, promemoria', category: 'modules', default: true },

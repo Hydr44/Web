@@ -54,6 +54,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Enforcement: registrazione disabilitata globalmente dall'admin.
+    // Riguarda solo le richieste di accesso (la pagina /register), non i
+    // contatti generici. Fail-open in caso di errore lettura settings.
+    if (type === 'access_request') {
+      try {
+        const { data: regSetting } = await supabaseAdmin
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'registration_enabled')
+          .maybeSingle();
+        const registrationEnabled =
+          regSetting?.value !== false && regSetting?.value !== 'false';
+        if (!registrationEnabled) {
+          await logSecurityEvent({
+            type: 'suspicious_activity',
+            ip_address: ip,
+            user_agent: userAgent,
+            metadata: { endpoint: 'contact_form', reason: 'registration_disabled', email },
+          });
+          return NextResponse.json(
+            {
+              success: false,
+              error:
+                'Le registrazioni sono temporaneamente sospese. Scrivici a info@rescuemanager.eu per richiedere accesso.',
+            },
+            { status: 403 }
+          );
+        }
+      } catch (err) {
+        console.error('[Contact] errore check registration_enabled:', err);
+        // fail-open: non bloccare le richieste se la lettura fallisce
+      }
+    }
+
     // Validate email
     const emailValidation = validateEmail(email);
     if (!emailValidation.valid) {

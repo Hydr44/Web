@@ -97,6 +97,23 @@ export async function deleteFromR2(key: string): Promise<void> {
 }
 
 /**
+ * Generate signed URL per upload diretto browser→R2 (bypassa il limite
+ * body delle serverless function: gli installer pesano decine di MB).
+ */
+export async function getSignedUploadUrl(
+  key: string,
+  contentType: string = 'application/octet-stream',
+  expiresIn: number = 900
+): Promise<string> {
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+  });
+  return getSignedUrl(s3Client, command, { expiresIn });
+}
+
+/**
  * Generate signed URL (per download diretto)
  */
 export async function getSignedDownloadUrl(key: string, expiresIn: number = 3600): Promise<string> {

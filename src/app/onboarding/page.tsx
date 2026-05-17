@@ -24,13 +24,11 @@ type CompanyData = {
   address_city: string;
   address_province: string;
   address_postal_code: string;
-  iban: string;
 };
 
 const empty: CompanyData = {
   company_name: '', vat_number: '', codice_fiscale: '', phone: '', email: '',
   address_street: '', address_civico: '', address_city: '', address_province: '', address_postal_code: '',
-  iban: ''
 };
 
 export default function OnboardingPage() {
@@ -86,7 +84,6 @@ export default function OnboardingPage() {
           address_city: addr.city || '',
           address_province: addr.province || '',
           address_postal_code: addr.zip || '',
-          iban: v.iban || '',
         });
       }
 
@@ -108,7 +105,6 @@ export default function OnboardingPage() {
       tax_code: data.codice_fiscale || null,
       phone: data.phone || null,
       email: data.email || null,
-      iban: data.iban || null,
       address: {
         street: data.address_street || null,
         civico: data.address_civico || null,
@@ -320,12 +316,9 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">IBAN <span className="text-gray-400 font-normal normal-case">(opzionale)</span></label>
-                <input value={data.iban} onChange={e => set('iban', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-mono"
-                  placeholder="IT60 X054 2811 1010 0000 0123 456" />
-              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Le coordinate bancarie (IBAN, banca, BIC) si configurano dopo nelle impostazioni di Fatturazione, solo se usi bonifico o Ri.Ba.
+              </p>
             </div>
 
             <div className="flex justify-end mt-8">

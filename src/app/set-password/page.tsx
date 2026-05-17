@@ -18,6 +18,7 @@ export default function SetPasswordPage() {
   const [confirm, setConfirm] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [accountInfo, setAccountInfo] = useState<{ orgName: string | null; role: string | null } | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -90,8 +91,34 @@ export default function SetPasswordPage() {
       data: { force_password_change: false },
     });
     if (error) { setErrorMsg(`Errore: ${error.message}`); setLoading(false); return; }
+
+    // Recupera organizzazione + ruolo per mostrarli, e per gli autisti
+    // marca l'onboarding completato (coerente con l'app mobile).
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const role = (user?.user_metadata as { role?: string } | undefined)?.role ?? null;
+      let orgName: string | null = null;
+      if (user?.id) {
+        const { data: prof } = await supabase
+          .from('profiles').select('org_id').eq('id', user.id).maybeSingle();
+        if (prof?.org_id) {
+          const { data: org } = await supabase
+            .from('orgs').select('name').eq('id', prof.org_id).maybeSingle();
+          orgName = (org as { name?: string } | null)?.name ?? null;
+        }
+        if (role === 'autista') {
+          await supabase.from('drivers')
+            .update({ onboarded_at: new Date().toISOString() })
+            .eq('auth_user_id', user.id);
+        }
+      }
+      setAccountInfo({ orgName, role });
+    } catch {
+      /* non bloccare il successo se la lettura org fallisce */
+    }
+
     setStage('success');
-    setTimeout(() => router.push('/onboarding'), 2500);
+    setTimeout(() => router.push('/onboarding'), 4000);
   };
 
   const strength = passwordStrength();
@@ -185,9 +212,27 @@ export default function SetPasswordPage() {
             </div>
             <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Completato</p>
             <h1 className="text-3xl font-extrabold text-[#0f172a] mb-3">Password impostata!</h1>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-4">
               Il tuo account è attivo. Sarai reindirizzato automaticamente alla configurazione iniziale.
             </p>
+            {accountInfo && (accountInfo.orgName || accountInfo.role) && (
+              <div className="mb-6 border border-gray-200 bg-gray-50 px-4 py-3 text-left">
+                {accountInfo.orgName && (
+                  <p className="text-sm text-[#0f172a]">
+                    <span className="text-gray-500">Organizzazione:</span>{' '}
+                    <span className="font-bold">{accountInfo.orgName}</span>
+                  </p>
+                )}
+                {accountInfo.role && (
+                  <p className="text-sm text-[#0f172a] mt-1">
+                    <span className="text-gray-500">Ruolo:</span>{' '}
+                    <span className="font-bold capitalize">
+                      {accountInfo.role === 'autista' ? 'Autista' : accountInfo.role}
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
             <div className="h-1 w-full bg-gray-100">
               <div className="h-1 bg-blue-600 animate-pulse w-3/4" />
             </div>

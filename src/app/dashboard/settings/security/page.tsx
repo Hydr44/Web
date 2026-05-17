@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase-browser';
-import { Loader2, ShieldCheck, ShieldAlert, Smartphone, Trash2 } from 'lucide-react';
+import { Loader2, ShieldCheck, ShieldAlert, Smartphone, Trash2, Lock } from 'lucide-react';
 
 type Factor = {
   id: string;
@@ -20,16 +21,24 @@ type EnrollState = {
 
 export default function SecuritySettingsPage() {
   const supabase = supabaseBrowser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const enforce = searchParams.get('enforce') === '1';
+
   const [loading, setLoading] = useState(true);
   const [factors, setFactors] = useState<Factor[]>([]);
   const [enroll, setEnroll] = useState<EnrollState>(null);
   const [code, setCode] = useState('');
+  const [challengeCode, setChallengeCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [aalLevel, setAalLevel] = useState<string | null>(null);
 
   const verifiedFactors = factors.filter(f => f.status === 'verified');
   const has2FA = verifiedFactors.length > 0;
+  // L'utente deve completare la 2FA ora: flag obbligatorio + sessione non AAL2.
+  const mustComplete = enforce && aalLevel !== null && aalLevel !== 'aal2';
 
   const loadFactors = async () => {
     const { data, error: err } = await supabase.auth.mfa.listFactors();
@@ -40,12 +49,46 @@ export default function SecuritySettingsPage() {
     setFactors(data?.all ?? []);
   };
 
+  const loadAal = async () => {
+    const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    setAalLevel(data?.currentLevel ?? null);
+  };
+
   useEffect(() => {
     (async () => {
-      await loadFactors();
+      await Promise.all([loadFactors(), loadAal()]);
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Challenge di un fattore già verificato: eleva la sessione ad AAL2
+  // (caso login con password di un utente che ha già la 2FA attiva).
+  const verifyExistingFactor = async () => {
+    const factor = verifiedFactors[0];
+    if (!factor || challengeCode.length !== 6) return;
+    setError(null);
+    setBusy(true);
+    const { data: challenge, error: cErr } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+    if (cErr || !challenge) {
+      setBusy(false);
+      setError(cErr?.message || 'Errore creazione challenge');
+      return;
+    }
+    const { error: vErr } = await supabase.auth.mfa.verify({
+      factorId: factor.id,
+      challengeId: challenge.id,
+      code: challengeCode,
+    });
+    setBusy(false);
+    if (vErr) {
+      setError(vErr.message || 'Codice non valido');
+      return;
+    }
+    setChallengeCode('');
+    await loadAal();
+    if (enforce) router.replace('/dashboard');
+  };
 
   const startEnroll = async () => {
     setError(null);
@@ -90,7 +133,9 @@ export default function SecuritySettingsPage() {
     setInfo('2FA attivata con successo.');
     setEnroll(null);
     setCode('');
-    await loadFactors();
+    await Promise.all([loadFactors(), loadAal()]);
+    // enroll+verify porta la sessione ad AAL2: se eravamo in enforce, prosegui.
+    if (enforce) router.replace('/dashboard');
   };
 
   const cancelEnroll = async () => {
@@ -122,6 +167,47 @@ export default function SecuritySettingsPage() {
         <h1 className="text-2xl font-semibold">Sicurezza</h1>
         <p className="mt-1 text-gray-500">Gestisci 2FA, password e sessioni attive.</p>
       </header>
+
+      {mustComplete && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 flex items-start gap-3">
+          <Lock className="h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="font-semibold">Autenticazione a due fattori obbligatoria</p>
+            <p className="mt-0.5">
+              L&apos;amministratore ha reso la 2FA obbligatoria. Completa la
+              {has2FA ? ' verifica' : ' configurazione'} qui sotto per accedere alla dashboard.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {mustComplete && has2FA && (
+        <section className="rounded-lg border bg-white p-5 space-y-3">
+          <h2 className="font-semibold">Verifica identità</h2>
+          <p className="text-sm text-gray-600">
+            Inserisci il codice a 6 cifre dalla tua app authenticator per continuare.
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="\d{6}"
+              maxLength={6}
+              value={challengeCode}
+              onChange={e => setChallengeCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="000000"
+              className="w-32 rounded-md border px-3 py-2 font-mono text-lg tracking-widest"
+            />
+            <button
+              onClick={verifyExistingFactor}
+              disabled={busy || challengeCode.length !== 6}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verifica e continua'}
+            </button>
+          </div>
+        </section>
+      )}
 
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = supabaseBrowser();
@@ -70,6 +71,29 @@ export default function DashboardLayout({
           setOrgName('');
         }
 
+        // Enforcement 2FA: se l'admin ha reso la 2FA obbligatoria e la sessione
+        // non è AAL2, manda l'utente alla pagina sicurezza (che gestisce sia
+        // l'enroll sia la challenge del fattore esistente). Non redirige se
+        // siamo già lì, per evitare loop.
+        const onSecurityPage = pathname?.startsWith('/dashboard/settings/security');
+        if (!onSecurityPage) {
+          try {
+            const res = await fetch('/api/auth/2fa-status', { cache: 'no-store' });
+            const { mandatory } = await res.json();
+            if (mandatory) {
+              const { data: aal } =
+                await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+              if (aal && aal.currentLevel !== 'aal2') {
+                router.push('/dashboard/settings/security?enforce=1');
+                return;
+              }
+            }
+          } catch (e) {
+            // Fail open: un errore nel check non deve bloccare l'accesso.
+            console.error('2FA enforcement check failed:', e);
+          }
+        }
+
         setUserEmail(user.email || "Utente");
         setLoading(false);
       } catch (error) {
@@ -92,7 +116,7 @@ export default function DashboardLayout({
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, pathname]);
 
   if (loading) {
     return (

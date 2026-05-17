@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Briefcase, User, Phone, CheckCircle2 } from "lucide-react";
@@ -26,6 +26,15 @@ export default function RegisterPage() {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  // null = ancora da verificare, true/false = stato registrazioni globale
+  const [regEnabled, setRegEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/registration-status", { cache: "no-store" })
+      .then(r => r.json())
+      .then(d => setRegEnabled(d?.enabled !== false))
+      .catch(() => setRegEnabled(true)); // fail-open: il server riverifica
+  }, []);
 
   const router = useRouter();
   const params = useSearchParams();
@@ -34,6 +43,11 @@ export default function RegisterPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (regEnabled === false) {
+      setError("Le registrazioni sono temporaneamente sospese. Scrivici a info@rescuemanager.eu per richiedere accesso.");
+      return;
+    }
 
     if (!acceptTerms) {
       setError("Devi accettare i Termini d'Uso e la Privacy Policy per continuare.");
@@ -147,6 +161,13 @@ export default function RegisterPage() {
           {error && (
             <div className="mb-5 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
+            </div>
+          )}
+
+          {regEnabled === false && (
+            <div className="mb-5 border-l-4 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Le registrazioni sono temporaneamente sospese. Per richiedere
+              accesso scrivi a <strong>info@rescuemanager.eu</strong>.
             </div>
           )}
 
