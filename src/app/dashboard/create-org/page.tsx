@@ -172,7 +172,7 @@ export default function CreateOrgPage() {
             Ora puoi iniziare a utilizzare RescueManager.
           </p>
           
-          <LoadingSpinner size="sm" color="primary" text="Reindirizzamento alla dashboard..." />
+          <LoadingSpinner size="sm" text="Reindirizzamento alla dashboard..." />
         </motion.div>
       </div>
     );
@@ -415,7 +415,7 @@ export default function CreateOrgPage() {
                         className="px-4 py-3 bg-blue-600 text-gray-900  hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {calculatingCF ? (
-                          <LoadingSpinner size="sm" color="white" />
+                          <LoadingSpinner size="sm" />
                         ) : (
                           <Calculator className="h-4 w-4" />
                         )}
@@ -444,7 +444,7 @@ export default function CreateOrgPage() {
                 className="w-full py-4 px-6  bg-blue-600 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <LoadingSpinner size="sm" color="white" text="Creazione in corso..." />
+                  <LoadingSpinner size="sm" text="Creazione in corso..." />
                 ) : (
                   <>
                     <Building2 className="h-5 w-5" />

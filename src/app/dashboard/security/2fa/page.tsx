@@ -165,6 +165,15 @@ export default function TwoFactorAuthPage() {
       });
       if (verifyErr) throw new Error(verifyErr.message || "Codice non valido");
 
+      // Audit log: 2FA enabled
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "mfa.enabled" }),
+        });
+      } catch { /* non bloccante */ }
+
       // Genera i codici di backup
       const r = await fetch("/api/auth/mfa/backup-codes/regenerate", { method: "POST" });
       const j = await r.json().catch(() => ({}));
@@ -209,6 +218,13 @@ export default function TwoFactorAuthPage() {
 
       setBackupCodes([]);
       setBackupUnused(null);
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "mfa.disabled" }),
+        });
+      } catch { /* non bloccante */ }
       setSuccess("2FA disabilitato.");
       await refreshFactors();
     } catch (e: unknown) {
@@ -233,6 +249,13 @@ export default function TwoFactorAuthPage() {
       }
       setBackupCodes(j.codes);
       setShowBackupCodes(true);
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "backup_codes.regen" }),
+        });
+      } catch { /* non bloccante */ }
       setSuccess("Nuovi codici di backup generati — salvali ora.");
       await refreshFactors();
     } catch (e: unknown) {

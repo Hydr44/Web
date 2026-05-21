@@ -13,6 +13,10 @@ import {
   Shield,
   Database,
   User,
+  Bell,
+  FileText,
+  CreditCard,
+  Plug,
 } from "lucide-react";
 import * as React from "react";
 import { useUserRole } from "@/lib/useUserRole";
@@ -29,10 +33,34 @@ type Item = {
 
 const NAV: Item[] = [
   { label: "Panoramica", href: "/dashboard", icon: LayoutGrid },
-  { label: "Organizzazione", href: "/dashboard/org", icon: Building2 },
-  { label: "Pagamenti", href: "/dashboard/billing", icon: Wallet, ownerOnly: true },
-  { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
-  { label: "Privacy", href: "/dashboard/privacy", icon: Database },
+  {
+    label: "Account",
+    icon: User,
+    children: [
+      { label: "Profilo", href: "/dashboard/profile", icon: User },
+      { label: "Sicurezza", href: "/dashboard/security", icon: Shield },
+      { label: "Privacy", href: "/dashboard/privacy", icon: Database },
+      { label: "Notifiche", href: "/dashboard/settings/notifications", icon: Bell },
+    ],
+  },
+  {
+    label: "Organizzazione",
+    icon: Building2,
+    children: [
+      { label: "Panoramica", href: "/dashboard/org", icon: Building2 },
+      { label: "Integrazioni", href: "/dashboard/integrations", icon: Plug },
+    ],
+  },
+  {
+    label: "Fatturazione",
+    icon: Wallet,
+    ownerOnly: true,
+    children: [
+      { label: "Abbonamento", href: "/dashboard/billing", icon: Wallet },
+      { label: "Metodi di pagamento", href: "/dashboard/payment-methods", icon: CreditCard },
+      { label: "Fatture", href: "/dashboard/invoices", icon: FileText },
+    ],
+  },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 

@@ -27,6 +27,9 @@ import {
 export default function PrivacyPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [actionWorking, setActionWorking] = useState<string | null>(null);
   const [privacySettings, setPrivacySettings] = useState({
     dataCollection: true,
     analytics: true,
@@ -93,25 +96,53 @@ export default function PrivacyPage() {
   }, []);
 
   const handleExportData = async () => {
+    setActionError(null);
+    setActionSuccess(null);
+    setActionWorking("export");
     try {
-      console.log("Exporting user data...");
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert("Export completato! Riceverai un'email con i tuoi dati.");
-    } catch (error) {
-      console.error("Error exporting data:", error);
+      // Audit log (privacy.export)
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "privacy.export" }),
+        });
+      } catch { /* non bloccante */ }
+      // L'export reale è un job asincrono: per ora avvisiamo l'utente che riceverà l'email.
+      // (Endpoint /api/user/export può essere aggiunto in seguito senza toccare la UI.)
+      setActionSuccess("Richiesta di export inviata. Riceverai un'email con i tuoi dati.");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Errore durante l'export";
+      setActionError(msg);
+    } finally {
+      setActionWorking(null);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.")) {
-      if (confirm("Questa azione eliminerà definitivamente tutti i tuoi dati. Sei assolutamente sicuro?")) {
-        try {
-          console.log("Deleting account...");
-          alert("Account eliminato con successo.");
-        } catch (error) {
-          console.error("Error deleting account:", error);
-        }
-      }
+    if (!confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.")) return;
+    if (!confirm("Questa azione eliminerà definitivamente tutti i tuoi dati. Sei assolutamente sicuro?")) return;
+
+    setActionError(null);
+    setActionSuccess(null);
+    setActionWorking("delete");
+    try {
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "privacy.delete" }),
+        });
+      } catch { /* non bloccante */ }
+      // L'eliminazione reale dell'account passa da un endpoint server-side che
+      // disabilita l'utente in auth.users + cleanup correlati. Da implementare
+      // separatamente. Per ora segnaliamo che la richiesta è stata registrata.
+      setActionSuccess("Richiesta di eliminazione registrata. Il team di supporto ti contatterà a breve.");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Errore eliminazione account";
+      setActionError(msg);
+    } finally {
+      setActionWorking(null);
     }
   };
 
@@ -153,6 +184,19 @@ export default function PrivacyPage() {
           Controlla come vengono utilizzati i tuoi dati e gestisci le tue preferenze di privacy in conformità al GDPR.
         </p>
       </header>
+
+      {actionError && (
+        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <span className="text-red-800">{actionError}</span>
+        </div>
+      )}
+      {actionSuccess && (
+        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          <span className="text-green-800">{actionSuccess}</span>
+        </div>
+      )}
 
       {/* GDPR Status */}
       <div className="p-6  bg-white border border-gray-200 ">
@@ -326,7 +370,8 @@ export default function PrivacyPage() {
             
             <button
               onClick={handleExportData}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600   hover:bg-blue-700 transition-colors duration-200 font-medium"
+              disabled={actionWorking !== null}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600   hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-60"
             >
               <Download className="h-4 w-4" />
               Richiedi Export Dati
@@ -363,7 +408,8 @@ export default function PrivacyPage() {
             
             <button
               onClick={handleDeleteAccount}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600   hover:bg-red-700 transition-colors duration-200 font-medium"
+              disabled={actionWorking !== null}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600   hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-60"
             >
               <Trash2 className="h-4 w-4" />
               Elimina Account

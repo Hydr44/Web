@@ -43,7 +43,7 @@ export default function DashboardPanoramica() {
           .from("profiles")
           .select("current_org")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
         
         if (!profile?.current_org) {
           setHasOrganization(false);
@@ -56,7 +56,7 @@ export default function DashboardPanoramica() {
           .from("orgs")
           .select("name")
           .eq("id", profile.current_org)
-          .single();
+          .maybeSingle();
         
         setCurrentOrg(org?.name || "Organizzazione");
         
@@ -65,7 +65,7 @@ export default function DashboardPanoramica() {
           .from("org_subscriptions")
           .select("status, plan_name, current_period_end")
           .eq("org_id", profile.current_org)
-          .single();
+          .maybeSingle();
         
         if (sub) {
           setSubscription({

@@ -125,6 +125,13 @@ export default function PasswordPage() {
         return;
       }
 
+      try {
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "password.changed" }),
+        });
+      } catch { /* non bloccante */ }
       setSuccess("Password aggiornata con successo!");
       setCurrentPassword("");
       setNewPassword("");

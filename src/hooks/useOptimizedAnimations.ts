@@ -1,65 +1,67 @@
 import { useReducedMotion } from "./useReducedMotion";
+import type { HTMLMotionProps } from "framer-motion";
+
+/**
+ * Hook che ritorna preset di animazioni framer-motion ottimizzati per perf.
+ * Le easing sono `as const` per evitare type-widening a `string`, che
+ * framer-motion non accetta nei MotionProps.
+ *
+ * Le tipizzazioni `as MotionPreset` permettono di fare `{...preset}` sui
+ * `motion.*` senza errori TS.
+ */
+type MotionPreset = Pick<HTMLMotionProps<"div">, "initial" | "animate" | "transition">;
 
 export const useOptimizedAnimations = () => {
   const prefersReducedMotion = useReducedMotion();
 
-  // Animazioni ottimizzate per performance
-  const fadeIn = {
+  const fadeIn: MotionPreset = {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" as const },
   };
 
-  const slideUp = {
+  const slideUp: MotionPreset = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.4, ease: "easeOut" }
+    transition: { duration: 0.4, ease: "easeOut" as const },
   };
 
-  const slideIn = {
+  const slideIn: MotionPreset = {
     initial: { opacity: 0, x: -20 },
     animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" as const },
   };
 
-  const scaleIn = {
+  const scaleIn: MotionPreset = {
     initial: { opacity: 0, scale: 0.95 },
     animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" as const },
   };
 
-  const staggerContainer = {
+  const staggerContainer: MotionPreset = {
     animate: {
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    } as MotionPreset["animate"],
   };
 
-  const staggerItem = {
+  const staggerItem: MotionPreset = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" as const },
   };
 
-  // Se l'utente preferisce ridotte animazioni, usa versioni semplici
   if (prefersReducedMotion) {
     return {
-      fadeIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } },
-      slideUp: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } },
-      slideIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } },
-      scaleIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } },
-      staggerContainer: { animate: { transition: { staggerChildren: 0.05 } } },
-      staggerItem: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } }
+      fadeIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } } as MotionPreset,
+      slideUp: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } } as MotionPreset,
+      slideIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } } as MotionPreset,
+      scaleIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } } as MotionPreset,
+      staggerContainer: { animate: { transition: { staggerChildren: 0.05 } } } as MotionPreset,
+      staggerItem: { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.1 } } as MotionPreset,
     };
   }
 
-  return {
-    fadeIn,
-    slideUp,
-    slideIn,
-    scaleIn,
-    staggerContainer,
-    staggerItem
-  };
+  return { fadeIn, slideUp, slideIn, scaleIn, staggerContainer, staggerItem };
 };

@@ -1,383 +1,301 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { 
-  Monitor, 
-  ArrowLeft, 
-  Smartphone, 
-  Tablet, 
-  Globe, 
-  Clock, 
-  LogOut, 
+import {
+  Monitor,
+  ArrowLeft,
+  LogOut,
   AlertTriangle,
   CheckCircle,
-  Shield,
-  MapPin,
-  Wifi
+  Smartphone,
+  RefreshCw,
 } from "lucide-react";
+
+/**
+ * Pagina sessioni attive — integrazione reale con `auth.sessions`.
+ *
+ * Sostituisce la versione mock che usava un array hardcoded.
+ * Vedi API `/api/auth/sessions/list` e `/api/auth/sessions/revoke`.
+ */
+
+interface SessionRow {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  not_after: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  aal: string | null;
+  factor_id: string | null;
+  is_current: boolean;
+}
+
+function parseUA(ua: string | null) {
+  if (!ua) return { device: "Sconosciuto", browser: "", os: "" };
+  const lower = ua.toLowerCase();
+  let device = "Desktop";
+  if (/iphone|android|mobile/.test(lower)) device = "Mobile";
+  else if (/ipad|tablet/.test(lower)) device = "Tablet";
+  let browser = "Browser";
+  if (lower.includes("firefox")) browser = "Firefox";
+  else if (lower.includes("edg/")) browser = "Edge";
+  else if (lower.includes("chrome") && !lower.includes("edg")) browser = "Chrome";
+  else if (lower.includes("safari") && !lower.includes("chrome")) browser = "Safari";
+  let os = "";
+  if (lower.includes("mac os")) os = "macOS";
+  else if (lower.includes("windows")) os = "Windows";
+  else if (lower.includes("linux") && !/android/.test(lower)) os = "Linux";
+  else if (lower.includes("android")) os = "Android";
+  else if (/iphone|ipad/.test(lower)) os = "iOS";
+  return { device, browser, os };
+}
+
+function relTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "Adesso";
+  if (min < 60) return `${min} min fa`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h fa`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}g fa`;
+  return new Date(iso).toLocaleDateString("it-IT");
+}
 
 export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
-  const [sessions, setSessions] = useState([
-    {
-      id: "session_1",
-      device: "Chrome su Mac",
-      browser: "Chrome 120.0",
-      os: "macOS 14.2",
-      location: "Milano, Italia",
-      ip: "192.168.1.100",
-      isCurrent: true,
-      lastActive: "2 ore fa",
-      createdAt: "2024-01-15T10:30:00Z",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-    },
-    {
-      id: "session_2", 
-      device: "Safari su iPhone",
-      browser: "Safari 17.2",
-      os: "iOS 17.2",
-      location: "Roma, Italia",
-      ip: "192.168.1.101",
-      isCurrent: false,
-      lastActive: "1 giorno fa",
-      createdAt: "2024-01-14T15:20:00Z",
-      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15"
-    },
-    {
-      id: "session_3",
-      device: "Firefox su Windows",
-      browser: "Firefox 121.0",
-      os: "Windows 11",
-      location: "Torino, Italia", 
-      ip: "192.168.1.102",
-      isCurrent: false,
-      lastActive: "3 giorni fa",
-      createdAt: "2024-01-12T09:15:00Z",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
-    }
-  ]);
+  const [working, setWorking] = useState<string | null>(null); // session_id in revoca o "all"
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadSessions = async () => {
-      try {
-        const supabase = supabaseBrowser();
-        
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          console.error("Error getting user:", userError);
-          setLoading(false);
-          return;
-        }
-        
-        // Carica sessioni reali dal database
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        
-        if (profile) {
-          // Per ora usiamo sessioni simulate, ma potresti implementare una tabella sessions
-          setSessions([
-            {
-              id: "session_current",
-              device: "Chrome su Mac",
-              browser: "Chrome 120.0",
-              os: "macOS 14.2",
-              location: "Milano, Italia",
-              ip: "192.168.1.100",
-              isCurrent: true,
-              lastActive: "2 ore fa",
-              createdAt: profile.updated_at || new Date().toISOString(),
-              userAgent: navigator.userAgent
-            }
-          ]);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading sessions:", error);
-        setLoading(false);
+  const refresh = useCallback(async () => {
+    setError(null);
+    try {
+      const r = await fetch("/api/auth/sessions/list");
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) {
+        setError(j.error || "Errore caricamento sessioni");
+        setSessions([]);
+        return;
       }
-    };
-
-    loadSessions();
+      setSessions(j.sessions || []);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Errore di rete");
+      setSessions([]);
+    }
   }, []);
 
-  const handleLogoutSession = async (sessionId: string) => {
-    if (confirm("Sei sicuro di voler disconnettere questa sessione?")) {
+  useEffect(() => {
+    (async () => {
+      await refresh();
+      setLoading(false);
+    })();
+  }, [refresh]);
+
+  const revoke = async (sessionId: string) => {
+    if (!confirm("Revocare questa sessione? L'utente connesso verrà disconnesso.")) return;
+    setWorking(sessionId);
+    setError(null);
+    setSuccess(null);
+    try {
+      const r = await fetch("/api/auth/sessions/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || "Errore revoca sessione");
+      setSuccess("Sessione revocata.");
+      // Audit log
       try {
-        // Qui implementeresti il logout della sessione specifica
-        console.log("Logging out session:", sessionId);
-        setSessions(prev => prev.filter(session => session.id !== sessionId));
-      } catch (error) {
-        console.error("Error logging out session:", error);
-      }
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "session.revoked", metadata: { session_id: sessionId } }),
+        });
+      } catch { /* non bloccante */ }
+      await refresh();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Errore revoca");
+    } finally {
+      setWorking(null);
     }
   };
 
-  const handleLogoutAllOtherSessions = async () => {
-    if (confirm("Sei sicuro di voler disconnettere tutte le altre sessioni? Rimarrà attiva solo questa sessione.")) {
+  const revokeAllOther = async () => {
+    if (!confirm("Revocare tutte le altre sessioni? Solo questo dispositivo resterà connesso.")) return;
+    setWorking("all");
+    setError(null);
+    setSuccess(null);
+    try {
+      const r = await fetch("/api/auth/sessions/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all_other: true }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || "Errore revoca");
+      setSuccess("Tutte le altre sessioni sono state revocate.");
       try {
-        // Qui implementeresti il logout di tutte le altre sessioni
-        console.log("Logging out all other sessions");
-        setSessions(prev => prev.filter(session => session.isCurrent));
-      } catch (error) {
-        console.error("Error logging out all sessions:", error);
-      }
-    }
-  };
-
-  const getDeviceIcon = (device: string) => {
-    if (device.includes("iPhone") || device.includes("Android")) {
-      return <Smartphone className="h-5 w-5 text-blue-500" />;
-    } else if (device.includes("iPad") || device.includes("tablet")) {
-      return <Tablet className="h-5 w-5 text-purple-500" />;
-    } else {
-      return <Monitor className="h-5 w-5 text-gray-400" />;
-    }
-  };
-
-  const getBrowserIcon = (browser: string) => {
-    if (browser.includes("Chrome")) {
-      return <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>;
-    } else if (browser.includes("Safari")) {
-      return <div className="w-4 h-4 bg-blue-600 rounded-sm"></div>;
-    } else if (browser.includes("Firefox")) {
-      return <div className="w-4 h-4 bg-orange-500 rounded-sm"></div>;
-    } else {
-      return <div className="w-4 h-4 bg-white0 rounded-sm"></div>;
+        await fetch("/api/user/audit-logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "session.revoked_all_other" }),
+        });
+      } catch { /* non bloccante */ }
+      await refresh();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Errore revoca");
+    } finally {
+      setWorking(null);
     }
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
+      <div className="space-y-6 max-w-3xl">
         <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-        </div>
+        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
+        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
       </div>
     );
   }
 
+  const otherCount = sessions.filter((s) => !s.is_current).length;
+
   return (
     <div className="space-y-8">
-      {/* Header */}
       <header>
         <div className="flex items-center gap-4 mb-6">
-          <Link 
-            href="/dashboard/security"
-            className="p-2 rounded-lg hover:bg-white transition-colors duration-200"
-          >
+          <Link href="/dashboard/security" className="p-2 rounded-lg hover:bg-white transition-colors">
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 font-medium">
               <Monitor className="h-4 w-4" />
-              Gestione Sessioni
+              Sessioni attive
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Sessioni <span className="text-blue-600">Attive</span>
+              Le tue <span className="text-blue-600">sessioni</span>
             </h1>
             <p className="text-lg text-gray-500">
-              Monitora e gestisci i dispositivi connessi al tuo account
+              Dispositivi e browser attualmente autenticati. Revoca quelli che non riconosci.
             </p>
           </div>
         </div>
       </header>
 
-      {/* Session Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Monitor className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sessioni Attive</h3>
-              <p className="text-sm text-gray-500">Dispositivi connessi</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {sessions.length}
-          </div>
+      {error && (
+        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <span className="text-red-800">{error}</span>
         </div>
+      )}
 
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sicurezza</h3>
-              <p className="text-sm text-gray-500">Stato account</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            Sicuro
-          </div>
-        </div>
-
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Ultima Attività</h3>
-              <p className="text-sm text-gray-500">Accesso recente</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            2h
-          </div>
-        </div>
-      </div>
-
-      {/* Current Session */}
-      <div className="p-6  bg-white border border-gray-200 ">
-        <div className="flex items-center gap-3 mb-4">
+      {success && (
+        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
           <CheckCircle className="h-5 w-5 text-green-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Sessione Corrente</h2>
+          <span className="text-green-800">{success}</span>
         </div>
-        <p className="text-sm text-gray-500 mb-6">
-          Questa è la sessione attualmente attiva. Non puoi disconnetterla da qui.
-        </p>
-        
-        {sessions.filter(session => session.isCurrent).map((session) => (
-          <div key={session.id} className="p-4  bg-white border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {getDeviceIcon(session.device)}
-                <div>
-                  <h3 className="font-medium text-gray-900">{session.device}</h3>
-                  <p className="text-sm text-gray-500">{session.browser} • {session.os}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <span>Attiva</span>
-                </div>
-                <p className="text-xs text-gray-400">{session.lastActive}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      )}
 
-      {/* Other Sessions */}
-      <div className="p-6  bg-white border border-gray-200 ">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Altre Sessioni</h2>
-            <p className="text-sm text-gray-500">Dispositivi connessi in precedenza</p>
-          </div>
-          
-          {sessions.filter(session => !session.isCurrent).length > 0 && (
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="text-sm text-gray-500">
+          {sessions.length} sessione{sessions.length === 1 ? "" : "i"} attive
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={refresh}
+            disabled={working !== null}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Aggiorna
+          </button>
+          {otherCount > 0 && (
             <button
-              onClick={handleLogoutAllOtherSessions}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-800 transition-colors duration-200 font-medium"
+              onClick={revokeAllOther}
+              disabled={working !== null}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors disabled:opacity-50 font-medium"
             >
               <LogOut className="h-4 w-4" />
-              Disconnetti Tutte
+              {working === "all" ? "Revoca in corso…" : `Revoca tutte le altre (${otherCount})`}
             </button>
           )}
         </div>
+      </div>
 
-        {sessions.filter(session => !session.isCurrent).length > 0 ? (
-          <div className="space-y-4">
-            {sessions.filter(session => !session.isCurrent).map((session) => (
-              <div key={session.id} className="p-4  bg-white border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    {getDeviceIcon(session.device)}
+      {sessions.length === 0 ? (
+        <div className="p-8 text-center bg-white border border-gray-200 rounded">
+          <Monitor className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500">Nessuna sessione trovata.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sessions.map((s) => {
+            const ua = parseUA(s.user_agent);
+            const isMobile = ua.device === "Mobile" || ua.device === "Tablet";
+            return (
+              <div
+                key={s.id}
+                className={`p-5 bg-white border rounded ${
+                  s.is_current ? "border-blue-300 ring-1 ring-blue-100" : "border-gray-200"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center">
+                      {isMobile ? (
+                        <Smartphone className="h-5 w-5 text-blue-600" />
+                      ) : (
+                        <Monitor className="h-5 w-5 text-blue-600" />
+                      )}
+                    </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">{session.device}</h3>
-                      <p className="text-sm text-gray-500">{session.browser} • {session.os}</p>
-                      <div className="flex items-center gap-4 mt-1">
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <MapPin className="h-3 w-3" />
-                          {session.location}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <Wifi className="h-3 w-3" />
-                          {session.ip}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <Clock className="h-3 w-3" />
-                          {session.lastActive}
-                        </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900">
+                          {ua.browser} {ua.os ? `· ${ua.os}` : ""}
+                        </h3>
+                        {s.is_current && (
+                          <span className="text-[11px] font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                            Questa sessione
+                          </span>
+                        )}
+                        {s.aal === "aal2" && (
+                          <span className="text-[11px] font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                            2FA
+                          </span>
+                        )}
                       </div>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        IP: <code className="font-mono text-xs">{s.ip || "—"}</code>
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Ultima attività: {relTime(s.updated_at)}
+                        {" · "}
+                        Creata: {relTime(s.created_at)}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-sm text-gray-500">Ultima attività</div>
-                      <div className="text-xs text-gray-400">{session.lastActive}</div>
-                    </div>
+
+                  {!s.is_current && (
                     <button
-                      onClick={() => handleLogoutSession(session.id)}
-                      className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                      onClick={() => revoke(s.id)}
+                      disabled={working !== null}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
                     >
                       <LogOut className="h-4 w-4" />
-                      Disconnetti
+                      {working === s.id ? "Revoca…" : "Revoca"}
                     </button>
-                  </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessuna altra sessione</h3>
-            <p className="text-sm text-gray-500">Non ci sono altre sessioni attive al momento.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Security Tips */}
-      <div className="p-6  bg-white border border-gray-200 ">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Disconnetti sempre da dispositivi condivisi</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Monitora regolarmente le sessioni attive</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Disconnetti sessioni sospette immediatamente</span>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Usa sempre HTTPS per le connessioni</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Abilita l'autenticazione a due fattori</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Aggiorna regolarmente i tuoi dispositivi</span>
-            </div>
-          </div>
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 }

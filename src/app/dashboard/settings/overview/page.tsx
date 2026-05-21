@@ -29,11 +29,16 @@ export default function SettingsOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [orgData, setOrgData] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<{
+    totalSettings: number;
+    configuredSettings: number;
+    securityScore: number;
+    lastActivity: string | null;
+  }>({
     totalSettings: 0,
     configuredSettings: 0,
     securityScore: 0,
-    lastActivity: null
+    lastActivity: null,
   });
 
   useEffect(() => {
@@ -53,21 +58,23 @@ export default function SettingsOverviewPage() {
           .from("profiles")
           .select("*")
           .eq("id", user.id)
-          .single();
-        
+          .maybeSingle();
+
         if (profile) {
           setUserData(profile);
         }
 
-        // Carica dati organizzazione
-        const { data: org } = await supabase
-          .from("orgs")
-          .select("*")
-          .eq("id", profile?.current_org)
-          .single();
-        
-        if (org) {
-          setOrgData(org);
+        // Carica dati organizzazione (solo se profile.current_org esiste)
+        if (profile?.current_org) {
+          const { data: org } = await supabase
+            .from("orgs")
+            .select("*")
+            .eq("id", profile.current_org)
+            .maybeSingle();
+
+          if (org) {
+            setOrgData(org);
+          }
         }
 
         // Calcola statistiche
@@ -75,7 +82,7 @@ export default function SettingsOverviewPage() {
           totalSettings: 25,
           configuredSettings: 18,
           securityScore: 85,
-          lastActivity: new Date()
+          lastActivity: new Date().toISOString()
         });
         
         setLoading(false);

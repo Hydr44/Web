@@ -38,10 +38,10 @@ export default function SettingsClient({
   const [locale, setLocale] = useState(initialProfile?.locale ?? "it-IT");
   const [tz, setTz] = useState(initialProfile?.timezone ?? "Europe/Rome");
   const [notifBilling, setNotifBilling] = useState<boolean>(
-    initialProfile?.notifications?.billing ?? true
+    Boolean(initialProfile?.notifications?.billing ?? true)
   );
   const [notifAlerts, setNotifAlerts] = useState<boolean>(
-    initialProfile?.notifications?.alerts ?? true
+    Boolean(initialProfile?.notifications?.alerts ?? true)
   );
 
   // sicurezza
@@ -93,11 +93,13 @@ export default function SettingsClient({
       return;
     }
     startTransition(async () => {
+      // NB: emailRedirectTo è secondo argomento posizionale di updateUser
+      // (UserAttributes non accetta `options`).
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const { error } = await supabase.auth.updateUser({
-        email: newEmail,
-        options: { emailRedirectTo: `${origin}/dashboard/settings` },
-      });
+      const { error } = await supabase.auth.updateUser(
+        { email: newEmail },
+        { emailRedirectTo: `${origin}/dashboard/settings` }
+      );
       if (error) {
         setErr(error.message);
       } else {
