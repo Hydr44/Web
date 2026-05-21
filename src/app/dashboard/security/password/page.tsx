@@ -13,7 +13,6 @@ import {
   Shield, 
   Clock,
   Save,
-  X
 } from "lucide-react";
 
 export default function PasswordPage() {
@@ -79,8 +78,20 @@ export default function PasswordPage() {
     setError(null);
     setSuccess(null);
 
+    if (!currentPassword) {
+      setError("Inserisci la password attuale");
+      setSaving(false);
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("Le password non coincidono");
+      setSaving(false);
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setError("La nuova password deve essere diversa dall'attuale");
       setSaving(false);
       return;
     }
@@ -92,11 +103,22 @@ export default function PasswordPage() {
     }
 
     try {
-      const supabase = supabaseBrowser();
-      
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
+      // 1. Verifica la password attuale lato server (Supabase updateUser non
+      //    la richiede: chiunque con la sessione potrebbe cambiarla altrimenti).
+      const verifyRes = await fetch("/api/auth/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: currentPassword }),
       });
+      const verifyJson = await verifyRes.json().catch(() => ({}));
+      if (!verifyRes.ok || !verifyJson.ok) {
+        setError(verifyJson.error || "Password attuale non corretta");
+        return;
+      }
+
+      // 2. Aggiornamento password
+      const supabase = supabaseBrowser();
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
 
       if (error) {
         setError(error.message);
@@ -107,7 +129,12 @@ export default function PasswordPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setLastChanged("Ora");
+      // Ricarica updated_at dell'utente per riflettere il cambio nel "Ultimo cambio"
+      const { data: { user: fresh } } = await supabase.auth.getUser();
+      if (fresh?.updated_at) {
+        const diffDays = Math.floor((Date.now() - new Date(fresh.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+        setLastChanged(diffDays === 0 ? "Oggi" : `${diffDays} giorni fa`);
+      }
     } catch (error) {
       console.error("Error changing password:", error);
       setError("Errore durante l'aggiornamento della password");
@@ -239,6 +266,7 @@ export default function PasswordPage() {
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Inserisci la password attuale"
+                  autoComplete="current-password"
                   required
                 />
                 <button
@@ -262,6 +290,7 @@ export default function PasswordPage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Inserisci la nuova password"
+                  autoComplete="new-password"
                   required
                 />
                 <button
@@ -305,6 +334,7 @@ export default function PasswordPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
                   placeholder="Conferma la nuova password"
+                  autoComplete="new-password"
                   required
                 />
                 <button
@@ -324,7 +354,7 @@ export default function PasswordPage() {
             <div className="flex items-center gap-4">
               <button
                 type="submit"
-                disabled={saving || passwordStrength < 60 || newPassword !== confirmPassword}
+                disabled={saving || passwordStrength < 60 || newPassword !== confirmPassword || !currentPassword}
                 className="flex items-center gap-2 px-6 py-3 bg-primary text-gray-900  hover:bg-primary/90 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
@@ -332,6 +362,7 @@ export default function PasswordPage() {
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
+                {saving ? "Aggiornamento..." : "Cambia password"}
               </button>
             </div>
           </form>
