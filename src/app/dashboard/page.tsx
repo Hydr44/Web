@@ -161,11 +161,11 @@ export default function DashboardPanoramica() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              href="/dashboard/create-org"
+              href="/onboarding"
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600  font-bold text-sm hover:bg-blue-700 transition-colors"
             >
               <Building2 className="h-4 w-4" />
-              Crea Organizzazione
+              Inizia l&apos;onboarding
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -255,7 +255,7 @@ export default function DashboardPanoramica() {
             { href: "/dashboard/support", icon: HeadphonesIcon, title: "Supporto", desc: "Richiedi assistenza tecnica" },
             { href: "/dashboard/org", icon: Building2, title: "Organizzazione", desc: "Visualizza e modifica dati aziendali" },
             { href: "/dashboard/security", icon: ShieldIcon, title: "Sicurezza", desc: "Password, 2FA e sessioni attive" },
-            { href: "/dashboard/settings", icon: Settings, title: "Impostazioni", desc: "Preferenze account e notifiche" },
+            { href: "/dashboard/settings/notifications", icon: Settings, title: "Notifiche", desc: "Preferenze email e in-app" },
           ].map((a) => (
             <Link key={a.href} href={a.href} className="flex items-center p-4 border border-gray-200 bg-white hover:bg-gray-50 transition-colors group">
               <div className="w-9 h-9 flex items-center justify-center mr-3 bg-gray-50 border border-gray-200">
