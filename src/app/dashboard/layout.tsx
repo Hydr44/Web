@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
+import PageTransition from "@/components/dashboard/PageTransition";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function DashboardLayout({
@@ -209,7 +210,7 @@ export default function DashboardLayout({
   return (
     <DashboardShell userEmail={userEmail} orgName={orgName}>
       <Breadcrumbs />
-      {children}
+      <PageTransition>{children}</PageTransition>
     </DashboardShell>
   );
 }
