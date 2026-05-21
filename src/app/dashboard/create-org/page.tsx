@@ -21,6 +21,7 @@ import {
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useOptimizedAnimations } from "@/hooks/useOptimizedAnimations";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { isValidPIVA } from "@/lib/it-fiscal";
 
 export default function CreateOrgPage() {
   const [loading, setLoading] = useState(false);
@@ -59,40 +60,28 @@ export default function CreateOrgPage() {
     loadUser();
   }, []);
 
-  // Funzione per suggerimenti indirizzo (mock - in produzione usare API geocoding)
-  const handleAddressSearch = async (query: string) => {
-    if (query.length < 3) return;
-    
-    // Mock suggerimenti - in produzione usare API come Google Places
-    const mockSuggestions = [
-      `${query}, Roma, RM`,
-      `${query}, Milano, MI`,
-      `${query}, Napoli, NA`,
-      `${query}, Torino, TO`,
-      `${query}, Firenze, FI`
-    ];
-    
-    setAddressSuggestions(mockSuggestions);
-    setShowAddressSuggestions(true);
+  // Autocomplete indirizzo: disabilitato finché non è configurato un provider
+  // geocoding reale (Google Places / Geoapify / cap.openapi.it).
+  // I "suggerimenti" mock sono fuorvianti — preferisco input libero.
+  const handleAddressSearch = async (_query: string) => {
+    setAddressSuggestions([]);
+    setShowAddressSuggestions(false);
   };
 
-  // Funzione per calcolo Codice Fiscale (semplificata)
+  // Codice fiscale azienda (Italia): coincide con la P.IVA (11 cifre).
+  // Per persone fisiche serve un'API esterna (luogo/data di nascita).
+  // Qui copiamo il CF dalla P.IVA se valida (checksum AdE).
   const calculateCodiceFiscale = async () => {
-    if (!formData.name) {
-      setError("Inserisci il nome dell'organizzazione per calcolare il Codice Fiscale");
-      return;
-    }
-
     setCalculatingCF(true);
-    
     try {
-      // Mock calcolo CF - in produzione usare API specifica
-      const name = formData.name.toUpperCase().replace(/[^A-Z]/g, '');
-      const mockCF = name.substring(0, 6) + '80A01H501S'; // Esempio
-      
-      setFormData(prev => ({ ...prev, taxCode: mockCF }));
-    } catch (error) {
-      setError("Errore nel calcolo del Codice Fiscale");
+      const piva = (formData.vat || "").replace(/\s/g, "");
+      if (isValidPIVA(piva)) {
+        setFormData((prev) => ({ ...prev, taxCode: piva }));
+        return;
+      }
+      setError(
+        "Inserisci una Partita IVA valida (11 cifre con checksum) — per le aziende il Codice Fiscale coincide con la P.IVA."
+      );
     } finally {
       setCalculatingCF(false);
     }
@@ -120,6 +109,20 @@ export default function CreateOrgPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validazione P.IVA e CF (se inseriti) prima di chiamare l'API
+    const vat = (formData.vat || "").replace(/\s/g, "");
+    if (vat && !isValidPIVA(vat)) {
+      setError("Partita IVA non valida (11 cifre con checksum AdE)");
+      setLoading(false);
+      return;
+    }
+    const cf = (formData.taxCode || "").replace(/\s/g, "");
+    if (cf && cf !== vat && !/^\d{11}$/.test(cf) && !/^[A-Z0-9]{16}$/i.test(cf)) {
+      setError("Codice Fiscale non valido (11 cifre azienda o 16 char persona fisica)");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Usa l'API route per creare l'organizzazione

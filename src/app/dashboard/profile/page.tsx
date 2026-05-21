@@ -19,7 +19,8 @@ import {
   Shield,
   CheckCircle,
   AlertTriangle,
-  Database
+  Database,
+  Lock,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -93,9 +94,9 @@ export default function ProfilePage() {
           });
         }
         
-        setLoading(false);
       } catch (error) {
         console.error("Error loading user data:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -265,11 +266,20 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-gray-600 mb-2">
                   Email
                 </label>
-                <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  {userData.email}
+                <div
+                  className="px-4 py-3 bg-gray-100 border border-gray-200 rounded text-gray-700 flex items-center justify-between gap-2 cursor-not-allowed"
+                  title="L'email non può essere modificata dal profilo"
+                  aria-readonly="true"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Mail className="h-4 w-4 text-gray-400 shrink-0" />
+                    <span className="truncate">{userData.email}</span>
+                  </div>
+                  <Lock className="h-3.5 w-3.5 text-gray-400 shrink-0" />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">L'email non può essere modificata</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  L&apos;email è gestita da Supabase Auth. Per cambiarla apri un ticket di supporto.
+                </p>
               </div>
 
               <div>
@@ -280,9 +290,19 @@ export default function ProfilePage() {
                   <input
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        // accetta solo cifre, +, -, spazio (max 20 caratteri)
+                        phone: e.target.value.replace(/[^\d+\s-]/g, "").slice(0, 20),
+                      }))
+                    }
                     className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="+39 123 456 7890"
+                    pattern="[+0-9][0-9\s\-]{6,19}"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    title="Numero di telefono valido (es. +39 333 1234567)"
                   />
                 ) : (
                   <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
