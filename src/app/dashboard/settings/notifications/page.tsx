@@ -13,6 +13,7 @@ import {
   CheckCircle,
   AlertTriangle,
 } from "lucide-react";
+import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
 
 /**
  * Preferenze notifiche utente (email + in-app).
@@ -141,13 +142,7 @@ export default function NotificationsSettingsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg animate-pulse" />
-      </div>
-    );
+    return <SkeletonPage variant="form" />;
   }
 
   if (!prefs) {
