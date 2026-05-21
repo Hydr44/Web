@@ -179,26 +179,22 @@ export default function PasswordPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <header>
-        <div className="flex items-center gap-4 mb-6">
-          <Link 
-            href="/dashboard/security"
-            className="p-2 rounded-lg hover:bg-white transition-colors duration-200"
-          >
-            <ArrowLeft className="h-5 w-5 text-gray-500" />
-          </Link>
-          <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
-              <Key className="h-4 w-4" />
-              Gestione Password
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Cambia <span className="text-blue-600">Password</span>
-            </h1>
-            <p className="text-lg text-gray-500">
-              Aggiorna la tua password per mantenere il tuo account sicuro
-            </p>
+      <header className="flex items-start gap-3">
+        <Link
+          href="/dashboard/security"
+          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
+            <Key className="h-3.5 w-3.5" />
+            Gestione password
           </div>
+          <h1 className="text-2xl font-semibold text-gray-900">Cambia password</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Aggiorna la tua password per mantenere l&apos;account sicuro.
+          </p>
         </div>
       </header>
 
@@ -362,7 +358,7 @@ export default function PasswordPage() {
               <button
                 type="submit"
                 disabled={saving || passwordStrength < 60 || newPassword !== confirmPassword || !currentPassword}
-                className="flex items-center gap-2 px-6 py-3 bg-primary text-gray-900  hover:bg-primary/90 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white  hover:bg-gray-800 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

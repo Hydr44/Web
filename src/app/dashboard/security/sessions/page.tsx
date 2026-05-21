@@ -167,23 +167,22 @@ export default function SessionsPage() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <div className="flex items-center gap-4 mb-6">
-          <Link href="/dashboard/security" className="p-2 rounded-lg hover:bg-white transition-colors">
-            <ArrowLeft className="h-5 w-5 text-gray-500" />
-          </Link>
-          <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 font-medium">
-              <Monitor className="h-4 w-4" />
-              Sessioni attive
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Le tue <span className="text-blue-600">sessioni</span>
-            </h1>
-            <p className="text-lg text-gray-500">
-              Dispositivi e browser attualmente autenticati. Revoca quelli che non riconosci.
-            </p>
+      <header className="flex items-start gap-3">
+        <Link
+          href="/dashboard/security"
+          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
+            <Monitor className="h-3.5 w-3.5" />
+            Sessioni attive
           </div>
+          <h1 className="text-2xl font-semibold text-gray-900">Le tue sessioni</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Dispositivi e browser attualmente autenticati. Revoca quelli che non riconosci.
+          </p>
         </div>
       </header>
 

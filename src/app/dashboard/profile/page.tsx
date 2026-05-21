@@ -206,7 +206,7 @@ export default function ProfilePage() {
                   {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
                 </div>
                 {editing && (
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-gray-900 rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors duration-200">
+                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors duration-200">
                     <Camera className="h-4 w-4" />
                   </button>
                 )}

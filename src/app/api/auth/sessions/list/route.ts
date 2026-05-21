@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
 /**
  * GET /api/auth/sessions/list
- * Ritorna le sessioni attive dell'utente in sessione (lette da auth.sessions
- * via service role). La sessione "corrente" è marcata via match con il
- * session_id dal cookie attivo.
  *
- * Nota: auth.sessions è gestito da Supabase. Schema (sintetico):
- *   id uuid, user_id uuid, factor_id, aal, not_after, created_at, updated_at,
- *   ip inet (nullable), user_agent text (nullable)
+ * Lista le sessioni attive dell'utente in sessione.
+ *
+ * Implementazione: chiama la funzione `public.list_my_sessions()` SECURITY
+ * DEFINER (vedi migration 20260521_user_sessions_rpc.sql). Il REST di
+ * Supabase non espone lo schema `auth`, quindi non si può leggere
+ * `auth.sessions` direttamente — la funzione fa da proxy filtrando per
+ * `auth.uid()`.
+ *
+ * La sessione "corrente" è identificata via match con il session_id
+ * presente nel token (best-effort).
  */
 export async function GET(request: Request) {
   const origin = request.headers.get('origin');
@@ -25,19 +28,11 @@ export async function GET(request: Request) {
       );
     }
 
-    // L'id della sessione corrente, se esposto dal token.
+    // Best-effort: l'id della sessione corrente dal token (per marcare is_current).
     const { data: { session } } = await supabase.auth.getSession();
     const currentSessionId = (session as unknown as { id?: string } | null)?.id ?? null;
 
-    // Query auth.sessions via service role.
-    const { data, error } = await supabaseAdmin
-      .schema('auth')
-      .from('sessions')
-      .select('id, created_at, updated_at, not_after, ip, user_agent, aal, factor_id')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
-      .limit(50);
-
+    const { data, error } = await supabase.rpc('list_my_sessions');
     if (error) {
       return NextResponse.json(
         { ok: false, error: error.message },
@@ -45,15 +40,19 @@ export async function GET(request: Request) {
       );
     }
 
-    const sessions = (data || []).map((s) => ({
-      id: s.id as string,
-      created_at: s.created_at as string,
-      updated_at: s.updated_at as string,
-      not_after: s.not_after as string | null,
-      ip: s.ip as string | null,
-      user_agent: s.user_agent as string | null,
-      aal: s.aal as string | null,
-      factor_id: s.factor_id as string | null,
+    const sessions = (data || []).map((s: {
+      id: string; created_at: string; updated_at: string;
+      not_after: string | null; ip: string | null; user_agent: string | null;
+      aal: string | null; factor_id: string | null;
+    }) => ({
+      id: s.id,
+      created_at: s.created_at,
+      updated_at: s.updated_at,
+      not_after: s.not_after,
+      ip: s.ip,
+      user_agent: s.user_agent,
+      aal: s.aal,
+      factor_id: s.factor_id,
       is_current: !!currentSessionId && s.id === currentSessionId,
     }));
 

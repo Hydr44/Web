@@ -16,7 +16,6 @@ import {
   Bell,
   FileText,
   CreditCard,
-  Plug,
   Download,
 } from "lucide-react";
 import * as React from "react";
@@ -44,14 +43,7 @@ const NAV: Item[] = [
       { label: "Notifiche", href: "/dashboard/settings/notifications", icon: Bell },
     ],
   },
-  {
-    label: "Organizzazione",
-    icon: Building2,
-    children: [
-      { label: "Panoramica", href: "/dashboard/org", icon: Building2 },
-      { label: "Integrazioni", href: "/dashboard/integrations", icon: Plug },
-    ],
-  },
+  { label: "Organizzazione", href: "/dashboard/org", icon: Building2 },
   {
     label: "Fatturazione",
     icon: Wallet,

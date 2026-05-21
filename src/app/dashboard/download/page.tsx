@@ -187,20 +187,17 @@ export default function DashboardDownloadPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <header className="flex items-start justify-between flex-wrap gap-4">
+      <header className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 font-medium">
-            <ArrowDownToLine className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
+            <ArrowDownToLine className="h-3.5 w-3.5" />
             Download applicazioni
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-            Scarica <span className="text-blue-600">RescueManager</span>
-          </h1>
-          <p className="text-lg text-gray-500 max-w-2xl">
-            Installa l&apos;app desktop sul tuo computer. Gli aggiornamenti
-            successivi arrivano <strong>automaticamente in-app</strong>: serve
-            scaricare manualmente solo per il primo setup o su un nuovo
-            dispositivo.
+          <h1 className="text-2xl font-semibold text-gray-900">Scarica RescueManager</h1>
+          <p className="text-sm text-gray-500 mt-1 max-w-2xl">
+            Installa l&apos;app desktop. Gli aggiornamenti successivi arrivano
+            automaticamente in-app: scarica manualmente solo per il primo setup
+            o su un nuovo dispositivo.
           </p>
         </div>
         <button

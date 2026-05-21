@@ -44,7 +44,7 @@ function PaymentMethodsContent() {
 
             <a
               href="/api/billing/portal?return=/dashboard/payment-methods"
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-gray-900 text-sm font-medium hover:bg-primary/90 transition-colors"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
             >
               <ExternalLink className="h-4 w-4" />
               Apri portale Stripe
