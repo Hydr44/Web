@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 
 /**
  * POST /api/auth/sessions/revoke
  * Body: { session_id?: string, all_other?: boolean }
  *
- * Revoca una specifica sessione dell'utente, oppure tutte tranne la corrente
- * se `all_other:true`. Implementato via `supabase.auth.admin.signOut(jwt)`
- * non è disponibile per session_id direttamente, quindi eliminiamo le righe
- * in `auth.sessions` (Supabase invalida i token quando la sessione è rimossa).
- *
- * Solo le sessioni dell'utente in sessione possono essere revocate.
+ * Usa le funzioni SECURITY DEFINER `public.revoke_my_session(uuid)` e
+ * `public.revoke_my_other_sessions()` (vedi migration
+ * 20260521_user_sessions_rpc.sql). Le funzioni filtrano per `auth.uid()`
+ * quindi un utente non può revocare sessioni altrui.
  */
 export async function POST(request: Request) {
   const origin = request.headers.get('origin');
@@ -29,21 +26,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const currentSessionId = (session as unknown as { id?: string } | null)?.id ?? null;
-
     if (all_other) {
-      // Elimina tutte le sessioni dell'utente eccetto quella corrente.
-      let q = supabaseAdmin.schema('auth').from('sessions').delete().eq('user_id', user.id);
-      if (currentSessionId) q = q.neq('id', currentSessionId);
-      const { error } = await q;
+      const { data, error } = await supabase.rpc('revoke_my_other_sessions');
       if (error) {
         return NextResponse.json(
           { ok: false, error: error.message },
           { status: 500, headers: corsHeaders(origin) }
         );
       }
-      return NextResponse.json({ ok: true }, { headers: corsHeaders(origin) });
+      return NextResponse.json(
+        { ok: true, revoked_count: data ?? 0 },
+        { headers: corsHeaders(origin) }
+      );
     }
 
     if (!session_id || typeof session_id !== 'string') {
@@ -53,39 +47,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verifica che la sessione appartenga all'utente prima di eliminarla.
-    const { data: own, error: chkErr } = await supabaseAdmin
-      .schema('auth')
-      .from('sessions')
-      .select('id')
-      .eq('id', session_id)
-      .eq('user_id', user.id)
-      .maybeSingle();
-    if (chkErr) {
+    const { data, error } = await supabase.rpc('revoke_my_session', {
+      p_session_id: session_id,
+    });
+    if (error) {
+      // codice 42501 = forbidden (sessione di altri utenti)
+      const status = error.code === '42501' ? 403 : 500;
       return NextResponse.json(
-        { ok: false, error: chkErr.message },
-        { status: 500, headers: corsHeaders(origin) }
+        { ok: false, error: error.message },
+        { status, headers: corsHeaders(origin) }
       );
     }
-    if (!own) {
+    if (data === false) {
       return NextResponse.json(
         { ok: false, error: 'Sessione non trovata' },
         { status: 404, headers: corsHeaders(origin) }
       );
     }
-
-    const { error: delErr } = await supabaseAdmin
-      .schema('auth')
-      .from('sessions')
-      .delete()
-      .eq('id', session_id);
-    if (delErr) {
-      return NextResponse.json(
-        { ok: false, error: delErr.message },
-        { status: 500, headers: corsHeaders(origin) }
-      );
-    }
-
     return NextResponse.json({ ok: true }, { headers: corsHeaders(origin) });
   } catch (e: unknown) {
     console.error('[sessions/revoke] error:', e);

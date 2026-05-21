@@ -171,17 +171,13 @@ export default function PrivacyPage() {
     <div className="space-y-8">
       {/* Header */}
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-6 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
-          <Database className="h-4 w-4" />
-          Centro Privacy
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          <Database className="h-3.5 w-3.5" />
+          Centro privacy
         </div>
-        
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-          Privacy & <span className="text-blue-600">Dati</span>
-        </h1>
-        
-        <p className="text-lg text-gray-500 max-w-2xl">
-          Controlla come vengono utilizzati i tuoi dati e gestisci le tue preferenze di privacy in conformità al GDPR.
+        <h1 className="text-2xl font-semibold text-gray-900">Privacy &amp; dati</h1>
+        <p className="text-sm text-gray-500 mt-1 max-w-2xl">
+          Controlla come vengono utilizzati i tuoi dati e gestisci le preferenze in conformità al GDPR.
         </p>
       </header>
 
@@ -199,14 +195,14 @@ export default function PrivacyPage() {
       )}
 
       {/* GDPR Status */}
-      <div className="p-6  bg-white border border-gray-200 ">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10  bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-            <Shield className="h-5 w-5 text-gray-900" />
+      <div className="p-5 bg-white border border-gray-200 rounded">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-9 h-9 rounded bg-emerald-50 flex items-center justify-center">
+            <Shield className="h-4 w-4 text-emerald-700" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Conformità GDPR</h2>
-            <p className="text-sm text-gray-500">I tuoi diritti sulla privacy sono protetti</p>
+            <h2 className="text-sm font-semibold text-gray-900">Conformità GDPR</h2>
+            <p className="text-xs text-gray-500">I tuoi diritti sulla privacy sono protetti</p>
           </div>
         </div>
         

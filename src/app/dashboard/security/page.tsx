@@ -190,119 +190,118 @@ export default function SecurityPage() {
       </header>
 
       {/* Security Score */}
-      <div className="p-6 bg-white border border-gray-200 rounded-lg">
+      <div className="p-5 bg-white border border-gray-200 rounded">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Shield className="h-5 w-5 " />
+            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-gray-700" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Score Sicurezza</h2>
-              <p className="text-sm text-gray-500">Valutazione generale della sicurezza</p>
+              <h2 className="text-sm font-semibold text-gray-900">Score sicurezza</h2>
+              <p className="text-xs text-gray-500">Valutazione generale del tuo account</p>
             </div>
           </div>
-          <div className={`text-3xl font-bold ${getSecurityScoreColor(securityData.securityScore)}`}>
+          <div className={`text-2xl font-semibold tabular-nums ${getSecurityScoreColor(securityData.securityScore)}`}>
             {securityData.securityScore}%
           </div>
         </div>
-        
-        <div className="w-full bg-gray-50 rounded-full h-3 mb-4">
-          <div 
-            className={`h-3 rounded-full transition-all duration-500 ${
-              securityData.securityScore >= 80 ? 'bg-emerald-500/100' : 
-              securityData.securityScore >= 60 ? 'bg-amber-500/100' : 'bg-red-500'
+
+        <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
+          <div
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              securityData.securityScore >= 80 ? 'bg-emerald-500' :
+              securityData.securityScore >= 60 ? 'bg-amber-500' : 'bg-red-500'
             }`}
             style={{ width: `${securityData.securityScore}%` }}
-          ></div>
+          />
         </div>
-        
-        <p className="text-sm text-gray-500">
-          {securityData.securityScore >= 80 ? "Ottimo! Il tuo account è ben protetto." : 
-           securityData.securityScore >= 60 ? "Buono, ma puoi migliorare la sicurezza." : 
-           "Attenzione! La sicurezza del tuo account necessita di miglioramenti."}
+
+        <p className="text-xs text-gray-500">
+          {securityData.securityScore >= 80 ? "Ottimo: il tuo account è ben protetto." :
+           securityData.securityScore >= 60 ? "Buono — puoi ancora migliorare." :
+           "Attenzione: la sicurezza necessita di miglioramenti."}
         </p>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Quick Actions — tiles uniformi, neutre */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         <Link
           href="/dashboard/security/password"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
+          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Key className="h-5 w-5 " />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+              <Key className="h-4 w-4 text-gray-700" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Password</h3>
-              <p className="text-sm text-gray-500">Gestisci password</p>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-gray-900">Password</h3>
+              <p className="text-xs text-gray-500">Cambia la password</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Ultimo cambio: 1 giorno fa</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-xs text-gray-500">Gestione credenziali</span>
+            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/2fa"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
+          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-emerald-600 flex items-center justify-center">
-              <Smartphone className="h-5 w-5 text-gray-900" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+              <Smartphone className="h-4 w-4 text-gray-700" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">2FA</h3>
-              <p className="text-sm text-gray-500">Autenticazione a due fattori</p>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-gray-900">2FA</h3>
+              <p className="text-xs text-gray-500">Due fattori (TOTP)</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className={`text-sm ${securityData.twoFactorEnabled ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`text-xs font-medium ${securityData.twoFactorEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
               {securityData.twoFactorEnabled ? 'Abilitato' : 'Non abilitato'}
             </span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/sessions"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
+          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-100 flex items-center justify-center">
-              <Monitor className="h-5 w-5 text-gray-900" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+              <Monitor className="h-4 w-4 text-gray-700" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sessioni</h3>
-              <p className="text-sm text-gray-500">Dispositivi attivi</p>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-gray-900">Sessioni</h3>
+              <p className="text-xs text-gray-500">Dispositivi attivi</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">{securityData.activeSessions} dispositivi</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-xs text-gray-500">{securityData.activeSessions} dispositivi</span>
+            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
 
         <Link
           href="/dashboard/security/audit"
-          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
+          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-amber-50 text-amber-700 flex items-center justify-center rounded-xl border border-amber-100">
-              <Shield className="h-5 w-5" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-gray-700" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Audit log</h3>
-              <p className="text-sm text-gray-500">Eventi account</p>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-gray-900">Audit log</h3>
+              <p className="text-xs text-gray-500">Eventi account</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Login, password, 2FA, sessioni</span>
-            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+            <span className="text-xs text-gray-500">Login · password · 2FA</span>
+            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
-
       </div>
 
       {/* Security Progress */}

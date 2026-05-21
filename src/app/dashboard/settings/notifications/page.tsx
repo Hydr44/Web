@@ -161,15 +161,14 @@ export default function NotificationsSettingsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 font-medium">
-          <Bell className="h-4 w-4" />
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          <Bell className="h-3.5 w-3.5" />
           Notifiche
         </div>
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-          Preferenze <span className="text-blue-600">notifiche</span>
-        </h1>
-        <p className="text-lg text-gray-500">
-          Scegli quali email vuoi ricevere e quali notifiche mostrare in-app.
+        <h1 className="text-2xl font-semibold text-gray-900">Preferenze notifiche</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Scegli quali email ricevere e quali notifiche mostrare in-app. Le preferenze
+          sono condivise tra dashboard web e app desktop.
         </p>
       </header>
 
@@ -189,7 +188,7 @@ export default function NotificationsSettingsPage() {
       {/* Email */}
       <section className="p-6 bg-white border border-gray-200 rounded">
         <div className="flex items-center gap-2 mb-5">
-          <Mail className="h-5 w-5 text-blue-600" />
+          <Mail className="h-4 w-4 text-gray-600" />
           <h2 className="text-xl font-semibold text-gray-900">Email</h2>
         </div>
         <ul className="divide-y divide-gray-100">
@@ -198,8 +197,8 @@ export default function NotificationsSettingsPage() {
             const on = !!prefs.email_notifications[f.key] || f.locked;
             return (
               <li key={f.key} className="py-3 flex items-center gap-4">
-                <div className="w-9 h-9 rounded bg-blue-50 flex items-center justify-center shrink-0">
-                  <Icon className="h-4 w-4 text-blue-600" />
+                <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center shrink-0">
+                  <Icon className="h-4 w-4 text-gray-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -219,7 +218,7 @@ export default function NotificationsSettingsPage() {
                   disabled={f.locked}
                   onClick={() => toggleEmail(f.key)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                    on ? "bg-blue-600" : "bg-gray-300"
+                    on ? "bg-gray-900" : "bg-gray-300"
                   }`}
                 >
                   <span
@@ -237,7 +236,7 @@ export default function NotificationsSettingsPage() {
       {/* In-app */}
       <section className="p-6 bg-white border border-gray-200 rounded">
         <div className="flex items-center gap-2 mb-5">
-          <Bell className="h-5 w-5 text-blue-600" />
+          <Bell className="h-4 w-4 text-gray-600" />
           <h2 className="text-xl font-semibold text-gray-900">In-app</h2>
         </div>
         <ul className="divide-y divide-gray-100">
@@ -255,7 +254,7 @@ export default function NotificationsSettingsPage() {
                   aria-checked={on}
                   onClick={() => toggleInApp(f.key)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    on ? "bg-blue-600" : "bg-gray-300"
+                    on ? "bg-gray-900" : "bg-gray-300"
                   }`}
                 >
                   <span
@@ -274,7 +273,7 @@ export default function NotificationsSettingsPage() {
         <button
           onClick={save}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 bg-primary text-gray-900 rounded hover:bg-primary/90 transition-colors font-medium disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors font-medium disabled:opacity-50"
         >
           {saving ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
