@@ -54,12 +54,14 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com",
-              "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://ienzdgrqalltvkdkuamp.supabase.co wss://ienzdgrqalltvkdkuamp.supabase.co",
-              "frame-src 'self' https://vercel.live",
+              // script-src: + help widget Chatwoot/Crisp self-hosted su help.* + GA collector
+              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live https://help.rescuemanager.eu https://*.google-analytics.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://help.rescuemanager.eu",
+              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com https://help.rescuemanager.eu https://*.google-analytics.com",
+              "font-src 'self' data: https://fonts.gstatic.com https://help.rescuemanager.eu",
+              // connect-src: + GA regional collectors (region1/2/.../analytics.google.com) + help widget WS
+              "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://ienzdgrqalltvkdkuamp.supabase.co wss://ienzdgrqalltvkdkuamp.supabase.co https://help.rescuemanager.eu wss://help.rescuemanager.eu",
+              "frame-src 'self' https://vercel.live https://help.rescuemanager.eu",
               "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'none'",

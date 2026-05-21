@@ -42,6 +42,27 @@ export default function SiteHeader() {
     return () => globalThis.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Chiudi dropdown "Funzionalità" al cambio di route + Escape + click fuori.
+  // Previene casi in cui il dropdown resta open dopo navigazione e copre
+  // visivamente i link vicini.
+  useEffect(() => {
+    setProdottoOpen(false);
+  }, [pathname]);
+  useEffect(() => {
+    if (!prodottoOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setProdottoOpen(false); };
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && !t.closest("[data-prodotto-dropdown]")) setProdottoOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("click", onClick);
+    };
+  }, [prodottoOpen]);
+
   // Auth state management
   useEffect(() => {
     // Inizializza auth manager
@@ -199,6 +220,7 @@ export default function SiteHeader() {
 
             {/* Funzionalità dropdown */}
             <div
+              data-prodotto-dropdown
               className="relative"
               onMouseEnter={() => {
                 if (hoverTimeout) clearTimeout(hoverTimeout);
