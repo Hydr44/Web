@@ -1,50 +1,90 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
 /**
- * Middleware: gestisce solo CORS per le API staff e redirect del subdominio staff.
- * La manutenzione del sito web è gestita nel root layout.tsx (Server Component, Node.js runtime).
+ * Middleware: CORS per /api/staff/*, AUTH per /api/staff/admin/*, redirect
+ * del sotto-dominio staff. La manutenzione del sito web e' gestita nel root
+ * layout.tsx (Server Component, Node.js runtime).
+ *
+ * AUTH: tutte le route admin (eccetto OPTIONS) richiedono un JWT staff
+ * valido nell'header Authorization. La verifica usa `jose` (Edge-compatibile);
+ * il check "staff.is_active" eventuale resta nelle route che gia' lo fanno
+ * (qui ci limitiamo a firma+scadenza JWT). Senza questo middleware le 70+
+ * route admin erano leggibili/scrivibili da chiunque conoscesse l'URL.
  */
-export function middleware(request: NextRequest) {
+const STAFF_JWT_SECRET = new TextEncoder().encode(
+  process.env.STAFF_JWT_SECRET || process.env.ADMIN_SECRET_KEY || 'staff-secret-change-me'
+);
+const JWT_ISSUER = 'rescuemanager-admin';
+
+async function isValidStaffJwt(authHeader: string | null): Promise<boolean> {
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  const token = authHeader.slice(7);
+  try {
+    await jwtVerify(token, STAFF_JWT_SECRET, { issuer: JWT_ISSUER });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function buildCorsHeaders(origin: string) {
+  const STAFF_ALLOWED_ORIGINS = [
+    'https://admin.rescuemanager.eu',
+    'https://staff.rescuemanager.eu',
+    'https://staging.rescuemanager.eu',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5173',
+    'http://localhost:8081',
+    'http://localhost:3001',
+  ];
+  const isAllowed = STAFF_ALLOWED_ORIGINS.includes(origin) ||
+    origin.startsWith('http://localhost:') ||
+    origin.startsWith('app://');
+  const corsOrigin = isAllowed ? origin : STAFF_ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+  };
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // CORS for staff admin API routes (admin panel calls from different origin)
   if (pathname.startsWith('/api/staff/')) {
     const origin = request.headers.get('origin') || '';
-    const STAFF_ALLOWED_ORIGINS = [
-      'https://admin.rescuemanager.eu',
-      'https://staff.rescuemanager.eu',
-      'http://localhost:5174',        // Admin panel Electron dev
-      'http://localhost:5173',        // Admin panel Vite dev
-      'http://localhost:8081',        // Admin panel dev
-      'http://localhost:3001',        // Admin panel dev alt
-    ];
-    const isAllowedOrigin = STAFF_ALLOWED_ORIGINS.includes(origin) ||
-      origin.startsWith('http://localhost:') ||
-      origin.startsWith('app://');
-    const corsOrigin = isAllowedOrigin ? origin : STAFF_ALLOWED_ORIGINS[0];
+    const corsHeaders = buildCorsHeaders(origin);
 
-    // Handle preflight OPTIONS
+    // Preflight OPTIONS: rispondi senza auth check
     if (request.method === 'OPTIONS') {
-      return new NextResponse(null, {
-        status: 204,
-        headers: {
-          'Access-Control-Allow-Origin': corsOrigin,
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          'Access-Control-Max-Age': '86400',
-        },
-      });
+      return new NextResponse(null, { status: 204, headers: corsHeaders });
     }
 
-    // For actual requests, clone the response and add CORS headers
+    // AUTH ENFORCEMENT per tutte le route admin (eccetto auth/login che e'
+    // sotto /api/staff/auth/, fuori da /api/staff/admin/)
+    if (pathname.startsWith('/api/staff/admin/')) {
+      const authHeader = request.headers.get('authorization');
+      const ok = await isValidStaffJwt(authHeader);
+      if (!ok) {
+        return NextResponse.json(
+          { success: false, error: 'Non autorizzato' },
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Aggiungi CORS alla risposta normale
     const response = NextResponse.next();
-    response.headers.set('Access-Control-Allow-Origin', corsOrigin);
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    for (const [k, v] of Object.entries(corsHeaders)) {
+      response.headers.set(k, v);
+    }
     return response;
   }
 
-  // Staff subdomain redirect (existing logic)
+  // Staff subdomain redirect (logica esistente)
   const hostname = request.headers.get('host') || '';
   if (hostname.includes('staff.rescuemanager.eu') || hostname.includes('staff.localhost')) {
     const url = request.nextUrl.clone();

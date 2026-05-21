@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { 
-  Building2, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
   FileText,
   CreditCard,
-  Hash
+  Hash,
+  Pencil,
 } from "lucide-react";
 
 export default function OrgPage() {
@@ -133,7 +134,7 @@ export default function OrgPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl font-semibold text-gray-900">Organizzazione</h1>
@@ -147,6 +148,15 @@ export default function OrgPage() {
             Informazioni operative e fiscali in sola lettura
           </p>
         </div>
+        {orgData && (
+          <a
+            href="/dashboard/org/edit"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-gray-900 rounded hover:bg-primary/90 transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+            Modifica
+          </a>
+        )}
       </div>
 
       {orgData ? (

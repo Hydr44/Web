@@ -30,7 +30,7 @@ const NAV: Item[] = [
   { label: "Download", href: "/dashboard/download", icon: Download },
   { label: "Piano & licenze", href: "/dashboard/billing", icon: Wallet },
   { label: "Team & ruoli", href: "/dashboard/team", icon: Users },
-  { label: "Impostazioni", href: "/dashboard/settings", icon: Settings },
+  { label: "Notifiche", href: "/dashboard/settings/notifications", icon: Settings },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 

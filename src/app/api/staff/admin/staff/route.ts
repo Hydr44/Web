@@ -1,26 +1,39 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createAuditLog } from '@/lib/staff-audit';
 
+const VALID_ROLES = ['super_admin', 'admin', 'marketing', 'sales', 'support', 'staff'] as const;
+type StaffRole = (typeof VALID_ROLES)[number];
+
 export async function GET() {
   try {
-    console.log('Admin staff API called');
-    
-    // Read from the dedicated staff table
+    // Conteggio sessioni attive per arricchire la lista
     const { data: staffUsers, error } = await supabaseAdmin
       .from('staff')
-      .select('id, email, full_name, role, is_active, last_login_at, created_at, updated_at')
+      .select('id, email, full_name, role, is_active, last_login_at, last_login_ip, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching staff users:', error);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Errore nel recupero degli utenti staff' 
+      return NextResponse.json({
+        success: false,
+        error: 'Errore nel recupero degli utenti staff'
       }, { status: 500 });
     }
 
-    // Transform data to match frontend StaffMember interface
+    // Sessioni attive (non scadute) per ogni staff
+    const nowIso = new Date().toISOString();
+    const { data: sessions } = await supabaseAdmin
+      .from('staff_sessions')
+      .select('staff_id')
+      .gt('expires_at', nowIso);
+
+    const sessionCount = new Map<string, number>();
+    for (const s of sessions || []) {
+      sessionCount.set(s.staff_id, (sessionCount.get(s.staff_id) || 0) + 1);
+    }
+
     const transformedUsers = (staffUsers || []).map(user => ({
       id: user.id,
       email: user.email,
@@ -31,252 +44,124 @@ export async function GET() {
       created_at: user.created_at,
       updated_at: user.updated_at,
       last_login: user.last_login_at,
+      last_login_ip: user.last_login_ip,
       status: user.is_active ? 'active' : 'inactive',
-      session_count: 0,
+      session_count: sessionCount.get(user.id) || 0,
       total_actions: 0
     }));
 
-    return NextResponse.json({ 
-      success: true, 
-      users: transformedUsers 
+    return NextResponse.json({
+      success: true,
+      users: transformedUsers
     });
 
   } catch (error: any) {
     console.error('Admin staff API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server'
     }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { email, password, full_name, staff_role, is_admin } = await request.json();
+    const body = await request.json();
+    const email = String(body.email || '').toLowerCase().trim();
+    const password = String(body.password || '');
+    const full_name = String(body.full_name || '').trim();
+    // accetta sia `staff_role` (legacy frontend) sia `role`
+    const roleInput = String(body.staff_role || body.role || '').trim();
 
-    if (!email || !password || !full_name || !staff_role) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Email, password, full_name e staff_role sono richiesti' 
+    if (!email || !password || !full_name || !roleInput) {
+      return NextResponse.json({
+        success: false,
+        error: 'Email, password, nome completo e ruolo sono richiesti'
       }, { status: 400 });
     }
 
-    console.log('Creating staff user:', email);
+    if (!VALID_ROLES.includes(roleInput as StaffRole)) {
+      return NextResponse.json({
+        success: false,
+        error: `Ruolo non valido. Valori ammessi: ${VALID_ROLES.join(', ')}`
+      }, { status: 400 });
+    }
 
-    // Check if profile already exists by email
-    const { data: existingProfileByEmail, error: profileCheckError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, email, is_staff, staff_role')
+    if (password.length < 8) {
+      return NextResponse.json({
+        success: false,
+        error: 'La password deve essere di almeno 8 caratteri'
+      }, { status: 400 });
+    }
+
+    // Email gia' usata?
+    const { data: existing } = await supabaseAdmin
+      .from('staff')
+      .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
-    console.log('Profile check result:', { existingProfileByEmail, profileCheckError });
-
-    if (existingProfileByEmail) {
-      if (existingProfileByEmail.is_staff) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Utente staff già esistente con questa email' 
-        }, { status: 400 });
-      } else {
-        // Update existing profile to staff
-        console.log('Updating existing profile to staff:', existingProfileByEmail.id);
-        const { error: updateError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            staff_role,
-            is_staff: true,
-            is_admin: is_admin || false,
-            full_name
-          })
-          .eq('id', existingProfileByEmail.id);
-
-        if (updateError) {
-          console.error('Update error:', updateError);
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore aggiornamento profilo: ${updateError.message}` 
-          }, { status: 500 });
-        }
-
-        // Log audit
-        await createAuditLog(
-          'system',
-          'System',
-          'system',
-          'staff.create',
-          'staff_user',
-          existingProfileByEmail.id,
-          full_name,
-          { staff_role, is_admin },
-          request,
-          true
-        );
-
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Profilo esistente aggiornato a staff',
-          user: {
-            id: existingProfileByEmail.id,
-            email,
-            full_name,
-            staff_role,
-            is_staff: true,
-            is_admin: is_admin || false
-          }
-        });
-      }
+    if (existing) {
+      return NextResponse.json({
+        success: false,
+        error: 'Esiste gia un utente staff con questa email'
+      }, { status: 409 });
     }
 
-    // Check if auth user already exists
-    const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingAuthUser = authUsers?.users?.find(u => u.email === email);
+    const password_hash = await bcrypt.hash(password, 10);
 
-    let authData;
-    if (existingAuthUser) {
-      console.log('Auth user already exists, using existing:', existingAuthUser.id);
-      authData = { user: existingAuthUser };
-    } else {
-      // Create new auth user
-      console.log('Creating new auth user for:', email);
-      const { data: newAuthData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true
-      });
-
-      if (authError || !newAuthData.user) {
-        console.error('Auth creation error:', authError);
-        return NextResponse.json({ 
-          success: false, 
-          error: `Errore creazione utente: ${authError?.message || 'Unknown error'}` 
-        }, { status: 500 });
-      }
-      authData = newAuthData;
-    }
-
-    // Check if profile already exists for this auth user
-    const { data: existingProfileById } = await supabaseAdmin
-      .from('profiles')
-      .select('id, is_staff')
-      .eq('id', authData.user.id)
-      .single();
-
-    if (existingProfileById) {
-      if (existingProfileById.is_staff) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Profilo staff già esistente per questo utente' 
-        }, { status: 400 });
-      } else {
-        // Update existing profile to staff
-        console.log('Updating existing profile to staff:', authData.user.id);
-        const { error: updateError } = await supabaseAdmin
-          .from('profiles')
-          .update({
-            staff_role,
-            is_staff: true,
-            is_admin: is_admin || false,
-            full_name,
-            email
-          })
-          .eq('id', authData.user.id);
-
-        if (updateError) {
-          console.error('Profile update error:', updateError);
-          return NextResponse.json({ 
-            success: false, 
-            error: `Errore aggiornamento profilo: ${updateError.message}` 
-          }, { status: 500 });
-        }
-
-        // Log audit
-        await createAuditLog(
-          'system',
-          'System',
-          'system',
-          'staff.create',
-          'staff_user',
-          authData.user.id,
-          full_name,
-          { staff_role, is_admin },
-          request,
-          true
-        );
-
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Profilo esistente aggiornato a staff',
-          user: {
-            id: authData.user.id,
-            email,
-            full_name,
-            staff_role,
-            is_staff: true,
-            is_admin: is_admin || false
-          }
-        });
-      }
-    }
-
-    // Create new profile
-    console.log('Creating new profile for:', authData.user.id);
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
+    const { data: created, error: insertError } = await supabaseAdmin
+      .from('staff')
       .insert({
-        id: authData.user.id,
         email,
+        password_hash,
         full_name,
-        staff_role,
-        is_staff: true,
-        is_admin: is_admin || false,
-        provider: 'email'
-      });
+        role: roleInput,
+        is_active: true,
+      })
+      .select('id, email, full_name, role, is_active, created_at')
+      .single();
 
-    if (profileError) {
-      // Clean up auth user if profile creation fails
-      if (!existingAuthUser) {
-        await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      }
-      console.error('Profile creation error:', profileError);
-      return NextResponse.json({ 
-        success: false, 
-        error: `Errore creazione profilo: ${profileError.message}` 
+    if (insertError || !created) {
+      console.error('Staff insert error:', insertError);
+      return NextResponse.json({
+        success: false,
+        error: `Errore creazione staff: ${insertError?.message || 'sconosciuto'}`
       }, { status: 500 });
     }
 
-    // Log audit
     await createAuditLog(
       'system',
       'System',
       'system',
       'staff.create',
       'staff_user',
-      authData.user.id,
+      created.id,
       full_name,
-      { staff_role, is_admin },
+      { role: roleInput },
       request,
       true
     );
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Utente staff creato con successo',
       user: {
-        id: authData.user.id,
-        email,
-        full_name,
-        staff_role,
-        is_staff: true,
-        is_admin: is_admin || false
+        id: created.id,
+        email: created.email,
+        full_name: created.full_name,
+        staff_role: created.role,
+        is_admin: created.role === 'super_admin' || created.role === 'admin',
+        status: created.is_active ? 'active' : 'inactive',
+        created_at: created.created_at,
       }
     });
 
   } catch (error: any) {
     console.error('Staff user creation API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Errore interno del server' 
+    return NextResponse.json({
+      success: false,
+      error: 'Errore interno del server'
     }, { status: 500 });
   }
 }

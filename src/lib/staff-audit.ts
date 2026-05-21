@@ -20,7 +20,7 @@ export interface AuditLogEntry {
 export type AuditAction = 
   | 'user.login' | 'user.logout' | 'user.create' | 'user.edit' | 'user.delete' | 'user.suspend' | 'user.activate'
   | 'organization.create' | 'organization.edit' | 'organization.delete' | 'organization.member_add' | 'organization.member_remove'
-  | 'staff.create' | 'staff.edit' | 'staff.delete' | 'staff.role_change'
+  | 'staff.create' | 'staff.edit' | 'staff.delete' | 'staff.role_change' | 'staff.activate' | 'staff.suspend'
   | 'lead.create' | 'lead.edit' | 'lead.delete' | 'lead.assign' | 'lead.status_change'
   | 'system.settings_change' | 'system.backup' | 'system.export'
   | 'billing.payment' | 'billing.subscription_change'

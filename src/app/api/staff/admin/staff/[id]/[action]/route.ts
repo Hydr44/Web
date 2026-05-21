@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+
+const VALID_ROLES = ['super_admin', 'admin', 'marketing', 'sales', 'support', 'staff'];
 
 export async function POST(
   request: Request,
@@ -16,27 +19,99 @@ export async function POST(
       case 'view': {
         const { data: staffUser, error } = await supabaseAdmin
           .from('staff')
-          .select('id, email, full_name, role, is_active, last_login_at, created_at, updated_at')
+          .select('id, email, full_name, role, is_active, last_login_at, last_login_ip, created_at, updated_at')
           .eq('id', staffId)
           .single();
 
         if (error || !staffUser) {
-          return NextResponse.json({ 
-            success: false, 
-            error: 'Staff non trovato' 
+          return NextResponse.json({
+            success: false,
+            error: 'Staff non trovato'
           }, { status: 404 });
         }
 
-        return NextResponse.json({ 
-          success: true, 
-          staff: staffUser 
+        // Sessioni attive (non scadute)
+        const nowIso = new Date().toISOString();
+        const { data: sessions } = await supabaseAdmin
+          .from('staff_sessions')
+          .select('id, ip_address, user_agent, created_at, expires_at')
+          .eq('staff_id', staffId)
+          .gt('expires_at', nowIso)
+          .order('created_at', { ascending: false });
+
+        // Ultime azioni dall'audit log
+        const { data: auditLog } = await supabaseAdmin
+          .from('staff_audit_log')
+          .select('id, action, target_type, target_label, created_at')
+          .eq('staff_id', staffId)
+          .order('created_at', { ascending: false })
+          .limit(15);
+
+        return NextResponse.json({
+          success: true,
+          staff: staffUser,
+          sessions: sessions || [],
+          activity: auditLog || [],
         });
+      }
+
+      case 'reset-password': {
+        const body = await request.json();
+        const newPassword = String(body.password || '');
+        if (newPassword.length < 8) {
+          return NextResponse.json({
+            success: false,
+            error: 'La password deve essere di almeno 8 caratteri'
+          }, { status: 400 });
+        }
+        const password_hash = await bcrypt.hash(newPassword, 10);
+        const { error } = await supabaseAdmin
+          .from('staff')
+          .update({ password_hash, updated_at: new Date().toISOString() })
+          .eq('id', staffId);
+
+        if (error) {
+          return NextResponse.json({
+            success: false,
+            error: `Errore reset password: ${error.message}`
+          }, { status: 500 });
+        }
+
+        // Revoca tutte le sessioni esistenti per forzare il re-login
+        await supabaseAdmin.from('staff_sessions').delete().eq('staff_id', staffId);
+
+        message = 'Password reimpostata. Le sessioni attive sono state revocate.';
+        break;
+      }
+
+      case 'revoke-sessions': {
+        const { error } = await supabaseAdmin
+          .from('staff_sessions')
+          .delete()
+          .eq('staff_id', staffId);
+
+        if (error) {
+          return NextResponse.json({
+            success: false,
+            error: `Errore revoca sessioni: ${error.message}`
+          }, { status: 500 });
+        }
+
+        message = 'Tutte le sessioni attive sono state revocate';
+        break;
       }
 
       case 'edit': {
         const body = await request.json();
         const { full_name, email, role } = body;
-        
+
+        if (role && !VALID_ROLES.includes(role)) {
+          return NextResponse.json({
+            success: false,
+            error: `Ruolo non valido. Valori ammessi: ${VALID_ROLES.join(', ')}`
+          }, { status: 400 });
+        }
+
         const { error } = await supabaseAdmin
           .from('staff')
           .update({

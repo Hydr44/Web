@@ -7,8 +7,10 @@ import { checkRateLimit, getRateLimitIdentifier, logSecurityEvent, validateEmail
 function getCorsHeaders(origin: string | null) {
   const allowedOrigins = [
     'https://admin.rescuemanager.eu',
+    'https://staging.rescuemanager.eu',
     'http://localhost:5173',
     'http://localhost:5174',
+    'http://localhost:5175',
     'http://localhost:3000',
   ];
   

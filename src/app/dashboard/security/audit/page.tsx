@@ -1,380 +1,272 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { 
-  Shield, 
-  ArrowLeft, 
-  Clock, 
-  User, 
-  Key, 
-  Smartphone, 
-  Monitor, 
-  AlertTriangle, 
-  CheckCircle, 
-  Eye, 
-  Filter,
+import {
+  Shield,
+  ArrowLeft,
+  Clock,
   Download,
-  Search,
-  Calendar,
-  MapPin,
-  Globe
+  Filter,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
 } from "lucide-react";
 
-export default function AuditLogPage() {
+/**
+ * Audit log per-utente — eventi sensibili (login, password, 2FA, sessioni,
+ * privacy). Sostituisce la versione mock; dati da `user_audit_logs` (RLS
+ * limita la SELECT all'utente in sessione via /api/user/audit-logs).
+ */
+
+interface AuditRow {
+  id: string;
+  action: string;
+  status: string;
+  ip: string | null;
+  user_agent: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+// Mappa action → etichetta IT + colore
+const ACTION_META: Record<string, { label: string; emoji: string }> = {
+  "login.success":        { label: "Accesso effettuato",       emoji: "🔑" },
+  "login.failure":        { label: "Tentativo accesso fallito", emoji: "⚠️" },
+  "logout":               { label: "Disconnessione",            emoji: "🚪" },
+  "password.changed":     { label: "Password aggiornata",       emoji: "🔒" },
+  "password.verify_fail": { label: "Verifica password fallita", emoji: "❌" },
+  "mfa.enabled":          { label: "2FA abilitato",             emoji: "🛡️" },
+  "mfa.disabled":         { label: "2FA disabilitato",          emoji: "🛡️" },
+  "mfa.verify_success":   { label: "2FA verificato",            emoji: "✅" },
+  "mfa.verify_failure":   { label: "2FA verifica fallita",      emoji: "❌" },
+  "backup_codes.regen":   { label: "Codici di backup rigenerati", emoji: "♻️" },
+  "session.revoked":      { label: "Sessione revocata",         emoji: "🚪" },
+  "session.revoked_all_other": { label: "Tutte le altre sessioni revocate", emoji: "🚪" },
+  "privacy.export":       { label: "Export dati richiesto",     emoji: "📤" },
+  "privacy.delete":       { label: "Eliminazione account richiesta", emoji: "🗑️" },
+  "profile.updated":      { label: "Profilo aggiornato",        emoji: "👤" },
+};
+
+function actionLabel(action: string) {
+  const m = ACTION_META[action];
+  if (m) return m;
+  // fallback leggibile
+  return { label: action.replace(/[._]/g, " "), emoji: "•" };
+}
+
+function relTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "Adesso";
+  if (min < 60) return `${min} min fa`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h fa`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}g fa`;
+  return new Date(iso).toLocaleDateString("it-IT");
+}
+
+export default function AuditPage() {
   const [loading, setLoading] = useState(true);
-  const [auditLogs, setAuditLogs] = useState([
-    {
-      id: "audit_1",
-      action: "Login",
-      user: "user@example.com",
-      timestamp: "2024-01-15T10:30:00Z",
-      ip: "192.168.1.100",
-      location: "Milano, Italia",
-      device: "Chrome su Mac",
-      status: "success",
-      details: "Login riuscito con autenticazione email"
-    },
-    {
-      id: "audit_2",
-      action: "Password Change",
-      user: "user@example.com",
-      timestamp: "2024-01-15T09:15:00Z",
-      ip: "192.168.1.100",
-      location: "Milano, Italia",
-      device: "Chrome su Mac",
-      status: "success",
-      details: "Password modificata con successo"
-    },
-    {
-      id: "audit_3",
-      action: "2FA Setup",
-      user: "user@example.com",
-      timestamp: "2024-01-14T16:45:00Z",
-      ip: "192.168.1.101",
-      location: "Roma, Italia",
-      device: "Safari su iPhone",
-      status: "success",
-      details: "Autenticazione a due fattori configurata"
-    },
-    {
-      id: "audit_4",
-      action: "Failed Login",
-      user: "user@example.com",
-      timestamp: "2024-01-14T14:20:00Z",
-      ip: "192.168.1.102",
-      location: "Torino, Italia",
-      device: "Firefox su Windows",
-      status: "failed",
-      details: "Tentativo di login con password errata"
-    },
-    {
-      id: "audit_5",
-      action: "Session Expired",
-      user: "user@example.com",
-      timestamp: "2024-01-14T12:00:00Z",
-      ip: "192.168.1.100",
-      location: "Milano, Italia",
-      device: "Chrome su Mac",
-      status: "info",
-      details: "Sessione scaduta per inattività"
-    }
-  ]);
+  const [logs, setLogs] = useState<AuditRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<"all" | "success" | "failure">("all");
 
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterAction, setFilterAction] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  useEffect(() => {
-    const loadAuditLogs = async () => {
-      try {
-        const supabase = supabaseBrowser();
-        
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          console.error("Error getting user:", userError);
-          setLoading(false);
-          return;
-        }
-        
-        // Qui carichereresti i log di audit reali dal database
-        // Per ora usiamo dati simulati
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading audit logs:", error);
-        setLoading(false);
+  const refresh = useCallback(async () => {
+    setError(null);
+    try {
+      const r = await fetch("/api/user/audit-logs?limit=100");
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) {
+        setError(j.error || "Errore caricamento audit log");
+        setLogs([]);
+        return;
       }
-    };
-
-    loadAuditLogs();
+      setLogs(j.logs || []);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Errore di rete");
+      setLogs([]);
+    }
   }, []);
 
-  const filteredLogs = auditLogs.filter(log => {
-    const matchesStatus = filterStatus === "all" || log.status === filterStatus;
-    const matchesAction = filterAction === "all" || log.action.toLowerCase().includes(filterAction.toLowerCase());
-    const matchesSearch = searchTerm === "" || 
-      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.ip.includes(searchTerm);
-    
-    return matchesStatus && matchesAction && matchesSearch;
-  });
+  useEffect(() => {
+    (async () => {
+      await refresh();
+      setLoading(false);
+    })();
+  }, [refresh]);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "success":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "failed":
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      case "info":
-        return <Clock className="h-4 w-4 text-blue-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  const filtered = useMemo(() => {
+    if (filterStatus === "all") return logs;
+    return logs.filter((l) => l.status === filterStatus);
+  }, [logs, filterStatus]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "success":
-        return "text-green-600 bg-emerald-500/10 border-gray-200";
-      case "failed":
-        return "text-red-600 bg-red-50 border-red-200";
-      case "info":
-        return "text-blue-600 bg-blue-50 border-blue-200";
-      default:
-        return "text-gray-500 bg-white border-gray-200";
-    }
-  };
-
-  const getActionIcon = (action: string) => {
-    switch (action.toLowerCase()) {
-      case "login":
-        return <User className="h-4 w-4" />;
-      case "password change":
-        return <Key className="h-4 w-4" />;
-      case "2fa setup":
-        return <Smartphone className="h-4 w-4" />;
-      case "session expired":
-        return <Clock className="h-4 w-4" />;
-      default:
-        return <Shield className="h-4 w-4" />;
-    }
+  const handleExport = () => {
+    if (!filtered.length) return;
+    const header = "Data,Azione,Stato,IP,User-Agent,Metadata\n";
+    const csv =
+      header +
+      filtered
+        .map((l) => {
+          const meta = l.metadata ? JSON.stringify(l.metadata) : "";
+          const cells = [
+            new Date(l.created_at).toISOString(),
+            l.action,
+            l.status,
+            l.ip || "",
+            (l.user_agent || "").replace(/"/g, "'"),
+            meta.replace(/"/g, "'"),
+          ];
+          return cells.map((c) => `"${c}"`).join(",");
+        })
+        .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-3xl">
         <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-[400px] bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           {[...Array(5)].map((_, i) => (
-             <div key={i} className="w-full h-12 bg-gray-50 rounded animate-pulse" />
-           ))}
-        </div>
+        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
+        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <header>
         <div className="flex items-center gap-4 mb-6">
-          <Link 
-            href="/dashboard/security"
-            className="p-2 rounded-lg hover:bg-white transition-colors duration-200"
-          >
+          <Link href="/dashboard/security" className="p-2 rounded-lg hover:bg-white transition-colors">
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 border border-blue-200 font-medium">
+            <div className="inline-flex items-center gap-2 text-sm rounded-full border border-blue-200 px-4 py-2 mb-4 bg-blue-50 text-blue-600 font-medium">
               <Shield className="h-4 w-4" />
-              Audit Log
+              Audit log
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Log di <span className="text-blue-600">Sicurezza</span>
+              Attività <span className="text-blue-600">account</span>
             </h1>
             <p className="text-lg text-gray-500">
-              Monitora tutte le attività di sicurezza del tuo account
+              Eventi sensibili sul tuo account (login, password, 2FA, sessioni, privacy).
             </p>
           </div>
         </div>
       </header>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Successi</h3>
-              <p className="text-sm text-gray-500">Ultimi 30 giorni</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {auditLogs.filter(log => log.status === "success").length}
-          </div>
+      {error && (
+        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <span className="text-red-800">{error}</span>
         </div>
+      )}
 
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Tentativi Falliti</h3>
-              <p className="text-sm text-gray-500">Ultimi 30 giorni</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {auditLogs.filter(log => log.status === "failed").length}
-          </div>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2 text-sm">
+          <Filter className="h-4 w-4 text-gray-400" />
+          {(["all", "success", "failure"] as const).map((k) => (
+            <button
+              key={k}
+              onClick={() => setFilterStatus(k)}
+              className={`px-3 py-1.5 rounded transition-colors ${
+                filterStatus === k
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {k === "all" ? "Tutti" : k === "success" ? "Riusciti" : "Falliti"}
+            </button>
+          ))}
         </div>
-
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Clock className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Eventi Totali</h3>
-              <p className="text-sm text-gray-500">Ultimi 30 giorni</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {auditLogs.length}
-          </div>
-        </div>
-
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <Globe className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Posizioni</h3>
-              <p className="text-sm text-gray-500">Diverse</p>
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-gray-900">
-            {new Set(auditLogs.map(log => log.location)).size}
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={refresh}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Aggiorna
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={!filtered.length}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-40"
+          >
+            <Download className="h-4 w-4" />
+            Esporta CSV
+          </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Cerca per azione, dettagli o IP..."
-            className="w-full pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {filtered.length === 0 ? (
+        <div className="p-8 text-center bg-white border border-gray-200 rounded">
+          <Shield className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500">
+            {logs.length === 0
+              ? "Nessun evento di audit registrato. Gli eventi appariranno qui dopo login, cambio password, modifiche 2FA, ecc."
+              : "Nessun evento per il filtro selezionato."}
+          </p>
         </div>
-
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">Tutti gli Stati</option>
-            <option value="success">Successo</option>
-            <option value="failed">Fallito</option>
-            <option value="info">Info</option>
-          </select>
-        </div>
-
-        <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <select
-            className="w-full sm:w-auto pl-10 pr-4 py-2  border border-gray-200 focus:ring-2 focus:ring-blue-500/50 focus:border-primary/50 transition-all duration-200 appearance-none"
-            value={filterAction}
-            onChange={(e) => setFilterAction(e.target.value)}
-          >
-            <option value="all">Tutte le Azioni</option>
-            <option value="login">Login</option>
-            <option value="password">Password</option>
-            <option value="2fa">2FA</option>
-            <option value="session">Sessione</option>
-          </select>
-        </div>
-
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-gray-900  hover:bg-primary/90 transition-colors duration-200">
-          <Download className="h-4 w-4" />
-          Esporta
-        </button>
-      </div>
-
-      {/* Audit Logs */}
-      <div className="bg-white  shadow-lg shadow-black/20 border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Log di Sicurezza ({filteredLogs.length})</h3>
-        </div>
-        
-        {filteredLogs.length > 0 ? (
-          <div className="divide-y divide-[#243044]">
-            {filteredLogs.map((log) => (
-              <div key={log.id} className="p-6 hover:bg-white transition-colors duration-200">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                      {getActionIcon(log.action)}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium text-gray-900">{log.action}</h4>
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(log.status)}`}>
-                          {getStatusIcon(log.status)}
-                          {log.status}
-                        </span>
-                      </div>
-                      
-                      <p className="text-sm text-gray-500 mb-3">{log.details}</p>
-                      
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(log.timestamp).toLocaleString('it-IT')}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {log.location}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Monitor className="h-3 w-3" />
-                          {log.device}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Globe className="h-3 w-3" />
-                          {log.ip}
-                        </div>
-                      </div>
-                    </div>
+      ) : (
+        <div className="bg-white border border-gray-200 rounded overflow-hidden">
+          <ul className="divide-y divide-gray-100">
+            {filtered.map((l) => {
+              const meta = actionLabel(l.action);
+              const failed = l.status === "failure";
+              return (
+                <li key={l.id} className="p-4 flex items-start gap-3">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base ${
+                    failed ? "bg-red-50" : "bg-green-50"
+                  }`}>
+                    <span>{meta.emoji}</span>
                   </div>
-                  
-                  <button className="p-2 text-gray-400 hover:text-gray-500 transition-colors duration-200">
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-12 text-center">
-            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nessun log trovato</h3>
-            <p className="text-sm text-gray-500">Prova a modificare i filtri di ricerca.</p>
-          </div>
-        )}
-      </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-gray-900 text-sm">{meta.label}</p>
+                      {failed ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">
+                          <XCircle className="h-3 w-3" /> Fallito
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                          <CheckCircle className="h-3 w-3" /> Successo
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {relTime(l.created_at)}
+                      </span>
+                      {l.ip && (
+                        <span>
+                          IP: <code className="font-mono">{l.ip}</code>
+                        </span>
+                      )}
+                      <code className="font-mono text-gray-400">{l.action}</code>
+                    </div>
+                    {l.metadata && Object.keys(l.metadata).length > 0 && (
+                      <details className="mt-2 text-xs text-gray-500">
+                        <summary className="cursor-pointer hover:text-gray-700">Dettagli</summary>
+                        <pre className="mt-2 p-2 bg-gray-50 rounded overflow-x-auto">{JSON.stringify(l.metadata, null, 2)}</pre>
+                      </details>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

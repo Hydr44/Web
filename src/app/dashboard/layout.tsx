@@ -75,7 +75,9 @@ export default function DashboardLayout({
         // non è AAL2, manda l'utente alla pagina sicurezza (che gestisce sia
         // l'enroll sia la challenge del fattore esistente). Non redirige se
         // siamo già lì, per evitare loop.
-        const onSecurityPage = pathname?.startsWith('/dashboard/settings/security');
+        // Le pagine security/* (incluso /security/2fa per l'enroll) sono
+        // safe-zone per evitare loop di redirect.
+        const onSecurityPage = pathname?.startsWith('/dashboard/security');
         if (!onSecurityPage) {
           try {
             const res = await fetch('/api/auth/2fa-status', { cache: 'no-store' });
@@ -84,7 +86,7 @@ export default function DashboardLayout({
               const { data: aal } =
                 await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
               if (aal && aal.currentLevel !== 'aal2') {
-                router.push('/dashboard/settings/security?enforce=1');
+                router.push('/dashboard/security/2fa?enforce=1');
                 return;
               }
             }

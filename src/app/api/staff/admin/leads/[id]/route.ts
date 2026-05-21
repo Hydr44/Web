@@ -4,9 +4,10 @@
  * PUT  /api/staff/admin/leads/:id - Aggiorna lead
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
+import { getStaffFromRequest } from '@/lib/staff-auth';
 
 export async function GET(
   request: Request,
@@ -88,6 +89,87 @@ export async function PUT(
       { success: false, error: 'Errore interno' },
       { status: 500, headers: corsHeaders(origin) }
     );
+  }
+}
+
+/**
+ * DELETE /api/staff/admin/leads/:id
+ * Elimina il lead e TUTTI i record correlati nella pipeline (task, messaggi,
+ * preventivi, demo, attivita, appuntamenti, note). NON tocca eventuali utenti
+ * o organizzazioni create da una conversione (quelli si gestiscono dal modulo
+ * Clienti).
+ *
+ * Ordine: figlie prima -> padre per ultimo (alcune FK non hanno ON DELETE CASCADE).
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const origin = request.headers.get('origin');
+  const headers = corsHeaders(origin);
+
+  // Auth: solo staff loggati possono eliminare un lead
+  const staff = await getStaffFromRequest(request);
+  if (!staff) {
+    return NextResponse.json({ success: false, error: 'Non autorizzato' }, { status: 401, headers });
+  }
+
+  try {
+    const leadId = params.id;
+
+    // Verifica esistenza
+    const { data: lead, error: fetchErr } = await supabaseAdmin
+      .from('leads')
+      .select('id, name, demo_account_id, demo_org_id')
+      .eq('id', leadId)
+      .maybeSingle();
+
+    if (fetchErr || !lead) {
+      return NextResponse.json({ success: false, error: 'Lead non trovato' }, { status: 404, headers });
+    }
+
+    // Cascade manuale: tabelle figlie (best-effort, ignoriamo errori "tabella
+    // non esiste" che alcune migrazioni potrebbero non aver applicato)
+    const childTables = [
+      'lead_tasks',
+      'lead_messages',
+      'lead_quotes',
+      'lead_demos',
+      'lead_activities',
+      'lead_appointments',
+      'lead_notes',
+    ];
+
+    for (const table of childTables) {
+      const { error } = await supabaseAdmin.from(table).delete().eq('lead_id', leadId);
+      // 42P01 = relation does not exist (tabella opzionale non applicata)
+      if (error && error.code !== '42P01') {
+        console.warn(`[lead delete] tabella ${table}:`, error.message);
+      }
+    }
+
+    // email_campaigns ha ON DELETE SET NULL nella migration, lo rendiamo esplicito
+    await supabaseAdmin.from('email_campaigns').update({ lead_id: null }).eq('lead_id', leadId);
+
+    // Lead stesso
+    const { error: deleteErr } = await supabaseAdmin.from('leads').delete().eq('id', leadId);
+    if (deleteErr) {
+      return NextResponse.json({
+        success: false,
+        error: `Errore eliminazione lead: ${deleteErr.message}`,
+      }, { status: 500, headers });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Lead "${lead.name}" eliminato (incluse tutte le attivita collegate)`,
+      had_demo: !!lead.demo_account_id,
+    }, { headers });
+  } catch (error: any) {
+    return NextResponse.json({
+      success: false,
+      error: error?.message || 'Errore interno',
+    }, { status: 500, headers });
   }
 }
 

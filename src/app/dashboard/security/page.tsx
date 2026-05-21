@@ -284,6 +284,25 @@ export default function SecurityPage() {
           </div>
         </Link>
 
+        <Link
+          href="/dashboard/security/audit"
+          className="p-6  bg-white border border-gray-200  hover:shadow-md transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10  bg-amber-50 text-amber-700 flex items-center justify-center rounded-xl border border-amber-100">
+              <Shield className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Audit log</h3>
+              <p className="text-sm text-gray-500">Eventi account</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-500">Login, password, 2FA, sessioni</span>
+            <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors duration-200" />
+          </div>
+        </Link>
+
       </div>
 
       {/* Security Progress */}

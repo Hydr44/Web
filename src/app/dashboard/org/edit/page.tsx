@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { isValidPIVA, isValidPIVAorCF } from "@/lib/it-fiscal";
 import { motion } from "framer-motion";
 import { 
   Building2, 
@@ -103,9 +104,23 @@ export default function EditOrgPage() {
     setSaving(true);
     setError(null);
 
+    // Validazione P.IVA / Codice Fiscale lato client (algoritmo AdE/MEF)
+    const vat = formData.vat.trim();
+    if (vat && !isValidPIVA(vat)) {
+      setError("Partita IVA non valida (11 cifre con checksum AdE)");
+      setSaving(false);
+      return;
+    }
+    const cf = formData.tax_code.trim();
+    if (cf && !isValidPIVAorCF(cf)) {
+      setError("Codice Fiscale non valido (16 char persona fisica o 11 cifre azienda)");
+      setSaving(false);
+      return;
+    }
+
     try {
       const supabase = supabaseBrowser();
-      
+
       // Verifica autenticazione
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
@@ -396,6 +411,11 @@ export default function EditOrgPage() {
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
+                  inputMode="numeric"
+                  pattern="\d{11}"
+                  maxLength={11}
+                  placeholder="12345678901"
+                  title="Partita IVA italiana — 11 cifre"
                 />
               </div>
 
@@ -408,9 +428,17 @@ export default function EditOrgPage() {
                   id="tax_code"
                   name="tax_code"
                   value={formData.tax_code}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      tax_code: e.target.value.toUpperCase().replace(/\s/g, ""),
+                    }))
+                  }
+                  className="w-full px-4 py-3 border border-gray-200 uppercase focus:ring-blue-500 focus:border-primary"
                   disabled={saving}
+                  maxLength={16}
+                  placeholder="RSSMRA80A01H501U  oppure  12345678901"
+                  title="Codice Fiscale persona fisica (16 char) o P.IVA azienda (11 cifre)"
                 />
               </div>
             </div>

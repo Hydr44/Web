@@ -7,10 +7,12 @@ import { NextResponse } from "next/server";
 
 const ALLOWED_ORIGINS = [
   'http://localhost:8080',        // Desktop app dev
-  'http://localhost:8081',        // Admin panel dev
+  'http://localhost:8081',        // Admin panel dev (legacy)
   'http://localhost:5173',        // Vite dev
+  'http://localhost:5175',        // Admin panel Electron dev (selettore ambienti)
   'https://rescuemanager.eu',     // Web app prod
   'https://www.rescuemanager.eu', // Web app www
+  'https://staging.rescuemanager.eu', // Staging
   'app://.',                      // Electron app (file://)
   'capacitor://localhost'         // Mobile app
 ];
