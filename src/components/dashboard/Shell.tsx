@@ -17,6 +17,7 @@ import {
   FileText,
   CreditCard,
   Plug,
+  Download,
 } from "lucide-react";
 import * as React from "react";
 import { useUserRole } from "@/lib/useUserRole";
@@ -61,6 +62,7 @@ const NAV: Item[] = [
       { label: "Fatture", href: "/dashboard/invoices", icon: FileText },
     ],
   },
+  { label: "Download app", href: "/dashboard/download", icon: Download },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 
