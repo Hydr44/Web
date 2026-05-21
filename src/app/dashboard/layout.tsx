@@ -81,18 +81,52 @@ export default function DashboardLayout({
         if (!onSecurityPage) {
           try {
             const res = await fetch('/api/auth/2fa-status', { cache: 'no-store' });
-            const { mandatory } = await res.json();
-            if (mandatory) {
-              const { data: aal } =
-                await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-              if (aal && aal.currentLevel !== 'aal2') {
-                router.push('/dashboard/security/2fa?enforce=1');
-                return;
+            if (!res.ok) {
+              // L'endpoint risponde, ma con errore HTTP: log strutturato e
+              // tentativo di scrittura nell'audit utente (best-effort).
+              const detail = await res.text().catch(() => '');
+              console.warn('[layout/2fa-status] http_error', {
+                status: res.status,
+                detail: detail.slice(0, 200),
+              });
+              try {
+                await fetch('/api/user/audit-logs', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    action: 'mfa.enforcement_check_failed',
+                    status: 'failure',
+                    metadata: { http_status: res.status },
+                  }),
+                });
+              } catch { /* non bloccante */ }
+            } else {
+              const { mandatory } = await res.json();
+              if (mandatory) {
+                const { data: aal } =
+                  await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+                if (aal && aal.currentLevel !== 'aal2') {
+                  router.push('/dashboard/security/2fa?enforce=1');
+                  return;
+                }
               }
             }
           } catch (e) {
-            // Fail open: un errore nel check non deve bloccare l'accesso.
-            console.error('2FA enforcement check failed:', e);
+            // Fail open per non lockare gli utenti se 2fa-status crasha,
+            // ma loggiamo strutturato + scriviamo in audit (best-effort).
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn('[layout/2fa-status] network_or_throw', { error: msg });
+            try {
+              await fetch('/api/user/audit-logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'mfa.enforcement_check_failed',
+                  status: 'failure',
+                  metadata: { error: msg.slice(0, 200) },
+                }),
+              });
+            } catch { /* non bloccante */ }
           }
         }
 

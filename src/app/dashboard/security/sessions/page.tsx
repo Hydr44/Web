@@ -11,6 +11,7 @@ import {
   Smartphone,
   RefreshCw,
 } from "lucide-react";
+import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
 
 /**
  * Pagina sessioni attive — integrazione reale con `auth.sessions`.
@@ -154,13 +155,7 @@ export default function SessionsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6 max-w-3xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
-        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
-      </div>
-    );
+    return <SkeletonPage variant="list" />;
   }
 
   const otherCount = sessions.filter((s) => !s.is_current).length;
