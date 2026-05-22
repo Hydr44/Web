@@ -7,12 +7,22 @@
  *                  profiles per owner, leads per provenienza.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
+import { getStaffFromRequest } from '@/lib/staff-auth';
 
 export async function GET(request: Request) {
   const origin = request.headers.get('origin');
+  // SECURITY: endpoint precedentemente esposto senza auth — esponeva l'intera
+  // lista clienti (org + sub + member_count + owner). Ora richiede staff valido.
+  const staff = await getStaffFromRequest(request as unknown as NextRequest);
+  if (!staff) {
+    return NextResponse.json(
+      { success: false, error: 'Non autorizzato' },
+      { status: 401, headers: corsHeaders(origin) }
+    );
+  }
   try {
     // 1. Tutte le org
     const { data: orgs, error: orgsErr } = await supabaseAdmin

@@ -1,10 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getStaffFromRequest } from '@/lib/staff-auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // SECURITY: questo endpoint esponeva l'anagrafica completa delle organizzazioni
+  // senza auth check. Ora richiede sessione staff valida.
+  const staff = await getStaffFromRequest(request);
+  if (!staff) {
+    return NextResponse.json({ success: false, error: 'Non autorizzato' }, { status: 401 });
+  }
+
   try {
-    console.log('Admin organizations API called');
-    
     const { data: organizations, error } = await supabaseAdmin
       .from('orgs')
       .select(`
@@ -79,6 +85,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const staff = await getStaffFromRequest(request as unknown as NextRequest);
+  if (!staff) {
+    return NextResponse.json({ success: false, error: 'Non autorizzato' }, { status: 401 });
+  }
   try {
     const { name, email, phone, address, city, admin_email } = await request.json();
 
