@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   FileText,
   Download,
@@ -56,6 +57,7 @@ function fmtDate(unix: number | null) {
 }
 
 export default function InvoicesPage() {
+  usePageTitle("Fatture");
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [error, setError] = useState<string | null>(null);

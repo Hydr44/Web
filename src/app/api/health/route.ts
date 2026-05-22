@@ -10,7 +10,9 @@ async function checkDatabaseHealth() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
     
-    const { error } = await supabase.from('orgs').select('count').limit(1).single();
+    // Probe DB: head:true conta solo, non scarica righe. Niente .single()
+    // su una count query (era code smell — vedi audit #12).
+    const { error } = await supabase.from('orgs').select('*', { count: 'exact', head: true });
     
     return {
       status: error ? 'unhealthy' : 'healthy',

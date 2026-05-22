@@ -25,30 +25,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "yearly",
             priority: 0.8,
         },
-        {
-            url: `${baseUrl}/demo`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.9,
-        },
+        // NOTA: /demo, /features, /pricing rimossi — non esistono come route.
+        // Vanno aggiunti qui SOLO quando viene creata la rispettiva page.tsx,
+        // altrimenti Google segnala 404 in Search Console.
         {
             url: `${baseUrl}/download`,
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.7,
         },
-        // Pagine prodotto/features
         {
-            url: `${baseUrl}/features`,
+            url: `${baseUrl}/accessi`,
             lastModified: new Date(),
             changeFrequency: "monthly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/pricing`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.8,
+            priority: 0.7,
         },
         // Pagine legali
         {

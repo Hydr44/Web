@@ -15,8 +15,10 @@ import {
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { LoadingPage } from "@/components/ui/LoadingSpinner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function DashboardPanoramica() {
+  usePageTitle("Panoramica");
   const [currentOrg, setCurrentOrg] = useState<string>("RescueManager");
   const [loading, setLoading] = useState(true);
   const [hasOrganization, setHasOrganization] = useState<boolean>(true);

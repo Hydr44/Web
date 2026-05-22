@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Building2,
   MapPin,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function OrgPage() {
+  usePageTitle("Organizzazione");
   const [loading, setLoading] = useState(true);
   const [orgData, setOrgData] = useState<any>(null);
   const [orgSettings, setOrgSettings] = useState<any>(null);

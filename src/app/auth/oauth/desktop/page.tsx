@@ -8,10 +8,8 @@ import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 // Log immediato quando il modulo viene caricato
-console.log('[DesktopOAuth] Module loaded');
 
 function DesktopOAuthContent() {
-  console.log('[DesktopOAuthContent] Component rendered');
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,25 +30,19 @@ function DesktopOAuthContent() {
 
   // Estrai parametri OAuth
   useEffect(() => {
-    console.log('[DesktopOAuth] === PAGE LOADED ===');
-    console.log('[DesktopOAuth] Current URL:', window.location.href);
-    console.log('[DesktopOAuth] Search params:', window.location.search);
     
     const encodedParams = params.get('params');
-    console.log('[DesktopOAuth] Encoded params from useSearchParams:', encodedParams ? `present (length: ${encodedParams.length})` : 'missing');
     
     // Fallback: prova a leggere direttamente dall'URL se useSearchParams non funziona
     if (!encodedParams) {
       const urlParams = new URLSearchParams(window.location.search);
       const fallbackParams = urlParams.get('params');
-      console.log('[DesktopOAuth] Fallback: params from URLSearchParams:', fallbackParams ? `present (length: ${fallbackParams.length})` : 'missing');
       
       if (fallbackParams) {
         // Usa i parametri dal fallback
         try {
           const decodedString = atob(fallbackParams);
           const decodedParams = JSON.parse(decodedString);
-          console.log('[DesktopOAuth] Decoded OAuth params (fallback):', decodedParams);
           
           if (decodedParams.expires_at < Date.now()) {
             setError("Sessione OAuth scaduta. Riprova.");
@@ -72,12 +64,9 @@ function DesktopOAuthContent() {
     
     if (encodedParams) {
       try {
-        console.log('[DesktopOAuth] Attempting to decode params...');
         // Usa atob per decodificare base64 nel browser (Buffer non è disponibile)
         const decodedString = atob(encodedParams);
-        console.log('[DesktopOAuth] Decoded string length:', decodedString.length);
         const decodedParams = JSON.parse(decodedString);
-        console.log('[DesktopOAuth] Decoded OAuth params:', decodedParams);
         
         // Verifica scadenza
         if (decodedParams.expires_at < Date.now()) {
@@ -86,14 +75,12 @@ function DesktopOAuthContent() {
           return;
         }
         
-        console.log('[DesktopOAuth] Setting OAuth info...');
         setOauthInfo({
           app_id: decodedParams.app_id,
           redirect_uri: decodedParams.redirect_uri,
           state: decodedParams.state,
           state_id: decodedParams.state_code
         });
-        console.log('[DesktopOAuth] OAuth info set successfully');
       } catch (err) {
         console.error('[DesktopOAuth] Error decoding OAuth params:', err);
         console.error('[DesktopOAuth] Error details:', {
@@ -119,7 +106,6 @@ function DesktopOAuthContent() {
         
         if (!user) return; // Nessuna sessione, mostra il form
 
-        console.log('[DesktopOAuth] Existing session found for:', user.email);
         setIsLoading(true);
         setError(null);
 
@@ -144,7 +130,6 @@ function DesktopOAuthContent() {
           return; // Fallback: mostra il form
         }
 
-        console.log('[DesktopOAuth] Auto-login successful, redirecting...');
         setSuccess(true);
         const url = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
         setRedirectUrl(url);
@@ -175,32 +160,19 @@ function DesktopOAuthContent() {
     setSuccess(false);
 
     try {
-      console.log("=== DESKTOP OAUTH LOGIN START ===");
-      console.log("Email:", email);
-      console.log("OAuth Info:", oauthInfo);
 
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        console.log("Login successful:", result.user.email);
         
         // Genera OAuth code
         const oauthCode = `oauth_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
         
         // Salva OAuth code nel database
         const supabase = supabaseBrowser();
-        console.log("=== SAVING OAUTH CODE ===");
-        console.log("OAuth Code:", oauthCode);
-        console.log("User ID:", result.user.id);
-        console.log("App ID:", oauthInfo.app_id);
-        console.log("Redirect URI:", oauthInfo.redirect_uri);
-        console.log("State:", oauthInfo.state);
         
         // Verifica autenticazione
         const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-        console.log("=== AUTHENTICATION CHECK ===");
-        console.log("Current User:", currentUser?.id);
-        console.log("Auth Error:", authError);
         
         const { data: insertData, error: oauthError } = await supabase
           .from('oauth_codes')
@@ -222,18 +194,12 @@ function DesktopOAuthContent() {
           return;
         }
         
-        console.log("=== OAUTH CODE SAVED SUCCESSFULLY ===");
-        console.log("Insert Data:", insertData);
 
         setSuccess(true);
         setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
 
         // Prepara URL di redirect
         const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
-        console.log('[DesktopOAuth] Setting redirect URL:', redirectUrl);
-        console.log('[DesktopOAuth] Redirect URI from oauthInfo:', oauthInfo.redirect_uri);
-        console.log('[DesktopOAuth] OAuth Code:', oauthCode);
-        console.log('[DesktopOAuth] State:', oauthInfo.state);
         setRedirectUrl(redirectUrl);
 
       } else {

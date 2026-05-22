@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
  * Pagina sessioni attive — integrazione reale con `auth.sessions`.
@@ -65,6 +66,7 @@ function relTime(iso: string) {
 }
 
 export default function SessionsPage() {
+  usePageTitle("Sessioni");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState<string | null>(null); // session_id in revoca o "all"
   const [sessions, setSessions] = useState<SessionRow[]>([]);

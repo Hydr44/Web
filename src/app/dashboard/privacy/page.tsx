@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { 
   Database, 
   Shield, 
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 
 export default function PrivacyPage() {
+  usePageTitle("Privacy");
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [actionError, setActionError] = useState<string | null>(null);

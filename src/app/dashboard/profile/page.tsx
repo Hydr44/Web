@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { 
   User, 
   Mail, 
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 
 export default function ProfilePage() {
+  usePageTitle("Profilo");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [userData, setUserData] = useState({

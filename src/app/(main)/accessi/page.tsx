@@ -68,16 +68,14 @@ export default function Accessi() {
                 ))}
               </ul>
               
-              <div className="space-y-2">
-                <a href="#" className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-2"><Monitor className="h-4 w-4" /> Windows</span>
-                  <span className="flex items-center gap-1 text-xs opacity-75">45 MB <Download className="h-3.5 w-3.5" /></span>
-                </a>
-                <a href="#" className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-2"><Monitor className="h-4 w-4" /> Mac</span>
-                  <span className="flex items-center gap-1 text-xs opacity-75">52 MB <Download className="h-3.5 w-3.5" /></span>
-                </a>
-              </div>
+              {/* Le release sono servite da /download (versione + size dinamici da R2) */}
+              <Link
+                href="/download"
+                className="w-full py-2.5 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+              >
+                <Download className="h-4 w-4" />
+                Scarica per Windows / macOS / Linux
+              </Link>
             </div>
 
             {/* Mobile App */}

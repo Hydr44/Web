@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Smartphone,
   ArrowLeft,
@@ -32,6 +33,7 @@ import {
  * (setTimeout simulati e codici di backup hardcoded). Vedi audit P0.
  */
 export default function TwoFactorAuthPage() {
+  usePageTitle("2FA");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
 

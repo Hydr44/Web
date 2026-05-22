@@ -14,6 +14,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
  * Preferenze notifiche utente (email + in-app).
@@ -71,6 +72,7 @@ const INAPP_FIELDS: { key: string; label: string; desc: string }[] = [
 ];
 
 export default function NotificationsSettingsPage() {
+  usePageTitle("Notifiche");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [prefs, setPrefs] = useState<Prefs | null>(null);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Shield,
   ArrowLeft,
@@ -69,6 +70,7 @@ function relTime(iso: string) {
 }
 
 export default function AuditPage() {
+  usePageTitle("Audit log");
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<AuditRow[]>([]);
   const [error, setError] = useState<string | null>(null);

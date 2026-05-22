@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import jwt from 'jsonwebtoken';
+import { verifyOAuthToken } from "@/lib/oauth-jwt";
 
 export const runtime = "nodejs";
 
@@ -24,12 +25,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verifica refresh token
-    let decoded;
-    try {
-      decoded = jwt.verify(refresh_token, JWT_SECRET) as any;
-    } catch (jwtError) {
-      console.warn('JWT refresh verification failed:', jwtError);
+    // Verifica refresh token (tipato; null se invalido/scaduto/forma sbagliata)
+    const decoded = verifyOAuthToken(refresh_token, JWT_SECRET);
+    if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid or expired refresh token' },
         { status: 401 }

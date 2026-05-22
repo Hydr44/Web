@@ -1,7 +1,7 @@
 // src/app/api/auth/verify/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import jwt from 'jsonwebtoken';
+import { verifyOAuthToken } from "@/lib/oauth-jwt";
 
 export const runtime = "nodejs";
 
@@ -58,12 +58,9 @@ export async function GET(request: NextRequest) {
       return corsJson(origin, { error: 'Missing token parameter' }, 400);
     }
 
-    // Verifica JWT token
-    let decoded;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET) as any;
-    } catch (jwtError) {
-      console.warn('JWT verification failed:', jwtError);
+    // Verifica JWT token (tipato; null se invalido/scaduto/forma sbagliata)
+    const decoded = verifyOAuthToken(token, JWT_SECRET);
+    if (!decoded) {
       return corsJson(origin, { error: 'Invalid or expired token' }, 401);
     }
 

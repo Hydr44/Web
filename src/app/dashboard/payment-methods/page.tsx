@@ -2,6 +2,7 @@
 
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import { CreditCard, ExternalLink, Shield } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
  * Metodi di pagamento — gestiti via Stripe Customer Portal (`/api/billing/portal`).
@@ -9,6 +10,7 @@ import { CreditCard, ExternalLink, Shield } from "lucide-react";
  * Tenere logica/PCI lato Stripe è la scelta corretta (compliance + UX).
  */
 export default function PaymentMethodsPage() {
+  usePageTitle("Metodi di pagamento");
   return (
     <RoleGuard
       allow={["owner"]}

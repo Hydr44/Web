@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   Monitor,
   Apple,
@@ -67,6 +68,7 @@ function detectOs(): "win" | "mac" | "linux" | null {
 }
 
 export default function DashboardDownloadPage() {
+  usePageTitle("Download");
   const [releases, setReleases] = useState<Releases | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

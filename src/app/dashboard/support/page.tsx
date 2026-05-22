@@ -14,6 +14,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
  * Pagina supporto — stile dashboard professionale.
@@ -71,6 +72,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function SupportPage() {
+  usePageTitle("Supporto");
   const router = useRouter();
   const [view, setView] = useState<"list" | "new">("list");
   const [tickets, setTickets] = useState<TicketListItem[]>([]);

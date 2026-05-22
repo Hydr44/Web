@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { 
   Shield, 
   Lock, 
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 
 export default function SecurityPage() {
+  usePageTitle("Sicurezza");
   const [loading, setLoading] = useState(true);
   const [securityData, setSecurityData] = useState({
     securityScore: 85,

@@ -183,7 +183,7 @@ export default function SetPasswordPage() {
             <div className="lg:hidden mb-8">
               <Link href="/" className="inline-flex flex-col items-center gap-2">
                 <div className="relative w-12 h-12 overflow-hidden">
-                  <Image src="/logo_128.png" alt="RescueManager" fill className="object-cover" />
+                  <Image src="/logo_512.png" alt="RescueManager" fill className="object-cover" />
                 </div>
                 <span className="text-xl font-extrabold text-[#0f172a]">RESCUE<span className="text-blue-600">MANAGER</span></span>
               </Link>

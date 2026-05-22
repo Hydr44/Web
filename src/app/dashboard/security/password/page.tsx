@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { 
   Key, 
   ArrowLeft, 
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function PasswordPage() {
+  usePageTitle("Password");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
