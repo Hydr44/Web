@@ -7,6 +7,7 @@ import {
   Phone,
   Send,
   MessageSquareText,
+  MessageCircle,
   Plus,
   ArrowLeft,
   RefreshCw,
@@ -249,6 +250,16 @@ export default function SupportPage() {
           >
             <Phone className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
             <span>+39 392 172 3028</span>
+          </a>
+          <a
+            href="https://wa.me/393921723028"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 text-sm text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <MessageCircle className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+            <span>WhatsApp</span>
+            <span className="ml-auto text-[10px] text-gray-400 group-hover:text-gray-600">↗</span>
           </a>
         </div>
       </section>
