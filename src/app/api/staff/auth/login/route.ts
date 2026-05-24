@@ -5,16 +5,22 @@ import { generateStaffToken } from '@/lib/staff-auth';
 import { checkRateLimit, getRateLimitIdentifier, logSecurityEvent, validateEmail } from '@/lib/security';
 
 function getCorsHeaders(origin: string | null) {
+  // Admin panel ora e' Electron desktop (origin `app://` in prod). Sottodominio
+  // admin.rescuemanager.eu dismesso a maggio 2026.
   const allowedOrigins = [
-    'https://admin.rescuemanager.eu',
+    'https://rescuemanager.eu',
+    'https://www.rescuemanager.eu',
     'https://staging.rescuemanager.eu',
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
     'http://localhost:3000',
   ];
-  
-  const corsOrigin = origin && allowedOrigins.includes(origin) ? origin : 'https://admin.rescuemanager.eu';
+
+  const isAllowed = (origin && allowedOrigins.includes(origin)) ||
+    origin?.startsWith('app://') ||
+    origin?.startsWith('http://localhost:');
+  const corsOrigin = isAllowed && origin ? origin : 'https://rescuemanager.eu';
   
   return {
     'Access-Control-Allow-Origin': corsOrigin,

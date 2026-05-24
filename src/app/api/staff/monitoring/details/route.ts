@@ -105,13 +105,17 @@ async function fetchEmailOutboxStats() {
   }
 }
 
-// ─── SDI Details: chiama /api/sdi-sftp/status sul VPS ───
+// ─── SDI Details: ping del SDI Web Service (post-migrazione SFTP→WS maggio 2026) ───
+// L'URL e' opzionale via env per supportare prod/test su hostname diversi.
+// Senza SDI_WS_STATUS_URL la funzione torna null e l'UI mostra "non disponibile".
 
 async function fetchSdiStatus() {
+  const url = process.env.SDI_WS_STATUS_URL;
+  if (!url) return null;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    const res = await fetch('http://sdi-sftp.rescuemanager.eu/api/sdi-sftp/status', {
+    const res = await fetch(url, {
       signal: controller.signal,
       cache: 'no-store',
     });

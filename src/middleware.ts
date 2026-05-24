@@ -29,15 +29,12 @@ async function isValidStaffJwt(authHeader: string | null): Promise<boolean> {
 }
 
 function buildCorsHeaders(origin: string) {
+  // Admin panel ora e' Electron desktop (origin `app://` in prod, `file://` o
+  // localhost in dev). Sottodomini admin/staff dismessi a maggio 2026.
   const STAFF_ALLOWED_ORIGINS = [
-    'https://admin.rescuemanager.eu',
-    'https://staff.rescuemanager.eu',
+    'https://rescuemanager.eu',
+    'https://www.rescuemanager.eu',
     'https://staging.rescuemanager.eu',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5173',
-    'http://localhost:8081',
-    'http://localhost:3001',
   ];
   const isAllowed = STAFF_ALLOWED_ORIGINS.includes(origin) ||
     origin.startsWith('http://localhost:') ||
@@ -82,20 +79,6 @@ export async function middleware(request: NextRequest) {
       response.headers.set(k, v);
     }
     return response;
-  }
-
-  // Staff subdomain redirect (logica esistente)
-  const hostname = request.headers.get('host') || '';
-  if (hostname.includes('staff.rescuemanager.eu') || hostname.includes('staff.localhost')) {
-    const url = request.nextUrl.clone();
-    if (url.pathname === '/') {
-      url.pathname = '/staff';
-      return NextResponse.redirect(url);
-    }
-    if (!url.pathname.startsWith('/staff')) {
-      url.pathname = `/staff${url.pathname}`;
-      return NextResponse.redirect(url);
-    }
   }
 
   return NextResponse.next();

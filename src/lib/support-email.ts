@@ -169,7 +169,7 @@ export function notifyStaffNewTicket(t: {
         ${infoRow('Cliente', `${t.customer_name || '-'} <${t.customer_email}>`)}
       </table>
       ${quoteBox(t.body)}
-      ${ctaButton(`${SITE_URL.replace('rescuemanager.eu', 'admin.rescuemanager.eu')}/#/support`, 'Apri in Admin')}`,
+      ${paragraph('<em>Apri la voce Supporto nel Pannello Admin (desktop app) per gestire il ticket.</em>')}`,
   });
   return send(SUPPORT_INBOX, `[Supporto${t.isChat ? ' · CHAT' : ''}] #${num} ${t.subject}`, html, t.customer_email);
 }
@@ -183,7 +183,7 @@ export function notifyStaffCustomerReply(t: {
     bodyHtml: `
       ${paragraph(`<b>${esc(t.subject)}</b> — ${esc(t.customer_email)}`)}
       ${quoteBox(t.body)}
-      ${ctaButton(`${SITE_URL.replace('rescuemanager.eu', 'admin.rescuemanager.eu')}/#/support`, 'Apri in Admin')}`,
+      ${paragraph('<em>Apri la voce Supporto nel Pannello Admin (desktop app) per gestire il ticket.</em>')}`,
   });
   return send(SUPPORT_INBOX, `[Supporto] Re: #${num} ${t.subject}`, html, t.customer_email);
 }
