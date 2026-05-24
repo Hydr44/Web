@@ -1,8 +1,14 @@
-vor# Staff Panel Credentials
+# Staff Panel Credentials (ARCHIVIATO 2026-05-24)
 
-## Accesso Staff Panel
+> **NOTA**: documento archiviato. Il sottodominio `staff.rescuemanager.eu` e' stato
+> dismesso a maggio 2026. Il pannello admin/staff e' ora una desktop app Electron
+> (repo `admin-panel/`), non piu' una web app accessibile via URL.
+> Le credenziali elencate qui sotto sono di riferimento storico — verificare lo
+> stato corrente in Supabase (`staff` table) prima di considerarle valide.
 
-Il pannello staff è accessibile tramite: `https://staff.rescuemanager.eu`
+## Accesso Staff Panel (storico)
+
+Il pannello staff era accessibile tramite: `https://staff.rescuemanager.eu` (DNS dismesso)
 
 ## Credenziali di Accesso
 
