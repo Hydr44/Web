@@ -296,6 +296,7 @@ export async function POST(request: NextRequest) {
     {
       success: true,
       token: signedToken,
+      jti: tokenRow.jti,           // serve al desktop per sottoscrivere il realtime
       qr_url,
       qr_png_data_url,
       expires_at,
