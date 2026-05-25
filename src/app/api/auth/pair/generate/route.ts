@@ -74,14 +74,30 @@ interface DriverRecord {
 }
 
 /** Lookup driver da staff_drivers o drivers — almeno uno dei due deve essere fornito */
-async function resolveDriver(body: Body): Promise<DriverRecord | { error: string; status: number }> {
+async function resolveDriver(body: Body): Promise<DriverRecord | { error: string; status: number; debug?: unknown }> {
   if (body.staff_driver_id) {
     const { data: sd, error: sdErr } = await supabaseAdmin
       .from('staff_drivers')
       .select('id, org_id, nome, cognome, telefono, email, patente, patente_scadenza')
       .eq('id', body.staff_driver_id)
       .maybeSingle();
-    if (sdErr || !sd) return { error: 'staff_driver non trovato', status: 404 };
+
+    if (sdErr) {
+      // PGRST: "relation does not exist" o RLS denial → log + 500
+      console.error('[pair/generate] staff_drivers query error:', sdErr);
+      return {
+        error: `Errore query staff_drivers: ${sdErr.message}`,
+        status: 500,
+        debug: { code: sdErr.code, details: sdErr.details, hint: sdErr.hint, queried_id: body.staff_driver_id },
+      };
+    }
+    if (!sd) {
+      return {
+        error: `staff_driver non trovato (id: ${body.staff_driver_id}). Verifica che il record esista nello stesso Supabase a cui punta rescuemanager.eu (prod).`,
+        status: 404,
+        debug: { queried_id: body.staff_driver_id, table: 'staff_drivers' },
+      };
+    }
     const fullName = [sd.nome, sd.cognome].filter(Boolean).join(' ').trim();
     return {
       org_id: sd.org_id,
@@ -100,7 +116,21 @@ async function resolveDriver(body: Body): Promise<DriverRecord | { error: string
       .select('id, org_id, name, phone, license_no, license_expiry')
       .eq('id', body.driver_id)
       .maybeSingle();
-    if (drErr || !dr) return { error: 'Driver non trovato', status: 404 };
+    if (drErr) {
+      console.error('[pair/generate] drivers query error:', drErr);
+      return {
+        error: `Errore query drivers: ${drErr.message}`,
+        status: 500,
+        debug: { code: drErr.code, queried_id: body.driver_id },
+      };
+    }
+    if (!dr) {
+      return {
+        error: `driver non trovato (id: ${body.driver_id})`,
+        status: 404,
+        debug: { queried_id: body.driver_id, table: 'drivers' },
+      };
+    }
     return {
       org_id: dr.org_id,
       prefill: {
@@ -142,7 +172,10 @@ export async function POST(request: NextRequest) {
   // 3. Resolve driver (helper extracted per cognitive complexity)
   const resolvedOrErr = await resolveDriver(body);
   if ('error' in resolvedOrErr) {
-    return NextResponse.json({ error: resolvedOrErr.error }, { status: resolvedOrErr.status, headers: cors });
+    return NextResponse.json(
+      { error: resolvedOrErr.error, debug: resolvedOrErr.debug },
+      { status: resolvedOrErr.status, headers: cors },
+    );
   }
   const resolved = resolvedOrErr;
 
