@@ -76,14 +76,17 @@ interface DriverRecord {
 /** Lookup driver da staff_drivers o drivers — almeno uno dei due deve essere fornito */
 async function resolveDriver(body: Body): Promise<DriverRecord | { error: string; status: number; debug?: unknown }> {
   if (body.staff_driver_id) {
+    // SELECT difensivo: usiamo `*` e leggiamo solo i campi presenti.
+    // Lo schema prod di staff_drivers e' un sottoinsieme di quello in
+    // migration 20260306 (manca patente_scadenza, possibilmente altri).
+    // Non blocchiamo il pairing per colonne opzionali assenti.
     const { data: sd, error: sdErr } = await supabaseAdmin
       .from('staff_drivers')
-      .select('id, org_id, nome, cognome, telefono, email, patente, patente_scadenza')
+      .select('*')
       .eq('id', body.staff_driver_id)
       .maybeSingle();
 
     if (sdErr) {
-      // PGRST: "relation does not exist" o RLS denial → log + 500
       console.error('[pair/generate] staff_drivers query error:', sdErr);
       return {
         error: `Errore query staff_drivers: ${sdErr.message}`,
@@ -93,20 +96,24 @@ async function resolveDriver(body: Body): Promise<DriverRecord | { error: string
     }
     if (!sd) {
       return {
-        error: `staff_driver non trovato (id: ${body.staff_driver_id}). Verifica che il record esista nello stesso Supabase a cui punta rescuemanager.eu (prod).`,
+        error: `staff_driver non trovato (id: ${body.staff_driver_id})`,
         status: 404,
         debug: { queried_id: body.staff_driver_id, table: 'staff_drivers' },
       };
     }
-    const fullName = [sd.nome, sd.cognome].filter(Boolean).join(' ').trim();
+
+    // Estrai i campi che potrebbero esserci. Tutti sono opzionali — se non
+    // presenti nello schema prod, il prefill ha undefined e va bene cosi'.
+    const sdAny = sd as Record<string, unknown>;
+    const fullName = [sdAny.nome, sdAny.cognome].filter(Boolean).join(' ').trim();
     return {
-      org_id: sd.org_id,
-      email: sd.email || undefined,
+      org_id: sdAny.org_id as string,
+      email: (sdAny.email as string) || undefined,
       prefill: {
         name: fullName || undefined,
-        phone: sd.telefono || undefined,
-        license_no: sd.patente || undefined,
-        license_expiry: sd.patente_scadenza || undefined,
+        phone: (sdAny.telefono as string) || undefined,
+        license_no: (sdAny.patente as string) || undefined,
+        license_expiry: (sdAny.patente_scadenza as string) || undefined,
       },
     };
   }
