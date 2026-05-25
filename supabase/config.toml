@@ -1,0 +1,44 @@
+# Supabase CLI config — link al progetto prod.
+# Generato manualmente per evitare il flow interattivo di `supabase link`.
+# Project ID prod: ienzdgrqalltvkdkuamp (RescueManager)
+#
+# Per re-linkare in locale: `supabase link --project-ref ienzdgrqalltvkdkuamp`
+# Per applicare migrations: `supabase db push --linked`
+
+project_id = "ienzdgrqalltvkdkuamp"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://rescuemanager.eu"
+additional_redirect_urls = [
+  "https://rescuemanager.eu",
+  "https://staging.rescuemanager.eu",
+  "https://www.rescuemanager.eu",
+  "rescuemanager://**",  # mobile app deep link
+  "io.expo.go://**",     # Expo Go dev
+  "http://localhost:8081",
+  "http://localhost:5175",
+  "http://localhost:3000",
+]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[functions]
+# Edge Functions deployate manualmente (non gestite da questa CI per ora).

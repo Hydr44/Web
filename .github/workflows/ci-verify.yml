@@ -1,0 +1,53 @@
+# Verifica PR e push: type-check + build Next.js. Blocca i merge se rompe.
+#
+# Cosa NON fa (per ora):
+#   - Test unit/integration → niente test suite ancora nel website
+#   - Lint → eslint già disabilitato in next.config.ts (`ignoreDuringBuilds: true`)
+#   - Smoke test post-deploy → fatto da Vercel + UptimeRobot
+#
+# Tempo medio: 2-4 min per run su pnpm + Next.js 15.
+
+name: CI verify
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check (non-blocking, log only)
+        # next.config.ts ha typescript.ignoreBuildErrors=true, quindi non blocchiamo
+        # il merge per errori TS pre-esistenti. Logghiamo solo per consapevolezza.
+        run: pnpm tsc --noEmit || true
+        continue-on-error: true
+
+      - name: Next.js build (BLOCKING)
+        # Questo SÌ blocca: se non builda, non puoi mergere.
+        run: pnpm build
+        env:
+          # Env minimi richiesti dal build (anche se finti, evitano crash su import)
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder

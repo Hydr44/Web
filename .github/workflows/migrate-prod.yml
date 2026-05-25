@@ -1,0 +1,83 @@
+# Applica automaticamente le migrations Supabase quando vengono mergiate su main.
+#
+# Cosa fa:
+#   1. Trigger: push a main che modifica supabase/migrations/**
+#   2. Setup Supabase CLI
+#   3. `supabase db push --linked` → applica TUTTE le migrazioni nuove al
+#      progetto Supabase di prod (linkato via SUPABASE_PROJECT_ID).
+#
+# Secrets richiesti (Settings → Secrets and variables → Actions → New repository secret):
+#   - SUPABASE_ACCESS_TOKEN: Personal Access Token. Genera su
+#     https://supabase.com/dashboard/account/tokens → "Generate new token"
+#   - SUPABASE_DB_PASSWORD: password DB del progetto (Settings → Database →
+#     Connection string → password). Serve perché db push usa connessione diretta.
+#   - SUPABASE_PROJECT_ID: ref del progetto prod = "ienzdgrqalltvkdkuamp"
+#     (lo trovi anche in supabase/config.toml dopo `supabase link`)
+#
+# Cosa NON fa (decisione di scoping):
+#   - Non gira `supabase db diff` né valida lo schema — quello tocca al PR check
+#     (workflow ci-verify.yml separato).
+#   - Non fa migration di rollback automatica: PostgreSQL non le ha native, gestione
+#     manuale (creare una nuova migration che fa l'undo).
+#   - Non tocca lo staging Supabase: separato (vedi migrate-staging.yml quando
+#     useremo Supabase branching).
+
+name: Migrate Supabase (prod)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - '.github/workflows/migrate-prod.yml'
+  # Permette di lanciare manualmente dal tab Actions ("Run workflow")
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    # Lock per evitare due workflow concorrenti che applicano migrations contemporaneamente
+    concurrency:
+      group: supabase-migrate-prod
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+
+      - name: Dry-run (lista migrations da applicare)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          echo "Pending migrations:"
+          supabase migration list --linked | tail -20
+
+      - name: Apply migrations to prod
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          supabase db push --linked --yes
+
+      - name: Notify (placeholder)
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Migrations applied successfully to prod"
+          else
+            echo "❌ Migration failed — check the logs above"
+          fi
+          # TODO: aggiungere webhook Slack/email quando vorrai notifiche

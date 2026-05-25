@@ -4,6 +4,9 @@
 .env.local
 .env.production
 .env.staging
+# Eccezione: i template *.example sono tracked (no segreti reali)
+!.env.example
+!.env.staging.example
 
 # Certificati SDI (non committare su Git pubblicamente)
 certificati/**/*.cer
