@@ -11,34 +11,41 @@
  * Auth:
  *   Header: Authorization: Bearer <supabase access_token>
  *
- * Body:
+ * Body (uno di driver_id OR staff_driver_id obbligatorio):
  *   {
- *     driver_id: string,        // UUID del driver in `drivers` (obbligatorio)
- *     operator_email: string,   // email personale del driver (per Supabase Auth)
- *     ttl_seconds?: number      // override TTL token (default 300 = 5min)
+ *     // Caso 1: driver moderno (tabella `drivers`, usata dal mobile)
+ *     driver_id?: string,
+ *
+ *     // Caso 2: driver legacy (tabella `staff_drivers`, usata dal desktop)
+ *     staff_driver_id?: string,
+ *
+ *     operator_email?: string,  // override email (default = staff_drivers.email se staff_driver_id)
+ *     ttl_seconds?: number      // override TTL (default 300, max 900)
  *   }
  *
  * Response 200:
  *   {
  *     success: true,
- *     token: string,           // JWT raw
- *     qr_url: string,          // rescuemanager://pair?token=...
- *     qr_png_data_url: string, // data:image/png;base64,... per <img src>
+ *     token: string,
+ *     qr_url: string,             // rescuemanager://pair?token=...
+ *     qr_png_data_url: string,    // data:image/png;base64,...
  *     expires_at: ISO,
- *     driver_id: string
+ *     driver_id?: string,
+ *     staff_driver_id?: string,
+ *     operator_email: string
  *   }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { signPairingToken, buildDeepLink } from '@/lib/pairing-jwt';
+import { signPairingToken, buildDeepLink, type PairingPrefill } from '@/lib/pairing-jwt';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_TTL_SECONDS = 300;
-const MAX_TTL_SECONDS = 900; // 15 min
+const MAX_TTL_SECONDS = 900;
 
 function corsHeaders(origin: string | null): Record<string, string> {
   return {
@@ -55,15 +62,63 @@ export async function OPTIONS(req: NextRequest) {
 
 interface Body {
   driver_id?: string;
+  staff_driver_id?: string;
   operator_email?: string;
   ttl_seconds?: number;
+}
+
+interface DriverRecord {
+  org_id: string;
+  email?: string;
+  prefill: PairingPrefill;
+}
+
+/** Lookup driver da staff_drivers o drivers — almeno uno dei due deve essere fornito */
+async function resolveDriver(body: Body): Promise<DriverRecord | { error: string; status: number }> {
+  if (body.staff_driver_id) {
+    const { data: sd, error: sdErr } = await supabaseAdmin
+      .from('staff_drivers')
+      .select('id, org_id, nome, cognome, telefono, email, patente, patente_scadenza')
+      .eq('id', body.staff_driver_id)
+      .maybeSingle();
+    if (sdErr || !sd) return { error: 'staff_driver non trovato', status: 404 };
+    const fullName = [sd.nome, sd.cognome].filter(Boolean).join(' ').trim();
+    return {
+      org_id: sd.org_id,
+      email: sd.email || undefined,
+      prefill: {
+        name: fullName || undefined,
+        phone: sd.telefono || undefined,
+        license_no: sd.patente || undefined,
+        license_expiry: sd.patente_scadenza || undefined,
+      },
+    };
+  }
+  if (body.driver_id) {
+    const { data: dr, error: drErr } = await supabaseAdmin
+      .from('drivers')
+      .select('id, org_id, name, phone, license_no, license_expiry')
+      .eq('id', body.driver_id)
+      .maybeSingle();
+    if (drErr || !dr) return { error: 'Driver non trovato', status: 404 };
+    return {
+      org_id: dr.org_id,
+      prefill: {
+        name: dr.name || undefined,
+        phone: dr.phone || undefined,
+        license_no: dr.license_no || undefined,
+        license_expiry: dr.license_expiry || undefined,
+      },
+    };
+  }
+  return { error: 'driver_id o staff_driver_id obbligatorio', status: 400 };
 }
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
   const cors = corsHeaders(origin);
 
-  // 1. Auth: Bearer access_token Supabase
+  // 1. Auth: Bearer Supabase access_token
   const auth = request.headers.get('authorization') || '';
   const token = auth.toLowerCase().startsWith('bearer ') ? auth.slice(7) : '';
   if (!token) {
@@ -84,36 +139,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Body JSON non valido' }, { status: 400, headers: cors });
   }
 
-  const driver_id = body.driver_id?.trim();
-  if (!driver_id) {
-    return NextResponse.json({ error: 'driver_id obbligatorio' }, { status: 400, headers: cors });
+  // 3. Resolve driver (helper extracted per cognitive complexity)
+  const resolvedOrErr = await resolveDriver(body);
+  if ('error' in resolvedOrErr) {
+    return NextResponse.json({ error: resolvedOrErr.error }, { status: resolvedOrErr.status, headers: cors });
   }
+  const resolved = resolvedOrErr;
 
-  // 3. Email destinatario obbligatoria (è l'identità Supabase del driver)
-  const operator_email = body.operator_email?.trim().toLowerCase();
-  if (!operator_email) {
-    return NextResponse.json(
-      { error: 'operator_email obbligatorio (email personale del driver)' },
-      { status: 400, headers: cors },
-    );
-  }
-
-  // 4. Trova driver + verifica org_membership del caller
-  const { data: driver, error: drvErr } = await supabaseAdmin
-    .from('drivers')
-    .select('id, org_id, name, phone, license_no, license_expiry')
-    .eq('id', driver_id)
-    .maybeSingle();
-
-  if (drvErr || !driver) {
-    return NextResponse.json({ error: 'Driver non trovato' }, { status: 404, headers: cors });
-  }
-
+  // 4. Org membership check (caller deve essere dell'org del driver)
   const { data: membership, error: memErr } = await supabaseAdmin
     .from('org_members')
     .select('role')
     .eq('user_id', callerId)
-    .eq('org_id', driver.org_id)
+    .eq('org_id', resolved.org_id)
     .maybeSingle();
 
   if (memErr || !membership) {
@@ -123,25 +161,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 5. TTL
+  // 5. Email destinatario: override esplicito > staff_drivers.email > errore
+  const operator_email = (body.operator_email || resolved.email)?.trim().toLowerCase();
+  if (!operator_email) {
+    return NextResponse.json(
+      {
+        error:
+          'Email autista mancante. Aggiungi una email al driver in anagrafica oppure passa operator_email nella request.',
+      },
+      { status: 400, headers: cors },
+    );
+  }
+
+  // 6. TTL
   const ttl = Math.min(Math.max(body.ttl_seconds ?? DEFAULT_TTL_SECONDS, 60), MAX_TTL_SECONDS);
   const expires_at = new Date(Date.now() + ttl * 1000).toISOString();
 
-  // 6. Persist record
-  const prefill = {
-    name: driver.name,
-    phone: driver.phone,
-    license_no: driver.license_no,
-    license_expiry: driver.license_expiry,
-  };
-
+  // 7. Persist record
   const { data: tokenRow, error: insErr } = await supabaseAdmin
     .from('pairing_tokens')
     .insert({
       operator_email,
-      org_id: driver.org_id,
-      driver_id,
-      prefill,
+      org_id: resolved.org_id,
+      driver_id: body.driver_id ?? null,
+      staff_driver_id: body.staff_driver_id ?? null,
+      prefill: resolved.prefill,
       generated_by: callerId,
       expires_at,
     })
@@ -153,16 +197,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Errore creazione token' }, { status: 500, headers: cors });
   }
 
-  // 7. Firma JWT
+  // 8. Firma JWT
   let signedToken: string;
   try {
     signedToken = await signPairingToken(
       {
         jti: tokenRow.jti,
-        org_id: driver.org_id,
+        org_id: resolved.org_id,
         operator_email,
-        driver_id,
-        prefill,
+        driver_id: body.driver_id,
+        prefill: resolved.prefill,
       },
       ttl,
     );
@@ -175,7 +219,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 8. QR PNG
+  // 9. QR PNG
   const qr_url = buildDeepLink(signedToken);
   const qr_png_data_url = await QRCode.toDataURL(qr_url, {
     errorCorrectionLevel: 'M',
@@ -191,7 +235,8 @@ export async function POST(request: NextRequest) {
       qr_url,
       qr_png_data_url,
       expires_at,
-      driver_id,
+      driver_id: body.driver_id,
+      staff_driver_id: body.staff_driver_id,
       operator_email,
     },
     { headers: cors },
