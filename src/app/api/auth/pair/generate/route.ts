@@ -62,7 +62,9 @@ export async function OPTIONS(req: NextRequest) {
 
 interface Body {
   driver_id?: string;
-  staff_driver_id?: string;
+  // staff_drivers.id in prod e' bigint (legacy). Accettiamo string o number
+  // dal client e normalizziamo a number prima di insert/lookup.
+  staff_driver_id?: string | number;
   operator_email?: string;
   ttl_seconds?: number;
 }
@@ -217,14 +219,20 @@ export async function POST(request: NextRequest) {
   const ttl = Math.min(Math.max(body.ttl_seconds ?? DEFAULT_TTL_SECONDS, 60), MAX_TTL_SECONDS);
   const expires_at = new Date(Date.now() + ttl * 1000).toISOString();
 
-  // 7. Persist record
+  // 7. Persist record.
+  // staff_driver_id e' bigint in prod (legacy schema) — normalizza a number.
+  const staffDriverIdNum =
+    body.staff_driver_id !== undefined && body.staff_driver_id !== null
+      ? Number(body.staff_driver_id)
+      : null;
+
   const { data: tokenRow, error: insErr } = await supabaseAdmin
     .from('pairing_tokens')
     .insert({
       operator_email,
       org_id: resolved.org_id,
       driver_id: body.driver_id ?? null,
-      staff_driver_id: body.staff_driver_id ?? null,
+      staff_driver_id: staffDriverIdNum,
       prefill: resolved.prefill,
       generated_by: callerId,
       expires_at,
@@ -233,8 +241,24 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (insErr || !tokenRow) {
-    console.error('[pair/generate] insert failed:', insErr?.message);
-    return NextResponse.json({ error: 'Errore creazione token' }, { status: 500, headers: cors });
+    console.error('[pair/generate] insert failed:', insErr);
+    return NextResponse.json(
+      {
+        error: `Errore creazione token: ${insErr?.message || 'unknown'}`,
+        debug: {
+          code: insErr?.code,
+          details: insErr?.details,
+          hint: insErr?.hint,
+          payload: {
+            org_id: resolved.org_id,
+            driver_id: body.driver_id ?? null,
+            staff_driver_id: staffDriverIdNum,
+            generated_by: callerId,
+          },
+        },
+      },
+      { status: 500, headers: cors },
+    );
   }
 
   // 8. Firma JWT
