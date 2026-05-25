@@ -81,7 +81,7 @@ export async function verifyPairingToken(token: string): Promise<PairingTokenPay
     issuer: ISSUER,
     algorithms: [ALG],
   });
-  return payload as PairingTokenPayload;
+  return payload as unknown as PairingTokenPayload;
 }
 
 /**
