@@ -102,33 +102,36 @@ export async function POST(request: NextRequest) {
   }
 
   // 4. Trova o auto-crea l'utente in Supabase Auth.
-  //    Se l'admin ha già pre-creato l'account con `force_password_change`, lo
-  //    troviamo qui. Altrimenti lo creiamo on-the-fly (passwordless, sarà
-  //    finalizzato dal magic link).
+  //    Se l'admin ha già pre-creato l'account (provisioning autista), lo
+  //    troviamo qui. Altrimenti lo creiamo on-the-fly (passwordless,
+  //    finalizzato poi dal magic link).
+  //
+  // listUsers di Supabase non filtra per email lato server: dobbiamo
+  // scansionare le pagine. Manteniamo perPage costante (1000) per evitare
+  // off-by-one nella paginazione mista. Stop su prima match.
+  const PER_PAGE = 1000;
+  const MAX_PAGES = 10; // 10k utenti max — sufficiente per qualunque tenant
+  const findUserByEmail = async (): Promise<{ id: string } | null> => {
+    for (let page = 1; page <= MAX_PAGES; page++) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: PER_PAGE });
+      if (error) {
+        console.error('[pair/exchange] listUsers failed:', error.message);
+        return null;
+      }
+      const users = data?.users ?? [];
+      if (users.length === 0) return null;
+      const found = users.find((u) => u.email?.toLowerCase() === operator_email);
+      if (found) return { id: found.id };
+      if (users.length < PER_PAGE) return null; // ultima pagina
+    }
+    return null;
+  };
+
   let userId: string;
   {
-    // Cerca user via getUserByEmail (admin endpoint)
-    const { data: existing } = await supabaseAdmin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-    });
-    // listUsers non filtra per email — workaround: usa filter su email match
-    // tramite admin.getUserById se abbiamo l'id, altrimenti list+find.
-    // Usiamo invece il listUsers con un email filter quando supportato (PG14+
-    // su Supabase 2.x). Fallback: scansione locale.
-    let user = existing?.users?.find((u) => u.email?.toLowerCase() === operator_email);
+    let found = await findUserByEmail();
 
-    if (!user) {
-      // Scansione completa (pageNumber > 1) — improbabile su tenant piccoli
-      // ma da fare per correttezza. Limitato a 5 pagine = 1500 utenti.
-      for (let page = 2; page <= 5 && !user; page++) {
-        const { data: p } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 300 });
-        if (!p?.users?.length) break;
-        user = p.users.find((u) => u.email?.toLowerCase() === operator_email);
-      }
-    }
-
-    if (!user) {
+    if (!found) {
       // Auto-crea utente passwordless
       const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: operator_email,
@@ -140,13 +143,25 @@ export async function POST(request: NextRequest) {
         },
       });
       if (createErr || !created.user) {
-        console.error('[pair/exchange] auth.admin.createUser failed:', createErr?.message);
-        return NextResponse.json({ error: 'user_not_found' }, { status: 404 });
+        // Caso comune: email già esistente (utente provisionato prima ma non
+        // trovato per qualche motivo). Riprova lookup — magari c'è una race.
+        const isDuplicate = /already.*registered|already.*exists|duplicate/i.test(createErr?.message ?? '');
+        if (isDuplicate) {
+          found = await findUserByEmail();
+        }
+        if (!found) {
+          console.error('[pair/exchange] auth.admin.createUser failed:', createErr?.message);
+          return NextResponse.json({
+            error: 'user_not_found',
+            debug: process.env.NODE_ENV !== 'production' ? { createErr: createErr?.message } : undefined,
+          }, { status: 404 });
+        }
+      } else {
+        found = { id: created.user.id };
       }
-      userId = created.user.id;
-    } else {
-      userId = user.id;
     }
+
+    userId = found.id;
   }
 
   // 5. Genera magic link e tira fuori il `hashed_token` da passare al mobile.
