@@ -28,6 +28,11 @@ export interface PairingTokenPayload {
   org_id: string;
   operator_email: string;
   driver_id?: string;
+  // staff_driver_id propagato così il pair/exchange può linkare
+  // staff_drivers.auth_user_id e attivare `mobile_status='active'`.
+  // staff_drivers.id in prod è uuid (vedi migration 20260306) o bigint
+  // legacy: stringa generica per evitare castings.
+  staff_driver_id?: string | number;
   prefill?: PairingPrefill;
   // Standard JWT claims che jose imposta automaticamente
   iss?: string;
@@ -62,6 +67,7 @@ export async function signPairingToken(
     org_id: payload.org_id,
     operator_email: payload.operator_email,
     driver_id: payload.driver_id,
+    staff_driver_id: payload.staff_driver_id,
     prefill: payload.prefill,
   })
     .setProtectedHeader({ alg: ALG })
