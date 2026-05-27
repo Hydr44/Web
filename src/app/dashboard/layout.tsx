@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import PageTransition from "@/components/dashboard/PageTransition";
+import DemoLanding from "@/components/dashboard/DemoLanding";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function DashboardLayout({
@@ -16,6 +17,12 @@ export default function DashboardLayout({
   const [userEmail, setUserEmail] = useState("");
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
+  // Quando is_demo=true sostituiamo la dashboard normale con una landing
+  // minimal (download desktop + preventivo). Tutte le altre rotte sotto
+  // /dashboard sono inaccessibili (redirect a /dashboard).
+  const [isDemo, setIsDemo] = useState(false);
+  const [demoQuoteUuid, setDemoQuoteUuid] = useState<string | null>(null);
+  const [demoExpiresAt, setDemoExpiresAt] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -56,7 +63,7 @@ export default function DashboardLayout({
           // Preferisci company_name salvato in org_settings (Info Azienda),
           // altrimenti fallback al nome di orgs.
           const [{ data: org }, { data: settings }] = await Promise.all([
-            supabase.from('orgs').select('name, web_access_enabled').eq('id', userOrgId).maybeSingle(),
+            supabase.from('orgs').select('name, web_access_enabled, is_demo, demo_expires_at').eq('id', userOrgId).maybeSingle(),
             supabase.from('org_settings').select('value').eq('org_id', userOrgId).eq('key', 'company').maybeSingle(),
           ]);
 
@@ -68,6 +75,40 @@ export default function DashboardLayout({
 
           const companyName = (settings?.value as { company_name?: string } | null)?.company_name;
           setOrgName(companyName || org?.name || '');
+
+          // Se l'org è demo: switch a vista landing minimale + carica
+          // l'ultimo preventivo "sent/viewed/accepted/paid" del lead
+          // collegato (così il cliente demo ha 1 click verso il pagamento).
+          if (org?.is_demo === true) {
+            setIsDemo(true);
+            setDemoExpiresAt(org.demo_expires_at || null);
+            try {
+              const { data: lead } = await supabase
+                .from('leads')
+                .select('id')
+                .eq('demo_org_id', userOrgId)
+                .maybeSingle();
+              if (lead?.id) {
+                const { data: quote } = await supabase
+                  .from('lead_quotes')
+                  .select('public_uuid, status, updated_at')
+                  .eq('lead_id', lead.id)
+                  .in('status', ['sent', 'viewed', 'accepted', 'paid', 'pending_activation'])
+                  .order('updated_at', { ascending: false })
+                  .limit(1)
+                  .maybeSingle();
+                if (quote?.public_uuid) setDemoQuoteUuid(quote.public_uuid);
+              }
+            } catch (e) {
+              // Non bloccante: senza quote la landing mostra solo Download.
+              console.warn('[layout] demo quote lookup failed:', e);
+            }
+            // Forziamo l'URL su /dashboard: niente sub-route durante demo.
+            if (pathname && pathname !== '/dashboard') {
+              router.replace('/dashboard');
+              return;
+            }
+          }
         } else {
           setOrgName('');
         }
@@ -204,6 +245,21 @@ export default function DashboardLayout({
           </section>
         </div>
       </div>
+    );
+  }
+
+  // Vista demo: niente sidebar/breadcrumbs. Solo download desktop +
+  // (eventuale) preventivo. L'utente demo non ha senso navighi tra
+  // billing/invoices/activity/org: il suo scopo qui è solo decidere
+  // se acquistare (→ preventivo) o esplorare (→ desktop).
+  if (isDemo) {
+    return (
+      <DemoLanding
+        userEmail={userEmail}
+        orgName={orgName}
+        quoteUuid={demoQuoteUuid}
+        expiresAt={demoExpiresAt}
+      />
     );
   }
 
