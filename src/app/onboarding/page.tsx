@@ -10,8 +10,9 @@ import {
   AlertCircle, Copy, Check, Info
 } from 'lucide-react';
 
-const SDI_CODE = process.env.NEXT_PUBLIC_SDI_RECIPIENT_CODE || '';
-const SDI_CONFIGURED = SDI_CODE.length > 0;
+// SDI fallback se per qualche motivo company_settings.sdi_recipient_code
+// non è stato popolato da convert.js (env Vercel = backup, NON canonico).
+const SDI_CODE_FALLBACK = process.env.NEXT_PUBLIC_SDI_RECIPIENT_CODE || '';
 
 type CompanyData = {
   company_name: string;
@@ -42,6 +43,9 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  // Codice SDI assegnato all'org: letto da company_settings.sdi_recipient_code
+  // (fonte canonica, stessa lettura di Settings desktop). Fallback a env.
+  const [sdiCode, setSdiCode] = useState<string>('');
 
   useEffect(() => {
     const init = async () => {
@@ -64,12 +68,18 @@ export default function OnboardingPage() {
         setOrgId(profile.current_org);
 
         // Carica org_settings.key='company' pre-compilato (fonte autoritativa)
-        const { data: row } = await supabase
-          .from('org_settings')
-          .select('value')
-          .eq('org_id', profile.current_org)
-          .eq('key', 'company')
-          .maybeSingle();
+        // + company_settings.sdi_recipient_code (lo legge anche Settings
+        // desktop → coerenza garantita).
+        const [{ data: row }, { data: cs }] = await Promise.all([
+          supabase.from('org_settings').select('value')
+            .eq('org_id', profile.current_org).eq('key', 'company').maybeSingle(),
+          supabase.from('company_settings').select('sdi_recipient_code')
+            .eq('org_id', profile.current_org).maybeSingle(),
+        ]);
+
+        const code = (cs as { sdi_recipient_code?: string | null } | null)?.sdi_recipient_code
+          || SDI_CODE_FALLBACK;
+        setSdiCode(code);
 
         const v: any = row?.value || {};
         const addr = (v.address && typeof v.address === 'object') ? v.address : {};
@@ -148,8 +158,8 @@ export default function OnboardingPage() {
   };
 
   const copyCode = () => {
-    if (!SDI_CONFIGURED) return;
-    navigator.clipboard.writeText(SDI_CODE);
+    if (!sdiCode) return;
+    navigator.clipboard.writeText(sdiCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -340,11 +350,11 @@ export default function OnboardingPage() {
               Questo codice ti permette di ricevere fatture elettroniche direttamente su RescueManager.
             </p>
 
-            {SDI_CONFIGURED ? (
+            {sdiCode ? (
               <div className="border border-blue-200 bg-blue-50 p-6 mb-6 text-center">
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Il tuo Codice Destinatario SDI</p>
                 <div className="flex items-center justify-center gap-3 mb-2">
-                  <span className="text-4xl font-bold font-mono text-[#0f172a] tracking-widest">{SDI_CODE}</span>
+                  <span className="text-4xl font-bold font-mono text-[#0f172a] tracking-widest">{sdiCode}</span>
                   <button onClick={copyCode}
                     className="p-2 border border-gray-200 hover:bg-white transition-colors text-gray-500 hover:text-gray-800">
                     {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
