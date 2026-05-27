@@ -94,6 +94,9 @@ export default function SetPasswordPage() {
 
     // Recupera organizzazione + ruolo per mostrarli, e per gli autisti
     // marca l'onboarding completato (coerente con l'app mobile).
+    // Leggi anche is_demo: per le demo NON serve l'onboarding wizard
+    // (è pensato per clienti paganti che devono configurare cert/SDI/ecc.).
+    let isDemoOrg = false;
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const role = (user?.user_metadata as { role?: string } | undefined)?.role ?? null;
@@ -103,8 +106,9 @@ export default function SetPasswordPage() {
           .from('profiles').select('org_id').eq('id', user.id).maybeSingle();
         if (prof?.org_id) {
           const { data: org } = await supabase
-            .from('orgs').select('name').eq('id', prof.org_id).maybeSingle();
+            .from('orgs').select('name, is_demo').eq('id', prof.org_id).maybeSingle();
           orgName = (org as { name?: string } | null)?.name ?? null;
+          isDemoOrg = (org as { is_demo?: boolean } | null)?.is_demo === true;
         }
         if (role === 'autista') {
           await supabase.from('drivers')
@@ -118,7 +122,11 @@ export default function SetPasswordPage() {
     }
 
     setStage('success');
-    setTimeout(() => router.push('/onboarding'), 4000);
+    // Demo: vai dritto al dashboard (che renderizza DemoLanding minimale).
+    // L'onboarding wizard è solo per clienti produzione che configurano
+    // anagrafica + certificati + credenziali.
+    const dest = isDemoOrg ? '/dashboard' : '/onboarding';
+    setTimeout(() => router.push(dest), 4000);
   };
 
   const strength = passwordStrength();
