@@ -67,9 +67,10 @@ export default function OnboardingPage() {
       if (profile?.current_org) {
         setOrgId(profile.current_org);
 
-        // Carica org_settings.key='company' pre-compilato + org_settings.key='sdi'
-        // (fonte canonica per codice_destinatario, allineato con Settings
-        // desktop e ClientControlsPanel).
+        // Carica org_settings.key='company' (fonte canonica per anagrafica
+        // + codice_destinatario, letta dal desktop via companySettingsService).
+        // Fallback su key='sdi' se per qualche motivo company non l'ha
+        // (back-compat con scritture vecchie).
         const [{ data: row }, { data: sdiRow }] = await Promise.all([
           supabase.from('org_settings').select('value')
             .eq('org_id', profile.current_org).eq('key', 'company').maybeSingle(),
@@ -77,8 +78,11 @@ export default function OnboardingPage() {
             .eq('org_id', profile.current_org).eq('key', 'sdi').maybeSingle(),
         ]);
 
+        const companyValue = (row?.value as { codice_destinatario?: string } | null) || null;
         const sdiValue = (sdiRow?.value as { codice_destinatario?: string } | null) || null;
-        const code = sdiValue?.codice_destinatario || SDI_CODE_FALLBACK;
+        const code = companyValue?.codice_destinatario
+          || sdiValue?.codice_destinatario
+          || SDI_CODE_FALLBACK;
         setSdiCode(code);
 
         const v: any = row?.value || {};
