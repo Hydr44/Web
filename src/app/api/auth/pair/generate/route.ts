@@ -261,7 +261,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 8. Firma JWT
+  // Aggiorna stato provisioning mobile su staff_drivers (se applicabile)
+  // a 'pending' — l'exchange poi lo porterà a 'active'. Non blocchiamo se
+  // l'update fallisce (es. colonna assente in env vecchi).
+  if (body.staff_driver_id) {
+    try {
+      await supabaseAdmin
+        .from('staff_drivers')
+        .update({ mobile_status: 'pending' })
+        .eq('id', body.staff_driver_id);
+    } catch (e) {
+      console.warn('[pair/generate] staff_drivers mobile_status update skipped:', (e as Error).message);
+    }
+  }
+
+  // 8. Firma JWT — staff_driver_id viene propagato così l'exchange può
+  // linkare il record staff_drivers (auth_user_id + mobile_status='active').
   let signedToken: string;
   try {
     signedToken = await signPairingToken(
@@ -270,6 +285,7 @@ export async function POST(request: NextRequest) {
         org_id: resolved.org_id,
         operator_email,
         driver_id: body.driver_id,
+        staff_driver_id: staffDriverIdNum ?? undefined,
         prefill: resolved.prefill,
       },
       ttl,

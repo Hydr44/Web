@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'internal' }, { status: 500 });
   }
 
-  const { jti, org_id, operator_email, driver_id, prefill } = payload;
+  const { jti, org_id, operator_email, driver_id, staff_driver_id, prefill } = payload;
   if (!jti || !org_id || !operator_email) {
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }
@@ -208,6 +208,21 @@ export async function POST(request: NextRequest) {
         );
     } catch (e) {
       console.warn('[pair/exchange] drivers upsert failed:', (e as Error).message);
+    }
+  }
+
+  // Link staff_drivers ↔ auth.users + attiva mobile_status. Questo permette
+  // al mobile di risalire da auth.uid() alla riga staff_drivers e leggere
+  // mobile_modules. Non bloccante: se la colonna non esiste (env legacy
+  // pre-migration 20260527) loggiamo e proseguiamo.
+  if (staff_driver_id) {
+    try {
+      await supabaseAdmin
+        .from('staff_drivers')
+        .update({ auth_user_id: userId, mobile_status: 'active' })
+        .eq('id', staff_driver_id);
+    } catch (e) {
+      console.warn('[pair/exchange] staff_drivers link failed:', (e as Error).message);
     }
   }
 
