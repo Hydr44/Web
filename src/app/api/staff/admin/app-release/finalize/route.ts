@@ -48,6 +48,18 @@ function archFromName(name: string, platform: Platform): Arch {
   return 'x64';
 }
 
+const SEMVER_RE = /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?(?:\+[a-zA-Z0-9.]+)?$/;
+const SEMVER_IN_NAME_RE = /(\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?)/;
+
+/** Se il version dichiarato non è SemVer, prova a estrarlo dal filename
+ *  (es. `RescueManager-2.4.1-arm64.dmg` → `2.4.1`). */
+function normalizeVersion(version: string, filename: string): string | null {
+  const v = String(version || '').trim();
+  if (SEMVER_RE.test(v)) return v;
+  const m = String(filename).match(SEMVER_IN_NAME_RE);
+  return m ? m[1] : null;
+}
+
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
   const staff = await getStaffFromRequest(request);
@@ -56,9 +68,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { version, platform, filename, sha512, size } = await request.json();
+    const { version: rawVersion, platform, filename, sha512, size } = await request.json();
 
-    if (!version || !platform || !filename || !sha512 || !size) {
+    if (!rawVersion || !platform || !filename || !sha512 || !size) {
       return NextResponse.json({ success: false, error: 'Campi mancanti' }, { status: 400, headers: corsHeaders(origin) });
     }
     if (platform !== 'win' && platform !== 'mac' && platform !== 'linux') {
@@ -67,6 +79,17 @@ export async function POST(request: NextRequest) {
     const assetType = assetTypeFromName(String(filename));
     if (!assetType) {
       return NextResponse.json({ success: false, error: 'Estensione non riconosciuta' }, { status: 400, headers: corsHeaders(origin) });
+    }
+    // Validate + normalize: il version deve essere SemVer; se l'admin ha digitato
+    // qualcosa di non parsabile (es. "arm64", "versione build, 2.4.1"), proviamo
+    // a derivarlo dal filename. Senza un SemVer valido electron-updater rifiuta
+    // tutto il manifest yml.
+    const version = normalizeVersion(rawVersion, filename);
+    if (!version) {
+      return NextResponse.json({
+        success: false,
+        error: `version "${rawVersion}" non è SemVer e non è deducibile dal nome file ${filename}. Esempio valido: 2.4.1`,
+      }, { status: 400, headers: corsHeaders(origin) });
     }
     const arch = archFromName(String(filename), platform as Platform);
 
