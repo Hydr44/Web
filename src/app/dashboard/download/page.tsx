@@ -34,7 +34,9 @@ type Rel = {
   releaseDate?: string;
   url: string;
 };
-type Releases = { win: Rel | null; mac: Rel | null; linux: Rel | null };
+type Platform = "win" | "mac" | "linux";
+type Arch = "arm64" | "x64";
+type ReleasesByArch = Record<Platform, Partial<Record<Arch, Rel>>>;
 
 // Configurare quando le app saranno pubblicate sugli store
 const APP_STORE_URL = process.env.NEXT_PUBLIC_IOS_APP_URL || "";
@@ -58,7 +60,7 @@ function fmtDate(iso?: string) {
   }
 }
 
-function detectOs(): "win" | "mac" | "linux" | null {
+function detectOs(): Platform | null {
   if (typeof navigator === "undefined") return null;
   const ua = navigator.userAgent.toLowerCase();
   if (/win/.test(ua)) return "win";
@@ -67,14 +69,23 @@ function detectOs(): "win" | "mac" | "linux" | null {
   return null;
 }
 
+function detectArch(): Arch | null {
+  if (typeof navigator === "undefined") return null;
+  const ua = navigator.userAgent.toLowerCase();
+  if (/arm64|aarch64/.test(ua)) return "arm64";
+  if (/intel|x86_64|x64|wow64|win64/.test(ua)) return "x64";
+  return null;
+}
+
 export default function DashboardDownloadPage() {
   usePageTitle("Download");
-  const [releases, setReleases] = useState<Releases | null>(null);
+  const [byArch, setByArch] = useState<ReleasesByArch | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const userOs = useMemo(detectOs, []);
+  const userArch = useMemo(detectArch, []);
 
   const fetchReleases = async () => {
     setError(null);
@@ -85,7 +96,7 @@ export default function DashboardDownloadPage() {
         setError(d?.error || "Errore caricamento release");
         return;
       }
-      setReleases((d?.releases as Releases) || null);
+      setByArch((d?.releasesByArch as ReleasesByArch) || null);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Errore di rete");
     }
@@ -117,20 +128,39 @@ export default function DashboardDownloadPage() {
     );
   }
 
+  const ArchButton = ({ rel, label, primary }: { rel: Rel; label: string; primary: boolean }) => (
+    <a
+      href={rel.url}
+      className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+        primary
+          ? "bg-blue-600 text-white hover:bg-blue-700"
+          : "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+      }`}
+    >
+      <DownloadIcon className="h-4 w-4" />
+      <span className="truncate">{label}{rel.version ? ` · v${rel.version}` : ""}</span>
+    </a>
+  );
+
   const OsCard = ({
     os,
     icon,
     title,
     sub,
-    r,
   }: {
-    os: "win" | "mac" | "linux";
+    os: Platform;
     icon: React.ReactNode;
     title: string;
     sub: string;
-    r: Rel | null;
   }) => {
+    const archs = (byArch?.[os] || {}) as Partial<Record<Arch, Rel>>;
     const isPrimary = userOs === os;
+    const hasAny = !!(archs.arm64 || archs.x64);
+    // Su Mac decidiamo l'arch consigliata: userArch se nota, altrimenti arm64 default
+    const macRecommendedArch: Arch = userArch || "arm64";
+    // Singolo Rel per il footer info (preferisce arch consigliata)
+    const primaryRel = archs[userArch || (os === "mac" ? "arm64" : "x64") as Arch] || archs.x64 || archs.arm64;
+
     return (
       <div
         className={`p-6 bg-white border rounded flex flex-col gap-3 ${
@@ -158,29 +188,48 @@ export default function DashboardDownloadPage() {
           </div>
         </div>
 
-        {r ? (
-          <>
-            <a
-              href={r.url}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded text-sm font-medium transition-colors ${
-                isPrimary
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-gray-900 text-white hover:bg-gray-800"
-              }`}
-            >
-              <DownloadIcon className="h-4 w-4" />
-              Scarica {r.version ? `v${r.version}` : ""}
-            </a>
-            <div className="text-[11px] text-gray-400 space-y-0.5">
-              {r.filename && <div className="font-mono truncate" title={r.filename}>{r.filename}</div>}
-              <div className="flex items-center gap-2">
-                {r.size ? <span>{fmtSize(r.size)}</span> : null}
-                {r.releaseDate ? <span>· {fmtDate(r.releaseDate)}</span> : null}
-              </div>
-            </div>
-          </>
-        ) : (
+        {!hasAny ? (
           <div className="text-sm text-gray-400 py-2">Non ancora disponibile</div>
+        ) : os === "mac" ? (
+          <div className="flex flex-col gap-2">
+            {archs.arm64 && (
+              <ArchButton
+                rel={archs.arm64}
+                label="Apple Silicon (M1/M2/M3)"
+                primary={isPrimary && macRecommendedArch === "arm64"}
+              />
+            )}
+            {archs.x64 && (
+              <ArchButton
+                rel={archs.x64}
+                label="Intel"
+                primary={isPrimary && macRecommendedArch === "x64"}
+              />
+            )}
+            {primaryRel && (
+              <div className="text-[11px] text-gray-400 space-y-0.5 mt-1">
+                {primaryRel.filename && <div className="font-mono truncate" title={primaryRel.filename}>{primaryRel.filename}</div>}
+                <div className="flex items-center gap-2">
+                  {primaryRel.size ? <span>{fmtSize(primaryRel.size)}</span> : null}
+                  {primaryRel.releaseDate ? <span>· {fmtDate(primaryRel.releaseDate)}</span> : null}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          // win + linux: solo x64
+          primaryRel && (
+            <>
+              <ArchButton rel={primaryRel} label="Scarica" primary={isPrimary} />
+              <div className="text-[11px] text-gray-400 space-y-0.5">
+                {primaryRel.filename && <div className="font-mono truncate" title={primaryRel.filename}>{primaryRel.filename}</div>}
+                <div className="flex items-center gap-2">
+                  {primaryRel.size ? <span>{fmtSize(primaryRel.size)}</span> : null}
+                  {primaryRel.releaseDate ? <span>· {fmtDate(primaryRel.releaseDate)}</span> : null}
+                </div>
+              </div>
+            </>
+          )
         )}
       </div>
     );
@@ -232,21 +281,18 @@ export default function DashboardDownloadPage() {
             icon={<Monitor className="h-5 w-5" />}
             title="Windows"
             sub="Windows 10 / 11 · installer .exe"
-            r={releases?.win || null}
           />
           <OsCard
             os="mac"
             icon={<Apple className="h-5 w-5" />}
             title="macOS"
             sub="Apple Silicon / Intel · .dmg"
-            r={releases?.mac || null}
           />
           <OsCard
             os="linux"
             icon={<Monitor className="h-5 w-5" />}
             title="Linux"
             sub="AppImage / .deb"
-            r={releases?.linux || null}
           />
         </div>
 
@@ -262,10 +308,10 @@ export default function DashboardDownloadPage() {
         </div>
 
         <div className="mt-3 p-4 rounded bg-amber-50 border border-amber-200 text-sm text-amber-900">
-          <strong>macOS:</strong> se al primo avvio compare &quot;impossibile
-          aprire / app non verificata&quot;: clic destro sull&apos;app →{" "}
-          <em>Apri</em> → <em>Apri</em>. L&apos;avviso scompare con la
-          notarizzazione Apple in arrivo.
+          <strong>macOS Apple Silicon vs Intel:</strong> i Mac con chip M1/M2/M3
+          usano la versione &quot;Apple Silicon&quot;. I Mac del 2019 e precedenti
+          (e Mac Pro 2019) usano &quot;Intel&quot;. In dubbio: menu Apple →
+          <em>Informazioni su questo Mac</em> → riga &quot;Chip&quot; o &quot;Processore&quot;.
         </div>
       </section>
 
