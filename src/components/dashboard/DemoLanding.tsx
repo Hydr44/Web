@@ -85,7 +85,7 @@ export default function DemoLanding({ userEmail, orgName, quoteUuid, expiresAt }
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Download desktop */}
           <Link
-            href="/dashboard/download"
+            href="/download"
             className="group block bg-white border border-gray-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md transition-all"
           >
             <div className="flex items-start justify-between mb-3">

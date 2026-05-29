@@ -253,7 +253,7 @@ export default function DashboardPanoramica() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             { href: "/dashboard/billing", icon: CreditCard, title: "Abbonamento e Fatturazione", desc: "Gestisci piano e metodi di pagamento" },
-            { href: "/dashboard/download", icon: Download, title: "Download Applicazione", desc: "Scarica app desktop e mobile" },
+            { href: "/download", icon: Download, title: "Download Applicazione", desc: "Scarica app desktop e mobile" },
             { href: "/dashboard/support", icon: HeadphonesIcon, title: "Supporto", desc: "Richiedi assistenza tecnica" },
             { href: "/dashboard/org", icon: Building2, title: "Organizzazione", desc: "Visualizza e modifica dati aziendali" },
             { href: "/dashboard/security", icon: ShieldIcon, title: "Sicurezza", desc: "Password, 2FA e sessioni attive" },
