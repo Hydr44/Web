@@ -1,19 +1,13 @@
-"use client";
-
-import { usePageTitle } from "@/hooks/usePageTitle";
-import DownloadPage from "@/app/download/DownloadPage";
+import { redirect } from "next/navigation";
 
 /**
- * Pagina download dashboard.
+ * Redirect a /download (pagina pubblica).
  *
- * Riusa 1:1 il componente pubblico DownloadPage (src/app/download/DownloadPage.tsx).
- * Decisione pragmatica: la versione custom dashboard aveva un bug per cui
- * il bottone "Scarica" non avviava il download su alcuni browser (URL appariva
- * brevemente nella barra e spariva senza salvataggio), mentre la pagina
- * pubblica funzionava regolarmente. Sostituiamo l'intera UI per allineare il
- * comportamento e abbiamo un solo componente da manutenere.
+ * La versione embed del componente dentro il layout dashboard manteneva il
+ * bug per cui il bottone Scarica non triggerava effettivamente il download
+ * su alcuni browser. La pagina pubblica funziona regolarmente: redirigiamo
+ * lì per usarla 1:1.
  */
 export default function DashboardDownloadPage() {
-  usePageTitle("Download");
-  return <DownloadPage />;
+  redirect("/download");
 }
