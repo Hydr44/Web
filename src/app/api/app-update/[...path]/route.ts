@@ -33,8 +33,13 @@ export async function GET(
         },
       });
     }
-    // Artifact: redirect a URL firmato R2 (15 min).
-    const signed = await getSignedDownloadUrl(key, 900);
+    // Artifact: redirect a URL firmato R2 (15 min). Passiamo il filename
+    // base così R2 risponde con Content-Disposition: attachment, forzando
+    // il download su Safari/Edge (che senza header esplicito a volte
+    // annullano la "navigazione" cross-origin a file binari → la barra URL
+    // mostrava il path e poi tornava indietro senza scaricare nulla).
+    const basename = rel.split('/').pop() || rel;
+    const signed = await getSignedDownloadUrl(key, 900, basename);
     return NextResponse.redirect(signed, 302);
   } catch (error) {
     console.error('app-update feed error:', error);
