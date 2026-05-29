@@ -27,7 +27,7 @@ type Item = {
 
 const NAV: Item[] = [
   { label: "Panoramica", href: "/dashboard", icon: LayoutGrid },
-  { label: "Download", href: "/dashboard/download", icon: Download },
+  { label: "Download", href: "/download", icon: Download },
   { label: "Piano & licenze", href: "/dashboard/billing", icon: Wallet },
   { label: "Team & ruoli", href: "/dashboard/team", icon: Users },
   { label: "Notifiche", href: "/dashboard/settings/notifications", icon: Settings },

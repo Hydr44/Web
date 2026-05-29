@@ -54,7 +54,7 @@ const NAV: Item[] = [
       { label: "Fatture", href: "/dashboard/invoices", icon: FileText },
     ],
   },
-  { label: "Download app", href: "/dashboard/download", icon: Download },
+  { label: "Download app", href: "/download", icon: Download },
   { label: "Supporto", href: "/dashboard/support", icon: LifeBuoy },
 ];
 
