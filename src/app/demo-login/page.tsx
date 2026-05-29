@@ -18,6 +18,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 const LEAD_API_URL = (process.env.LEAD_API_URL || 'https://api.rescuemanager.eu/lead-api').replace(/\/+$/, '');
+const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 interface RedeemResult {
   ok: boolean;
@@ -30,7 +31,10 @@ async function redeemToken(token: string): Promise<RedeemResult> {
   try {
     const r = await fetch(`${LEAD_API_URL}/api/leads/redeem-demo-token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': VPS_API_KEY,
+      },
       body: JSON.stringify({ token }),
       cache: 'no-store',
     });
@@ -44,7 +48,26 @@ async function redeemToken(token: string): Promise<RedeemResult> {
   }
 }
 
-export default async function DemoLoginPage({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
+function resolveErrorContent(status: number | undefined, error: string | undefined): { title: string; message: string } {
+  if (status === 410) {
+    return {
+      title: 'Link scaduto',
+      message: 'Il tuo link demo è scaduto. Chiedi al tuo referente RescueManager di inviartene uno nuovo dal pannello admin.',
+    };
+  }
+  if (status === 404) {
+    return {
+      title: 'Link non valido o gia’ usato',
+      message: 'Questo link è stato già utilizzato oppure non esiste. I link demo sono single-use per sicurezza. Chiedi un nuovo link al tuo referente.',
+    };
+  }
+  return {
+    title: 'Errore',
+    message: error || 'Si è verificato un errore inatteso. Riprova tra qualche minuto.',
+  };
+}
+
+export default async function DemoLoginPage({ searchParams }: Readonly<{ searchParams: Promise<{ t?: string }> }>) {
   const { t } = await searchParams;
 
   if (!t) {
@@ -64,25 +87,11 @@ export default async function DemoLoginPage({ searchParams }: { searchParams: Pr
     redirect(result.actionLink);
   }
 
-  // Errori espliciti
-  const isExpired = result.status === 410;
-  const isInvalid = result.status === 404;
-
-  return (
-    <ErrorScreen
-      title={isExpired ? 'Link scaduto' : isInvalid ? 'Link non valido o gia’ usato' : 'Errore'}
-      message={
-        isExpired
-          ? 'Il tuo link demo è scaduto. Chiedi al tuo referente RescueManager di inviartene uno nuovo dal pannello admin.'
-          : isInvalid
-            ? 'Questo link è stato già utilizzato oppure non esiste. I link demo sono single-use per sicurezza. Chiedi un nuovo link al tuo referente.'
-            : (result.error || 'Si è verificato un errore inatteso. Riprova tra qualche minuto.')
-      }
-    />
-  );
+  const { title, message } = resolveErrorContent(result.status, result.error);
+  return <ErrorScreen title={title} message={message} />;
 }
 
-function ErrorScreen({ title, message }: { title: string; message: string }) {
+function ErrorScreen({ title, message }: Readonly<{ title: string; message: string }>) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
