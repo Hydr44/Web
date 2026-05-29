@@ -119,13 +119,26 @@ export async function getSignedUploadUrl(
 }
 
 /**
- * Generate signed URL (per download diretto)
+ * Generate signed URL (per download diretto).
+ *
+ * Se `filename` è passato, viene aggiunto `ResponseContentDisposition:
+ * attachment` alla presigned URL → R2 risponde con header che forza il
+ * browser a scaricare il file invece di navigarci sopra. Critico per
+ * Safari/Edge che altrimenti annullano la navigation su file binari
+ * cross-origin senza header esplicito.
  */
-export async function getSignedDownloadUrl(key: string, expiresIn: number = 3600): Promise<string> {
+export async function getSignedDownloadUrl(
+  key: string,
+  expiresIn: number = 3600,
+  filename?: string
+): Promise<string> {
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME,
       Key: key,
+      ...(filename ? {
+        ResponseContentDisposition: `attachment; filename="${filename.replaceAll('"', '')}"`,
+      } : {}),
     });
 
     const url = await getSignedUrl(getS3Client(), command, { expiresIn });
