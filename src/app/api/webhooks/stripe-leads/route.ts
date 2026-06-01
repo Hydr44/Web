@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
-const LEAD_API_URL = process.env.LEAD_API_URL || 'https://lead-api.rescuemanager.eu';
+const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_LEADS_SECRET || process.env.STRIPE_WEBHOOK_SECRET || '';
 

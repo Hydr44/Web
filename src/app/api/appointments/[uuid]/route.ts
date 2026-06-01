@@ -4,7 +4,7 @@
  */
 import { NextResponse } from 'next/server';
 
-const LEAD_API_URL = process.env.LEAD_API_URL || 'https://lead-api.rescuemanager.eu';
+const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 export async function GET(_request: Request, { params }: { params: { uuid: string } }) {

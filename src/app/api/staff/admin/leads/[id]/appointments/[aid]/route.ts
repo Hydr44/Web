@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { corsHeaders } from '@/lib/cors';
 
-const LEAD_API_URL = process.env.LEAD_API_URL || 'https://lead-api.rescuemanager.eu';
+const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 async function proxy(method: string, path: string, origin: string | null, body?: unknown) {
