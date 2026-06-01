@@ -17,7 +17,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-const LEAD_API_URL = (process.env.LEAD_API_URL || 'https://api.rescuemanager.eu/lead-api').replace(/\/+$/, '');
+const LEAD_API_URL = (process.env.LEAD_API_URL || 'https://lead-api.rescuemanager.eu').replace(/\/+$/, '');
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 interface RedeemResult {
