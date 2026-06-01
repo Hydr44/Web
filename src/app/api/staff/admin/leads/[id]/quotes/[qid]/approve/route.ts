@@ -15,7 +15,7 @@ import { corsHeaders } from '@/lib/cors';
 import { stripe } from '@/lib/stripe';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu';
-const LEAD_API_URL = process.env.LEAD_API_URL || 'https://api.rescuemanager.eu/lead-api';
+const LEAD_API_URL = process.env.LEAD_API_URL || 'https://lead-api.rescuemanager.eu';
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 const PLAN_LABELS: Record<string, string> = {
