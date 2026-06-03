@@ -108,15 +108,64 @@ export default function SiteHeader() {
         return newUser;
       });
       
-      // Carica organizzazioni per il nuovo utente autenticato
+      // Carica organizzazione dell'utente autenticato.
+      // BUG FIX cross-tenant leak: il vecchio codice faceva
+      //   `supabase.from("orgs").select("id, name")` senza filtro user_id,
+      // così se RLS era permissiva pescava la PRIMA org del DB (di un altro
+      // utente) e la mostrava nell'header. Ora filtra esplicitamente sulla
+      // user_id via profiles.current_org → fallback org_members.
       if (newUser) {
         try {
           const { supabaseBrowser } = await import("@/lib/supabase-browser");
           const supabase = supabaseBrowser();
-          const { data: orgsData } = await supabase.from("orgs").select("id, name");
-          if (orgsData && orgsData.length > 0) {
-            setOrgs(orgsData);
-            setCurrentOrg(orgsData[0].name);
+
+          // Verifica identità reale (non fidarsi solo del listener)
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          if (!authUser) return;
+
+          // 1) Org corrente da profiles.current_org
+          let userOrgId: string | null = null;
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("current_org")
+            .eq("id", authUser.id)
+            .maybeSingle();
+          if (profile?.current_org) {
+            userOrgId = profile.current_org as string;
+          } else {
+            // 2) Fallback: prima org in cui l'utente è membro
+            const { data: mem } = await supabase
+              .from("org_members")
+              .select("org_id")
+              .eq("user_id", authUser.id)
+              .limit(1)
+              .maybeSingle();
+            userOrgId = mem?.org_id || null;
+          }
+
+          if (!userOrgId) {
+            setOrgs([]);
+            setCurrentOrg(null);
+            return;
+          }
+
+          // Carica SOLO l'org che è SUA
+          const { data: org } = await supabase
+            .from("orgs")
+            .select("id, name")
+            .eq("id", userOrgId)
+            .maybeSingle();
+          if (org) {
+            // Preferisci company_name da org_settings se presente
+            const { data: settings } = await supabase
+              .from("org_settings")
+              .select("value")
+              .eq("org_id", userOrgId)
+              .eq("key", "company")
+              .maybeSingle();
+            const companyName = (settings?.value as { company_name?: string } | null)?.company_name;
+            setOrgs([{ id: org.id, name: companyName || org.name }]);
+            setCurrentOrg(companyName || org.name);
           }
         } catch (error) {
           console.error("Error loading organizations:", error);
