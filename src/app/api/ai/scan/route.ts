@@ -1,9 +1,15 @@
 /**
- * Proxy ScanAI — l'app mobile invia immagine + prompt, il server chiama
+ * Proxy ScanAI — l'app mobile invia immagine/i + prompt, il server chiama
  * Claude con la chiave server-side. Nessuna chiave API sul device.
  *
  * Auth: Authorization: Bearer <supabase access_token> (sessione utente mobile).
- * Body: { system: string, prompt: string, image_base64: string }
+ * Body: {
+ *   system: string,
+ *   prompt: string,
+ *   image_base64?: string,           // legacy singola foto
+ *   image_base64s?: string[],        // nuovo: array multi-foto (max 4)
+ * }
+ * Almeno UNO tra image_base64 / image_base64s deve essere presente.
  * Risposta: { text: string }  (blocco testo della risposta Claude)
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +20,8 @@ import { checkRateLimit } from '@/lib/security';
 export const runtime = 'nodejs';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const MAX_IMAGE_B64 = 8 * 1024 * 1024; // ~8MB base64
+const MAX_IMAGE_B64 = 8 * 1024 * 1024; // ~8MB base64 per singola foto
+const MAX_IMAGES = 4;                  // limite Claude vision multi-image
 
 export function OPTIONS(request: NextRequest) {
   return new NextResponse(null, { status: 204, headers: corsHeaders(request.headers.get('origin')) });
@@ -49,7 +56,7 @@ export async function POST(request: NextRequest) {
       { error: 'ANTHROPIC_API_KEY non configurata sul server' }, { status: 500, headers });
   }
 
-  let body: { system?: string; prompt?: string; image_base64?: string };
+  let body: { system?: string; prompt?: string; image_base64?: string; image_base64s?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -57,13 +64,41 @@ export async function POST(request: NextRequest) {
   }
   const system = (body.system || '').trim();
   const prompt = (body.prompt || '').trim();
-  const imageB64 = body.image_base64 || '';
-  if (!system || !prompt || !imageB64) {
-    return NextResponse.json({ error: 'system, prompt e image_base64 obbligatori' }, { status: 400, headers });
+
+  // Accetta sia il campo legacy `image_base64` (singolare) sia il nuovo
+  // `image_base64s` (array multi-foto). Almeno uno dei due è obbligatorio.
+  // Stringhe vuote vengono filtrate via.
+  const arr = Array.isArray(body.image_base64s)
+    ? body.image_base64s.filter((s) => typeof s === 'string' && s.length > 0)
+    : [];
+  if (body.image_base64 && typeof body.image_base64 === 'string') {
+    arr.unshift(body.image_base64);
   }
-  if (imageB64.length > MAX_IMAGE_B64) {
-    return NextResponse.json({ error: 'Immagine troppo grande' }, { status: 413, headers });
+  const images = arr.slice(0, MAX_IMAGES);
+
+  if (!system || !prompt || images.length === 0) {
+    return NextResponse.json(
+      { error: 'system, prompt e image_base64 / image_base64s obbligatori' },
+      { status: 400, headers },
+    );
   }
+  for (const img of images) {
+    if (img.length > MAX_IMAGE_B64) {
+      return NextResponse.json({ error: 'Una delle immagini è troppo grande (>8MB base64)' }, { status: 413, headers });
+    }
+  }
+
+  // Costruisce il content multi-modale per Claude: tutte le immagini prima,
+  // poi il prompt testo. Claude vision accetta più image blocks in un solo
+  // turn (multi-image analysis nativa).
+  const content: Array<
+    | { type: 'image'; source: { type: 'base64'; media_type: 'image/jpeg'; data: string } }
+    | { type: 'text'; text: string }
+  > = images.map((data) => ({
+    type: 'image' as const,
+    source: { type: 'base64' as const, media_type: 'image/jpeg' as const, data },
+  }));
+  content.push({ type: 'text', text: prompt });
 
   try {
     const res = await fetch(ANTHROPIC_URL, {
@@ -80,13 +115,7 @@ export async function POST(request: NextRequest) {
           { type: 'text', text: system, cache_control: { type: 'ephemeral' } },
         ],
         messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageB64 } },
-              { type: 'text', text: prompt },
-            ],
-          },
+          { role: 'user', content },
         ],
       }),
     });
