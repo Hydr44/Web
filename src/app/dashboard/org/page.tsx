@@ -258,14 +258,22 @@ export default function OrgPage() {
                 <CreditCard className="h-5 w-5 text-gray-400" />
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Dati Bancari</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">IBAN</label>
-                  <p className="text-sm font-medium text-gray-900 font-mono">{orgSettings?.iban || "—"}</p>
+                  <p className="text-sm font-medium text-gray-900 font-mono break-all">{orgSettings?.iban || "—"}</p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Banca Appoggio</label>
                   <p className="text-sm font-medium text-gray-900">{orgSettings?.bank_name || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">BIC / SWIFT</label>
+                  <p className="text-sm font-medium text-gray-900 font-mono">{orgSettings?.bic || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Intestatario conto</label>
+                  <p className="text-sm font-medium text-gray-900">{orgSettings?.bank_holder || orgSettings?.company_name || "—"}</p>
                 </div>
               </div>
             </div>

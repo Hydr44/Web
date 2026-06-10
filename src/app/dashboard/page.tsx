@@ -28,6 +28,19 @@ export default function DashboardPanoramica() {
     renewalDate: null as string | null,
   });
   const [activeModules, setActiveModules] = useState<string[]>([]);
+  // Info anagrafica sintetica per la card Organizzazione (3-4 campi che
+  // l'utente vede a colpo d'occhio invece di dover entrare in /dashboard/org).
+  const [orgInfo, setOrgInfo] = useState<{
+    vat?: string;
+    city?: string;
+    province?: string;
+    ibanLast4?: string;
+    bankName?: string;
+  }>({});
+  // Ultima versione desktop disponibile (da system_settings, popolata dal
+  // publish-release.py quando carichiamo i build su R2). Permette al cliente
+  // di vedere subito se ha bisogno di aggiornare.
+  const [latestDesktopVersion, setLatestDesktopVersion] = useState<string | null>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -85,11 +98,41 @@ export default function DashboardPanoramica() {
           .select("module")
           .eq("org_id", profile.current_org)
           .eq("status", "active");
-        
+
         if (mods) {
           setActiveModules(mods.map(m => m.module));
         }
-        
+
+        // Carica info anagrafica sintetica da org_settings.company
+        // (stesso store del desktop Settings → Info Azienda).
+        const { data: companyRow } = await supabase
+          .from("org_settings")
+          .select("value")
+          .eq("org_id", profile.current_org)
+          .eq("key", "company")
+          .maybeSingle();
+        const c = companyRow?.value || {};
+        const iban = (c.iban || "").replace(/\s+/g, "");
+        setOrgInfo({
+          vat: c.vat || "",
+          city: c.address?.city || "",
+          province: c.address?.province || "",
+          ibanLast4: iban.length >= 4 ? iban.slice(-4) : "",
+          bankName: c.bank_name || "",
+        });
+
+        // Ultima versione desktop (per badge "Aggiornamento disponibile").
+        // Leggiamo l'app_release_mac_arm64_dmg come riferimento — sono tutte
+        // upsertate insieme dal publish-release script.
+        const { data: relRow } = await supabase
+          .from("system_settings")
+          .select("value")
+          .eq("key", "app_release_mac_arm64_dmg")
+          .maybeSingle();
+        if (relRow?.value && typeof relRow.value === "object" && "version" in relRow.value) {
+          setLatestDesktopVersion(String((relRow.value as { version: string }).version));
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error loading dashboard data:", error);
@@ -234,9 +277,28 @@ export default function DashboardPanoramica() {
           </div>
           <div className="flex-1">
             <h2 className="font-bold text-gray-900 mb-1">{currentOrg}</h2>
-            <p className="text-sm text-gray-500 mb-3">
-              Le funzionalità operative sono nell&apos;app desktop. Da qui gestisci abbonamento, supporto e download.
-            </p>
+            {/* Riepilogo dati a colpo d'occhio (P.IVA, sede, IBAN/banca).
+                Se non valorizzati, mostriamo solo la frase di default. */}
+            {(orgInfo.vat || orgInfo.city || orgInfo.ibanLast4) ? (
+              <div className="text-xs text-gray-500 mb-3 space-x-3">
+                {orgInfo.vat && <span>P.IVA <span className="font-mono text-gray-700">{orgInfo.vat}</span></span>}
+                {orgInfo.city && (
+                  <span>
+                    Sede <span className="text-gray-700">{orgInfo.city}{orgInfo.province ? ` (${orgInfo.province})` : ""}</span>
+                  </span>
+                )}
+                {orgInfo.ibanLast4 && (
+                  <span>
+                    IBAN <span className="font-mono text-gray-700">****{orgInfo.ibanLast4}</span>
+                    {orgInfo.bankName && <span className="text-gray-500"> · {orgInfo.bankName}</span>}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 mb-3">
+                Le funzionalità operative sono nell&apos;app desktop. Da qui gestisci abbonamento, supporto e download.
+              </p>
+            )}
             <Link
               href="/dashboard/org"
               className="inline-flex items-center gap-1 text-sm text-blue-600 font-bold hover:underline"
@@ -246,6 +308,36 @@ export default function DashboardPanoramica() {
           </div>
         </div>
       </div>
+
+      {/* App Desktop — versione disponibile + link download.
+          Mostriamo solo se abbiamo letto una versione da system_settings; in
+          assenza (es. nessun build pubblicato) non rendere il box rumoroso. */}
+      {latestDesktopVersion && (
+        <div className="p-6 border border-gray-200 bg-white">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-emerald-50 flex items-center justify-center border border-emerald-200 shrink-0">
+              <Download className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="font-bold text-gray-900">App desktop</h2>
+                <span className="px-2 py-0.5 text-[11px] font-mono font-medium text-emerald-700 bg-emerald-50 border border-emerald-200">
+                  v{latestDesktopVersion}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mb-3">
+                Ultima versione disponibile per macOS e Windows. Se hai gi&agrave; l&apos;app, l&apos;aggiornamento parte da solo al prossimo avvio.
+              </p>
+              <Link
+                href="/download"
+                className="inline-flex items-center gap-1 text-sm text-blue-600 font-bold hover:underline"
+              >
+                Scarica l&apos;app <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Link rapidi */}
       <div>
