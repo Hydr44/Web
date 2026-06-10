@@ -160,9 +160,20 @@ export default function HomeClient() {
                                 Demolisci.<br />
                                 <span className="text-blue-500">Fattura.</span>
                             </h1>
+                            {/* Il sottotitolo dell'hero è anche segnale SEO forte.
+                                Citiamo esplicitamente i settori target (autodemolitori,
+                                soccorso stradale, officine, carrozzerie) e le sigle che
+                                gli utenti cercano (RENTRI, VFU, SDI). */}
                             <p className="text-lg text-slate-400 mb-10 leading-relaxed">
-                                Trasporti, piazzale, clienti, fatture, RVFU, RENTRI.
-                                Un programma. Zero complicazioni.
+                                {"Il software gestionale per "}
+                                <strong className="text-slate-200">autodemolitori</strong>
+                                {", "}
+                                <strong className="text-slate-200">soccorso stradale</strong>
+                                {", officine e carrozzerie. Registro "}
+                                <strong className="text-slate-200">RENTRI</strong>
+                                {", Registro Veicoli Fuori Uso ("}
+                                <strong className="text-slate-200">VFU</strong>
+                                {"), fatturazione elettronica SDI. Un programma. Zero complicazioni."}
                             </p>
                             <div className="flex flex-wrap gap-4">
                                 <Link

@@ -19,19 +19,40 @@ const SITE_URL = "https://rescuemanager.eu";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    // Title bilanciato: ENTRAMBI gli intent (autodemolitori + soccorso stradale)
+    // sono in posizione di prima parola dopo il brand. "Gestionale" generico
+    // copre anche officine/carrozzerie. Era penalizzante mettere "soccorso
+    // stradale" come prima parola: Google ci indicizzava forte come tale ma
+    // gli autodemolitori non trovavano match.
+    default: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
     template: "%s — RescueManager",
   },
   description:
-    "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, Registro dei Veicoli Fuori Uso (RVFU) e registro RENTRI in un'unica piattaforma.",
+    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
   keywords: [
-    "gestionale soccorso stradale",
+    // Autodemolitori — keywords primarie (era il target sotto-rappresentato)
+    "gestionale autodemolitori",
     "software autodemolizione",
+    "gestionale rottamatori",
+    "software demolizioni auto",
+    "registro VFU",
     "registro veicoli fuori uso",
-    "fatturazione elettronica",
+    "centro rottamazione gestionale",
+    // RENTRI
+    "gestionale RENTRI",
     "registro RENTRI rifiuti",
+    "software RENTRI autodemolitori",
+    // Soccorso stradale (mantenuto, era il target già forte)
+    "gestionale soccorso stradale",
+    "software soccorso stradale",
     "dispatch mappa autisti",
-    "gestione officina",
+    // Officine / carrozzerie (intent secondario, ma stesso prodotto)
+    "gestionale officina",
+    "software autofficina",
+    "gestionale carrozzeria",
+    // Fatturazione / SDI
+    "fatturazione elettronica autodemolitori",
+    "fatturazione elettronica SDI",
     "RescueManager",
   ],
   authors: [{ name: "RescueManager", url: SITE_URL }],
@@ -65,9 +86,9 @@ export const metadata: Metadata = {
     locale: "it_IT",
     url: SITE_URL,
     siteName: "RescueManager",
-    title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    title: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, Registro dei Veicoli Fuori Uso e registro RENTRI.",
+      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi.",
     images: [
       {
         url: "/assets/logos/logo-principale-a-colori.svg",
@@ -80,9 +101,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    title: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Dispatch su mappa, turni, fatturazione elettronica, RVFU e RENTRI.",
+      "Software gestionale: autodemolitori, soccorso stradale, officine, carrozzerie. Registro RENTRI, registro VFU, fatturazione elettronica.",
     images: ["/assets/logos/logo-principale-a-colori.svg"],
   },
 };
@@ -131,9 +152,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     "@type": "SoftwareApplication",
     name: "RescueManager",
     applicationCategory: "BusinessApplication",
+    // Sotto-categorie esplicite: aiutano Google a indicizzare il prodotto
+    // per tutti i settori target, non solo per "soccorso stradale".
+    applicationSubCategory: [
+      "Gestionale autodemolitori",
+      "Software RENTRI",
+      "Gestionale soccorso stradale",
+      "Gestionale officina",
+      "Gestionale carrozzeria",
+      "Fatturazione elettronica SDI",
+    ],
     operatingSystem: "Web, Windows, macOS, iOS, Android",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Gestione dispatch, autisti, piazzale, fatturazione elettronica, Registro dei Veicoli Fuori Uso e registro RENTRI.",
+      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi. Conforme D.Lgs 209/2003.",
+    audience: {
+      "@type": "BusinessAudience",
+      audienceType: [
+        "Autodemolitori",
+        "Centri di rottamazione",
+        "Soccorso stradale",
+        "Autofficine",
+        "Carrozzerie",
+      ],
+    },
     url: SITE_URL,
     offers: {
       "@type": "Offer",
