@@ -93,7 +93,7 @@ export default function NotFound() {
             </Link>
 
             <Link
-              href="/demo"
+              href="/contatti"
               className="flex items-center gap-3 p-3 rounded-xl bg-[#0f172a] hover:bg-[#0a1120] border border-slate-700 transition-colors"
             >
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">

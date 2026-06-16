@@ -16,12 +16,14 @@ export default function ContattiForm() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setSubmitError("");
         try {
-            await fetch("/api/contact", {
+            const res = await fetch("/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -37,9 +39,10 @@ export default function ContattiForm() {
                     additional_data: { request_type: formData.tipo_richiesta }
                 }),
             });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             setIsSubmitted(true);
         } catch {
-            setIsSubmitted(true);
+            setSubmitError("Invio non riuscito. Controlla la connessione e riprova.");
         } finally {
             setIsSubmitting(false);
         }
@@ -62,6 +65,9 @@ export default function ContattiForm() {
 
     return (
         <form onSubmit={handleSubmit} className="p-8 bg-white border border-gray-200 space-y-6">
+            {submitError && (
+                <div className="px-4 py-3 bg-red-50 border border-red-200 text-sm text-red-700">{submitError}</div>
+            )}
             <h3 className="text-xl font-bold text-gray-900 pb-4 border-b border-gray-100 uppercase tracking-wide">Inviaci la tua richiesta</h3>
 
             <div className="grid sm:grid-cols-2 gap-4">
