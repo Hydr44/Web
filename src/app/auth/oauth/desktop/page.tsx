@@ -7,6 +7,22 @@ import { loginWithPassword } from "@/lib/auth";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
+/**
+ * Genera un OAuth code crittograficamente sicuro (32 byte → 256 bit).
+ * Sostituisce il vecchio `Math.random()` (M5 del security audit): ~47 bit
+ * di entropia non sono sufficienti per un codice che vale una sessione.
+ */
+function generateOAuthCode(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  // base64url (no '/', '+', '=') per stare nelle URL safe.
+  const b64 = btoa(String.fromCharCode(...bytes))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+  return `oauth_${b64}`;
+}
+
 // Log immediato quando il modulo viene caricato
 
 function DesktopOAuthContent() {
@@ -43,15 +59,29 @@ function DesktopOAuthContent() {
         try {
           const decodedString = atob(fallbackParams);
           const decodedParams = JSON.parse(decodedString);
-          
+
           if (decodedParams.expires_at < Date.now()) {
             setError("Sessione OAuth scaduta. Riprova.");
             return;
           }
-          
+
+          // Stessa whitelist del path principale (vedi commento sotto).
+          const FALLBACK_ALLOWED = [
+            /^http:\/\/127\.0\.0\.1:\d{2,5}(\/.*)?$/,
+            /^http:\/\/localhost:\d{2,5}(\/.*)?$/,
+            /^rescuemanager:\/\/oauth(\/.*)?$/,
+            /^com\.rescuemanager\.app:\/\/oauth(\/.*)?$/,
+          ];
+          const ruRaw = String(decodedParams.redirect_uri || '');
+          if (!FALLBACK_ALLOWED.some((rx) => rx.test(ruRaw))) {
+            console.error('[DesktopOAuth] fallback redirect_uri non autorizzato:', ruRaw);
+            setError('Indirizzo di reindirizzamento non autorizzato.');
+            return;
+          }
+
           setOauthInfo({
             app_id: decodedParams.app_id,
-            redirect_uri: decodedParams.redirect_uri,
+            redirect_uri: ruRaw,
             state: decodedParams.state,
             state_id: decodedParams.state_code
           });
@@ -67,17 +97,37 @@ function DesktopOAuthContent() {
         // Usa atob per decodificare base64 nel browser (Buffer non è disponibile)
         const decodedString = atob(encodedParams);
         const decodedParams = JSON.parse(decodedString);
-        
+
         // Verifica scadenza
         if (decodedParams.expires_at < Date.now()) {
           console.error('[DesktopOAuth] OAuth session expired');
           setError("Sessione OAuth scaduta. Riprova.");
           return;
         }
-        
+
+        // Whitelist hardcoded del redirect_uri. Senza, l'audit security ha
+        // classificato la route come OPEN REDIRECT (C9): chiunque poteva
+        // costruire un URL `?params=base64({redirect_uri:'https://evil.com'})`
+        // e farsi forwardare un OAuth code valido se l'utente era loggato.
+        const ALLOWED_REDIRECT_URIS = [
+          // Electron desktop app — localhost loopback (porta dinamica).
+          /^http:\/\/127\.0\.0\.1:\d{2,5}(\/.*)?$/,
+          /^http:\/\/localhost:\d{2,5}(\/.*)?$/,
+          // Custom protocol Electron prod (registrato in main.js).
+          /^rescuemanager:\/\/oauth(\/.*)?$/,
+          /^com\.rescuemanager\.app:\/\/oauth(\/.*)?$/,
+        ];
+        const ruRaw = String(decodedParams.redirect_uri || '');
+        const ruOk = ALLOWED_REDIRECT_URIS.some((rx) => rx.test(ruRaw));
+        if (!ruOk) {
+          console.error('[DesktopOAuth] redirect_uri non autorizzato:', ruRaw);
+          setError('Indirizzo di reindirizzamento non autorizzato.');
+          return;
+        }
+
         setOauthInfo({
           app_id: decodedParams.app_id,
-          redirect_uri: decodedParams.redirect_uri,
+          redirect_uri: ruRaw,
           state: decodedParams.state,
           state_id: decodedParams.state_code
         });
@@ -110,7 +160,7 @@ function DesktopOAuthContent() {
         setError(null);
 
         // Genera OAuth code automaticamente
-        const oauthCode = `oauth_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        const oauthCode = generateOAuthCode();
 
         const { error: oauthError } = await supabase
           .from('oauth_codes')
@@ -166,7 +216,7 @@ function DesktopOAuthContent() {
       if (result.success && result.user) {
         
         // Genera OAuth code
-        const oauthCode = `oauth_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        const oauthCode = generateOAuthCode();
         
         // Salva OAuth code nel database
         const supabase = supabaseBrowser();
