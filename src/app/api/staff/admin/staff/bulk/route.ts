@@ -1,10 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createAuditLog } from '@/lib/staff-audit';
+import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const staff = await getStaffFromRequest(request);
+    if (!staff) {
+      return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401 });
+    }
     const { userIds, action } = await request.json();
+    // Azioni distruttive (sospensione/eliminazione) solo per admin/super_admin
+    if ((action === 'delete' || action === 'suspend') && !requireStaffRole(staff, 'admin')) {
+      return NextResponse.json({ success: false, error: 'Permessi insufficienti per questa azione' }, { status: 403 });
+    }
 
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return NextResponse.json({
@@ -37,7 +46,7 @@ export async function POST(request: Request) {
         }
 
         for (const userId of userIds) {
-          await createAuditLog('system', 'System', 'system', 'staff.activate', 'staff_user', userId, 'Staff User', {}, request, true);
+          await createAuditLog(staff.sub, staff.full_name, staff.role, 'staff.activate', 'staff_user', userId, 'Staff User', {}, request, true);
         }
         message = `${userIds.length} utenti staff attivati con successo`;
         break;
@@ -57,7 +66,7 @@ export async function POST(request: Request) {
         }
 
         for (const userId of userIds) {
-          await createAuditLog('system', 'System', 'system', 'staff.suspend', 'staff_user', userId, 'Staff User', {}, request, true);
+          await createAuditLog(staff.sub, staff.full_name, staff.role, 'staff.suspend', 'staff_user', userId, 'Staff User', {}, request, true);
         }
         message = `${userIds.length} utenti staff sospesi con successo`;
         break;
@@ -80,7 +89,7 @@ export async function POST(request: Request) {
         }
 
         for (const userId of userIds) {
-          await createAuditLog('system', 'System', 'system', 'staff.delete', 'staff_user', userId, 'Staff User', {}, request, true);
+          await createAuditLog(staff.sub, staff.full_name, staff.role, 'staff.delete', 'staff_user', userId, 'Staff User', {}, request, true);
         }
         message = `${userIds.length} utenti staff eliminati con successo`;
         break;
