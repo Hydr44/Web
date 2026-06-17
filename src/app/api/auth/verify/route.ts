@@ -5,8 +5,16 @@ import { verifyOAuthToken } from "@/lib/oauth-jwt";
 
 export const runtime = "nodejs";
 
-// JWT Secret per desktop app (dovrebbe essere in env)
-const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+// JWT Secret per desktop app — fail-fast se mancante. Il fallback storico
+// 'desktop_oauth_secret_key_change_in_production' era pubblico nel repo:
+// chiunque poteva forgiare access_token e bypassare l'auth desktop OAuth.
+// Rimosso 2026-06-11. Settare JWT_SECRET nelle env Vercel.
+// Lazy: throw a runtime (try/catch della route → 500), non a livello-modulo.
+function getJwtSecret(): string {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error('JWT_SECRET non configurata.');
+  return s;
+}
 
 function createCorsHeaders(origin: string | null) {
   const headers: Record<string, string> = {
@@ -59,7 +67,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verifica JWT token (tipato; null se invalido/scaduto/forma sbagliata)
-    const decoded = verifyOAuthToken(token, JWT_SECRET);
+    const decoded = verifyOAuthToken(token, getJwtSecret());
     if (!decoded) {
       return corsJson(origin, { error: 'Invalid or expired token' }, 401);
     }
