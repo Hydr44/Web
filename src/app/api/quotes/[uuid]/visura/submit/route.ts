@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { uploadToR2 } from '@/lib/r2-storage';
+import { sendCustomerEmail } from '@/lib/customer-email';
 
 export const runtime = 'nodejs';
 
@@ -29,7 +30,7 @@ export async function POST(
 
   const { data: quote } = await supabaseAdmin
     .from('lead_quotes')
-    .select('id, status, lead_id, quote_number, leads!lead_quotes_lead_id_fkey(status)')
+    .select('id, status, lead_id, quote_number, leads!lead_quotes_lead_id_fkey(status, email, name, company)')
     .eq('public_uuid', uuid)
     .maybeSingle();
   if (!quote || !quote.lead_id) {
@@ -103,6 +104,21 @@ export async function POST(
       performed_by_type: 'customer', related_quote_id: quote.id,
     });
   } catch { /* non blocca */ }
+
+  // Email di conferma al cliente (best-effort, non blocca).
+  const leadObj = (quote as Record<string, any>).leads || {};
+  if (leadObj.email) {
+    await sendCustomerEmail(
+      leadObj.email,
+      'Pratica inviata in verifica — RescueManager',
+      `Ciao {{nome}},\n\n` +
+      `Abbiamo ricevuto la tua visura camerale e i dati della tua azienda.\n\n` +
+      `La tua pratica è ora IN VERIFICA: riceverai l'esito entro 24 ore.\n\n` +
+      `Puoi controllare lo stato della pratica in qualsiasi momento dal link che hai ricevuto.\n\n` +
+      `Grazie,\nIl team RescueManager`,
+      { nome: leadObj.name, azienda: leadObj.company },
+    );
+  }
 
   return NextResponse.json({ ok: true, status: 'in_verifica' }, { headers });
 }
