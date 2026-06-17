@@ -91,7 +91,17 @@ export async function POST(request: Request) {
           console.error('[STRIPE-LEADS] Auto-convert failed:', errData);
         }
       } else {
-        console.log('[STRIPE-LEADS] Manual activation required for quote', quote_id);
+        // F5: pagamento ricevuto → il lead entra in coda Revisione (in_verifica).
+        // Guardato + idempotente: aggiorna SOLO se ancora quote_sent/trattativa, così
+        // i retry del webhook (o stati successivi come attivato) non lo riportano indietro.
+        if (quote?.lead_id) {
+          await supabaseAdmin
+            .from('leads')
+            .update({ status: 'in_verifica' })
+            .eq('id', quote.lead_id)
+            .in('status', ['quote_sent', 'trattativa']);
+        }
+        console.log('[STRIPE-LEADS] Lead → in_verifica (revisione manuale) for quote', quote_id);
       }
     } catch (err: any) {
       console.error('[STRIPE-LEADS] Error processing payment:', err.message);
