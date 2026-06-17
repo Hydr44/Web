@@ -96,7 +96,7 @@ export default function DemoLanding({ userEmail, orgName, quoteUuid, expiresAt }
             </div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Scarica desktop app</h2>
             <p className="text-sm text-gray-600 mb-4">
-              L'app desktop è dove succede tutto: trasporti, clienti, mezzi, fatture, RVFU, RENTRI. In demo puoi esplorare senza inviare nulla davvero.
+              L'app desktop è dove succede tutto: soccorso & trasporti, clienti, mezzi, fatture, RVFU, RENTRI. In demo puoi esplorare senza inviare nulla davvero.
             </p>
             <div className="text-xs text-blue-600 font-semibold group-hover:underline">
               Windows · macOS · Linux →

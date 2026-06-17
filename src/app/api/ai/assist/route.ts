@@ -9,10 +9,10 @@ const MODEL = "claude-sonnet-4-6";
 
 function getTransportsHelp() {
   return [
-    "Sei nella sezione Trasporti di RescueManager.",
+    "Sei nella sezione Soccorso & trasporti di RescueManager.",
     "",
     "Qui gestisci tutti i viaggi dei mezzi: ritiri, consegne, demolizioni collegate, rifiuti, ecc.",
-    "La tabella mostra i trasporti con cliente, mezzo, autista, indirizzi di ritiro/consegna, stato e date.",
+    "La tabella mostra i soccorso & trasporti con cliente, mezzo, autista, indirizzi di ritiro/consegna, stato e date.",
     "",
     "Flusso tipico per creare un nuovo trasporto:",
     "1) Clicca sul pulsante Nuovo Trasporto (puoi usare anche il pulsante rapido nella sidebar).",
@@ -23,7 +23,7 @@ function getTransportsHelp() {
     "6) Aggiungi eventuali note operative (ad esempio orari del cliente, accesso difficile, documenti da portare).",
     "7) Salva il trasporto: comparirà nella lista e potrai aggiornarne lo stato man mano che viene eseguito.",
     "",
-    "Cosa puoi fare dalla lista trasporti:",
+    "Cosa puoi fare dalla lista soccorso & trasporti:",
     "- Cercare e filtrare per cliente, data, stato o testo libero.",
     "- Aprire il dettaglio di un trasporto per modificarlo o vedere tutte le informazioni.",
     "- Collegare il trasporto ad altre sezioni (ad esempio demolizioni o rifiuti) se la tua configurazione lo prevede.",

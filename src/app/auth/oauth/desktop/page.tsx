@@ -313,7 +313,7 @@ function DesktopOAuthContent() {
             Accedi alla<br />tua applicazione<span className="text-blue-500">.</span>
           </h2>
           <p className="text-slate-400 text-base mb-10 max-w-sm">
-            Gestisci trasporti, ricambi, RENTRI, SDI e RVFU dalla tua applicazione desktop.
+            Gestisci soccorso & trasporti, ricambi, RENTRI, SDI e RVFU dalla tua applicazione desktop.
           </p>
           <div className="space-y-3">
             {["Sincronizzazione automatica","Accesso offline ai dati","Notifiche desktop in tempo reale","Performance ottimizzate"].map((f) => (

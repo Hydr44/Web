@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   // L'ordine delle parole conta: la prima dopo il brand pesa di più.
   title: "Gestionale per autodemolitori, soccorso stradale e officine",
   description:
-    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi. Prova gratis 30 giorni, installazione inclusa.",
+    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Prova gratis 30 giorni, installazione inclusa.",
 };
 
 export default function Home() {

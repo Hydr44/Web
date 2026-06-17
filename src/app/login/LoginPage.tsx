@@ -72,10 +72,10 @@ export default function LoginPage() {
             Gestisci la tua<br />autodemolizione<span className="text-blue-500">.</span>
           </h2>
           <p className="text-slate-400 text-base mb-10 max-w-sm">
-            Trasporti, ricambi, RENTRI, SDI, RVFU. Tutto integrato in un&apos;unica piattaforma conforme alle normative italiane.
+            Soccorso & trasporti, ricambi, RENTRI, SDI, RVFU. Tutto integrato in un&apos;unica piattaforma conforme alle normative italiane.
           </p>
           <div className="space-y-3">
-            {["Integrazione RENTRI & SDI certificata","Tracking trasporti in tempo reale","Magazzino ricambi TecDoc integrato","App mobile per autisti inclusa"].map((f) => (
+            {["Integrazione RENTRI & SDI certificata","Tracking soccorso & trasporti in tempo reale","Magazzino ricambi TecDoc integrato","App mobile per autisti inclusa"].map((f) => (
               <div key={f} className="flex items-center gap-3">
                 <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
                 <span className="text-sm text-slate-300">{f}</span>

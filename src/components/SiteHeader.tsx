@@ -15,7 +15,7 @@ const NAV: NavItem[] = [
 ];
 
 const PRODOTTO_MODULES = [
-  { label: "Trasporti", desc: "Gestione completa trasporti e tracking GPS" },
+  { label: "Soccorso & trasporti", desc: "Gestione completa soccorso & trasporti e tracking GPS" },
   { label: "RENTRI", desc: "Registro Elettronico Nazionale Tracciabilità Rifiuti" },
   { label: "Ricambi TecDoc", desc: "Magazzino ricambi con integrazione TecDoc" },
   { label: "Fatturazione Elettronica", desc: "Fatturazione elettronica via Sistema di Interscambio" },
@@ -306,7 +306,7 @@ export default function SiteHeader() {
                     <div>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Funzioni base</div>
                       <Link href="/moduli/trasporti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Trasporti & Tracking</div>
+                        <div className="text-sm font-semibold text-gray-900">Soccorso & trasporti & Tracking</div>
                         <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch, mappa e stati intervento</div>
                       </Link>
                       <Link href="/moduli/clienti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
@@ -318,7 +318,7 @@ export default function SiteHeader() {
                         <div className="text-xs text-gray-500 mt-0.5">Flotta, scadenze automatiche e turni</div>
                       </Link>
                       <Link href="/moduli/piazzale" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Piazzale</div>
+                        <div className="text-sm font-semibold text-gray-900">Custodia veicoli</div>
                         <div className="text-xs text-gray-500 mt-0.5">Posizioni veicoli, stati e scadenze deposito</div>
                       </Link>
                       <Link href="/moduli/preventivi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">

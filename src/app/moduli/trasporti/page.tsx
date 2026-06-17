@@ -13,10 +13,10 @@ export default function TrasportiPage() {
           </Link>
           <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">App Base</p>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-[1.05]">
-            Gestione Trasporti<span className="text-blue-500">.</span>
+            Gestione Soccorso & trasporti<span className="text-blue-500">.</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl">
-            Sistema completo per soccorso stradale e demolizioni: creazione trasporti, assegnazione autisti/mezzi, tracking su mappa, stati e storico. Tutto sincronizzato e tracciabile.
+            Sistema completo per soccorso stradale e demolizioni: creazione soccorso & trasporti, assegnazione autisti/mezzi, tracking su mappa, stati e storico. Tutto sincronizzato e tracciabile.
           </p>
         </div>
       </section>
@@ -28,10 +28,10 @@ export default function TrasportiPage() {
             <div>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Il problema che risolve</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                In un'autodemolizione o in un centro soccorso, i trasporti si moltiplicano durante la giornata. Senza un sistema centrale, ogni intervento diventa una catena di telefonate: chi è libero? dov'è il carro attrezzi? è già partito? è arrivato? A fine giornata, ricostruire cosa è successo è quasi impossibile.
+                In un'autodemolizione o in un centro soccorso, i soccorso & trasporti si moltiplicano durante la giornata. Senza un sistema centrale, ogni intervento diventa una catena di telefonate: chi è libero? dov'è il carro attrezzi? è già partito? è arrivato? A fine giornata, ricostruire cosa è successo è quasi impossibile.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Il modulo Trasporti raccoglie tutto in un'unica schermata: ogni intervento ha un cliente, un indirizzo di ritiro e consegna, un autista, un mezzo e uno stato aggiornato in tempo reale. Non serve chiamare nessuno — basta aprire la lista e si vede tutto.
+                Il modulo Soccorso & trasporti raccoglie tutto in un'unica schermata: ogni intervento ha un cliente, un indirizzo di ritiro e consegna, un autista, un mezzo e uno stato aggiornato in tempo reale. Non serve chiamare nessuno — basta aprire la lista e si vede tutto.
               </p>
             </div>
             <div className="space-y-3">
@@ -67,7 +67,7 @@ export default function TrasportiPage() {
             <div className="p-6 border border-gray-200 bg-white">
               <MapPin className="h-6 w-6 text-blue-600 mb-3" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa interventi attivi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">La vista mappa mostra in un colpo d'occhio tutti i trasporti attivi: il punto di ritiro, il punto di consegna e, se disponibile, la posizione più recente del mezzo. Puoi cliccare su qualsiasi trasporto per vederne i dettagli, aprire l'indirizzo su Google Maps o contattare l'autista direttamente. Utile soprattutto nelle ore di punta quando ci sono più interventi contemporanei.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">La vista mappa mostra in un colpo d'occhio tutti i soccorso & trasporti attivi: il punto di ritiro, il punto di consegna e, se disponibile, la posizione più recente del mezzo. Puoi cliccare su qualsiasi trasporto per vederne i dettagli, aprire l'indirizzo su Google Maps o contattare l'autista direttamente. Utile soprattutto nelle ore di punta quando ci sono più interventi contemporanei.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <BarChart3 className="h-6 w-6 text-gray-600 mb-3" />
@@ -137,7 +137,7 @@ export default function TrasportiPage() {
               <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento rimane nel sistema con tutti i dettagli: cliente, indirizzi, autista, mezzo, note, stato e data. Se un cliente chiama per contestare o per richiedere informazioni su un intervento passato, hai tutto a portata di mano in pochi secondi.</p>
             </div>
             <div className="p-6 bg-white border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-2">Fatturazione integrata con i trasporti</h3>
+              <h3 className="font-bold text-gray-900 mb-2">Fatturazione integrata con i soccorso & trasporti</h3>
               <p className="text-sm text-gray-600 leading-relaxed">A fine intervento, il gestionale ha già tutti i dati necessari per la fattura. Con un click generi la bozza precompilata e la passi al modulo contabilità. Niente doppio inserimento, niente errori di trascrizione, niente dati persi.</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function TrasportiPage() {
             <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
             <div>
               <p className="font-bold text-gray-900 mb-1">Incluso in tutti i piani</p>
-              <p className="text-sm text-gray-600">Il modulo Trasporti fa parte dell'App Base ed è incluso in tutti i piani.</p>
+              <p className="text-sm text-gray-600">Il modulo Soccorso & trasporti fa parte dell'App Base ed è incluso in tutti i piani.</p>
             </div>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function TrasportiPage() {
       {/* CTA */}
       <section className="py-16 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-extrabold text-white mb-4">Gestisci i trasporti senza caos.</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-4">Gestisci i soccorso & trasporti senza caos.</h2>
           <p className="text-blue-100 mb-8">Demo gratuita, 30 minuti, personalizzata per la tua attività.</p>
           <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
             RICHIEDI DEMO <ArrowRight className="h-4 w-4" />

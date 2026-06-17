@@ -177,7 +177,7 @@ export default function ContattiForm() {
                         formData.tipo_richiesta === "demo"
                             ? "Cosa vorresti vedere nella demo?"
                             : formData.tipo_richiesta === "preventivo"
-                            ? "Descrivi le tue necessità e moduli di interesse (Es. SDI, RENTRI, Gestione Trasporti, RVFU)..."
+                            ? "Descrivi le tue necessità e moduli di interesse (Es. SDI, RENTRI, Gestione Soccorso & trasporti, RVFU)..."
                             : "Come possiamo aiutarti?"
                     }
                 />

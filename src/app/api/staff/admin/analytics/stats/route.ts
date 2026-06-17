@@ -128,7 +128,7 @@ export async function GET(request: Request) {
       conversion_rate: 0,
       top_pages: [
         { page: 'Veicoli', views: totalVehicles || 0, unique: totalVehicles || 0 },
-        { page: 'Trasporti', views: totalTransports || 0, unique: totalTransports || 0 },
+        { page: 'Soccorso & trasporti', views: totalTransports || 0, unique: totalTransports || 0 },
         { page: 'Fatture', views: totalInvoices || 0, unique: totalInvoices || 0 },
         { page: 'Membri Org', views: totalTables || 0, unique: totalTables || 0 },
       ]

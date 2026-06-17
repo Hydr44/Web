@@ -229,7 +229,7 @@ export default function HomeClient() {
                             </p>
                             <ul className="space-y-2.5">
                                 {[
-                                    "Assegnazione trasporti con un click",
+                                    "Assegnazione soccorso & trasporti con un click",
                                     "App per gli autisti (Android e iPhone)",
                                     "Calendario e mappa in tempo reale",
                                     "Rapportino digitale con firma del cliente"
@@ -244,7 +244,7 @@ export default function HomeClient() {
                         <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
                                 src="/appshots/autisti.png"
-                                alt="Gestione autisti e trasporti RescueManager"
+                                alt="Gestione autisti e soccorso & trasporti RescueManager"
                                 width={1024}
                                 height={768}
                                 className="w-full h-auto"
@@ -258,7 +258,7 @@ export default function HomeClient() {
                         <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
                                 src="/appshots/piazzalenuovo.png"
-                                alt="Gestione piazzale RescueManager"
+                                alt="Gestione custodia veicoli RescueManager"
                                 width={1024}
                                 height={768}
                                 className="w-full h-auto"
@@ -271,7 +271,7 @@ export default function HomeClient() {
                                 Ogni veicolo tracciato dal primo giorno
                             </h3>
                             <p className="text-gray-500 mb-5">
-                                Dal momento in cui un veicolo entra nel piazzale, hai tutto sotto controllo:
+                                Dal momento in cui un veicolo entra nella custodia veicoli, hai tutto sotto controllo:
                                 documenti, foto, stato della pratica, scadenze.
                             </p>
                             <ul className="space-y-2.5">
@@ -298,14 +298,14 @@ export default function HomeClient() {
                                 Tutti i tuoi clienti in un posto solo
                             </h3>
                             <p className="text-gray-500 mb-5">
-                                Anagrafica completa, storico trasporti, fatture emesse, veicoli associati.
+                                Anagrafica completa, storico soccorso & trasporti, fatture emesse, veicoli associati.
                                 Cerchi un cliente e trovi tutto quello che gli riguarda.
                             </p>
                             <ul className="space-y-2.5">
                                 {[
                                     "Anagrafica clienti e fornitori",
                                     "Storico completo per ogni cliente",
-                                    "Collegamento automatico a trasporti e fatture",
+                                    "Collegamento automatico a soccorso & trasporti e fatture",
                                     "Import da file Excel o CSV"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">

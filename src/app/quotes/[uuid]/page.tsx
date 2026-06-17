@@ -6,8 +6,8 @@ import { FileText, Check, X, Loader2, Download, MessageSquare, Clock, Shield } f
 import Link from 'next/link';
 
 const MODULE_LABELS: Record<string, string> = {
-  trasporti: 'Trasporti', tracking: 'Tracking GPS', calendario: 'Calendario',
-  clienti: 'Clienti & CRM', mezzi: 'Mezzi', piazzale: 'Piazzale',
+  trasporti: 'Soccorso & trasporti', tracking: 'Tracking GPS', calendario: 'Calendario',
+  clienti: 'Clienti & CRM', mezzi: 'Mezzi', piazzale: 'Custodia veicoli',
   autisti: 'Autisti', ricambi: 'Ricambi', preventivi: 'Preventivi',
   report: 'Report', rvfu: 'Demolizioni RVFU', rentri: 'RENTRI',
   fatturazione: 'Fatturazione Elettronica'

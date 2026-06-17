@@ -8,9 +8,9 @@ const FLAG_DEFINITIONS = [
   // === MODULI CORE ===
   { id: 'veicoli_enabled', name: 'Gestione Veicoli', description: 'Anagrafica veicoli, pratiche, documenti', category: 'modules', default: true },
   { id: 'clienti_enabled', name: 'Gestione Clienti', description: 'CRM clienti, contatti, timeline', category: 'modules', default: true },
-  { id: 'trasporti_enabled', name: 'Trasporti', description: 'Gestione trasporti, autisti, programmazione', category: 'modules', default: true },
+  { id: 'trasporti_enabled', name: 'Soccorso & trasporti', description: 'Gestione soccorso & trasporti, autisti, programmazione', category: 'modules', default: true },
   { id: 'ricambi_enabled', name: 'Ricambi & Magazzino', description: 'Catalogo ricambi, giacenze, codici interni, prezzi', category: 'modules', default: true },
-  { id: 'piazzale_enabled', name: 'Piazzale', description: 'Mappa piazzale, posizioni veicoli, settori', category: 'modules', default: true },
+  { id: 'piazzale_enabled', name: 'Custodia veicoli', description: 'Mappa custodia veicoli, posizioni veicoli, settori', category: 'modules', default: true },
   { id: 'fatture_enabled', name: 'Fatturazione', description: 'Emissione fatture, note di credito, pagamenti', category: 'modules', default: true },
   { id: 'contabilita_enabled', name: 'Contabilità', description: 'Piano dei conti, partita doppia, prima nota', category: 'modules', default: true },
   { id: 'vendite_enabled', name: 'Modulo Vendite', description: 'Preventivi, ordini, dashboard vendite', category: 'modules', default: true },
