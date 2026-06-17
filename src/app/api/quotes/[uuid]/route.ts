@@ -239,7 +239,9 @@ export async function POST(
         mode: 'subscription',
         line_items: lineItems,
         payment_method_types: ['card'],
-        success_url: `${SITE_URL}/quotes/${params.uuid}/success?session_id={CHECKOUT_SESSION_ID}`,
+        // F5: dopo il pagamento → wizard di configurazione (il wizard conferma il
+        // pagamento e poi guida l'upload visura). paid=1 segnala l'arrivo dal checkout.
+        success_url: `${SITE_URL}/configura/${params.uuid}?paid=1`,
         cancel_url: `${SITE_URL}/quotes/${params.uuid}`,
         metadata: { quote_id: quote.id, lead_id: quote.lead_id, quote_uuid: params.uuid },
         subscription_data: subscriptionData,
