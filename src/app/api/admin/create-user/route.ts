@@ -43,8 +43,22 @@ export async function POST(req: Request) {
       console.error("permessi lookup error", meErr);
       return bad("errore verificando i permessi", 500);
     }
-    const allowed = !!me && ["admin", "dispatcher"].includes((me.ruolo || "").toLowerCase());
+    const callerRole = (me?.ruolo || "").toLowerCase();
+    const allowed = !!me && ["admin", "dispatcher"].includes(callerRole);
     if (!allowed) return bad("permessi insufficienti", 403);
+
+    // A1 — Mass-assignment / privilege-escalation protection.
+    // Policy: un admin può creare qualsiasi ruolo; un dispatcher può creare
+    // qualsiasi ruolo TRANNE quelli privilegiati (admin/dispatcher), così non
+    // può scalare i privilegi. Usiamo una deny-list dei ruoli privilegiati e
+    // non un'allowlist esplicita: l'allowlist era incompleta (mancavano ruoli
+    // validi come 'viewer'/'meccanico' usati dalla UI) e bloccava creazioni
+    // legittime, pur lasciando passare il rischio vero (creare admin/dispatcher).
+    const requestedRole = (ruolo || "autista").toLowerCase();
+    const PRIVILEGED_ROLES = new Set(["admin", "dispatcher"]);
+    if (callerRole !== "admin" && PRIVILEGED_ROLES.has(requestedRole)) {
+      return bad(`Non puoi creare un utente con ruolo '${requestedRole}'.`, 403);
+    }
 
     // 2) Admin client
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -107,10 +121,16 @@ export async function POST(req: Request) {
 }
 
 /* helpers */
-function strongPwd(len = 12) {
+// Password sicura — usa crypto.randomBytes invece di Math.random (M10 del
+// security audit). Math.random ha ~47 bit di entropia (insufficienti per
+// password che protegge un account amministratore).
+function strongPwd(len = 16) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%";
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const crypto = require("node:crypto") as typeof import("node:crypto");
+  const bytes = crypto.randomBytes(len);
   let out = "";
-  for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < len; i++) out += chars[bytes[i] % chars.length];
   return out;
 }
 function bad(msg: string, code = 400) {
