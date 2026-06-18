@@ -30,6 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: { uuid: s
     .eq('quote_uuid', uuid)
     .is('verified_at', null)
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .limit(1)
     .maybeSingle();
 

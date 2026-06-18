@@ -31,29 +31,49 @@ export async function POST(request: NextRequest, { params }: { params: { uuid: s
   }
   if (!lead.email) return NextResponse.json({ ok: false, error: 'Nessuna email associata.' }, { status: 400, headers });
 
-  // Rate limit: max 5 invii / ora per preventivo.
+  // Throttle DURABLE (anti email-bomb): intervallo minimo tra due invii, basato
+  // sull'ultima riga a DB. A differenza di checkRateLimit (Map in-process, inefficace
+  // su Vercel serverless) questo regge tra istanze/cold start.
+  const RESEND_INTERVAL_MS = 30 * 1000;
+  const { data: last } = await supabaseAdmin
+    .from('email_otp')
+    .select('created_at')
+    .eq('quote_uuid', uuid)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (last && Date.now() - new Date(last.created_at).getTime() < RESEND_INTERVAL_MS) {
+    return NextResponse.json({ ok: false, error: 'Hai appena richiesto un codice. Attendi qualche secondo e controlla l\'email.' }, { status: 429, headers });
+  }
+  // Secondo livello (best-effort, soft): cap 5 invii/ora per istanza calda.
   const rl = await checkRateLimit(`otp-send:${uuid}`, 5, 60 * 60 * 1000);
   if (!rl.allowed) {
     return NextResponse.json({ ok: false, error: 'Troppi invii. Riprova tra un po\'.' }, { status: 429, headers });
   }
 
   const code = generateOtpCode();
-  // Pulisci eventuali OTP non verificati precedenti per questo preventivo.
+  // Pulisci eventuali OTP non verificati precedenti per questo preventivo (un solo codice attivo).
   await supabaseAdmin.from('email_otp').delete().eq('quote_uuid', uuid).is('verified_at', null);
-  const { error: insErr } = await supabaseAdmin.from('email_otp').insert({
+  const { data: inserted, error: insErr } = await supabaseAdmin.from('email_otp').insert({
     quote_uuid: uuid,
     email: lead.email,
     code_hash: hashCode(code),
     expires_at: new Date(Date.now() + OTP_TTL_MS).toISOString(),
-  });
-  if (insErr) return NextResponse.json({ ok: false, error: 'Errore generazione codice.' }, { status: 500, headers });
+  }).select('id').single();
+  if (insErr || !inserted) return NextResponse.json({ ok: false, error: 'Errore generazione codice.' }, { status: 500, headers });
 
-  await sendCustomerEmail(
+  // Invia l'email e PROPAGA il fallimento: se non parte, l'API non deve dire "inviato".
+  // Rollback della riga così l'utente può rinviare subito (senza incappare nel throttle).
+  const sent = await sendCustomerEmail(
     lead.email,
     'Il tuo codice di verifica — RescueManager',
     `Ciao {{nome}},\n\nIl tuo codice di verifica è: ${code}\n\nInseriscilo nella pagina di configurazione per continuare. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
     { nome: lead.name },
   );
+  if (!sent.ok) {
+    await supabaseAdmin.from('email_otp').delete().eq('id', inserted.id);
+    return NextResponse.json({ ok: false, error: 'Invio email non riuscito. Riprova tra poco.' }, { status: 502, headers });
+  }
 
   return NextResponse.json({ ok: true, email_masked: maskEmail(lead.email) }, { headers });
 }

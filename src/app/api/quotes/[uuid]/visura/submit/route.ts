@@ -10,6 +10,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { uploadToR2 } from '@/lib/r2-storage';
 import { sendCustomerEmail } from '@/lib/customer-email';
+import { hasVerifiedOtp } from '@/lib/otp-guard';
 
 export const runtime = 'nodejs';
 
@@ -43,6 +44,13 @@ export async function POST(
   }
   if (leadStatus === 'attivato' || leadStatus === 'converted') {
     return NextResponse.json({ ok: false, error: 'Pratica già attivata.' }, { status: 409, headers });
+  }
+
+  // OTP email obbligatorio lato server: il gate del wizard è solo client-side, qui
+  // si scrivono dati reali (R2, lead_documents, campi azienda, in_verifica), quindi
+  // serve la prova che chi invia controlla l'email del lead.
+  if (!(await hasVerifiedOtp(request, uuid))) {
+    return NextResponse.json({ ok: false, error: 'Verifica email richiesta.', otp_required: true }, { status: 401, headers });
   }
 
   let body: { pdf_base64?: string; fields?: Record<string, unknown> };

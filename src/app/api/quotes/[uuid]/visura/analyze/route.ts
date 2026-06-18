@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { checkRateLimit } from '@/lib/security';
+import { hasVerifiedOtp } from '@/lib/otp-guard';
 
 export const runtime = 'nodejs';
 
@@ -46,6 +47,12 @@ export async function POST(
   const inVerifica = lead.status === 'in_verifica';
   if (!paid && !inVerifica) {
     return NextResponse.json({ ok: false, error: 'La verifica è disponibile dopo il pagamento.' }, { status: 403, headers });
+  }
+
+  // 1b) OTP email obbligatorio lato server (il gate del wizard non basta: chi ha
+  //     il link potrebbe chiamare direttamente saltando la verifica email).
+  if (!(await hasVerifiedOtp(request, uuid))) {
+    return NextResponse.json({ ok: false, error: 'Verifica email richiesta.', otp_required: true }, { status: 401, headers });
   }
 
   // 2) Rate limit per preventivo (max 5 analisi / 24h).

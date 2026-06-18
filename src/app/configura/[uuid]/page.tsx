@@ -4,7 +4,7 @@
 // persistito (pratica-status), non da uno state locale che muore alla disconnessione.
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 const FIELDS: { key: string; label: string }[] = [
@@ -39,11 +39,15 @@ export default function ConfiguraPage() {
   const [otpError, setOtpError] = useState('');
   const [otpBusy, setOtpBusy] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  // Polling "confermando pagamento": timer + flag per non aggiornare lo stato dopo l'unmount.
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const aliveRef = useRef(true);
 
   const loadStatus = useCallback(async (retry = 0) => {
     try {
       const r = await fetch(`/api/quotes/${uuid}/pratica-status`);
       const d = await r.json();
+      if (!aliveRef.current) return;
       if (!d.ok) { setError(d.error || 'Pratica non trovata.'); setPhase('elsewhere'); return; }
       setCompany(d.company);
       if (d.step === 'pagamento') {
@@ -52,7 +56,7 @@ export default function ConfiguraPage() {
         const justPaid = typeof window !== 'undefined' && window.location.search.includes('paid=1');
         if (justPaid && retry < 8) {
           setPhase('confirming');
-          setTimeout(() => loadStatus(retry + 1), 2500);
+          pollRef.current = setTimeout(() => loadStatus(retry + 1), 2500);
         } else {
           setPhase('pagamento');
         }
@@ -60,16 +64,22 @@ export default function ConfiguraPage() {
         // Verifica email (anti-frode link inoltrato) prima dell'upload — salvo
         // ripresa sullo stesso dispositivo (cookie di sessione).
         const otp = await fetch(`/api/quotes/${uuid}/otp/status`).then(r => r.json()).catch(() => ({ verified: false }));
+        if (!aliveRef.current) return;
         setPhase(otp.verified ? 'upload' : 'otp');
       } else {
         router.replace(`/pratica/${uuid}`); // in_verifica / attivato → pagina stato
       }
     } catch {
+      if (!aliveRef.current) return;
       setError('Errore di rete.'); setPhase('elsewhere');
     }
   }, [uuid, router]);
 
-  useEffect(() => { loadStatus(); }, [loadStatus]);
+  useEffect(() => {
+    aliveRef.current = true;
+    loadStatus();
+    return () => { aliveRef.current = false; if (pollRef.current) clearTimeout(pollRef.current); };
+  }, [loadStatus]);
 
   const sendOtp = useCallback(async () => {
     setOtpSent(true); setOtpError('');
