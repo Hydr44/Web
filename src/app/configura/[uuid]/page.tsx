@@ -20,7 +20,7 @@ const FIELDS: { key: string; label: string }[] = [
   { key: 'cap', label: 'CAP' },
 ];
 
-type Phase = 'loading' | 'confirming' | 'pagamento' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
+type Phase = 'loading' | 'confirming' | 'pagamento' | 'otp' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
 
 export default function ConfiguraPage() {
   const { uuid } = useParams<{ uuid: string }>();
@@ -33,6 +33,12 @@ export default function ConfiguraPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [mismatch, setMismatch] = useState(false);
   const [notice, setNotice] = useState('');
+  // OTP verifica email
+  const [otpCode, setOtpCode] = useState('');
+  const [emailMasked, setEmailMasked] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpBusy, setOtpBusy] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
 
   const loadStatus = useCallback(async (retry = 0) => {
     try {
@@ -51,7 +57,10 @@ export default function ConfiguraPage() {
           setPhase('pagamento');
         }
       } else if (d.step === 'carica' || d.step === 'correzione') {
-        setPhase('upload');
+        // Verifica email (anti-frode link inoltrato) prima dell'upload — salvo
+        // ripresa sullo stesso dispositivo (cookie di sessione).
+        const otp = await fetch(`/api/quotes/${uuid}/otp/status`).then(r => r.json()).catch(() => ({ verified: false }));
+        setPhase(otp.verified ? 'upload' : 'otp');
       } else {
         router.replace(`/pratica/${uuid}`); // in_verifica / attivato → pagina stato
       }
@@ -61,6 +70,45 @@ export default function ConfiguraPage() {
   }, [uuid, router]);
 
   useEffect(() => { loadStatus(); }, [loadStatus]);
+
+  const sendOtp = useCallback(async () => {
+    setOtpSent(true); setOtpError('');
+    setOtpBusy('send');
+    try {
+      const r = await fetch(`/api/quotes/${uuid}/otp/send`, { method: 'POST' });
+      const d = await r.json();
+      if (!d.ok) setOtpError(d.error || 'Invio del codice non riuscito.');
+      else setEmailMasked(d.email_masked || '');
+    } catch {
+      setOtpError('Errore di rete. Riprova.');
+    } finally {
+      setOtpBusy('');
+    }
+  }, [uuid]);
+
+  const verifyOtp = async () => {
+    if (!/^[0-9]{6}$/.test(otpCode)) { setOtpError('Inserisci il codice a 6 cifre.'); return; }
+    setOtpBusy('verify'); setOtpError('');
+    try {
+      const r = await fetch(`/api/quotes/${uuid}/otp/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: otpCode }),
+      });
+      const d = await r.json();
+      if (!d.ok) { setOtpError(d.error || 'Codice errato.'); setOtpCode(''); }
+      else setPhase('upload');
+    } catch {
+      setOtpError('Errore di rete. Riprova.');
+    } finally {
+      setOtpBusy('');
+    }
+  };
+
+  // Auto-invio del codice quando si entra nello step verifica (una sola volta).
+  useEffect(() => {
+    if (phase === 'otp' && !otpSent) sendOtp();
+  }, [phase, otpSent, sendOtp]);
 
   const onFile = (file: File | null) => {
     setError('');
@@ -158,6 +206,46 @@ export default function ConfiguraPage() {
         <h2 className="text-lg font-semibold">Pratica inviata</h2>
         <p className="text-sm text-slate-400 mt-1">Riceverai l'esito della verifica <b>entro 24 ore</b>.</p>
         <button onClick={() => router.replace(`/pratica/${uuid}`)} className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm">Vai allo stato della pratica</button>
+      </div>
+    </Shell>
+  );
+
+  if (phase === 'otp') return (
+    <Shell>
+      <div className="py-4">
+        <div className="w-12 h-12 rounded-full bg-blue-500/15 text-blue-400 mx-auto flex items-center justify-center text-2xl mb-3">✉️</div>
+        <h2 className="text-lg font-semibold text-center">Verifica la tua email</h2>
+        <p className="text-sm text-slate-400 mt-1 text-center">
+          Abbiamo inviato un codice a 6 cifre a{' '}
+          <b className="text-slate-200">{emailMasked || 'la tua email'}</b>. Inseriscilo per continuare.
+        </p>
+
+        <div className="mt-5 max-w-xs mx-auto">
+          <input
+            value={otpCode}
+            onChange={e => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
+            onKeyDown={e => { if (e.key === 'Enter') verifyOtp(); }}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="••••••"
+            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 rounded-xl bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none"
+          />
+          {otpError && <p className="mt-2 text-sm text-red-400 text-center">{otpError}</p>}
+
+          <button
+            onClick={verifyOtp}
+            disabled={otpCode.length !== 6 || otpBusy === 'verify'}
+            className="mt-4 w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium disabled:opacity-50">
+            {otpBusy === 'verify' ? 'Verifica…' : 'Verifica e continua'}
+          </button>
+
+          <button
+            onClick={sendOtp}
+            disabled={otpBusy === 'send'}
+            className="mt-3 w-full text-sm text-slate-400 hover:text-slate-200 disabled:opacity-50">
+            {otpBusy === 'send' ? 'Invio in corso…' : 'Non hai ricevuto il codice? Reinvia'}
+          </button>
+        </div>
       </div>
     </Shell>
   );
