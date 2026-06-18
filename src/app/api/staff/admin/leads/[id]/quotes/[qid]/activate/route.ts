@@ -3,17 +3,26 @@
  * Attiva manualmente account post-pagamento (o senza, con skip_payment_check)
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { corsHeaders } from '@/lib/cors';
+import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 
 const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string; qid: string } }
 ) {
   const origin = request.headers.get('origin');
+  // RBAC: l'attivazione (crea org/utenti/fattura) è riservata ai ruoli admin.
+  const staff = await getStaffFromRequest(request);
+  if (!staff) {
+    return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401, headers: corsHeaders(origin) });
+  }
+  if (!requireStaffRole(staff, 'admin', 'manager')) {
+    return NextResponse.json({ success: false, error: 'Permessi insufficienti per attivare' }, { status: 403, headers: corsHeaders(origin) });
+  }
   try {
     const body = await request.json();
     const response = await fetch(`${LEAD_API_URL}/api/leads/${params.id}/quotes/${params.qid}/activate`, {

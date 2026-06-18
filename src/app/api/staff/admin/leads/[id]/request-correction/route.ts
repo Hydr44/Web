@@ -4,7 +4,7 @@
 // Auth staff: middleware su /api/staff/admin/* + getStaffFromRequest.
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { getStaffFromRequest } from '@/lib/staff-auth';
+import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 import { sendCustomerEmail } from '@/lib/customer-email';
 import { createAuditLog } from '@/lib/staff-audit';
 
@@ -19,6 +19,9 @@ export async function POST(
   const staff = await getStaffFromRequest(request);
   if (!staff) {
     return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401 });
+  }
+  if (!requireStaffRole(staff, 'admin', 'manager', 'sales')) {
+    return NextResponse.json({ success: false, error: 'Permessi insufficienti' }, { status: 403 });
   }
 
   let body: { reason?: string };
