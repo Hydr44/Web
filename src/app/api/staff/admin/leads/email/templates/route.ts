@@ -14,7 +14,7 @@ const DEFAULT_TEMPLATES = [
     name: 'Promo Nuovo Cliente',
     category: 'promo',
     subject: 'Prova RescueManager gratis per 7 giorni!',
-    body: 'Gentile {{nome}},\n\nle offriamo 7 giorni di prova gratuita di RescueManager, la piattaforma n.1 per autodemolizioni.\n\nCon RescueManager puo:\n- Gestire veicoli, ricambi e magazzino\n- Inviare fatture elettroniche via SDI\n- Compilare registri RENTRI in automatico\n- Gestire il piazzale con mappa interattiva\n\nAttivi subito la prova gratuita!\n\nTeam RescueManager',
+    body: 'Gentile {{nome}},\n\nle offriamo 7 giorni di prova gratuita di RescueManager, la piattaforma n.1 per autodemolizioni.\n\nCon RescueManager puo:\n- Gestire veicoli, ricambi e magazzino\n- Inviare fatture elettroniche via SDI\n- Compilare registri RENTRI in automatico\n- Gestire la custodia veicoli con mappa interattiva\n\nAttivi subito la prova gratuita!\n\nTeam RescueManager',
   },
   {
     name: 'Promo Sconto Annuale',

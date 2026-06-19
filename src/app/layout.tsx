@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s — RescueManager",
   },
   description:
-    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
+    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
   keywords: [
     // Autodemolitori — keywords primarie (era il target sotto-rappresentato)
     "gestionale autodemolitori",
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     siteName: "RescueManager",
     title: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
     description:
-      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi.",
+      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi.",
     images: [
       {
         url: "/assets/logos/logo-principale-a-colori.svg",
@@ -164,7 +164,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ],
     operatingSystem: "Web, Windows, macOS, iOS, Android",
     description:
-      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione piazzale e ricambi. Conforme D.Lgs 209/2003.",
+      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Conforme D.Lgs 209/2003.",
     audience: {
       "@type": "BusinessAudience",
       audienceType: [

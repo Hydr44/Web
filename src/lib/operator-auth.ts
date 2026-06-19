@@ -3,7 +3,15 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXT_PUBLIC_JWT_SECRET || 'operator_jwt_secret_change_in_production';
+// Nessun fallback hardcoded/NEXT_PUBLIC (erano insicuri). Segreto LAZY: throw solo
+// quando una funzione lo usa, MAI a livello-modulo (un throw all'import farebbe 500
+// a tutte le route che importano operator-auth). verifyToken è in try/catch →
+// fail-closed (null) se manca.
+function getJwtSecret(): string {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error('JWT_SECRET non configurata.');
+  return s;
+}
 const JWT_ACCESS_EXPIRES = '7d'; // 7 giorni
 const JWT_REFRESH_EXPIRES = '30d'; // 30 giorni
 
@@ -47,7 +55,7 @@ export function generateAccessToken(payload: Omit<OperatorTokenPayload, 'iat' | 
       type: 'operator_access',
       version: 1,
     },
-    JWT_SECRET,
+    getJwtSecret(),
     signOptions
   );
 }
@@ -62,7 +70,7 @@ export function generateRefreshToken(payload: Omit<OperatorTokenPayload, 'iat' |
       type: 'operator_refresh',
       version: 1,
     },
-    JWT_SECRET,
+    getJwtSecret(),
     {
       expiresIn: JWT_REFRESH_EXPIRES,
     }
@@ -74,7 +82,7 @@ export function generateRefreshToken(payload: Omit<OperatorTokenPayload, 'iat' |
  */
 export function verifyToken(token: string): OperatorTokenPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as OperatorTokenPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as OperatorTokenPayload;
     return decoded;
   } catch (error) {
     return null;

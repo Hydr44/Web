@@ -1,14 +1,18 @@
+// Assistente in-app (banner help "RescueAI"). Migrato 2026-06-11 da OpenAI
+// a Anthropic Claude. La chiave resta server-side (env ANTHROPIC_API_KEY);
+// il client non ha mai visto la key.
 import { NextRequest, NextResponse } from "next/server";
 import { corsHeaders } from "@/lib/cors";
 
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-6";
 
 function getTransportsHelp() {
   return [
-    "Sei nella sezione Trasporti di RescueManager.",
+    "Sei nella sezione Soccorso & trasporti di RescueManager.",
     "",
     "Qui gestisci tutti i viaggi dei mezzi: ritiri, consegne, demolizioni collegate, rifiuti, ecc.",
-    "La tabella mostra i trasporti con cliente, mezzo, autista, indirizzi di ritiro/consegna, stato e date.",
+    "La tabella mostra i soccorso & trasporti con cliente, mezzo, autista, indirizzi di ritiro/consegna, stato e date.",
     "",
     "Flusso tipico per creare un nuovo trasporto:",
     "1) Clicca sul pulsante Nuovo Trasporto (puoi usare anche il pulsante rapido nella sidebar).",
@@ -19,7 +23,7 @@ function getTransportsHelp() {
     "6) Aggiungi eventuali note operative (ad esempio orari del cliente, accesso difficile, documenti da portare).",
     "7) Salva il trasporto: comparirà nella lista e potrai aggiornarne lo stato man mano che viene eseguito.",
     "",
-    "Cosa puoi fare dalla lista trasporti:",
+    "Cosa puoi fare dalla lista soccorso & trasporti:",
     "- Cercare e filtrare per cliente, data, stato o testo libero.",
     "- Aprire il dettaglio di un trasporto per modificarlo o vedere tutte le informazioni.",
     "- Collegare il trasporto ad altre sezioni (ad esempio demolizioni o rifiuti) se la tua configurazione lo prevede.",
@@ -41,10 +45,10 @@ export async function POST(request: NextRequest) {
   const cors = corsHeaders(origin);
 
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return new NextResponse(
-        JSON.stringify({ error: "OPENAI_API_KEY non configurata sul server" }),
+        JSON.stringify({ error: "Servizio AI non configurato sul server" }),
         { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
@@ -81,39 +85,44 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .join("\n");
 
-    const openaiResponse = await fetch(OPENAI_API_URL, {
+    const claudeResponse = await fetch(ANTHROPIC_API_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: question },
-        ],
+        model: MODEL,
+        max_tokens: 1024,
         temperature: 0.4,
+        system: systemPrompt,
+        messages: [{ role: "user", content: question }],
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text().catch(() => "");
-      console.error("[AI-ASSIST] OpenAI API error:", openaiResponse.status, errorText);
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text().catch(() => "");
+      console.error("[AI-ASSIST] Claude API error:", claudeResponse.status, errorText.slice(0, 500));
 
       return new NextResponse(
         JSON.stringify({
-          error: "Errore chiamata OpenAI",
-          status: openaiResponse.status,
+          error: "Errore servizio AI",
+          status: claudeResponse.status,
         }),
         { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    const data = await openaiResponse.json();
-    const answer =
-      data?.choices?.[0]?.message?.content ||
-      "Non sono riuscito a generare una risposta al momento.";
+    const data = await claudeResponse.json();
+    // Anthropic ritorna content come array di blocchi {type, text}.
+    const answer = Array.isArray(data?.content)
+      ? data.content
+          .filter((b: { type?: string }) => b.type === "text")
+          .map((b: { text?: string }) => b.text || "")
+          .join("\n")
+          .trim() || "Non sono riuscito a generare una risposta al momento."
+      : "Non sono riuscito a generare una risposta al momento.";
 
     return new NextResponse(
       JSON.stringify({ answer }),

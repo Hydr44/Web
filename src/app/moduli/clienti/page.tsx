@@ -66,7 +66,7 @@ export default function ClientiPage() {
             <div className="p-6 border border-gray-200 bg-white">
               <History className="h-6 w-6 text-purple-600 mb-3" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Storico completo degli interventi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Nella scheda cliente vedi in ordine cronologico tutti i trasporti effettuati, i preventivi inviati con il loro stato (accettato, rifiutato, in attesa), le fatture emesse e le note interne. Se un cliente contesta un intervento di sei mesi fa, in 10 secondi hai tutto davanti. Il sistema non dimentica niente e non perde nessun dato.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Nella scheda cliente vedi in ordine cronologico tutti i soccorso & trasporti effettuati, i preventivi inviati con il loro stato (accettato, rifiutato, in attesa), le fatture emesse e le note interne. Se un cliente contesta un intervento di sei mesi fa, in 10 secondi hai tutto davanti. Il sistema non dimentica niente e non perde nessun dato.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <TrendingUp className="h-6 w-6 text-red-600 mb-3" />

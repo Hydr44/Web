@@ -6,8 +6,16 @@ import jwt from 'jsonwebtoken';
 export const runtime = "nodejs";
 export const maxDuration = 30; // 30 secondi per Supabase queries
 
-// JWT Secret per desktop app (dovrebbe essere in env)
-const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+// JWT Secret per desktop app — fail-fast se mancante. Il fallback storico
+// 'desktop_oauth_secret_key_change_in_production' era pubblico nel repo:
+// chiunque poteva forgiare token OAuth bypassando l'auth desktop.
+// Rimosso 2026-06-11. Settare JWT_SECRET nelle env Vercel.
+// Lazy: throw a runtime (try/catch della route → 500), non a livello-modulo.
+function getJwtSecret(): string {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error('JWT_SECRET non configurata.');
+  return s;
+}
 
 const DEFAULT_ALLOW_HEADERS = 'Content-Type, Authorization, Apikey, Prefer, X-Client-Info, X-Requested-With';
 
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
     console.log('=== OAUTH EXCHANGE ENDPOINT START ===');
     console.log('Request URL:', request.url);
     console.log('Request method:', request.method);
-    console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+    // (log headers rimosso: poteva contenere l'header Authorization)
     
     const { code, app_id } = await request.json();
     console.log('Exchange params:', { code, app_id });
@@ -95,7 +103,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     console.log('=== OAUTH CODE SEARCH RESULT ===');
-    console.log('OAuth Data:', oauthData);
+    console.log('OAuth code trovato:', !!oauthData);
     console.log('OAuth Error:', oauthError);
 
     if (oauthError || !oauthData) {
@@ -126,7 +134,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     console.log('=== USER SEARCH RESULT ===');
-    console.log('User Data:', userData);
+    console.log('Utente trovato:', !!userData);
     console.log('User Error:', userError);
 
     // Se il profilo non esiste, prova a recuperare da auth.users e crea il profilo
@@ -260,7 +268,7 @@ export async function POST(request: NextRequest) {
         email: userData.email,
         full_name: userData.full_name
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: '1h' }
     );
 
@@ -270,7 +278,7 @@ export async function POST(request: NextRequest) {
         app_id: app_id,
         type: 'refresh'
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: '365d' } // 1 anno per token persistente
     );
 

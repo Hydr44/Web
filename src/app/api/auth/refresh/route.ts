@@ -6,8 +6,14 @@ import { verifyOAuthToken } from "@/lib/oauth-jwt";
 
 export const runtime = "nodejs";
 
-// JWT Secret per desktop app (dovrebbe essere in env)
-const JWT_SECRET = process.env.JWT_SECRET || 'desktop_oauth_secret_key_change_in_production';
+// JWT Secret per desktop app — SOLO da env (rimosso il fallback hardcoded).
+// Lazy: throw a runtime (gestito dal try/catch della route → 500), non a
+// livello-modulo (eviterebbe l'import della route, ma comunque solo questa).
+function getJwtSecret(): string {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error('JWT_SECRET non configurata.');
+  return s;
+}
 
 /**
  * Endpoint per refresh access token
@@ -26,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verifica refresh token (tipato; null se invalido/scaduto/forma sbagliata)
-    const decoded = verifyOAuthToken(refresh_token, JWT_SECRET);
+    const decoded = verifyOAuthToken(refresh_token, getJwtSecret());
     if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid or expired refresh token' },
@@ -68,7 +74,7 @@ export async function POST(request: NextRequest) {
         email: tokenData.user_id, // Sarà aggiornato con i dati reali
         full_name: tokenData.user_id // Sarà aggiornato con i dati reali
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: '1h' }
     );
 

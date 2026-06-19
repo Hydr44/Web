@@ -5,6 +5,7 @@ import { corsHeaders } from '@/lib/cors';
 const VALID_MODULES = [
   'base', 'rvfu', 'sdi', 'rentri', 'contabilita',
   'ricambi', 'piazzale', 'ai_validation', 'marketplace', 'gps_tracking',
+  'unrae',
 ];
 const VALID_STATUSES = ['active', 'inactive', 'trial'];
 

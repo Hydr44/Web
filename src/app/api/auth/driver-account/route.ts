@@ -80,6 +80,16 @@ async function authorize(request: NextRequest, staffDriverId: string) {
     .maybeSingle();
   if (!membership) return { error: 'Non sei membro di questa organizzazione', status: 403 } as const;
 
+  // A5 — Solo il titolare (owner) o un admin dell'org possono creare account o
+  // resettare la password di un autista. Senza questo check, un member/autista
+  // poteva reset password e accedere all'account di un collega.
+  // NB: org_members.role usa owner/admin/member/autista (NON 'dispatcher', che
+  // appartiene a profiles.ruolo) → l'allowlist deve includere 'owner'.
+  const role = String(membership.role || '').toLowerCase();
+  if (!['owner', 'admin'].includes(role)) {
+    return { error: 'Operazione riservata al titolare o agli admin.', status: 403 } as const;
+  }
+
   return { drv } as const;
 }
 

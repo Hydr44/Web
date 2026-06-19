@@ -2,9 +2,15 @@ import { SignJWT, jwtVerify } from 'jose';
 import { supabaseAdmin } from './supabase-admin';
 import { NextRequest } from 'next/server';
 
-const STAFF_JWT_SECRET = new TextEncoder().encode(
-  process.env.STAFF_JWT_SECRET || process.env.ADMIN_SECRET_KEY || 'staff-secret-change-me'
-);
+// Nessun fallback hardcoded (il vecchio era pubblico nel repo). Il segreto si
+// legge in modo LAZY: throw solo quando una funzione lo usa davvero, MAI a
+// livello-modulo (un throw all'import farebbe 500 a tutte le route che importano
+// staff-auth). verifyStaffToken è in try/catch → fail-closed (null) se manca.
+function getStaffSecret(): Uint8Array {
+  const raw = process.env.STAFF_JWT_SECRET || process.env.ADMIN_SECRET_KEY;
+  if (!raw) throw new Error('STAFF_JWT_SECRET (o ADMIN_SECRET_KEY) non configurata.');
+  return new TextEncoder().encode(raw);
+}
 const JWT_ISSUER = 'rescuemanager-admin';
 const JWT_EXPIRY = '24h';
 
@@ -26,12 +32,12 @@ export async function generateStaffToken(staff: StaffPayload): Promise<string> {
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
     .setExpirationTime(JWT_EXPIRY)
-    .sign(STAFF_JWT_SECRET);
+    .sign(getStaffSecret());
 }
 
 export async function verifyStaffToken(token: string): Promise<StaffPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, STAFF_JWT_SECRET, {
+    const { payload } = await jwtVerify(token, getStaffSecret(), {
       issuer: JWT_ISSUER,
     });
 

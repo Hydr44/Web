@@ -15,6 +15,15 @@ export async function POST(req: NextRequest) {
     } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
+    // Verifica che l'utente sia membro dell'org richiesta (no switch arbitrario).
+    const { data: member } = await supabase
+      .from("org_members")
+      .select("org_id")
+      .eq("org_id", org_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!member) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
     await supabase.from("profiles").update({ current_org: org_id }).eq("id", user.id);
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {

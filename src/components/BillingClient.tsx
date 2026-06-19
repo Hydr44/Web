@@ -21,7 +21,7 @@ const PLANS = [
     annualEnvKey: "NEXT_PUBLIC_STRIPE_PRICE_STARTER_ANNUAL",
     monthlyEnvKey: "NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY",
     features: [
-      "Gestionale completo (trasporti, clienti, mezzi, piazzale, autisti)",
+      "Gestionale completo (soccorso & trasporti, clienti, mezzi, custodia veicoli, autisti)",
       "Ricambi con database TecDoc integrato",
       "Marketplace (eBay, Subito, Shopify)",
       "Tracking GPS in tempo reale",

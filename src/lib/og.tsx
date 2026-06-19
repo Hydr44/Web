@@ -71,7 +71,7 @@ export function renderSocialImage() {
             }}
           >
             Software gestionale per soccorso stradale e autodemolizioni —
-            trasporti, RVFU, RENTRI, fatturazione SDI.
+            soccorso & trasporti, RVFU, RENTRI, fatturazione SDI.
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export function renderSocialImage() {
         >
           <div>rescuemanager.eu</div>
           <div style={{ display: "flex", gap: 24 }}>
-            <span>Trasporti</span>
+            <span>Soccorso & trasporti</span>
             <span>·</span>
             <span>RVFU</span>
             <span>·</span>
