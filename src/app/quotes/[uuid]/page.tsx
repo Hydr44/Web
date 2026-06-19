@@ -400,20 +400,20 @@ export default function PublicQuotePage() {
 
         {/* Status messages */}
         {quote.status === 'accepted' && (
-          <div className="bg-slate-900 border-l-4 border-emerald-500 p-6">
-            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Accettato</p>
-            <p className="text-white font-bold">Preventivo Accettato</p>
-            <p className="text-sm text-slate-400 mt-1">Ti contatteremo a breve per completare la procedura di attivazione.</p>
+          <div className="bg-slate-900 border-l-4 border-amber-500 p-6">
+            <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Accettato</p>
+            <p className="text-white font-bold">Preventivo accettato</p>
+            <p className="text-sm text-slate-400 mt-1">Per procedere, completa il pagamento. Se hai interrotto il checkout, clicca di nuovo su &laquo;Accetta e Procedi al Pagamento&raquo;.</p>
           </div>
         )}
 
         {quote.status === 'paid' && (
           <div className="bg-slate-900 border-l-4 border-emerald-500 p-6">
             <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Pagato</p>
-            <p className="text-white font-bold">Pagamento Completato</p>
-            <p className="text-sm text-slate-400 mt-2">Il tuo account è stato attivato. Accedi all&apos;area personale per iniziare.</p>
-            <Link href="/login" className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors uppercase tracking-wide">
-              Accedi a RescueManager
+            <p className="text-white font-bold">Pagamento ricevuto</p>
+            <p className="text-sm text-slate-400 mt-2">Ora configura la tua azienda: carica la visura e conferma i dati. Riceverai l&apos;esito della verifica <b>entro 24 ore</b>.</p>
+            <Link href={`/configura/${uuid}`} className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors uppercase tracking-wide">
+              Configura la tua azienda
             </Link>
           </div>
         )}

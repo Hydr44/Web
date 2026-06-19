@@ -8,8 +8,6 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
-const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
-const VPS_API_KEY = process.env.VPS_API_KEY || '';
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_LEADS_SECRET || process.env.STRIPE_WEBHOOK_SECRET || '';
 
 export async function POST(request: Request) {
@@ -47,7 +45,7 @@ export async function POST(request: Request) {
       // Carica quote per leggere flag auto_activate_on_payment
       const { data: quote } = await supabaseAdmin
         .from('lead_quotes')
-        .select('auto_activate_on_payment, lead_id, quote_number')
+        .select('lead_id, quote_number')
         .eq('id', quote_id)
         .single();
 
@@ -74,35 +72,19 @@ export async function POST(request: Request) {
         });
       }
 
-      // Auto-activate solo se flag esplicitamente true sul quote
-      if (quote?.auto_activate_on_payment === true) {
-        console.log('[STRIPE-LEADS] auto_activate_on_payment=true → calling convert');
-        const convertRes = await fetch(`${LEAD_API_URL}/api/leads/convert`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': VPS_API_KEY },
-          body: JSON.stringify({
-            quote_id,
-            stripe_subscription_id: session.subscription || null,
-            stripe_payment_intent_id: session.payment_intent || null,
-          }),
-        });
-        if (!convertRes.ok) {
-          const errData = await convertRes.json().catch(() => ({}));
-          console.error('[STRIPE-LEADS] Auto-convert failed:', errData);
-        }
-      } else {
-        // F5: pagamento ricevuto → il lead entra in coda Revisione (in_verifica).
-        // Guardato + idempotente: aggiorna SOLO se ancora quote_sent/trattativa, così
-        // i retry del webhook (o stati successivi come attivato) non lo riportano indietro.
-        if (quote?.lead_id) {
-          await supabaseAdmin
-            .from('leads')
-            .update({ status: 'in_verifica' })
-            .eq('id', quote.lead_id)
-            .in('status', ['quote_sent', 'trattativa']);
-        }
-        console.log('[STRIPE-LEADS] Lead → in_verifica (revisione manuale) for quote', quote_id);
+      // Flusso unico (modello C): pagamento ricevuto → il lead entra in coda
+      // Revisione (in_verifica). L'org/attivazione viene creata SOLO all'approvazione
+      // admin in Revisione (mai automaticamente al pagamento).
+      // Guardato + idempotente: aggiorna SOLO se ancora quote_sent/trattativa, così
+      // i retry del webhook (o stati successivi come attivato) non lo riportano indietro.
+      if (quote?.lead_id) {
+        await supabaseAdmin
+          .from('leads')
+          .update({ status: 'in_verifica' })
+          .eq('id', quote.lead_id)
+          .in('status', ['quote_sent', 'trattativa']);
       }
+      console.log('[STRIPE-LEADS] Lead → in_verifica (revisione manuale) for quote', quote_id);
     } catch (err: any) {
       console.error('[STRIPE-LEADS] Error processing payment:', err.message);
       console.error('[STRIPE-LEADS] Error stack:', err.stack);
