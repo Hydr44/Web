@@ -179,11 +179,17 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-2">
             <p className="text-sm text-gray-500">
               Non hai un account?{" "}
               <Link href="/contatti" className="text-blue-600 font-bold hover:underline">
                 Richiedi Accesso
+              </Link>
+            </p>
+            <p className="text-sm text-gray-500">
+              Hai una pratica in corso?{" "}
+              <Link href="/pratica/recupera" className="text-blue-600 font-bold hover:underline">
+                Controlla lo stato
               </Link>
             </p>
           </div>

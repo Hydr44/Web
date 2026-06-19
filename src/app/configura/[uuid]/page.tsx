@@ -7,6 +7,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 
 // Acronimi forma giuridica (menù a tendina: niente diciture lunghe).
 const FORME_GIURIDICHE = ['SRL', 'SRLS', 'SPA', 'SAPA', 'SNC', 'SAS', 'SS', 'Società cooperativa', 'Ditta individuale', 'Altro'];
@@ -341,6 +342,19 @@ export default function ConfiguraPage() {
                     <option value="">— seleziona —</option>
                     {FORME_GIURIDICHE.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                ) : f.key === 'indirizzo' ? (
+                  <AddressAutocomplete
+                    value={values.indirizzo || ''}
+                    onChange={v => setValues(s => ({ ...s, indirizzo: v }))}
+                    onPick={p => setValues(s => ({
+                      ...s,
+                      indirizzo: p.indirizzo || s.indirizzo,
+                      citta: p.citta || s.citta,
+                      provincia: p.provincia || s.provincia,
+                      cap: p.cap || s.cap,
+                    }))}
+                    className={fieldCls}
+                  />
                 ) : (
                   <input value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} className={fieldCls} placeholder={f.placeholder} />
                 )}
