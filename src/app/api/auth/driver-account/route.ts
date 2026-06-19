@@ -37,10 +37,31 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { sendCustomerEmail } from '@/lib/customer-email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu';
+
+/** Crea l'account autista e invia un'email per impostare la password (come il Team). */
+async function sendDriverInvite(email: string, name: string | null): Promise<void> {
+  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
+    options: { redirectTo: `${SITE_URL}/set-password` },
+  });
+  const link = data?.properties?.action_link;
+  if (error || !link) return; // best-effort
+  await sendCustomerEmail(
+    email,
+    'Accesso all\'app RescueManager — imposta la password',
+    `Ciao {{nome}},\n\nLa tua azienda ti ha abilitato all'app RescueManager per autisti.\n\nImposta la tua password dal pulsante qui sotto, poi accedi all'app con la tua email e la password che hai scelto.`,
+    { nome: name || undefined, subtitle: 'Accesso autista', cta: { href: link, label: 'Imposta la password' } },
+  );
+}
 
 function corsHeaders(origin: string | null): Record<string, string> {
   return {
@@ -113,7 +134,7 @@ export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
   const cors = corsHeaders(origin);
 
-  let body: { staff_driver_id?: string; email?: string; password?: string };
+  let body: { staff_driver_id?: string; email?: string; password?: string; mode?: string; name?: string };
   try {
     body = await request.json();
   } catch {
@@ -122,7 +143,12 @@ export async function POST(request: NextRequest) {
 
   const staffDriverId = String(body.staff_driver_id || '').trim();
   const email = String(body.email || '').trim().toLowerCase();
-  const password = String(body.password || '');
+  // mode 'invite' (consigliato): l'autista riceve un'email e imposta LUI la password
+  // (come il Team). mode 'password' (legacy): l'admin imposta la password a mano.
+  const mode = body.mode === 'invite' ? 'invite' : 'password';
+  // In modalità invito non serve password: l'utente viene creato con una password
+  // casuale e poi la imposta dal link email.
+  const password = mode === 'invite' ? crypto.randomBytes(24).toString('hex') : String(body.password || '');
 
   if (!staffDriverId) {
     return NextResponse.json({ error: 'staff_driver_id mancante' }, { status: 400, headers: cors });
@@ -130,7 +156,7 @@ export async function POST(request: NextRequest) {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     return NextResponse.json({ error: 'Email non valida' }, { status: 400, headers: cors });
   }
-  if (password.length < 8) {
+  if (mode === 'password' && password.length < 8) {
     return NextResponse.json({ error: 'Password troppo corta (min 8 caratteri)' }, { status: 400, headers: cors });
   }
 
@@ -234,12 +260,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Modalità invito: manda l'email per far impostare la password all'autista.
+  if (mode === 'invite') {
+    await sendDriverInvite(email, String(body.name || '').trim() || null);
+  }
+
   return NextResponse.json(
     {
       success: true,
       auth_user_id: existing!.id,
       email,
       created,
+      invited: mode === 'invite',
     },
     { headers: cors },
   );
