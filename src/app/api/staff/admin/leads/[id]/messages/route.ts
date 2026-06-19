@@ -7,6 +7,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
+import { brandedHtml } from '@/lib/email-template';
 
 const RESEND_KEY = process.env.RESEND_API_KEY || '';
 
@@ -76,47 +77,14 @@ export async function POST(
     let emailSent = false;
     if (direction === 'outgoing' && lead.email && RESEND_KEY) {
       try {
-        const emailHtml = `<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #374151; margin: 0; padding: 0; }
-    .wrapper { background: #f3f4f6; padding: 32px 16px; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 24px 32px; }
-    .header h1 { color: white; margin: 0; font-size: 20px; font-weight: 700; }
-    .header p { color: #94a3b8; margin: 4px 0 0; font-size: 13px; }
-    .content { padding: 32px; }
-    .greeting { font-size: 15px; color: #374151; margin-bottom: 16px; }
-    .message-body { background: #f8fafc; border-left: 3px solid #2563eb; padding: 16px 20px; border-radius: 0 6px 6px 0; font-size: 14px; color: #1e293b; line-height: 1.7; white-space: pre-wrap; }
-    .footer { background: #f9fafb; padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af; }
-    .footer a { color: #6b7280; }
-    .sender { margin-top: 24px; font-size: 13px; color: #6b7280; }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <div class="container">
-      <div class="header">
-        <h1>RescueManager</h1>
-        <p>Messaggio dal team RescueManager</p>
-      </div>
-      <div class="content">
-        <p class="greeting">Ciao <strong>${lead.name}</strong>,</p>
-        <div class="message-body">${body.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
-        <p class="sender">— ${sent_by_name || 'Il team RescueManager'}</p>
-      </div>
-      <div class="footer">
-        &copy; ${new Date().getFullYear()} RescueManager &middot;
-        <a href="https://rescuemanager.eu">rescuemanager.eu</a>
-        &middot; <a href="mailto:info@rescuemanager.eu">info@rescuemanager.eu</a>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+        const escapeHtml = (s: string) => s.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const emailHtml = brandedHtml(
+          `Ciao ${escapeHtml(lead.name)},\n${escapeHtml(body)}`,
+          {
+            subtitle: 'Messaggio dal team RescueManager',
+            footerNote: `— ${sent_by_name || 'Il team RescueManager'}`,
+          }
+        );
 
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',

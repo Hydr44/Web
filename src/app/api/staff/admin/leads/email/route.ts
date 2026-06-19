@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest } from '@/lib/staff-auth';
+import { brandedHtml } from '@/lib/email-template';
 
 const SUPABASE_FUNCTIONS_URL = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'https://ienzdgrqalltvkdkuamp.functions.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -40,34 +41,7 @@ function buildEmailHtml(bodyText: string, lead: { name?: string; email?: string;
   text = text.replace(/\{\{azienda\}\}/gi, lead.company || '');
   text = text.replace(/\{\{email\}\}/gi, lead.email || '');
 
-  const bodyHtml = text.split('\n').map(line => {
-    if (line.startsWith('•') || line.startsWith('-')) return `<li style="margin: 4px 0; color: #333;">${line.replace(/^[•\-]\s*/, '')}</li>`;
-    if (line.trim() === '') return '<br>';
-    return `<p style="margin: 0 0 8px; color: #333; font-size: 15px; line-height: 1.6;">${line}</p>`;
-  }).join('\n');
-
-  const html = `<!DOCTYPE html>
-<html lang="it">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 20px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-<tr><td style="background:linear-gradient(135deg,#3b82f6,#10b981);padding:30px 40px;border-radius:8px 8px 0 0;text-align:center;">
-<h1 style="margin:0;color:#fff;font-size:24px;font-weight:600;">RescueManager</h1>
-</td></tr>
-<tr><td style="padding:40px;">
-${bodyHtml}
-</td></tr>
-<tr><td style="background:#f8f9fa;padding:20px 40px;border-radius:0 0 8px 8px;border-top:1px solid #e9ecef;">
-<p style="margin:0;color:#999;font-size:12px;text-align:center;">
-&copy; ${new Date().getFullYear()} RescueManager - Software Gestionale per Autodemolizioni<br>
-<a href="https://rescuemanager.eu" style="color:#3b82f6;">rescuemanager.eu</a>
-</p>
-</td></tr>
-</table>
-</td></tr></table>
-</body></html>`;
+  const html = brandedHtml(text);
 
   return { html, text };
 }

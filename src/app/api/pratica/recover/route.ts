@@ -1,19 +1,40 @@
-// Recupera link pratica (F5). PUBLIC. Il cliente non ha un account/password: se ha
-// perso il link, inserisce l'email e gli rimandiamo via email il link /pratica della
-// sua pratica in corso. Risposta SEMPRE generica (niente email enumeration: non
-// riveliamo se l'email esiste o ha una pratica).
+// Recupero stato pratica via OTP (F5). PUBLIC. Il cliente senza account inserisce
+// l'email → troviamo la sua pratica → inviamo un codice OTP a quell'email. Poi
+// /api/pratica/recover/verify controlla il codice e restituisce il link allo stato.
+// Risposta SEMPRE generica (no email enumeration).
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { checkRateLimit } from '@/lib/security';
 import { sendCustomerEmail } from '@/lib/customer-email';
+import { generateOtpCode, hashCode, maskEmail, OTP_TTL_MS } from '@/lib/otp';
 
 export const runtime = 'nodejs';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu';
-
 export function OPTIONS(request: NextRequest) {
   return new NextResponse(null, { status: 204, headers: corsHeaders(request.headers.get('origin')) });
+}
+
+/** Trova il preventivo "pratica in corso" più recente per l'email (con public_uuid). */
+export async function findQuoteByEmail(email: string): Promise<{ uuid: string; name: string | null } | null> {
+  const { data: lead } = await supabaseAdmin
+    .from('leads')
+    .select('id, name')
+    .ilike('email', email)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!lead) return null;
+  const { data: quote } = await supabaseAdmin
+    .from('lead_quotes')
+    .select('public_uuid')
+    .eq('lead_id', lead.id)
+    .not('public_uuid', 'is', null)
+    .in('status', ['paid', 'pending_activation', 'activated', 'sent', 'viewed', 'accepted'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return quote?.public_uuid ? { uuid: quote.public_uuid as string, name: lead.name } : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -26,46 +47,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Inserisci un indirizzo email valido.' }, { status: 400, headers });
   }
 
-  // Rate limit: max 5 richieste / ora per email.
+  const masked = maskEmail(email);
+
+  // Rate limit: max 5 richieste / ora per email (risposta comunque generica).
   const rl = await checkRateLimit(`pratica-recover:${email}`, 5, 60 * 60 * 1000);
-  if (!rl.allowed) {
-    return NextResponse.json({ ok: true, generic: true }, { headers }); // risposta generica anche qui
-  }
+  if (!rl.allowed) return NextResponse.json({ ok: true, email_masked: masked }, { headers });
 
-  // Cerca un preventivo con public_uuid del lead con questa email, in una pratica "in corso".
-  const { data: lead } = await supabaseAdmin
-    .from('leads')
-    .select('id, name, status')
-    .ilike('email', email)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (lead) {
-    const { data: quote } = await supabaseAdmin
-      .from('lead_quotes')
-      .select('public_uuid, status, created_at')
-      .eq('lead_id', lead.id)
-      .not('public_uuid', 'is', null)
-      .in('status', ['paid', 'pending_activation', 'activated', 'sent', 'viewed', 'accepted'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (quote?.public_uuid) {
+  const match = await findQuoteByEmail(email);
+  if (match) {
+    const code = generateOtpCode();
+    await supabaseAdmin.from('email_otp').delete().eq('quote_uuid', match.uuid).is('verified_at', null);
+    const { error: insErr } = await supabaseAdmin.from('email_otp').insert({
+      quote_uuid: match.uuid,
+      email,
+      code_hash: hashCode(code),
+      expires_at: new Date(Date.now() + OTP_TTL_MS).toISOString(),
+    });
+    if (!insErr) {
       await sendCustomerEmail(
         email,
-        'Il link della tua pratica — RescueManager',
-        `Ciao {{nome}},\n\n` +
-        `Ecco il link per controllare lo stato della tua pratica:\n` +
-        `${SITE_URL}/pratica/${quote.public_uuid}\n\n` +
-        `Conservalo per accedere allo stato in qualsiasi momento.\n\n` +
-        `Se non hai richiesto tu questo messaggio, ignoralo.`,
-        { nome: lead.name },
+        'Il tuo codice per lo stato pratica — RescueManager',
+        `Ciao {{nome}},\n\nUsa questo codice per accedere allo stato della tua pratica. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
+        { nome: match.name || undefined, subtitle: 'Stato pratica', code },
       );
     }
   }
 
   // Sempre generico: non riveliamo se l'email/pratica esiste.
-  return NextResponse.json({ ok: true, generic: true }, { headers });
+  return NextResponse.json({ ok: true, email_masked: masked }, { headers });
 }

@@ -67,8 +67,8 @@ export async function POST(request: NextRequest, { params }: { params: { uuid: s
   const sent = await sendCustomerEmail(
     lead.email,
     'Il tuo codice di verifica — RescueManager',
-    `Ciao {{nome}},\n\nIl tuo codice di verifica è: ${code}\n\nInseriscilo nella pagina di configurazione per continuare. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
-    { nome: lead.name },
+    `Ciao {{nome}},\n\nUsa questo codice per continuare la configurazione della tua azienda. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
+    { nome: lead.name, subtitle: 'Verifica email', code },
   );
   if (!sent.ok) {
     await supabaseAdmin.from('email_otp').delete().eq('id', inserted.id);

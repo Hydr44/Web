@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { supabaseServer } from "@/lib/supabase-server";
 import { handleCors, corsHeaders } from "@/lib/cors";
+import { brandedHtml } from "@/lib/email-template";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -73,16 +74,15 @@ async function sendViaResend(args: {
   from: string;
   to: string;
   subject: string;
-  textBody: string;
+  html: string;
   pdfUrl: string | null;
   filename: string;
 }) {
-  const html = args.textBody.replaceAll('\n', '<br>');
   const resendBody: Record<string, unknown> = {
     from: args.from,
     to: args.to,
     subject: args.subject,
-    html,
+    html: args.html,
   };
   if (args.pdfUrl) {
     resendBody.attachments = [{ filename: args.filename, path: args.pdfUrl }];
@@ -105,8 +105,7 @@ async function dispatchEmail(
   invoice: InvoiceRow,
   companyData: CompanyData,
   customerEmail: string,
-  subject: string,
-  textBody: string
+  subject: string
 ): Promise<'sent' | 'queued'> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return 'queued';
@@ -114,13 +113,30 @@ async function dispatchEmail(
   const filename = `fattura_${invoice.number || invoice.id}.pdf`;
   const fromName = companyData.name || 'RescueManager';
 
+  const html = brandedHtml(
+    [
+      'Gentile Cliente,',
+      `In allegato trova la fattura n. ${invoice.number || 'N/A'} del ${invoice.date || 'N/A'}.`,
+      '',
+      `Cordiali saluti,`,
+      fromName,
+    ].join('\n'),
+    {
+      subtitle: 'Fattura',
+      infoRows: [
+        { label: 'Importo', value: `€${Number(invoice.total || 0).toFixed(2)}` },
+        { label: 'Cliente', value: invoice.customer_name || 'N/A' },
+      ],
+    }
+  );
+
   try {
     const result = await sendViaResend({
       apiKey,
       from: `${fromName} <noreply@rescuemanager.eu>`,
       to: customerEmail,
       subject,
-      textBody,
+      html,
       pdfUrl: invoice.pdf_url,
       filename,
     });
@@ -228,7 +244,7 @@ export async function POST(
     }
 
     const sendStatus = await dispatchEmail(
-      supabase, emailRecord.id, invoice, companyData, customerEmail, subject, textBody
+      supabase, emailRecord.id, invoice, companyData, customerEmail, subject
     );
 
     return NextResponse.json(

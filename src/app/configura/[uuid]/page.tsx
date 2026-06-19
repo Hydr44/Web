@@ -26,6 +26,19 @@ const FIELDS: { key: string; label: string; span?: boolean; type?: FieldType; op
   { key: 'cap', label: 'CAP' },
 ];
 
+// Formattazione/validazione campi (coerente coi formati italiani usati nell'app).
+const FMT: Record<string, (v: string) => string> = {
+  partita_iva: v => v.replace(/\D/g, '').slice(0, 11),
+  cap: v => v.replace(/\D/g, '').slice(0, 5),
+  provincia: v => v.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2),
+  codice_fiscale: v => v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16),
+};
+const ATTRS: Record<string, { inputMode?: 'numeric' | 'text'; type?: string }> = {
+  partita_iva: { inputMode: 'numeric' },
+  cap: { inputMode: 'numeric' },
+  pec: { type: 'email' },
+};
+
 type Phase = 'loading' | 'confirming' | 'pagamento' | 'otp' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
 
 // classi light (contenuto su bianco, stile login)
@@ -346,7 +359,13 @@ export default function ConfiguraPage() {
                         className={fieldCls}
                       />
                     ) : (
-                      <input value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} className={fieldCls} />
+                      <input
+                        value={values[f.key] || ''}
+                        onChange={e => setValues(v => ({ ...v, [f.key]: (FMT[f.key] || ((x: string) => x))(e.target.value) }))}
+                        inputMode={ATTRS[f.key]?.inputMode}
+                        type={ATTRS[f.key]?.type}
+                        className={fieldCls}
+                      />
                     )}
                   </div>
                 ))}
