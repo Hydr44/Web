@@ -1,26 +1,88 @@
 // Wizard onboarding cliente (F5). Pubblico (token = public_uuid del preventivo).
-// "Aiutaci a configurare la tua azienda": carica visura → analisi AI → conferma/
-// modifica dati → invia in verifica. Ripresa nativa: lo step si deriva dallo stato
-// persistito (pratica-status), non da uno state locale che muore alla disconnessione.
+// "Aiutaci a configurare la tua azienda": verifica email (OTP) → carica visura →
+// analisi AI → conferma/modifica dati → invia in verifica. Ripresa nativa: lo step
+// si deriva dallo stato persistito (pratica-status), non da state locale.
+// Design allineato al sito (palette slate, accenti blu, font Sora).
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-const FIELDS: { key: string; label: string }[] = [
-  { key: 'ragione_sociale', label: 'Ragione sociale' },
+// Acronimi forma giuridica (menù a tendina: niente diciture lunghe).
+const FORME_GIURIDICHE = ['SRL', 'SRLS', 'SPA', 'SAPA', 'SNC', 'SAS', 'SS', 'Società cooperativa', 'Ditta individuale', 'Altro'];
+
+type FieldType = 'text' | 'select';
+const FIELDS: { key: string; label: string; span?: boolean; type?: FieldType; optional?: boolean; placeholder?: string }[] = [
+  { key: 'ragione_sociale', label: 'Ragione sociale', span: true },
   { key: 'partita_iva', label: 'Partita IVA' },
   { key: 'codice_fiscale', label: 'Codice fiscale' },
-  { key: 'pec', label: 'PEC' },
-  { key: 'codice_ateco', label: 'Codice ATECO' },
-  { key: 'forma_giuridica', label: 'Forma giuridica' },
-  { key: 'indirizzo', label: 'Indirizzo' },
+  { key: 'pec', label: 'PEC', span: true },
+  { key: 'forma_giuridica', label: 'Forma giuridica', type: 'select' },
+  { key: 'codice_ateco', label: 'Codice ATECO', optional: true },
+  { key: 'indirizzo', label: 'Indirizzo (via e numero)', span: true },
   { key: 'citta', label: 'Città' },
   { key: 'provincia', label: 'Provincia' },
   { key: 'cap', label: 'CAP' },
 ];
 
 type Phase = 'loading' | 'confirming' | 'pagamento' | 'otp' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
+
+// ─── Componenti definiti FUORI dal componente pagina ───────────────────────────
+// (se stessero dentro, ogni render li ricrea → React rimonta il sottoalbero e gli
+//  input perdono il focus ad ogni carattere — il bug segnalato sull'OTP/verifica.)
+
+function Shell({ company, children }: { company: string | null; children: React.ReactNode }) {
+  return (
+    <main className="min-h-screen bg-[#0f172a] text-slate-200 flex items-center justify-center p-6">
+      <div className="w-full max-w-xl">
+        <div className="bg-[#1e293b] border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/20">
+          <p className="text-xs text-blue-400 font-semibold tracking-[0.2em] uppercase">RescueManager</p>
+          <h1 className="text-xl sm:text-2xl font-semibold mt-1.5 text-white">Configura la tua azienda</h1>
+          {company && <p className="text-sm text-slate-400 mt-1">{company}</p>}
+          <div className="mt-5">{children}</div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Stepper({ active }: { active: 1 | 2 | 3 }) {
+  const steps = ['Carica visura', 'Verifica dati', 'Invia'];
+  return (
+    <div className="flex items-center gap-2 mb-6 text-[11px]">
+      {steps.map((t, i) => {
+        const step = (i + 1) as 1 | 2 | 3;
+        const on = step <= active;
+        return (
+          <div key={t} className="flex items-center gap-2">
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-semibold ${on ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-400'}`}>{step}</span>
+            <span className={on ? 'text-slate-200' : 'text-slate-500'}>{t}</span>
+            {i < steps.length - 1 && <span className="w-6 h-px bg-slate-700" />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CheckCircle() {
+  return (
+    <div className="w-12 h-12 rounded-full bg-emerald-500/15 mx-auto flex items-center justify-center mb-3">
+      <svg className="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+    </div>
+  );
+}
+
+function ProgressBar({ value }: { value: number }) {
+  return (
+    <div className="w-full h-2 rounded-full bg-slate-700 overflow-hidden">
+      <div className="h-full bg-blue-500 rounded-full transition-[width] duration-300 ease-out" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+    </div>
+  );
+}
+
+const primaryBtn = 'w-full px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors';
+const fieldCls = 'w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-colors';
 
 export default function ConfiguraPage() {
   const { uuid } = useParams<{ uuid: string }>();
@@ -33,6 +95,7 @@ export default function ConfiguraPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [mismatch, setMismatch] = useState(false);
   const [notice, setNotice] = useState('');
+  const [progress, setProgress] = useState(0);
   // OTP verifica email
   const [otpCode, setOtpCode] = useState('');
   const [emailMasked, setEmailMasked] = useState('');
@@ -81,6 +144,14 @@ export default function ConfiguraPage() {
     return () => { aliveRef.current = false; if (pollRef.current) clearTimeout(pollRef.current); };
   }, [loadStatus]);
 
+  // Barra di avanzamento "finta" durante l'analisi AI (richiede qualche secondo).
+  useEffect(() => {
+    if (phase !== 'analyzing') { setProgress(0); return; }
+    setProgress(10);
+    const id = setInterval(() => setProgress(p => (p < 90 ? p + Math.max(1, (90 - p) * 0.08) : p)), 400);
+    return () => clearInterval(id);
+  }, [phase]);
+
   const sendOtp = useCallback(async () => {
     setOtpSent(true); setOtpError('');
     setOtpBusy('send');
@@ -97,7 +168,7 @@ export default function ConfiguraPage() {
   }, [uuid]);
 
   const verifyOtp = async () => {
-    if (!/^[0-9]{6}$/.test(otpCode)) { setOtpError('Inserisci il codice a 6 cifre.'); return; }
+    if (!/^\d{6}$/.test(otpCode)) { setOtpError('Inserisci il codice a 6 cifre.'); return; }
     setOtpBusy('verify'); setOtpError('');
     try {
       const r = await fetch(`/api/quotes/${uuid}/otp/verify`, {
@@ -169,68 +240,46 @@ export default function ConfiguraPage() {
     }
   };
 
-  const Timeline = ({ active }: { active: 1 | 2 | 3 }) => (
-    <div className="flex items-center gap-2 mb-6 text-[11px]">
-      {[['1', 'Carica visura'], ['2', 'Verifica dati'], ['3', 'Invia']].map(([n, t], i) => {
-        const step = (i + 1) as 1 | 2 | 3;
-        const on = step <= active;
-        return (
-          <div key={n} className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-semibold ${on ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-400'}`}>{n}</span>
-            <span className={on ? 'text-slate-200' : 'text-slate-500'}>{t}</span>
-            {i < 2 && <span className="w-6 h-px bg-slate-700" />}
-          </div>
-        );
-      })}
-    </div>
-  );
+  if (phase === 'loading') return <Shell company={company}><p className="text-sm text-slate-400">Caricamento…</p></Shell>;
+  if (phase === 'elsewhere') return <Shell company={company}><p className="text-sm text-red-400">{error || 'Pratica non disponibile.'}</p></Shell>;
 
-  const Shell = ({ children }: { children: React.ReactNode }) => (
-    <main className="min-h-screen bg-[#0b1220] text-slate-200 flex items-center justify-center p-6">
-      <div className="w-full max-w-xl bg-[#111827] border border-[#1f2937] rounded-2xl p-6">
-        <p className="text-xs text-blue-400 font-semibold tracking-widest uppercase">RescueManager</p>
-        <h1 className="text-xl font-semibold mt-1 mb-1">Aiutaci a configurare la tua azienda</h1>
-        {company && <p className="text-sm text-slate-400 mb-4">{company}</p>}
-        {children}
-      </div>
-    </main>
-  );
-
-  if (phase === 'loading') return <Shell><p className="text-sm text-slate-400">Caricamento…</p></Shell>;
-  if (phase === 'elsewhere') return <Shell><p className="text-sm text-red-400">{error || 'Pratica non disponibile.'}</p></Shell>;
   if (phase === 'confirming') return (
-    <Shell>
+    <Shell company={company}>
       <div className="text-center py-6">
         <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3" />
-        <p className="text-sm text-slate-200 font-medium">Pagamento completato ✓</p>
+        <p className="text-sm text-white font-medium">Pagamento completato</p>
         <p className="text-sm text-slate-400 mt-1">Stiamo confermando il pagamento, un istante…</p>
       </div>
     </Shell>
   );
-  if (phase === 'pagamento') return <Shell><p className="text-sm text-amber-400">Se hai appena pagato, attendi qualche minuto e aggiorna la pagina. Altrimenti completa prima il pagamento del preventivo.</p></Shell>;
+
+  if (phase === 'pagamento') return (
+    <Shell company={company}>
+      <p className="text-sm text-amber-400">Se hai appena pagato, attendi qualche minuto e aggiorna la pagina. Altrimenti completa prima il pagamento del preventivo.</p>
+    </Shell>
+  );
 
   if (phase === 'done') return (
-    <Shell>
+    <Shell company={company}>
       <div className="text-center py-6">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/15 text-emerald-400 mx-auto flex items-center justify-center text-2xl mb-3">✓</div>
-        <h2 className="text-lg font-semibold">Pratica inviata</h2>
-        <p className="text-sm text-slate-400 mt-1">Riceverai l'esito della verifica <b>entro 24 ore</b>.</p>
-        <button onClick={() => router.replace(`/pratica/${uuid}`)} className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm">Vai allo stato della pratica</button>
+        <CheckCircle />
+        <h2 className="text-lg font-semibold text-white">Pratica inviata</h2>
+        <p className="text-sm text-slate-400 mt-1">Riceverai l&apos;esito della verifica <b className="text-slate-200">entro 24 ore</b>.</p>
+        <button onClick={() => router.replace(`/pratica/${uuid}`)} className={`${primaryBtn} mt-5`}>Vai allo stato della pratica</button>
       </div>
     </Shell>
   );
 
   if (phase === 'otp') return (
-    <Shell>
-      <div className="py-4">
-        <div className="w-12 h-12 rounded-full bg-blue-500/15 text-blue-400 mx-auto flex items-center justify-center text-2xl mb-3">✉️</div>
-        <h2 className="text-lg font-semibold text-center">Verifica la tua email</h2>
-        <p className="text-sm text-slate-400 mt-1 text-center">
+    <Shell company={company}>
+      <div className="py-2">
+        <h2 className="text-lg font-semibold text-white">Verifica la tua email</h2>
+        <p className="text-sm text-slate-400 mt-1">
           Abbiamo inviato un codice a 6 cifre a{' '}
           <b className="text-slate-200">{emailMasked || 'la tua email'}</b>. Inseriscilo per continuare.
         </p>
 
-        <div className="mt-5 max-w-xs mx-auto">
+        <div className="mt-5 max-w-xs">
           <input
             value={otpCode}
             onChange={e => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
@@ -238,21 +287,14 @@ export default function ConfiguraPage() {
             inputMode="numeric"
             autoComplete="one-time-code"
             placeholder="••••••"
-            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 rounded-xl bg-slate-900 border border-slate-700 focus:border-blue-500 outline-none"
+            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 rounded-xl bg-[#0f172a] border border-slate-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
           />
-          {otpError && <p className="mt-2 text-sm text-red-400 text-center">{otpError}</p>}
+          {otpError && <p className="mt-2 text-sm text-red-400">{otpError}</p>}
 
-          <button
-            onClick={verifyOtp}
-            disabled={otpCode.length !== 6 || otpBusy === 'verify'}
-            className="mt-4 w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium disabled:opacity-50">
+          <button onClick={verifyOtp} disabled={otpCode.length !== 6 || otpBusy === 'verify'} className={`${primaryBtn} mt-4`}>
             {otpBusy === 'verify' ? 'Verifica…' : 'Verifica e continua'}
           </button>
-
-          <button
-            onClick={sendOtp}
-            disabled={otpBusy === 'send'}
-            className="mt-3 w-full text-sm text-slate-400 hover:text-slate-200 disabled:opacity-50">
+          <button onClick={sendOtp} disabled={otpBusy === 'send'} className="mt-3 w-full text-sm text-slate-400 hover:text-slate-200 disabled:opacity-50">
             {otpBusy === 'send' ? 'Invio in corso…' : 'Non hai ricevuto il codice? Reinvia'}
           </button>
         </div>
@@ -261,42 +303,55 @@ export default function ConfiguraPage() {
   );
 
   return (
-    <Shell>
-      <Timeline active={phase === 'review' || phase === 'submitting' ? 2 : 1} />
+    <Shell company={company}>
+      <Stepper active={phase === 'review' || phase === 'submitting' ? 2 : 1} />
       {error && <div className="mb-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-300">{error}</div>}
 
       {(phase === 'upload' || phase === 'analyzing') && (
         <div>
-          <p className="text-sm text-slate-300 mb-2">Carica la <b>visura camerale</b> (PDF). La leggiamo automaticamente per precompilare i tuoi dati.</p>
-          <label className="block border-2 border-dashed border-slate-700 rounded-xl p-6 text-center cursor-pointer hover:border-slate-600">
+          <p className="text-sm text-slate-300 mb-3">Carica la <b className="text-white">visura camerale</b> (PDF). La leggiamo automaticamente per precompilare i tuoi dati.</p>
+          <label className={`block border-2 border-dashed rounded-xl p-6 text-center transition-colors ${phase === 'analyzing' ? 'border-slate-700 cursor-default' : 'border-slate-600 hover:border-blue-500/60 cursor-pointer'}`}>
             <input type="file" accept="application/pdf" className="hidden" onChange={e => onFile(e.target.files?.[0] || null)} disabled={phase === 'analyzing'} />
-            <span className="text-sm text-slate-400">{fileName ? `📄 ${fileName}` : 'Trascina o seleziona il PDF della visura'}</span>
+            <span className="text-sm text-slate-400">{fileName || 'Trascina o seleziona il PDF della visura'}</span>
           </label>
-          <button onClick={analyze} disabled={!pdfB64 || phase === 'analyzing'}
-            className="mt-4 w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium disabled:opacity-50">
-            {phase === 'analyzing' ? 'Analisi in corso…' : 'Analizza la visura'}
-          </button>
+
+          {phase === 'analyzing' ? (
+            <div className="mt-5">
+              <ProgressBar value={progress} />
+              <p className="text-sm text-slate-400 mt-2 text-center">Stiamo leggendo la visura… ci vuole qualche secondo.</p>
+            </div>
+          ) : (
+            <button onClick={analyze} disabled={!pdfB64} className={`${primaryBtn} mt-4`}>Analizza la visura</button>
+          )}
         </div>
       )}
 
       {(phase === 'review' || phase === 'submitting') && (
         <div>
           {notice && <p className="text-sm text-slate-300 mb-3">{notice}</p>}
-          {mismatch && <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">⚠️ La P.IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?</div>}
+          {mismatch && <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">La P.IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?</div>}
           <div className="grid grid-cols-2 gap-3">
             {FIELDS.map(f => (
-              <div key={f.key} className={f.key === 'ragione_sociale' || f.key === 'indirizzo' ? 'col-span-2' : ''}>
-                <label className="block text-[10px] uppercase tracking-wider text-slate-500 mb-1">{f.label}</label>
-                <input value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))}
-                  className="w-full bg-[#0b1220] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200" />
+              <div key={f.key} className={f.span ? 'col-span-2' : ''}>
+                <label className="block text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+                  {f.label}{f.optional && <span className="text-slate-600 normal-case tracking-normal"> (facoltativo)</span>}
+                </label>
+                {f.type === 'select' ? (
+                  <select value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} className={fieldCls}>
+                    <option value="">— seleziona —</option>
+                    {FORME_GIURIDICHE.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                ) : (
+                  <input value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} className={fieldCls} placeholder={f.placeholder} />
+                )}
               </div>
             ))}
           </div>
           <p className="text-[11px] text-slate-500 mt-3">Controlla i dati: se qualcosa non è corretto, modificalo prima di inviare.</p>
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setPhase('upload')} className="px-4 py-2.5 rounded-lg border border-slate-700 text-slate-300 text-sm">Ricarica visura</button>
+            <button onClick={() => setPhase('upload')} className="px-4 py-2.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-700/40 text-sm transition-colors">Ricarica visura</button>
             <button onClick={submit} disabled={phase === 'submitting'}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium disabled:opacity-50">
+              className="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium disabled:opacity-50 transition-colors">
               {phase === 'submitting' ? 'Invio…' : 'I dati sono corretti — invia in verifica'}
             </button>
           </div>

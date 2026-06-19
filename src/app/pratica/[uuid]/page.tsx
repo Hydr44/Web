@@ -12,12 +12,12 @@ type Status = {
   label: string; company: string | null; quote_number: string | null; error?: string;
 };
 
-const STEP_UI: Record<string, { color: string; icon: string; desc: string; resume: boolean }> = {
-  pagamento: { color: 'text-amber-400', icon: '⏳', desc: 'Completa il pagamento per procedere.', resume: false },
-  carica: { color: 'text-blue-400', icon: '📋', desc: 'Completa la configurazione: carica la visura e conferma i dati.', resume: true },
-  correzione: { color: 'text-amber-400', icon: '✏️', desc: 'Serve una correzione ai dati. Riprendi per aggiornarli e reinviare.', resume: true },
-  in_verifica: { color: 'text-blue-400', icon: '🕓', desc: 'La tua pratica è in verifica. Riceverai l\'esito entro 24 ore.', resume: false },
-  attivato: { color: 'text-emerald-400', icon: '✓', desc: 'Pratica approvata — stiamo attivando il tuo account.', resume: false },
+const STEP_UI: Record<string, { color: string; dot: string; desc: string; resume: boolean }> = {
+  pagamento: { color: 'text-amber-400', dot: 'bg-amber-400', desc: 'Completa il pagamento per procedere.', resume: false },
+  carica: { color: 'text-blue-400', dot: 'bg-blue-400', desc: 'Completa la configurazione: carica la visura e conferma i dati.', resume: true },
+  correzione: { color: 'text-amber-400', dot: 'bg-amber-400', desc: 'Serve una correzione ai dati. Riprendi per aggiornarli e reinviare.', resume: true },
+  in_verifica: { color: 'text-blue-400', dot: 'bg-blue-400', desc: 'La tua pratica è in verifica. Riceverai l\'esito entro 24 ore.', resume: false },
+  attivato: { color: 'text-emerald-400', dot: 'bg-emerald-400', desc: 'Pratica approvata — stiamo attivando il tuo account.', resume: false },
 };
 
 export default function PraticaPage() {
@@ -40,18 +40,18 @@ export default function PraticaPage() {
   const ui = st ? STEP_UI[st.step] : null;
 
   return (
-    <main className="min-h-screen bg-[#0b1220] text-slate-200 flex items-center justify-center p-6">
-      <div className="w-full max-w-lg bg-[#111827] border border-[#1f2937] rounded-2xl p-6">
-        <p className="text-xs text-blue-400 font-semibold tracking-widest uppercase">RescueManager</p>
-        <h1 className="text-xl font-semibold mt-1 mb-1">Stato della tua pratica</h1>
-        {st?.company && <p className="text-sm text-slate-400">{st.company}{st.quote_number ? ` · ${st.quote_number}` : ''}</p>}
+    <main className="min-h-screen bg-[#0f172a] text-slate-200 flex items-center justify-center p-6">
+      <div className="w-full max-w-lg bg-[#1e293b] border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/20">
+        <p className="text-xs text-blue-400 font-semibold tracking-[0.2em] uppercase">RescueManager</p>
+        <h1 className="text-xl sm:text-2xl font-semibold mt-1.5 text-white">Stato della tua pratica</h1>
+        {st?.company && <p className="text-sm text-slate-400 mt-1">{st.company}{st.quote_number ? ` · ${st.quote_number}` : ''}</p>}
 
         {error && <div className="mt-4 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-300">{error}</div>}
 
         {st && ui && (
-          <div className="mt-5">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{ui.icon}</span>
+          <div className="mt-6">
+            <div className="flex items-start gap-3">
+              <span className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${ui.dot}`} />
               <div>
                 <p className={`text-base font-semibold ${ui.color}`}>{st.label}</p>
                 <p className="text-sm text-slate-400 mt-0.5">{ui.desc}</p>
@@ -59,12 +59,12 @@ export default function PraticaPage() {
             </div>
             {ui.resume && (
               <button onClick={() => router.push(`/configura/${uuid}`)}
-                className="mt-5 w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium">
+                className="mt-6 w-full px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors">
                 Riprendi la pratica
               </button>
             )}
             {st.step === 'in_verifica' && (
-              <button onClick={load} className="mt-5 w-full px-4 py-2.5 rounded-lg border border-slate-700 text-slate-300 text-sm">
+              <button onClick={load} className="mt-3 w-full px-4 py-2.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-700/40 text-sm transition-colors">
                 Aggiorna stato
               </button>
             )}
