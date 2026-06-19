@@ -99,6 +99,11 @@ export default function OnboardingPage() {
           address_province: addr.province || '',
           address_postal_code: addr.zip || '',
         });
+
+        // I dati azienda sono già stati confermati nel wizard /configura e copiati
+        // sull'org all'attivazione (convert.js → org_settings.company). Se sono già
+        // presenti, NON richiederli di nuovo: salta lo step 1 e vai al Codice SDI.
+        if (v.company_name && (v.vat || v.piva)) setStep(2);
       }
 
       setLoading(false);
