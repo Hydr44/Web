@@ -147,6 +147,19 @@ export async function POST(request: NextRequest) {
   let created = false;
 
   if (existing) {
+    // ANTI furto-account: se questa email/auth user è già usata da un ALTRO autista
+    // o da un membro dello staff (admin/operatore), NON resettare la sua password e
+    // NON rubarla all'autista. Si linka solo se libera o già di QUESTO autista.
+    const [{ data: otherDriver }, { data: orgMember }] = await Promise.all([
+      supabaseAdmin.from('staff_drivers').select('id').eq('auth_user_id', existing.id).neq('id', staffDriverId).maybeSingle(),
+      supabaseAdmin.from('org_members').select('user_id').eq('user_id', existing.id).maybeSingle(),
+    ]);
+    if (otherDriver || orgMember) {
+      return NextResponse.json(
+        { error: 'Questa email è già associata a un altro account (autista o membro del team). Usa un\'email diversa per l\'autista.' },
+        { status: 409, headers: cors },
+      );
+    }
     // Update password (e metadati base)
     const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(existing.id, {
       password,
