@@ -18,7 +18,7 @@ export default function SetPasswordPage() {
   const [confirm, setConfirm] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [accountInfo, setAccountInfo] = useState<{ orgName: string | null; role: string | null } | null>(null);
+  const [accountInfo, setAccountInfo] = useState<{ orgName: string | null; role: string | null; isDriver?: boolean } | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -97,11 +97,15 @@ export default function SetPasswordPage() {
     // Leggi anche is_demo: per le demo NON serve l'onboarding wizard
     // (è pensato per clienti paganti che devono configurare cert/SDI/ecc.).
     let isDemoOrg = false;
+    let isDriver = false;
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const role = (user?.user_metadata as { role?: string } | undefined)?.role ?? null;
+      const meta = (user?.user_metadata as { role?: string; source?: string; staff_driver_id?: string } | undefined);
+      const role = meta?.role ?? null;
+      // Autista invitato dal gestionale: l'invito setta source='driver-account'.
+      isDriver = meta?.source === 'driver-account' || !!meta?.staff_driver_id || role === 'autista';
       let orgName: string | null = null;
-      if (user?.id) {
+      if (user?.id && !isDriver) {
         const { data: prof } = await supabase
           .from('profiles').select('org_id').eq('id', user.id).maybeSingle();
         if (prof?.org_id) {
@@ -110,21 +114,17 @@ export default function SetPasswordPage() {
           orgName = (org as { name?: string } | null)?.name ?? null;
           isDemoOrg = (org as { is_demo?: boolean } | null)?.is_demo === true;
         }
-        if (role === 'autista') {
-          await supabase.from('drivers')
-            .update({ onboarded_at: new Date().toISOString() })
-            .eq('auth_user_id', user.id);
-        }
       }
-      setAccountInfo({ orgName, role });
+      setAccountInfo({ orgName, role, isDriver });
     } catch {
       /* non bloccare il successo se la lettura org fallisce */
     }
 
     setStage('success');
-    // Demo: vai dritto al dashboard (che renderizza DemoLanding minimale).
-    // L'onboarding wizard è solo per clienti produzione che configurano
-    // anagrafica + certificati + credenziali.
+    // Autista: NON va all'onboarding azienda — apre l'app e accede. Resta sulla
+    // schermata di successo con le istruzioni per l'app.
+    if (isDriver) return;
+    // Demo: vai dritto al dashboard. Altrimenti onboarding azienda (clienti).
     const dest = isDemoOrg ? '/dashboard' : '/onboarding';
     setTimeout(() => router.push(dest), 4000);
   };
@@ -221,7 +221,9 @@ export default function SetPasswordPage() {
             <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Completato</p>
             <h1 className="text-3xl font-extrabold text-[#0f172a] mb-3">Password impostata!</h1>
             <p className="text-sm text-gray-500 mb-4">
-              Il tuo account è attivo. Sarai reindirizzato automaticamente alla configurazione iniziale.
+              {accountInfo?.isDriver
+                ? 'Ora apri l\'app RescueManager sul telefono e accedi con la tua email e la password che hai appena scelto.'
+                : 'Il tuo account è attivo. Sarai reindirizzato automaticamente alla configurazione iniziale.'}
             </p>
             {accountInfo && (accountInfo.orgName || accountInfo.role) && (
               <div className="mb-6 border border-gray-200 bg-gray-50 px-4 py-3 text-left">
@@ -241,13 +243,17 @@ export default function SetPasswordPage() {
                 )}
               </div>
             )}
-            <div className="h-1 w-full bg-gray-100">
-              <div className="h-1 bg-blue-600 animate-pulse w-3/4" />
-            </div>
-            <p className="text-xs text-gray-400 mt-3">
-              Se non vieni reindirizzato,{' '}
-              <Link href="/onboarding" className="text-blue-600 font-bold hover:underline">clicca qui</Link>
-            </p>
+            {!accountInfo?.isDriver && (
+              <div className="h-1 w-full bg-gray-100">
+                <div className="h-1 bg-blue-600 animate-pulse w-3/4" />
+              </div>
+            )}
+            {!accountInfo?.isDriver && (
+              <p className="text-xs text-gray-400 mt-3">
+                Se non vieni reindirizzato,{' '}
+                <Link href="/onboarding" className="text-blue-600 font-bold hover:underline">clicca qui</Link>
+              </p>
+            )}
           </div>
         </div>
       </div>
