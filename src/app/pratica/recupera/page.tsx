@@ -7,8 +7,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OnboardingShell } from '@/components/OnboardingShell';
 
-const inputCls = 'w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none';
-const btnCls = 'mt-4 w-full px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 transition-colors';
+const inputCls = 'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400';
+const btnCls = 'mt-4 w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 transition-colors';
 
 export default function RecuperaPraticaPage() {
   const router = useRouter();
@@ -93,7 +93,7 @@ export default function RecuperaPraticaPage() {
               inputMode="numeric"
               autoComplete="one-time-code"
               placeholder="••••••"
-              className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+              className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
             />
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
             <button onClick={verifyCode} disabled={code.length !== 6 || busy === 'verify'} className={btnCls}>

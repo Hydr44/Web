@@ -41,9 +41,9 @@ const ATTRS: Record<string, { inputMode?: 'numeric' | 'text'; type?: string }> =
 
 type Phase = 'loading' | 'confirming' | 'pagamento' | 'otp' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
 
-// classi light (contenuto su bianco, stile login)
-const fieldCls = 'w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-colors';
-const primaryBtn = 'w-full px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors';
+// classi light, identiche allo stile dei campi/bottoni del login (squadrati).
+const fieldCls = 'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400';
+const primaryBtn = 'w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors';
 
 function Stepper({ active }: { active: 1 | 2 | 3 }) {
   const steps = ['Carica visura', 'Verifica dati', 'Invia'];
@@ -293,7 +293,7 @@ export default function ConfiguraPage() {
             inputMode="numeric"
             autoComplete="one-time-code"
             placeholder="••••••"
-            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
           />
           {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
           <button onClick={verifyOtp} disabled={otpCode.length !== 6 || otpBusy === 'verify'} className={`${primaryBtn} mt-4`}>
@@ -309,12 +309,12 @@ export default function ConfiguraPage() {
         <>
           <Header eyebrow="Configurazione" title="Configura la tua azienda" company={company} />
           <Stepper active={phase === 'review' || phase === 'submitting' ? 2 : 1} />
-          {error && <div className="mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
+          {error && <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
 
           {(phase === 'upload' || phase === 'analyzing') && (
             <div>
               <p className="text-sm text-gray-600 mb-3">Carica la <b className="text-gray-900">visura camerale</b> (PDF). La leggiamo automaticamente per precompilare i tuoi dati.</p>
-              <label className={`block border-2 border-dashed rounded-xl p-6 text-center transition-colors ${phase === 'analyzing' ? 'border-gray-200 cursor-default' : 'border-gray-300 hover:border-blue-500 cursor-pointer'}`}>
+              <label className={`block border-2 border-dashed p-6 text-center transition-colors ${phase === 'analyzing' ? 'border-gray-200 cursor-default' : 'border-gray-300 hover:border-blue-500 cursor-pointer'}`}>
                 <input type="file" accept="application/pdf" className="hidden" onChange={e => onFile(e.target.files?.[0] || null)} disabled={phase === 'analyzing'} />
                 <span className="text-sm text-gray-500">{fileName || 'Trascina o seleziona il PDF della visura'}</span>
               </label>
@@ -333,7 +333,7 @@ export default function ConfiguraPage() {
           {(phase === 'review' || phase === 'submitting') && (
             <div>
               {notice && <p className="text-sm text-gray-600 mb-3">{notice}</p>}
-              {mismatch && <div className="mb-3 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-700">La P.IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?</div>}
+              {mismatch && <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 text-xs text-amber-700">La P.IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?</div>}
               <div className="grid grid-cols-2 gap-3">
                 {FIELDS.map(f => (
                   <div key={f.key} className={f.span ? 'col-span-2' : ''}>
@@ -372,9 +372,9 @@ export default function ConfiguraPage() {
               </div>
               <p className="text-[11px] text-gray-400 mt-3">Controlla i dati: se qualcosa non è corretto, modificalo prima di inviare.</p>
               <div className="flex gap-2 mt-4">
-                <button onClick={() => setPhase('upload')} className="px-4 py-3 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors">Ricarica visura</button>
+                <button onClick={() => setPhase('upload')} className="px-4 py-3 border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors">Ricarica visura</button>
                 <button onClick={submit} disabled={phase === 'submitting'}
-                  className="flex-1 px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold disabled:opacity-50 transition-colors">
+                  className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold disabled:opacity-50 transition-colors">
                   {phase === 'submitting' ? 'Invio…' : 'I dati sono corretti — invia in verifica'}
                 </button>
               </div>

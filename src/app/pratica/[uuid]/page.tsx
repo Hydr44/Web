@@ -62,12 +62,12 @@ export default function PraticaPage() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a]">Stato della tua pratica</h1>
         {st?.company && <p className="text-sm text-gray-500 mt-1">{st.company}{st.quote_number ? ` · ${st.quote_number}` : ''}</p>}
 
-        {error && <div className="mt-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
+        {error && <div className="mt-4 px-3 py-2 bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
 
         {st && ui && (
           <div className="mt-6">
             {/* Stato corrente */}
-            <div className="px-4 py-3 rounded-lg bg-gray-50 border border-gray-200">
+            <div className="px-4 py-3 bg-gray-50 border border-gray-200">
               <p className={`text-sm font-semibold ${ui.color}`}>{st.label}</p>
               <p className="text-sm text-gray-500 mt-0.5">{ui.desc}</p>
             </div>
@@ -100,18 +100,18 @@ export default function PraticaPage() {
 
             {ui.resume && (
               <button onClick={() => router.push(`/configura/${uuid}`)}
-                className="mt-2 w-full px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                className="mt-2 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
                 Riprendi la pratica
               </button>
             )}
             {st.step === 'in_verifica' && (
-              <button onClick={load} className="mt-3 w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors">
+              <button onClick={load} className="mt-3 w-full px-4 py-3 border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors">
                 Aggiorna stato
               </button>
             )}
 
             {/* Prossimi passi / integrazioni */}
-            <div className="mt-6 px-4 py-3 rounded-lg bg-blue-50/60 border border-blue-100">
+            <div className="mt-6 px-4 py-3 bg-blue-50/60 border border-blue-100">
               <p className="text-[11px] font-bold text-blue-700 uppercase tracking-wider mb-1">Dopo l&apos;attivazione</p>
               <p className="text-xs text-gray-600 leading-relaxed">
                 Configureremo insieme i moduli del tuo piano: RENTRI, fatturazione SDI, RVFU e le altre
