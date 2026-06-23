@@ -137,6 +137,49 @@ export async function POST(
         );
       }
 
+      // ─── Bonifico: niente checkout Stripe ─────────────────────────────
+      // Il cliente accetta e vede le coordinate bancarie (mostrate nella pagina
+      // preventivo). L'attivazione parte quando l'operatore segna il bonifico
+      // ricevuto in "Stato pagamento". Non si crea alcuna sessione Stripe.
+      if (quote.payment_method === 'bank_transfer') {
+        const clientIp = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim()
+          || request.headers.get('x-real-ip') || null;
+        const userAgent = request.headers.get('user-agent') || null;
+
+        await supabaseAdmin
+          .from('lead_quotes')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+            acceptance_ip: clientIp,
+            acceptance_user_agent: userAgent,
+            acceptance_signature_data: body.signature_data || null,
+          })
+          .eq('id', quote.id);
+
+        await supabaseAdmin
+          .from('leads')
+          .update({ status: 'quote_sent', updated_at: new Date().toISOString() })
+          .eq('id', quote.lead_id);
+
+        try {
+          await supabaseAdmin.from('lead_activities').insert({
+            lead_id: quote.lead_id,
+            activity_type: 'quote_accepted',
+            title: `Preventivo ${quote.quote_number} accettato (bonifico)`,
+            description: `IP: ${clientIp || '—'}`,
+            performed_by_type: 'lead',
+            related_quote_id: quote.id,
+            metadata: { ip: clientIp, user_agent: userAgent, payment_method: 'bank_transfer' },
+          });
+        } catch {}
+
+        return NextResponse.json({
+          success: true,
+          message: 'Preventivo accettato. Effettua il bonifico con i dati indicati qui sotto.',
+        });
+      }
+
       // ─── FLUSSO UNICO (modello C): accetta = paga subito ──────────────
       // Il cliente accetta e va direttamente al checkout Stripe; dopo il
       // pagamento → wizard /configura → verifica → attivazione all'approvazione

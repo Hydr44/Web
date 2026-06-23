@@ -21,6 +21,11 @@ function fmt(n: number) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(n || 0);
 }
 
+// Coordinate bancarie RescueManager SRL (conto Revolut Business) per il bonifico.
+const BANK_IBAN = 'LT18 3250 0510 5254 7082';
+const BANK_BIC = 'REVOLT21';
+const BANK_INTESTATARIO = 'RescueManager SRL';
+
 interface PublicQuote {
   quote_number: string;
   plan_type: string;
@@ -165,6 +170,12 @@ export default function PublicQuotePage() {
     quote.contract_duration === 'biennial' ? 'Biennale' : 'Mensile';
   const billingLabel = quote.billing_frequency === 'yearly' ? 'Annuale' :
     quote.billing_frequency === 'quarterly' ? 'Trimestrale' : 'Mensile';
+
+  // Importo del bonifico: ricorrente (annuale se contratto annuale/biennale,
+  // altrimenti mensile) + eventuale setup una tantum.
+  const bonificoRecurring = (quote.contract_duration === 'yearly' || quote.contract_duration === 'biennial')
+    ? (quote.yearly_total || quote.monthly_total * 12) : quote.monthly_total;
+  const bonificoTotal = bonificoRecurring + (quote.setup_fee || 0);
 
   const statusConfig: Record<string, { label: string; color: string; icon: typeof Check }> = {
     draft: { label: 'Bozza', color: 'text-slate-400', icon: FileText },
@@ -346,9 +357,9 @@ export default function PublicQuotePage() {
               <button onClick={() => handleAction('accept')} disabled={!!actionLoading}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-bold text-sm uppercase tracking-wide disabled:opacity-50">
                 {actionLoading === 'accept' ? (
-                  <><Loader2 className="h-4 w-4 animate-spin" /> Reindirizzamento...</>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> {quote.payment_method === 'bank_transfer' ? 'Accettazione…' : 'Reindirizzamento...'}</>
                 ) : (
-                  <><Check className="h-4 w-4" /> Accetta e Procedi al Pagamento</>
+                  <><Check className="h-4 w-4" /> {quote.payment_method === 'bank_transfer' ? 'Accetta preventivo' : 'Accetta e Procedi al Pagamento'}</>
                 )}
               </button>
               <button onClick={() => setShowModifyForm(!showModifyForm)} disabled={!!actionLoading}
@@ -399,7 +410,40 @@ export default function PublicQuotePage() {
         )}
 
         {/* Status messages */}
-        {quote.status === 'accepted' && (
+        {quote.status === 'accepted' && quote.payment_method === 'bank_transfer' && (
+          <div className="bg-slate-900 border-l-4 border-emerald-500 p-6">
+            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Accettato &middot; Bonifico bancario</p>
+            <p className="text-white font-bold">Completa con un bonifico</p>
+            <p className="text-sm text-slate-400 mt-1 mb-4">Per attivare il servizio effettua un bonifico con i dati qui sotto. Appena lo riceviamo procediamo con la verifica e l&apos;attivazione.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-slate-500">IBAN</p>
+                <p className="text-white font-mono break-all">{BANK_IBAN}</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-slate-500">BIC / SWIFT</p>
+                <p className="text-white font-mono">{BANK_BIC}</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-slate-500">Intestatario</p>
+                <p className="text-white">{BANK_INTESTATARIO}</p>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-slate-500">Causale</p>
+                <p className="text-white font-mono">RM-{quote.quote_number}</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-800">
+              <p className="text-[11px] uppercase tracking-wider text-slate-500">Importo da bonificare</p>
+              <p className="text-emerald-400 font-bold text-lg">{fmt(bonificoTotal)}</p>
+              {quote.setup_fee > 0 && (
+                <p className="text-xs text-slate-500">{fmt(bonificoRecurring)} + {fmt(quote.setup_fee)} setup una tantum</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {quote.status === 'accepted' && quote.payment_method !== 'bank_transfer' && (
           <div className="bg-slate-900 border-l-4 border-amber-500 p-6">
             <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Accettato</p>
             <p className="text-white font-bold">Preventivo accettato</p>

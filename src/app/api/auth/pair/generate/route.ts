@@ -79,9 +79,9 @@ interface DriverRecord {
 async function resolveDriver(body: Body): Promise<DriverRecord | { error: string; status: number; debug?: unknown }> {
   if (body.staff_driver_id) {
     // SELECT difensivo: usiamo `*` e leggiamo solo i campi presenti.
-    // Lo schema prod di staff_drivers e' un sottoinsieme di quello in
-    // migration 20260306 (manca patente_scadenza, possibilmente altri).
-    // Non blocchiamo il pairing per colonne opzionali assenti.
+    // NB: la scadenza patente sui DB live è la colonna `scadenza_patente`
+    // (la migration base 20260306 la chiamava patente_scadenza, rinominata
+    // ad-hoc su prod+staging). Non blocchiamo il pairing per colonne assenti.
     const { data: sd, error: sdErr } = await supabaseAdmin
       .from('staff_drivers')
       .select('*')
@@ -115,7 +115,7 @@ async function resolveDriver(body: Body): Promise<DriverRecord | { error: string
         name: fullName || undefined,
         phone: (sdAny.telefono as string) || undefined,
         license_no: (sdAny.patente as string) || undefined,
-        license_expiry: (sdAny.patente_scadenza as string) || undefined,
+        license_expiry: (sdAny.scadenza_patente as string) || undefined,
       },
     };
   }
