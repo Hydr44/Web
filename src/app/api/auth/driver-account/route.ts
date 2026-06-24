@@ -178,11 +178,15 @@ export async function POST(request: NextRequest) {
     // NON rubarla all'autista. Si linka solo se libera o già di QUESTO autista.
     const [{ data: otherDriver }, { data: orgMember }] = await Promise.all([
       supabaseAdmin.from('staff_drivers').select('id').eq('auth_user_id', existing.id).neq('id', staffDriverId).maybeSingle(),
-      supabaseAdmin.from('org_members').select('user_id').eq('user_id', existing.id).maybeSingle(),
+      supabaseAdmin.from('org_members').select('user_id, role').eq('user_id', existing.id).maybeSingle(),
     ]);
-    if (otherDriver || orgMember) {
+    // Anti furto-account: blocca se l'email è di un MEMBRO STAFF (ruolo != autista)
+    // o di un ALTRO autista. Una membership 'autista' appartiene all'autista stesso
+    // (ri-provisioning del suo account) → consentita.
+    const isStaffMember = !!orgMember && orgMember.role !== 'autista';
+    if (otherDriver || isStaffMember) {
       return NextResponse.json(
-        { error: 'Questa email è già associata a un altro account (autista o membro del team). Usa un\'email diversa per l\'autista.' },
+        { error: 'Questa email è già associata a un altro account (membro del team o altro autista). Usa un\'email diversa per l\'autista.' },
         { status: 409, headers: cors },
       );
     }
@@ -258,6 +262,19 @@ export async function POST(request: NextRequest) {
       { error: `Errore link staff_drivers: ${linkErr.message}` },
       { status: 500, headers: cors },
     );
+  }
+
+  // 3) Membership org_members con ruolo 'autista' (fonte unica d'accesso). Con la
+  // RLS unificata su org_members, l'autista DEVE esserne membro per leggere i
+  // trasporti dell'org. Inseriamo solo se assente: non sovrascriviamo mai un
+  // eventuale ruolo staff (no downgrade).
+  const { data: existingMem } = await supabaseAdmin
+    .from('org_members').select('user_id')
+    .eq('org_id', drv.org_id).eq('user_id', existing!.id).maybeSingle();
+  if (!existingMem) {
+    const { error: memErr } = await supabaseAdmin
+      .from('org_members').insert({ org_id: drv.org_id, user_id: existing!.id, role: 'autista' });
+    if (memErr) console.warn('[driver-account] org_members insert (autista) failed:', memErr.message);
   }
 
   // Modalità invito: manda l'email per far impostare la password all'autista.

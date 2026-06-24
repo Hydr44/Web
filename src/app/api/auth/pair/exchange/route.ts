@@ -224,6 +224,22 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.warn('[pair/exchange] staff_drivers link failed:', (e as Error).message);
     }
+
+    // Membership org_members 'autista' (fonte unica d'accesso): l'autista deve
+    // esserne membro per la RLS (lettura trasporti). Solo se assente → niente
+    // downgrade di eventuali ruoli staff.
+    if (org_id) {
+      try {
+        const { data: mem } = await supabaseAdmin
+          .from('org_members').select('user_id')
+          .eq('org_id', org_id).eq('user_id', userId).maybeSingle();
+        if (!mem) {
+          await supabaseAdmin.from('org_members').insert({ org_id, user_id: userId, role: 'autista' });
+        }
+      } catch (e) {
+        console.warn('[pair/exchange] org_members insert (autista) failed:', (e as Error).message);
+      }
+    }
   }
 
   return NextResponse.json({
