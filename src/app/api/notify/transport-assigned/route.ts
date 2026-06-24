@@ -102,32 +102,63 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!tr.driver_id) {
-    return NextResponse.json({ success: true, sent: false, reason: 'no_driver_assigned' }, { headers: cors });
-  }
+  // 5. Risolvi i destinatari (push_token):
+  //    - driver assegnato          → solo lui
+  //    - nessun driver + 'created' → BROADCAST a tutti gli autisti attivi
+  //      dell'org ("trasporto disponibile, da prendere in carico")
+  const broadcast = !tr.driver_id && event === 'created';
+  let pushTokens: string[] = [];
 
-  // 5. Lookup staff_driver → auth_user_id → profiles.push_token
-  const { data: drv } = await supabaseAdmin
-    .from('staff_drivers')
-    .select('id, auth_user_id, nome, cognome, mobile_status')
-    .eq('id', tr.driver_id)
-    .maybeSingle();
-  if (!drv || !drv.auth_user_id || drv.mobile_status !== 'active') {
+  if (tr.driver_id) {
+    const { data: drv } = await supabaseAdmin
+      .from('staff_drivers')
+      .select('id, auth_user_id, nome, cognome, mobile_status')
+      .eq('id', tr.driver_id)
+      .maybeSingle();
+    if (!drv || !drv.auth_user_id || drv.mobile_status !== 'active') {
+      return NextResponse.json(
+        { success: true, sent: false, reason: 'driver_not_active' },
+        { headers: cors },
+      );
+    }
+    const { data: prof } = await supabaseAdmin
+      .from('profiles')
+      .select('push_token')
+      .eq('id', drv.auth_user_id)
+      .maybeSingle();
+    if (prof?.push_token) pushTokens = [prof.push_token];
+    if (!pushTokens.length) {
+      return NextResponse.json(
+        { success: true, sent: false, reason: 'no_push_token' },
+        { headers: cors },
+      );
+    }
+  } else if (broadcast) {
+    const { data: drivers } = await supabaseAdmin
+      .from('staff_drivers')
+      .select('auth_user_id')
+      .eq('org_id', tr.org_id)
+      .eq('mobile_status', 'active')
+      .not('auth_user_id', 'is', null);
+    const authIds = (drivers ?? []).map((d) => d.auth_user_id).filter(Boolean);
+    if (authIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from('profiles')
+        .select('push_token')
+        .in('id', authIds);
+      pushTokens = (profs ?? [])
+        .map((p) => p.push_token)
+        .filter((t): t is string => !!t);
+    }
+    if (!pushTokens.length) {
+      return NextResponse.json(
+        { success: true, sent: false, reason: 'no_active_drivers_with_token' },
+        { headers: cors },
+      );
+    }
+  } else {
     return NextResponse.json(
-      { success: true, sent: false, reason: 'driver_not_active' },
-      { headers: cors },
-    );
-  }
-
-  const { data: prof } = await supabaseAdmin
-    .from('profiles')
-    .select('push_token')
-    .eq('id', drv.auth_user_id)
-    .maybeSingle();
-  const pushToken = prof?.push_token;
-  if (!pushToken) {
-    return NextResponse.json(
-      { success: true, sent: false, reason: 'no_push_token' },
+      { success: true, sent: false, reason: 'no_driver_assigned' },
       { headers: cors },
     );
   }
@@ -136,6 +167,7 @@ export async function POST(request: NextRequest) {
   const transportNum = tr.number ? `TR${String(tr.number).padStart(4, '0')}` : `#${tr.id.slice(0, 6)}`;
   const titles: Record<string, string> = {
     assigned: 'Nuovo trasporto assegnato',
+    created: 'Nuovo trasporto disponibile',
     updated: 'Trasporto aggiornato',
     cancelled: 'Trasporto annullato',
   };
@@ -160,8 +192,10 @@ export async function POST(request: NextRequest) {
           ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` }
           : {}),
       },
+      // `to` accetta singolo token o array. Dedupe + cap a 100 (limite Expo
+      // per richiesta). Stesso titolo/corpo per tutti i destinatari broadcast.
       body: JSON.stringify({
-        to: pushToken,
+        to: [...new Set(pushTokens)].slice(0, 100),
         title: titles[event] || 'Aggiornamento trasporto',
         body: bodyText,
         sound: 'default',
@@ -179,17 +213,28 @@ export async function POST(request: NextRequest) {
       );
     }
     const payload = await res.json().catch(() => null);
-    // Expo restituisce {data: {status: 'ok'|'error', ...}}. Se DeviceNotRegistered,
-    // dovremmo invalidare il token (skip per ora — il mobile lo rigenera al login).
-    const status = payload?.data?.status;
-    if (status === 'error') {
-      console.warn('[notify/transport-assigned] Expo Push status=error:', payload?.data);
+    // Con `to` array Expo restituisce data: [{status}], con singolo data: {status}.
+    // Normalizziamo a lista di ticket. DeviceNotRegistered → andrebbe invalidato
+    // il token (skip per ora: il mobile lo rigenera al login).
+    const data = payload?.data;
+    const tickets: Array<{ status?: string; message?: string }> = Array.isArray(data)
+      ? data
+      : data
+        ? [data]
+        : [];
+    const delivered = tickets.filter((t) => t?.status === 'ok').length;
+    if (delivered === 0) {
+      const firstErr = tickets.find((t) => t?.status === 'error');
+      console.warn('[notify/transport-assigned] Expo Push 0 delivered:', firstErr ?? payload);
       return NextResponse.json(
-        { success: true, sent: false, reason: payload?.data?.message || 'expo_error' },
+        { success: true, sent: false, reason: firstErr?.message || 'expo_error' },
         { headers: cors },
       );
     }
-    return NextResponse.json({ success: true, sent: true }, { headers: cors });
+    return NextResponse.json(
+      { success: true, sent: true, recipients: tickets.length, delivered },
+      { headers: cors },
+    );
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[notify/transport-assigned] fetch fail:', msg);
