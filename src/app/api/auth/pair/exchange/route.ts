@@ -29,42 +29,104 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { verifyPairingToken } from '@/lib/pairing-jwt';
+import { verifyPairingToken, type PairingPrefill } from '@/lib/pairing-jwt';
 import { errors as joseErrors } from 'jose';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+interface PairingClaim {
+  jti: string;
+  org_id: string;
+  operator_email: string;
+  driver_id?: string | null;
+  staff_driver_id?: number | string | null;
+  prefill?: PairingPrefill | null;
+}
+
+/**
+ * Risolve il claim di pairing da un codice corto digitato sul mobile.
+ * Cerca il record pairing_tokens ancora non usato con quel pair_code e verifica
+ * che non sia scaduto. Ritorna il claim oppure un errore con relativo status.
+ */
+async function resolveClaimFromCode(
+  code: string,
+): Promise<{ claim: PairingClaim } | { error: string; status: number }> {
+  const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (normalized.length < 6) {
+    return { error: 'invalid_token', status: 400 };
+  }
+  const { data: row, error } = await supabaseAdmin
+    .from('pairing_tokens')
+    .select('jti, org_id, operator_email, driver_id, staff_driver_id, prefill, expires_at')
+    .eq('pair_code', normalized)
+    .is('used_at', null)
+    .maybeSingle();
+  if (error) {
+    console.error('[pair/exchange] code lookup failed:', error.message);
+    return { error: 'internal', status: 500 };
+  }
+  if (!row) {
+    // codice inesistente, già usato o digitato male
+    return { error: 'invalid_token', status: 400 };
+  }
+  if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
+    return { error: 'expired', status: 400 };
+  }
+  return {
+    claim: {
+      jti: row.jti,
+      org_id: row.org_id,
+      operator_email: row.operator_email,
+      driver_id: row.driver_id,
+      staff_driver_id: row.staff_driver_id,
+      prefill: (row.prefill ?? null) as PairingPrefill | null,
+    },
+  };
+}
+
 export async function POST(request: NextRequest) {
-  // 1. Parse body
+  // 1. Parse body: o `token` (JWT dal QR) o `code` (codice corto digitato).
   let token: string | undefined;
+  let code: string | undefined;
   try {
     const body = await request.json();
     token = typeof body?.token === 'string' ? body.token : undefined;
+    code = typeof body?.code === 'string' ? body.code : undefined;
   } catch {
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }
-  if (!token) {
+  if (!token && !code) {
     return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
   }
 
-  // 2. Verifica JWT (firma + exp + issuer)
-  let payload;
-  try {
-    payload = await verifyPairingToken(token);
-  } catch (e) {
-    if (e instanceof joseErrors.JWTExpired) {
-      return NextResponse.json({ error: 'expired' }, { status: 400 });
+  // 2. Risolvi il "claim" del pairing dalla sorgente giusta:
+  //    - via codice → lookup del record pairing_tokens ancora valido;
+  //    - via QR → verifica firma JWT + exp + issuer.
+  let payload: PairingClaim;
+  if (code) {
+    const resolved = await resolveClaimFromCode(code);
+    if ('error' in resolved) {
+      return NextResponse.json({ error: resolved.error }, { status: resolved.status });
     }
-    if (
-      e instanceof joseErrors.JWSSignatureVerificationFailed ||
-      e instanceof joseErrors.JWTClaimValidationFailed ||
-      e instanceof joseErrors.JWTInvalid
-    ) {
-      return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
+    payload = resolved.claim;
+  } else {
+    try {
+      payload = (await verifyPairingToken(token as string)) as PairingClaim;
+    } catch (e) {
+      if (e instanceof joseErrors.JWTExpired) {
+        return NextResponse.json({ error: 'expired' }, { status: 400 });
+      }
+      if (
+        e instanceof joseErrors.JWSSignatureVerificationFailed ||
+        e instanceof joseErrors.JWTClaimValidationFailed ||
+        e instanceof joseErrors.JWTInvalid
+      ) {
+        return NextResponse.json({ error: 'invalid_token' }, { status: 400 });
+      }
+      console.error('[pair/exchange] verify unknown error:', (e as Error).message);
+      return NextResponse.json({ error: 'internal' }, { status: 500 });
     }
-    console.error('[pair/exchange] verify unknown error:', (e as Error).message);
-    return NextResponse.json({ error: 'internal' }, { status: 500 });
   }
 
   const { jti, org_id, operator_email, driver_id, staff_driver_id, prefill } = payload;

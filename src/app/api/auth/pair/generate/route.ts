@@ -37,6 +37,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import QRCode from 'qrcode';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { signPairingToken, buildDeepLink, type PairingPrefill } from '@/lib/pairing-jwt';
@@ -46,6 +47,18 @@ export const dynamic = 'force-dynamic';
 
 const DEFAULT_TTL_SECONDS = 300;
 const MAX_TTL_SECONDS = 900;
+
+// Codice corto digitabile sul mobile come alternativa al QR. Alfabeto senza
+// caratteri ambigui (niente 0/O, 1/I/L, U) per evitare errori di digitazione.
+// 8 char su 30 simboli = ~6.5e11 combinazioni: con scadenza 5 min + single-use
+// il brute-force è infattibile.
+const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTVWXYZ23456789';
+function makePairCode(len = 8): string {
+  const bytes = randomBytes(len);
+  let out = '';
+  for (let i = 0; i < len; i++) out += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+  return out;
+}
 
 function corsHeaders(origin: string | null): Record<string, string> {
   return {
@@ -226,19 +239,36 @@ export async function POST(request: NextRequest) {
       ? Number(body.staff_driver_id)
       : null;
 
-  const { data: tokenRow, error: insErr } = await supabaseAdmin
-    .from('pairing_tokens')
-    .insert({
-      operator_email,
-      org_id: resolved.org_id,
-      driver_id: body.driver_id ?? null,
-      staff_driver_id: staffDriverIdNum,
-      prefill: resolved.prefill,
-      generated_by: callerId,
-      expires_at,
-    })
-    .select('jti')
-    .single();
+  // Insert con codice corto. Su collisione del codice (unique index parziale
+  // tra i codici attivi) rigeneriamo e riproviamo. Max 4 tentativi.
+  let tokenRow: { jti: string } | null = null;
+  let insErr: { message?: string; code?: string; details?: string; hint?: string } | null = null;
+  let pair_code = '';
+  for (let attempt = 0; attempt < 4; attempt++) {
+    pair_code = makePairCode();
+    const ins = await supabaseAdmin
+      .from('pairing_tokens')
+      .insert({
+        operator_email,
+        org_id: resolved.org_id,
+        driver_id: body.driver_id ?? null,
+        staff_driver_id: staffDriverIdNum,
+        prefill: resolved.prefill,
+        generated_by: callerId,
+        expires_at,
+        pair_code,
+      })
+      .select('jti')
+      .single();
+    if (!ins.error && ins.data) {
+      tokenRow = ins.data;
+      insErr = null;
+      break;
+    }
+    insErr = ins.error;
+    // 23505 = unique_violation sul pair_code → rigenera e riprova
+    if (ins.error?.code !== '23505') break;
+  }
 
   if (insErr || !tokenRow) {
     console.error('[pair/generate] insert failed:', insErr);
@@ -313,6 +343,8 @@ export async function POST(request: NextRequest) {
       success: true,
       token: signedToken,
       jti: tokenRow.jti,           // serve al desktop per sottoscrivere il realtime
+      pair_code,                   // codice corto digitabile (alternativa al QR)
+      pair_code_display: `${pair_code.slice(0, 4)}-${pair_code.slice(4)}`,
       qr_url,
       qr_png_data_url,
       expires_at,
