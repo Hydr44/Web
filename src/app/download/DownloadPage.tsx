@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Apple, Monitor, Loader2, Download, Info } from "lucide-react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Rel = { version?: string; filename?: string; size?: number; releaseDate?: string; sha512?: string; url: string };
 type Platform = "win" | "mac" | "linux";
@@ -43,18 +45,37 @@ export default function DownloadPage() {
   const [flat, setFlat] = useState<LegacyReleases | null>(null);
   const [loading, setLoading] = useState(true);
   const [client, setClient] = useState<ClientHint>({ platform: null, arch: null });
+  const router = useRouter();
 
   useEffect(() => {
-    setClient(detectClient());
-    fetch("/api/app-release/latest", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => {
+    const supabase = supabaseBrowser();
+    let cancelled = false;
+    (async () => {
+      // Gate: il download è riservato agli utenti autenticati. Senza una sessione
+      // valida → redirect al login (stesso pattern di /dashboard). NB: il feed
+      // auto-update /api/app-update/* resta pubblico (electron-updater non può
+      // autenticarsi come utente web).
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (cancelled) return;
+      if (error || !user) {
+        router.replace("/login?redirect=/download");
+        return;
+      }
+      setClient(detectClient());
+      try {
+        const r = await fetch("/api/app-release/latest", { cache: "no-store" });
+        const d = await r.json();
+        if (cancelled) return;
         setByArch(d?.releasesByArch || null);
         setFlat(d?.releases || null);
-      })
-      .catch(() => { setByArch(null); setFlat(null); })
-      .finally(() => setLoading(false));
-  }, []);
+      } catch {
+        if (!cancelled) { setByArch(null); setFlat(null); }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
   const recommended = useMemo<{ platform: Platform; arch: Arch; rel: Rel } | null>(() => {
     if (!byArch || !client.platform) return null;
