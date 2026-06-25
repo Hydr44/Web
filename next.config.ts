@@ -51,8 +51,8 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live https://help.rescuemanager.eu https://*.google-analytics.com https://static.hotjar.com https://script.hotjar.com https://connect.facebook.net https://unpkg.com",
               // style-src: + Leaflet CSS da unpkg (pagina /track)
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://help.rescuemanager.eu https://unpkg.com",
-              // img-src: + tile OpenStreetMap e immagini Leaflet (pagina /track)
-              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com https://help.rescuemanager.eu https://*.google-analytics.com https://*.hotjar.com https://www.facebook.com https://*.facebook.com https://*.tile.openstreetmap.org https://unpkg.com",
+              // img-src: + tile mappa (CartoDB Positron + OpenStreetMap) e immagini Leaflet (pagina /track)
+              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com https://help.rescuemanager.eu https://*.google-analytics.com https://*.hotjar.com https://www.facebook.com https://*.facebook.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://unpkg.com",
               "font-src 'self' data: https://fonts.gstatic.com https://help.rescuemanager.eu https://*.hotjar.com",
               // connect-src: GA regional + Hotjar API + Meta Pixel beacon + help widget WS
               // Wildcard *.supabase.co per supportare sia main (ienzdgrqalltvkdkuamp)
