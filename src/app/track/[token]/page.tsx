@@ -182,9 +182,9 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       {/* Brand chip in alto */}
       <div className="absolute top-0 inset-x-0 p-3 pointer-events-none">
         <div className="mx-auto max-w-md flex items-center gap-2 pointer-events-auto">
-          <div className="flex items-center gap-2 rounded-full bg-white/95 backdrop-blur px-3.5 py-2 shadow-lg ring-1 ring-black/5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[13px] font-semibold text-slate-800">RescueManager</span>
+          <div className="flex items-center gap-2 rounded-full bg-[#0F1724]/95 backdrop-blur px-3.5 py-2 shadow-lg ring-1 ring-white/10">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[13px] font-semibold text-white">RescueManager</span>
             <span className="text-[12px] text-slate-400">· tracking live</span>
           </div>
         </div>
@@ -195,10 +195,10 @@ export default function TrackPage({ params }: { params: { token: string } }) {
         <button
           onClick={recenter}
           aria-label="Centra sulla mappa"
-          className="absolute right-4 z-[500] h-11 w-11 rounded-full bg-white shadow-lg ring-1 ring-black/5 flex items-center justify-center active:scale-95 transition"
+          className="absolute right-4 z-[500] h-11 w-11 rounded-full bg-[#0F1724] shadow-lg ring-1 ring-white/10 flex items-center justify-center active:scale-95 transition"
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 188px)' }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
           </svg>
         </button>
@@ -207,10 +207,10 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       {/* Errore fatale */}
       {fatal && (
         <div className="absolute inset-0 z-[600] flex items-center justify-center p-6 bg-slate-950/70 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-7 max-w-sm text-center shadow-2xl">
-            <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">⚠️</div>
-            <p className="text-[15px] font-medium text-slate-800">{fatal}</p>
-            <p className="text-[13px] text-slate-500 mt-1">Contatta il centro di assistenza per un nuovo link.</p>
+          <div className="bg-[#0F1724] ring-1 ring-white/10 rounded-3xl p-7 max-w-sm text-center shadow-2xl">
+            <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-amber-500/15 flex items-center justify-center text-2xl">⚠️</div>
+            <p className="text-[15px] font-medium text-slate-100">{fatal}</p>
+            <p className="text-[13px] text-slate-400 mt-1">Contatta il centro di assistenza per un nuovo link.</p>
           </div>
         </div>
       )}
@@ -219,47 +219,47 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       {!fatal && (
         <div className="absolute inset-x-0 bottom-0 p-3 pointer-events-none">
           <div
-            className="mx-auto max-w-md rounded-[28px] bg-white shadow-[0_-8px_40px_rgba(2,6,23,.18)] ring-1 ring-black/5 pointer-events-auto"
+            className="mx-auto max-w-md rounded-[28px] bg-[#0F1724] shadow-[0_-8px_40px_rgba(2,6,23,.5)] ring-1 ring-white/10 pointer-events-auto"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
-            <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-slate-200" />
+            <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-slate-700" />
             <div className="px-5 pt-3 pb-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                    data?.closed ? 'bg-slate-100 text-slate-500' : hasVehicle ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                    data?.closed ? 'bg-slate-700/50 text-slate-300' : hasVehicle ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'
                   }`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${data?.closed ? 'bg-slate-400' : hasVehicle ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    <span className={`h-1.5 w-1.5 rounded-full ${data?.closed ? 'bg-slate-400' : hasVehicle ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                     {data?.closed ? 'Completato' : hasVehicle ? 'In viaggio verso di te' : 'In preparazione'}
                   </span>
-                  <h1 className="mt-2 text-[19px] font-bold text-slate-900 leading-tight truncate">{headline}</h1>
+                  <h1 className="mt-2 text-[19px] font-bold text-white leading-tight truncate">{headline}</h1>
                 </div>
                 {!data?.closed && (
                   <div className="text-right shrink-0">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Arrivo</p>
-                    <p className="text-[30px] font-extrabold text-emerald-600 leading-none tabular-nums">{etaText}</p>
-                    {etaUnit && <p className="text-[11px] font-medium text-slate-400 -mt-0.5">{etaUnit}</p>}
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Arrivo</p>
+                    <p className="text-[30px] font-extrabold text-emerald-400 leading-none tabular-nums">{etaText}</p>
+                    {etaUnit && <p className="text-[11px] font-medium text-slate-500 -mt-0.5">{etaUnit}</p>}
                   </div>
                 )}
               </div>
 
               {/* Barra progresso "in avvicinamento" */}
               {!data?.closed && hasVehicle && (
-                <div className="mt-4 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-emerald-500 animate-pulse" style={{ width: '60%' }} />
+                <div className="mt-4 h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                  <div className="h-full rounded-full bg-emerald-400 animate-pulse" style={{ width: '60%' }} />
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between text-[12px] text-slate-400">
+              <div className="mt-4 flex items-center justify-between text-[12px] text-slate-500">
                 <span>{lastUpd ? `Aggiornato alle ${lastUpd}` : 'In attesa di aggiornamenti…'}</span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   automatico
                 </span>
               </div>
 
               {data?.closed && (
-                <p className="mt-3 text-[13px] text-slate-500">
+                <p className="mt-3 text-[13px] text-slate-400">
                   Il soccorso è stato completato. Grazie per aver usato RescueManager.
                 </p>
               )}
