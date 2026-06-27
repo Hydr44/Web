@@ -154,19 +154,19 @@ export default function TrackPage({ params }: { params: { token: string } }) {
     if (v && v.lat != null && v.lng != null) {
       const ll: [number, number] = [v.lat, v.lng];
       pts.push(ll);
-      const icon = L.divIcon({
-        className: '',
-        html:
-          '<div class="rm-truck"><span class="rm-pulse"></span><span class="rm-badge">' +
-          '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>' +
-          '<path d="M15 18H9"/>' +
-          '<path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>' +
-          '<circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>' +
-          '</span></div>',
-        iconSize: [48, 48],
-        iconAnchor: [24, 24],
-      });
+      // Freccia direzionale (stile navigatore): punta nel senso di marcia se
+      // c'è un heading valido, altrimenti puck tondo. Niente pulsazione.
+      const hasHeading = typeof v.heading === 'number' && v.heading >= 0;
+      const html = hasHeading
+        ? `<div class="rm-veh" style="transform: rotate(${v.heading}deg)">` +
+          '<svg width="34" height="34" viewBox="0 0 24 24">' +
+          '<path d="M12 2.5 L19.5 21 L12 16.5 L4.5 21 Z" fill="#3B82F6" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>' +
+          '</svg></div>'
+        : '<div class="rm-veh">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24">' +
+          '<circle cx="12" cy="12" r="7.5" fill="#3B82F6" stroke="#fff" stroke-width="2.5"/>' +
+          '</svg></div>';
+      const icon = L.divIcon({ className: '', html, iconSize: [34, 34], iconAnchor: [17, 17] });
       if (!truckRef.current) truckRef.current = L.marker(ll, { icon, zIndexOffset: 1000 }).addTo(map);
       else { truckRef.current.setLatLng(ll); truckRef.current.setIcon(icon); }
     }
@@ -230,11 +230,9 @@ export default function TrackPage({ params }: { params: { token: string } }) {
   return (
     <main className="fixed inset-0 bg-[#eef1f4] overflow-hidden">
       <style>{`
-        .rm-truck { position: relative; width: 48px; height: 48px; }
-        .rm-pulse { position: absolute; inset: 0; border-radius: 9999px; background: rgba(16,185,129,.35); animation: rmpulse 1.8s ease-out infinite; }
-        .rm-badge { position: absolute; inset: 8px; border-radius: 9999px; background: #0F1724; border: 2px solid #10B981; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(2,6,23,.45); }
+        /* Marker mezzo: freccia direzionale (stile navigatore), niente pulsazione */
+        .rm-veh { display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(2,6,23,.45)); transition: transform .4s ease-out; }
         .rm-dest { filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
-        @keyframes rmpulse { 0% { transform: scale(.45); opacity: .85; } 100% { transform: scale(1.7); opacity: 0; } }
         .leaflet-container { background: #eef1f4 !important; font-family: inherit; }
         /* La pagina cliente è a tutto schermo: nascondiamo cookie banner, widget
            help/chat (Chatwoot/Hotjar) e simili "rotelline" che coprono la mappa. */
@@ -253,9 +251,8 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       <div className="absolute top-0 inset-x-0 px-3 pointer-events-none" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="mx-auto max-w-md flex items-center gap-2 pointer-events-auto">
           <div className="flex items-center gap-2 bg-[#1C2128]/95 backdrop-blur px-3.5 py-2 border border-[#374151]">
-            <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
             <span className="text-[13px] font-semibold text-white truncate max-w-[60vw]">{companyName || 'Soccorso stradale'}</span>
-            <span className="text-[12px] text-[#9CA3AF] shrink-0">· in arrivo</span>
           </div>
         </div>
       </div>
@@ -314,7 +311,7 @@ export default function TrackPage({ params }: { params: { token: string } }) {
               {/* Barra avvicinamento */}
               {!data?.closed && hasVehicle && (
                 <div className="mt-4 h-1 w-full bg-[#1C2128] overflow-hidden">
-                  <div className="h-full bg-[#10B981] animate-pulse" style={{ width: '60%' }} />
+                  <div className="h-full bg-[#3B82F6]" style={{ width: '60%' }} />
                 </div>
               )}
 
@@ -356,10 +353,7 @@ export default function TrackPage({ params }: { params: { token: string } }) {
 
               <div className="mt-4 flex items-center justify-between text-[12px] text-[#9CA3AF]">
                 <span>{lastUpd ? `Aggiornato alle ${lastUpd}` : 'In attesa di aggiornamenti…'}</span>
-                <span className="inline-flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                  automatico
-                </span>
+                <span>aggiornamento automatico</span>
               </div>
 
               {/* white-label: powered by RescueManager (cliccabile) */}
