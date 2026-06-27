@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Settings, Shield, Eye, Database } from "lucide-react";
 import { useCookieConsent, type CookiePreferences } from "@/hooks/useCookieConsent";
 
@@ -16,6 +17,7 @@ export default function CookieConsentModal() {
   const [visible, setVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [localPreferences, setLocalPreferences] = useState<CookiePreferences>(preferences);
+  const pathname = usePathname();
 
   // Mostra banner solo se non c'è consenso
   useEffect(() => {
@@ -28,6 +30,9 @@ export default function CookieConsentModal() {
   useEffect(() => {
     setLocalPreferences(preferences);
   }, [preferences]);
+
+  // Niente banner cookie sulle pagine cliente a tutto schermo (tracking/posizione).
+  if (pathname?.startsWith("/track") || pathname?.startsWith("/assist")) return null;
 
   const acceptAll = () => {
     handleAcceptAll();

@@ -14,7 +14,15 @@ type TrackData = {
   closed?: boolean;
   status?: string | null;
   etaMinutes?: number | null;
+  distanceMeters?: number | null;
   dest?: { lat: number | null; lng: number | null } | null;
+  destAddress?: string | null;
+  number?: number | null;
+  type?: string | null;
+  driverName?: string | null;
+  vehiclePlate?: string | null;
+  vehicleLabel?: string | null;
+  company?: { name: string | null; phone: string | null } | null;
   vehicle?: Vehicle | null;
   error?: string;
 };
@@ -116,9 +124,16 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       pts.push(ll);
       const icon = L.divIcon({
         className: '',
-        html: '<div class="rm-truck"><span class="rm-pulse"></span><span class="rm-badge">🚛</span></div>',
-        iconSize: [46, 46],
-        iconAnchor: [23, 23],
+        html:
+          '<div class="rm-truck"><span class="rm-pulse"></span><span class="rm-badge">' +
+          '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>' +
+          '<path d="M15 18H9"/>' +
+          '<path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>' +
+          '<circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>' +
+          '</span></div>',
+        iconSize: [48, 48],
+        iconAnchor: [24, 24],
       });
       if (!truckRef.current) truckRef.current = L.marker(ll, { icon, zIndexOffset: 1000 }).addTo(map);
       else { truckRef.current.setLatLng(ll); truckRef.current.setIcon(icon); }
@@ -127,7 +142,15 @@ export default function TrackPage({ params }: { params: { token: string } }) {
     if (dest && dest.lat != null && dest.lng != null) {
       const ll: [number, number] = [dest.lat, dest.lng];
       pts.push(ll);
-      const icon = L.divIcon({ className: '', html: '<div class="rm-dest">📍</div>', iconSize: [30, 38], iconAnchor: [15, 36] });
+      const icon = L.divIcon({
+        className: '',
+        html:
+          '<div class="rm-dest"><svg width="30" height="38" viewBox="0 0 24 24">' +
+          '<path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z" fill="#0F1724" stroke="#fff" stroke-width="1.5"/>' +
+          '<circle cx="12" cy="9" r="2.5" fill="#34d399"/></svg></div>',
+        iconSize: [30, 38],
+        iconAnchor: [15, 36],
+      });
       if (!destRef.current) destRef.current = L.marker(ll, { icon }).addTo(map);
       else destRef.current.setLatLng(ll);
     }
@@ -165,15 +188,33 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       ? (eta != null && eta <= 0 ? 'Il mezzo è in arrivo' : 'Mezzo di soccorso in arrivo')
       : 'In attesa del mezzo';
 
+  const distM = data?.distanceMeters;
+  const distanceText = distM == null ? null : distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${distM} m`;
+  const driverName = data?.driverName || null;
+  const driverInitials = driverName
+    ? driverName.split(/\s+/).slice(0, 2).map((s) => s[0]?.toUpperCase() || '').join('')
+    : null;
+  const vehicleText = [data?.vehiclePlate, data?.vehicleLabel].filter(Boolean).join(' · ') || null;
+  const companyName = data?.company?.name || null;
+  const phone = data?.company?.phone || null;
+
   return (
     <main className="fixed inset-0 bg-[#eef1f4] overflow-hidden">
       <style>{`
-        .rm-truck { position: relative; width: 46px; height: 46px; }
+        .rm-truck { position: relative; width: 48px; height: 48px; }
         .rm-pulse { position: absolute; inset: 0; border-radius: 9999px; background: rgba(16,185,129,.35); animation: rmpulse 1.8s ease-out infinite; }
-        .rm-badge { position: absolute; inset: 7px; border-radius: 9999px; background: #0F1724; border: 2px solid #10B981; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 6px 16px rgba(2,6,23,.45); }
-        .rm-dest { font-size: 30px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+        .rm-badge { position: absolute; inset: 8px; border-radius: 9999px; background: #0F1724; border: 2px solid #10B981; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(2,6,23,.45); }
+        .rm-dest { filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
         @keyframes rmpulse { 0% { transform: scale(.45); opacity: .85; } 100% { transform: scale(1.7); opacity: 0; } }
         .leaflet-container { background: #eef1f4 !important; font-family: inherit; }
+        /* La pagina cliente è a tutto schermo: nascondiamo cookie banner, widget
+           help/chat (Chatwoot/Hotjar) e simili "rotelline" che coprono la mappa. */
+        #onetrust-consent-sdk, #ot-sdk-btn-floating, .ot-floating-button,
+        .cookie-banner, [class*="cookie"], [id*="cookie"],
+        .woot-widget-holder, .woot--bubble-holder, #chatwoot_live_chat_widget,
+        ._hj_feedback_container, .hotjar-feedback, iframe[title*="chat" i] {
+          display: none !important; visibility: hidden !important;
+        }
       `}</style>
 
       {/* Mappa full-screen */}
@@ -247,6 +288,38 @@ export default function TrackPage({ params }: { params: { token: string } }) {
               {!data?.closed && hasVehicle && (
                 <div className="mt-4 h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
                   <div className="h-full rounded-full bg-emerald-400 animate-pulse" style={{ width: '60%' }} />
+                </div>
+              )}
+
+              {/* Card autista + mezzo + distanza + chiamata */}
+              {(driverName || vehicleText || distanceText || phone) && (
+                <div className="mt-4 rounded-2xl bg-[#0B1220] ring-1 ring-white/5 p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-emerald-500/15 text-emerald-300 flex items-center justify-center font-bold text-[14px]">
+                      {driverInitials || (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-semibold text-white truncate">{driverName || companyName || 'Autista in arrivo'}</p>
+                      <p className="text-[12px] text-slate-400 truncate">{vehicleText || (driverName && companyName) || 'Mezzo di soccorso'}</p>
+                    </div>
+                    {distanceText && !data?.closed && (
+                      <div className="text-right shrink-0">
+                        <p className="text-[10px] uppercase tracking-wider text-slate-500">distanza</p>
+                        <p className="text-[15px] font-semibold text-emerald-300 tabular-nums">{distanceText}</p>
+                      </div>
+                    )}
+                  </div>
+                  {phone && !data?.closed && (
+                    <a
+                      href={`tel:${phone}`}
+                      className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[.99] transition py-2.5 text-[14px] font-semibold text-[#06231a]"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      Chiama il soccorso
+                    </a>
+                  )}
                 </div>
               )}
 

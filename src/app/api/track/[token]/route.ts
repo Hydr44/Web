@@ -1,6 +1,6 @@
 // API pubblica per la pagina /track/{token}: ritorna la posizione LIVE del mezzo
-// (ultimo punto in transport_tracking) + ETA + destinazione, per il cliente che
-// segue l'arrivo del soccorso. Usa il client admin (server-side, token opaco).
+// + ETA + destinazione + info utili al cliente (autista, mezzo, azienda, distanza).
+// Usa il client admin (server-side, token opaco).
 import { supabaseAdmin, jsonWithCors, emptyCorsResponse } from "../../assist/_utils";
 
 export const runtime = "nodejs";
@@ -22,6 +22,18 @@ function num(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// Distanza in metri tra due coordinate (Haversine).
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
 export async function GET(_req: Request, { params }: { params: { token: string } }) {
   try {
     const token = params?.token;
@@ -39,18 +51,42 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       return jsonWithCors({ ok: false, error: "Questo link non è un tracking mezzo" }, { status: 409 });
     }
 
-    // 2) Trasporto (stato, ETA, destinazione)
+    // 2) Trasporto (stato, ETA, destinazione, riferimenti autista/mezzo/org)
     const { data: tr, error: trErr } = await supabaseAdmin
       .from("transports")
-      .select("id, status, eta_pickup, eta_dropoff, eta_minutes, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, customer_name")
+      .select(
+        "id, status, eta_pickup, eta_dropoff, eta_minutes, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, customer_name, driver_id, vehicle_id, org_id, number, transport_type, dropoff_address",
+      )
       .eq("id", reqRow.transport_id)
       .maybeSingle();
     if (trErr) throw trErr;
 
+    // 2b) Autista, mezzo, azienda — in parallelo (best-effort)
+    const [drvRes, vehRes, orgRes] = await Promise.all([
+      tr?.driver_id
+        ? supabaseAdmin.from("staff_drivers").select("nome, cognome").eq("id", tr.driver_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      tr?.vehicle_id
+        ? supabaseAdmin.from("vehicles").select("targa, plate, marca, modello, model, tipo").eq("id", tr.vehicle_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      tr?.org_id
+        ? supabaseAdmin.from("orgs").select("name, phone").eq("id", tr.org_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    const drv = drvRes.data as { nome?: string; cognome?: string } | null;
+    const driverName = drv ? [drv.nome, drv.cognome].filter(Boolean).join(" ").trim() || null : null;
+
+    const veh = vehRes.data as { targa?: string; plate?: string; marca?: string; modello?: string; model?: string; tipo?: string } | null;
+    const vehiclePlate = veh ? veh.targa || veh.plate || null : null;
+    const vehicleLabel = veh ? [veh.marca, veh.modello || veh.model].filter(Boolean).join(" ").trim() || veh.tipo || null : null;
+
+    const orgRow = orgRes.data as { name?: string; phone?: string } | null;
+    const company = orgRow ? { name: orgRow.name ?? null, phone: orgRow.phone ?? null } : null;
+
     // 3) Ultima posizione del mezzo. Scartiamo i fix GROSSOLANI (accuracy > 150m):
     //    i primi punti cell/wifi possono avere raggio di km e mostrerebbero il
-    //    mezzo dall'altra parte della città. Teniamo l'ultimo punto "buono"
-    //    (accuracy ≤ 150 oppure non valorizzata).
+    //    mezzo dall'altra parte della città. Teniamo l'ultimo punto "buono".
     const { data: pos, error: posErr } = await supabaseAdmin
       .from("transport_tracking")
       .select("latitude, longitude, heading, speed, status, recorded_at")
@@ -68,8 +104,8 @@ export async function GET(_req: Request, { params }: { params: { token: string }
     const etaDropoff = etaMinutesFrom(tr?.eta_dropoff ?? null);
     const etaMinutes = etaPickup ?? etaDropoff ?? (Number.isFinite(tr?.eta_minutes as number) ? (tr!.eta_minutes as number) : null);
 
-    // Destinazione "verso cui sta andando" = punto cliente (pickup) se disponibile,
-    // altrimenti la posizione condivisa dal cliente.
+    // Destinazione = punto cliente (pickup) se disponibile, altrimenti posizione
+    // condivisa dal cliente (assist).
     const dest =
       num(tr?.pickup_lat) != null && num(tr?.pickup_lng) != null
         ? { lat: num(tr?.pickup_lat), lng: num(tr?.pickup_lng) }
@@ -77,16 +113,31 @@ export async function GET(_req: Request, { params }: { params: { token: string }
           ? { lat: num(reqRow.lat), lng: num(reqRow.lng) }
           : null;
 
+    const vLat = pos ? num(pos.latitude) : null;
+    const vLng = pos ? num(pos.longitude) : null;
+    const distanceMeters =
+      vLat != null && vLng != null && dest?.lat != null && dest?.lng != null
+        ? haversine(vLat, vLng, dest.lat, dest.lng)
+        : null;
+
     return jsonWithCors({
       ok: true,
       closed,
       status: tr?.status ?? reqRow.status ?? null,
       etaMinutes,
+      distanceMeters,
       dest,
+      destAddress: tr?.dropoff_address ?? null,
+      number: tr?.number ?? null,
+      type: tr?.transport_type ?? null,
+      driverName,
+      vehiclePlate,
+      vehicleLabel,
+      company,
       vehicle: pos
         ? {
-            lat: num(pos.latitude),
-            lng: num(pos.longitude),
+            lat: vLat,
+            lng: vLng,
             heading: num(pos.heading),
             speed: num(pos.speed),
             recordedAt: pos.recorded_at,

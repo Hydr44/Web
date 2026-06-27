@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const CHATWOOT_BASE_URL = "https://help.rescuemanager.eu";
 const CHATWOOT_TOKEN = "9PaAY4hC3w34ZvL7nT1igeFy"; // quello che hai incollato
@@ -8,8 +9,12 @@ const CHATWOOT_TOKEN = "9PaAY4hC3w34ZvL7nT1igeFy"; // quello che hai incollato
 export default function ChatwootWidget() {
   const [loaded, setLoaded] = useState(false);
   const [started, setStarted] = useState(false);
+  const pathname = usePathname();
+  // Niente bolla chat sulle pagine cliente a tutto schermo (tracking/posizione).
+  const hidden = pathname?.startsWith("/track") || pathname?.startsWith("/assist");
 
   useEffect(() => {
+    if (hidden) return;
     // Evita duplicati se il componente viene montato più volte
     if ((window as { chatwootSDK?: unknown }).chatwootSDK) {
       setLoaded(true);
@@ -29,7 +34,7 @@ export default function ChatwootWidget() {
     return () => {
       // non rimuovere lo script per evitare ricariche inutili tra route
     };
-  }, []);
+  }, [hidden]);
 
   useEffect(() => {
     if (!loaded || started) return;
