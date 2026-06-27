@@ -64,7 +64,8 @@ export default function TrackPage({ params }: { params: { token: string } }) {
   const mapRef = useRef<any>(null);
   const truckRef = useRef<any>(null);
   const destRef = useRef<any>(null);
-  const lineRef = useRef<any>(null);
+  const routeRef = useRef<any>(null);
+  const routeKeyRef = useRef<string>('');
   const LRef = useRef<any>(null);
   const followRef = useRef(true); // auto-centra finché l'utente non sposta la mappa
 
@@ -109,6 +110,37 @@ export default function TrackPage({ params }: { params: { token: string } }) {
     tick();
     return () => { stop = true; clearTimeout(timer); };
   }, [token]);
+
+  // Percorso SU STRADA (stile Uber) via OSRM demo. Fallback a linea retta
+  // tratteggiata se il routing non risponde. Rifà la richiesta solo se le
+  // coordinate cambiano sensibilmente (~11m) per non floodare il servizio.
+  async function drawRoute(from: [number, number], to: [number, number]) {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+    const key = `${from[0].toFixed(4)},${from[1].toFixed(4)}>${to[0].toFixed(4)},${to[1].toFixed(4)}`;
+    if (key === routeKeyRef.current) return;
+    routeKeyRef.current = key;
+
+    let coords: [number, number][] | null = null;
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const j = await res.json();
+      const g = j?.routes?.[0]?.geometry?.coordinates;
+      if (Array.isArray(g) && g.length > 1) coords = g.map((c: [number, number]) => [c[1], c[0]]);
+    } catch {
+      /* offline / rate-limit → fallback retta */
+    }
+    const latlngs = coords ?? [from, to];
+    const style = { color: '#3B82F6', weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round', dashArray: coords ? '' : '2 12' };
+    if (routeRef.current) {
+      routeRef.current.setLatLngs(latlngs);
+      routeRef.current.setStyle(style);
+    } else {
+      routeRef.current = L.polyline(latlngs, style).addTo(map);
+    }
+  }
 
   function renderMap(d: TrackData) {
     const L = LRef.current;
@@ -155,16 +187,13 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       else destRef.current.setLatLng(ll);
     }
 
-    // Linea tratteggiata mezzo → destinazione
-    if (pts.length >= 2) {
-      if (!lineRef.current) {
-        lineRef.current = L.polyline(pts, { color: '#10B981', weight: 4, opacity: 0.7, dashArray: '2 10', lineCap: 'round' }).addTo(map);
-      } else {
-        lineRef.current.setLatLngs(pts);
-      }
-    } else if (lineRef.current) {
-      map.removeLayer(lineRef.current);
-      lineRef.current = null;
+    // Percorso su strada mezzo → destinazione (stile Uber)
+    if (v && v.lat != null && v.lng != null && dest && dest.lat != null && dest.lng != null) {
+      void drawRoute([v.lat, v.lng], [dest.lat, dest.lng]);
+    } else if (routeRef.current) {
+      map.removeLayer(routeRef.current);
+      routeRef.current = null;
+      routeKeyRef.current = '';
     }
 
     if (!followRef.current) return; // l'utente ha spostato la mappa: non ricentriamo
@@ -220,122 +249,125 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       {/* Mappa full-screen */}
       <div ref={mapEl} className="absolute inset-0" />
 
-      {/* Brand chip in alto */}
+      {/* Chip azienda (white-label: il cliente vede il nome del soccorritore, non RescueManager) */}
       <div className="absolute top-0 inset-x-0 p-3 pointer-events-none">
         <div className="mx-auto max-w-md flex items-center gap-2 pointer-events-auto">
-          <div className="flex items-center gap-2 rounded-full bg-[#0F1724]/95 backdrop-blur px-3.5 py-2 shadow-lg ring-1 ring-white/10">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[13px] font-semibold text-white">RescueManager</span>
-            <span className="text-[12px] text-slate-400">· tracking live</span>
+          <div className="flex items-center gap-2 bg-[#1C2128]/95 backdrop-blur px-3.5 py-2 border border-[#374151]">
+            <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+            <span className="text-[13px] font-semibold text-white truncate max-w-[60vw]">{companyName || 'Soccorso stradale'}</span>
+            <span className="text-[12px] text-[#9CA3AF] shrink-0">· in arrivo</span>
           </div>
         </div>
       </div>
 
-      {/* Bottone ricentra */}
+      {/* Bottone ricentra (piatto, stile app) */}
       {hasVehicle && !fatal && (
         <button
           onClick={recenter}
           aria-label="Centra sulla mappa"
-          className="absolute right-4 z-[500] h-11 w-11 rounded-full bg-[#0F1724] shadow-lg ring-1 ring-white/10 flex items-center justify-center active:scale-95 transition"
-          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 188px)' }}
+          className="absolute right-3 z-[500] h-11 w-11 bg-[#1C2128] border border-[#374151] flex items-center justify-center active:opacity-80 transition"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 214px)' }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
           </svg>
         </button>
       )}
 
-      {/* Errore fatale */}
+      {/* Errore fatale (piatto, stile app) */}
       {fatal && (
-        <div className="absolute inset-0 z-[600] flex items-center justify-center p-6 bg-slate-950/70 backdrop-blur-sm">
-          <div className="bg-[#0F1724] ring-1 ring-white/10 rounded-3xl p-7 max-w-sm text-center shadow-2xl">
-            <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-amber-500/15 flex items-center justify-center text-2xl">⚠️</div>
-            <p className="text-[15px] font-medium text-slate-100">{fatal}</p>
-            <p className="text-[13px] text-slate-400 mt-1">Contatta il centro di assistenza per un nuovo link.</p>
+        <div className="absolute inset-0 z-[600] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#1C2128] border border-[#374151] p-7 max-w-sm text-center">
+            <div className="mx-auto mb-3 h-12 w-12 bg-[#0A0E13] border border-[#374151] flex items-center justify-center text-2xl">⚠️</div>
+            <p className="text-[15px] font-medium text-white">{fatal}</p>
+            <p className="text-[13px] text-[#9CA3AF] mt-1">Contatta il centro di assistenza per un nuovo link.</p>
           </div>
         </div>
       )}
 
-      {/* Bottom sheet stile Uber */}
+      {/* Pannello info — design app: piatto, raggio 0, bordi sottili, accento a sinistra */}
       {!fatal && (
-        <div className="absolute inset-x-0 bottom-0 p-3 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none">
           <div
-            className="mx-auto max-w-md rounded-[28px] bg-[#0F1724] shadow-[0_-8px_40px_rgba(2,6,23,.5)] ring-1 ring-white/10 pointer-events-auto"
+            className="mx-auto max-w-md bg-[#0A0E13]/97 backdrop-blur border-t border-[#374151] pointer-events-auto"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
-            <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-slate-700" />
-            <div className="px-5 pt-3 pb-5">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                    data?.closed ? 'bg-slate-700/50 text-slate-300' : hasVehicle ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'
-                  }`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${data?.closed ? 'bg-slate-400' : hasVehicle ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            <div className="px-5 pt-4 pb-4">
+              {/* Stato + ETA, con accento colorato a sinistra (pattern app) */}
+              <div className="flex items-stretch gap-3">
+                <div className="w-[3px] shrink-0" style={{ backgroundColor: data?.closed ? '#9CA3AF' : hasVehicle ? '#10B981' : '#F59E0B' }} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: data?.closed ? '#9CA3AF' : hasVehicle ? '#10B981' : '#F59E0B' }}>
                     {data?.closed ? 'Completato' : hasVehicle ? 'In viaggio verso di te' : 'In preparazione'}
-                  </span>
-                  <h1 className="mt-2 text-[19px] font-bold text-white leading-tight truncate">{headline}</h1>
+                  </p>
+                  <h1 className="mt-1 text-[18px] font-bold text-white leading-tight truncate">{headline}</h1>
                 </div>
                 {!data?.closed && (
                   <div className="text-right shrink-0">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Arrivo</p>
-                    <p className="text-[30px] font-extrabold text-emerald-400 leading-none tabular-nums">{etaText}</p>
-                    {etaUnit && <p className="text-[11px] font-medium text-slate-500 -mt-0.5">{etaUnit}</p>}
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-[#9CA3AF]">Arrivo</p>
+                    <p className="text-[28px] font-extrabold text-white leading-none tabular-nums">{etaText}</p>
+                    {etaUnit && <p className="text-[11px] font-medium text-[#9CA3AF] -mt-0.5">{etaUnit}</p>}
                   </div>
                 )}
               </div>
 
-              {/* Barra progresso "in avvicinamento" */}
+              {/* Barra avvicinamento */}
               {!data?.closed && hasVehicle && (
-                <div className="mt-4 h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
-                  <div className="h-full rounded-full bg-emerald-400 animate-pulse" style={{ width: '60%' }} />
+                <div className="mt-4 h-1 w-full bg-[#1C2128] overflow-hidden">
+                  <div className="h-full bg-[#10B981] animate-pulse" style={{ width: '60%' }} />
                 </div>
               )}
 
-              {/* Card autista + mezzo + distanza + chiamata */}
+              {/* Card autista + mezzo + distanza + chiamata (piatta, bordi app) */}
               {(driverName || vehicleText || distanceText || phone) && (
-                <div className="mt-4 rounded-2xl bg-[#0B1220] ring-1 ring-white/5 p-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 shrink-0 rounded-full bg-emerald-500/15 text-emerald-300 flex items-center justify-center font-bold text-[14px]">
+                <div className="mt-4 bg-[#1C2128] border border-[#374151]">
+                  <div className="flex items-center gap-3 p-3.5">
+                    <div className="h-10 w-10 shrink-0 bg-[#0A0E13] border border-[#374151] flex items-center justify-center font-bold text-[14px] text-[#60A5FA]">
                       {driverInitials || (
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[14px] font-semibold text-white truncate">{driverName || companyName || 'Autista in arrivo'}</p>
-                      <p className="text-[12px] text-slate-400 truncate">{vehicleText || (driverName && companyName) || 'Mezzo di soccorso'}</p>
+                      <p className="text-[12px] text-[#9CA3AF] truncate">{vehicleText || 'Mezzo di soccorso'}</p>
                     </div>
                     {distanceText && !data?.closed && (
                       <div className="text-right shrink-0">
-                        <p className="text-[10px] uppercase tracking-wider text-slate-500">distanza</p>
-                        <p className="text-[15px] font-semibold text-emerald-300 tabular-nums">{distanceText}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">distanza</p>
+                        <p className="text-[15px] font-semibold text-white tabular-nums">{distanceText}</p>
                       </div>
                     )}
                   </div>
                   {phone && !data?.closed && (
                     <a
                       href={`tel:${phone}`}
-                      className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[.99] transition py-2.5 text-[14px] font-semibold text-[#06231a]"
+                      className="flex items-center justify-center gap-2 border-t border-[#374151] bg-[#3B82F6] active:bg-[#2563EB] transition py-3 text-[14px] font-semibold text-white"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                      Chiama il soccorso
+                      Chiama
                     </a>
                   )}
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between text-[12px] text-slate-500">
+              {data?.closed && (
+                <p className="mt-4 text-[13px] text-[#9CA3AF]">Il soccorso è stato completato. Grazie!</p>
+              )}
+
+              <div className="mt-4 flex items-center justify-between text-[12px] text-[#9CA3AF]">
                 <span>{lastUpd ? `Aggiornato alle ${lastUpd}` : 'In attesa di aggiornamenti…'}</span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
                   automatico
                 </span>
               </div>
 
-              {data?.closed && (
-                <p className="mt-3 text-[13px] text-slate-400">
-                  Il soccorso è stato completato. Grazie per aver usato RescueManager.
-                </p>
-              )}
+              {/* white-label: powered by RescueManager (cliccabile) */}
+              <div className="mt-3 pt-3 border-t border-[#374151] text-center">
+                <a href="https://rescuemanager.eu" target="_blank" rel="noopener noreferrer" className="text-[11px] text-[#6B7280]">
+                  powered by <span className="font-semibold text-[#9CA3AF]">RescueManager</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
