@@ -250,7 +250,7 @@ export default function TrackPage({ params }: { params: { token: string } }) {
       <div ref={mapEl} className="absolute inset-0" />
 
       {/* Chip azienda (white-label: il cliente vede il nome del soccorritore, non RescueManager) */}
-      <div className="absolute top-0 inset-x-0 p-3 pointer-events-none">
+      <div className="absolute top-0 inset-x-0 px-3 pointer-events-none" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
         <div className="mx-auto max-w-md flex items-center gap-2 pointer-events-auto">
           <div className="flex items-center gap-2 bg-[#1C2128]/95 backdrop-blur px-3.5 py-2 border border-[#374151]">
             <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
@@ -266,7 +266,7 @@ export default function TrackPage({ params }: { params: { token: string } }) {
           onClick={recenter}
           aria-label="Centra sulla mappa"
           className="absolute right-3 z-[500] h-11 w-11 bg-[#1C2128] border border-[#374151] flex items-center justify-center active:opacity-80 transition"
-          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 214px)' }}
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
