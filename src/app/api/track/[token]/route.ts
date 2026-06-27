@@ -47,11 +47,15 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       .maybeSingle();
     if (trErr) throw trErr;
 
-    // 3) Ultima posizione del mezzo
+    // 3) Ultima posizione del mezzo. Scartiamo i fix GROSSOLANI (accuracy > 150m):
+    //    i primi punti cell/wifi possono avere raggio di km e mostrerebbero il
+    //    mezzo dall'altra parte della città. Teniamo l'ultimo punto "buono"
+    //    (accuracy ≤ 150 oppure non valorizzata).
     const { data: pos, error: posErr } = await supabaseAdmin
       .from("transport_tracking")
       .select("latitude, longitude, heading, speed, status, recorded_at")
       .eq("transport_id", reqRow.transport_id)
+      .or("accuracy.lte.150,accuracy.is.null")
       .order("recorded_at", { ascending: false })
       .limit(1)
       .maybeSingle();
