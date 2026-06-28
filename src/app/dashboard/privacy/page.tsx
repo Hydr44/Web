@@ -31,6 +31,7 @@ export default function PrivacyPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<Profile | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [actionWorking, setActionWorking] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,29 +58,51 @@ export default function PrivacyPage() {
     loadData();
   }, []);
 
-  // Export e cancellazione passano dal canale supporto: la richiesta diventa un
-  // ticket reale (il team viene avvisato via email) e viene gestita entro i
-  // termini di legge. Niente finti "riceverai un'email" senza nulla dietro.
-  const openGdprRequest = async (kind: "export" | "delete") => {
-    if (kind === "delete" && !confirm("Vuoi inviare al nostro team la richiesta di cancellazione dell'account e dei dati associati?")) return;
+  // Export REALE: scarica un JSON con i dati personali dell'account (art. 15/20).
+  const downloadExport = async () => {
     setActionError(null);
-    setActionWorking(kind);
+    setActionSuccess(null);
+    setActionWorking("export");
     try {
-      const payload = kind === "export"
-        ? {
-            subject: "Richiesta export dati personali (GDPR art. 20)",
-            category: "domanda",
-            message: "Richiedo una copia dei miei dati personali in formato leggibile (portabilità dei dati, art. 20 GDPR).",
-          }
-        : {
-            subject: "Richiesta cancellazione account (GDPR art. 17)",
-            category: "domanda",
-            message: "Richiedo la cancellazione del mio account e di tutti i dati associati (diritto all'oblio, art. 17 GDPR).",
-          };
+      const res = await fetch("/api/user/export");
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d?.error || "Errore nella generazione dell'export");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "rescuemanager-dati-personali.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setActionSuccess("Download dei tuoi dati avviato.");
+    } catch (e: unknown) {
+      setActionError(e instanceof Error ? e.message : "Errore nella generazione dell'export");
+    } finally {
+      setActionWorking(null);
+    }
+  };
+
+  // Cancellazione: richiesta tracciata via supporto. Non immediata e automatica
+  // perché il team verifica gli obblighi di conservazione (es. fiscali: le
+  // fatture vanno conservate per legge) prima di procedere.
+  const requestDeletion = async () => {
+    if (!confirm("Vuoi inviare al nostro team la richiesta di cancellazione dell'account e dei dati associati?")) return;
+    setActionError(null);
+    setActionSuccess(null);
+    setActionWorking("delete");
+    try {
       const res = await fetch("/api/support/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          subject: "Richiesta cancellazione account (GDPR art. 17)",
+          category: "domanda",
+          message: "Richiedo la cancellazione del mio account e di tutti i dati associati (diritto all'oblio, art. 17 GDPR).",
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Errore nell'invio della richiesta");
@@ -135,6 +158,12 @@ export default function PrivacyPage() {
           <span className="text-red-800 text-sm">{actionError}</span>
         </div>
       )}
+      {actionSuccess && (
+        <div className="p-4 rounded bg-emerald-50 border border-emerald-200 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+          <span className="text-emerald-800 text-sm">{actionSuccess}</span>
+        </div>
+      )}
 
       {/* I tuoi dati (reale) */}
       <div className="p-5 bg-white border border-gray-200 rounded">
@@ -184,16 +213,16 @@ export default function PrivacyPage() {
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-4 flex-1">
-              Invii al nostro team una richiesta per ricevere una copia dei tuoi dati personali. La
-              richiesta viene tracciata come ticket e gestita entro 30 giorni.
+              Scarica subito una copia dei dati personali del tuo account in formato JSON
+              (leggibile e portabile). I dati operativi aziendali si esportano dall'app desktop.
             </p>
             <button
-              onClick={() => openGdprRequest("export")}
+              onClick={downloadExport}
               disabled={actionWorking !== null}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-60"
             >
               <Download className="h-4 w-4" />
-              {actionWorking === "export" ? "Invio…" : "Richiedi i miei dati"}
+              {actionWorking === "export" ? "Genero…" : "Scarica i miei dati"}
             </button>
           </div>
 
@@ -213,7 +242,7 @@ export default function PrivacyPage() {
               verifica (es. obblighi fiscali sui documenti) e procede secondo legge.
             </p>
             <button
-              onClick={() => openGdprRequest("delete")}
+              onClick={requestDeletion}
               disabled={actionWorking !== null}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-700 rounded hover:bg-red-50 transition-colors text-sm font-medium disabled:opacity-60"
             >
