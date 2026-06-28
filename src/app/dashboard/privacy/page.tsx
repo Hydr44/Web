@@ -1,173 +1,119 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { 
-  Database, 
-  Shield, 
-  Eye, 
-  EyeOff, 
-  Download, 
-  Trash2, 
+import {
+  Database,
+  Shield,
+  Download,
+  Trash2,
   CheckCircle,
   AlertTriangle,
   Clock,
   FileText,
-  Settings,
-  Lock,
-  Globe,
   User,
-  Bell,
-  Mail,
-  Smartphone,
-  Activity
+  Settings,
+  ArrowRight,
 } from "lucide-react";
+
+type Profile = {
+  full_name?: string | null;
+  current_org?: string | null;
+  created_at?: string | null;
+};
 
 export default function PrivacyPage() {
   usePageTitle("Privacy");
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<Profile | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [actionWorking, setActionWorking] = useState<string | null>(null);
-  const [privacySettings, setPrivacySettings] = useState({
-    dataCollection: true,
-    analytics: true,
-    marketing: false,
-    cookies: true,
-    dataRetention: "2years",
-    gdprConsent: true,
-    dataExport: false,
-    accountDeletion: false
-  });
-
-  const [dataOverview, setDataOverview] = useState({
-    totalDataPoints: 0,
-    personalData: 0,
-    usageData: 0,
-    lastExport: null,
-    dataRetentionDays: 730
-  });
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const supabase = supabaseBrowser();
-        
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
-          console.error("Error getting user:", userError);
           setLoading(false);
           return;
         }
-        
         const { data: profile } = await supabase
           .from("profiles")
-          .select("*")
+          .select("full_name, current_org, created_at")
           .eq("id", user.id)
           .single();
-        
-        if (profile) {
-          setUserData(profile);
-          
-          // Calcola dati reali basati sul profilo
-          const personalDataCount = Object.keys(profile).filter(key => 
-            ['full_name', 'email', 'phone', 'location', 'bio', 'website', 'avatar_url'].includes(key) && 
-            profile[key] !== null && 
-            profile[key] !== ''
-          ).length;
-          
-          setDataOverview(prev => ({
-            ...prev,
-            totalDataPoints: personalDataCount,
-            personalData: personalDataCount,
-            usageData: 0 // Non mostriamo analytics di utilizzo
-          }));
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading data:", error);
+        if (profile) setUserData(profile as Profile);
+      } catch {
+        /* no-op */
+      } finally {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  const handleExportData = async () => {
+  // Export e cancellazione passano dal canale supporto: la richiesta diventa un
+  // ticket reale (il team viene avvisato via email) e viene gestita entro i
+  // termini di legge. Niente finti "riceverai un'email" senza nulla dietro.
+  const openGdprRequest = async (kind: "export" | "delete") => {
+    if (kind === "delete" && !confirm("Vuoi inviare al nostro team la richiesta di cancellazione dell'account e dei dati associati?")) return;
     setActionError(null);
-    setActionSuccess(null);
-    setActionWorking("export");
+    setActionWorking(kind);
     try {
-      // Audit log (privacy.export)
-      try {
-        await fetch("/api/user/audit-logs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "privacy.export" }),
-        });
-      } catch { /* non bloccante */ }
-      // L'export reale è un job asincrono: per ora avvisiamo l'utente che riceverà l'email.
-      // (Endpoint /api/user/export può essere aggiunto in seguito senza toccare la UI.)
-      setActionSuccess("Richiesta di export inviata. Riceverai un'email con i tuoi dati.");
+      const payload = kind === "export"
+        ? {
+            subject: "Richiesta export dati personali (GDPR art. 20)",
+            category: "domanda",
+            message: "Richiedo una copia dei miei dati personali in formato leggibile (portabilità dei dati, art. 20 GDPR).",
+          }
+        : {
+            subject: "Richiesta cancellazione account (GDPR art. 17)",
+            category: "domanda",
+            message: "Richiedo la cancellazione del mio account e di tutti i dati associati (diritto all'oblio, art. 17 GDPR).",
+          };
+      const res = await fetch("/api/support/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Errore nell'invio della richiesta");
+      if (data.ticket_id) {
+        router.push(`/dashboard/support/${data.ticket_id}`);
+        return;
+      }
+      router.push("/dashboard/support");
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Errore durante l'export";
-      setActionError(msg);
-    } finally {
+      setActionError(error instanceof Error ? error.message : "Errore nell'invio della richiesta");
       setActionWorking(null);
     }
   };
-
-  const handleDeleteAccount = async () => {
-    if (!confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.")) return;
-    if (!confirm("Questa azione eliminerà definitivamente tutti i tuoi dati. Sei assolutamente sicuro?")) return;
-
-    setActionError(null);
-    setActionSuccess(null);
-    setActionWorking("delete");
-    try {
-      try {
-        await fetch("/api/user/audit-logs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "privacy.delete" }),
-        });
-      } catch { /* non bloccante */ }
-      // L'eliminazione reale dell'account passa da un endpoint server-side che
-      // disabilita l'utente in auth.users + cleanup correlati. Da implementare
-      // separatamente. Per ora segnaliamo che la richiesta è stata registrata.
-      setActionSuccess("Richiesta di eliminazione registrata. Il team di supporto ti contatterà a breve.");
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Errore eliminazione account";
-      setActionError(msg);
-    } finally {
-      setActionWorking(null);
-    }
-  };
-
-  const dataRetentionOptions = [
-    { value: "1year", label: "1 anno" },
-    { value: "2years", label: "2 anni" },
-    { value: "5years", label: "5 anni" },
-    { value: "indefinite", label: "Indefinito" }
-  ];
 
   if (loading) {
     return (
       <div className="space-y-6 max-w-2xl">
         <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
         <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
+          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
+          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
         </div>
       </div>
     );
   }
+
+  const legalDocs = [
+    { href: "/privacy-policy", icon: FileText, title: "Informativa Privacy", sub: "Come trattiamo i tuoi dati" },
+    { href: "/cookie-policy", icon: Settings, title: "Cookie Policy", sub: "Cookie e tecnologie simili" },
+    { href: "/terms-of-use", icon: Shield, title: "Termini di Servizio", sub: "Condizioni d'uso del servizio" },
+    { href: "/dpa", icon: Database, title: "Accordo Trattamento Dati (DPA)", sub: "Art. 28 GDPR — Responsabile" },
+  ];
 
   return (
     <div className="space-y-8">
@@ -179,280 +125,130 @@ export default function PrivacyPage() {
         </div>
         <h1 className="text-2xl font-semibold text-gray-900">Privacy &amp; dati</h1>
         <p className="text-sm text-gray-500 mt-1 max-w-2xl">
-          Controlla come vengono utilizzati i tuoi dati e gestisci le preferenze in conformità al GDPR.
+          Consulta i documenti, vedi i tuoi dati ed esercita i tuoi diritti GDPR.
         </p>
       </header>
 
       {actionError && (
         <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{actionError}</span>
-        </div>
-      )}
-      {actionSuccess && (
-        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <span className="text-green-800">{actionSuccess}</span>
+          <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
+          <span className="text-red-800 text-sm">{actionError}</span>
         </div>
       )}
 
-      {/* GDPR Status */}
+      {/* I tuoi dati (reale) */}
       <div className="p-5 bg-white border border-gray-200 rounded">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded bg-emerald-50 flex items-center justify-center">
-            <Shield className="h-4 w-4 text-emerald-700" />
+          <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
+            <User className="h-4 w-4 text-gray-700" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Conformità GDPR</h2>
-            <p className="text-xs text-gray-500">I tuoi diritti sulla privacy sono protetti</p>
+            <h2 className="text-sm font-semibold text-gray-900">I tuoi dati</h2>
+            <p className="text-xs text-gray-500">Informazioni associate al tuo account</p>
           </div>
         </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="p-4  bg-emerald-500/10 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Consenso GDPR</span>
-            </div>
-            <p className="text-xs text-green-600">Attivo dal {new Date().toLocaleDateString('it-IT')}</p>
+        <div className="grid sm:grid-cols-3 gap-4 text-sm">
+          <div className="flex items-center gap-2 text-gray-700">
+            <User className="h-4 w-4 text-gray-400 shrink-0" />
+            <span className="truncate">{userData?.full_name || "Nome non impostato"}</span>
           </div>
-          
-          <div className="p-4  bg-emerald-500/10 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Privacy Policy</span>
-            </div>
-            <p className="text-xs text-green-600">Accettata e aggiornata</p>
+          <div className="flex items-center gap-2 text-gray-700">
+            <Database className="h-4 w-4 text-gray-400 shrink-0" />
+            <span>Organizzazione: {userData?.current_org ? "presente" : "nessuna"}</span>
           </div>
-          
-          <div className="p-4  bg-emerald-500/10 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Cookie Policy</span>
-            </div>
-            <p className="text-xs text-green-600">Consenso gestito</p>
+          <div className="flex items-center gap-2 text-gray-700">
+            <Clock className="h-4 w-4 text-gray-400 shrink-0" />
+            <span>
+              Account dal{" "}
+              {userData?.created_at
+                ? new Date(userData.created_at).toLocaleDateString("it-IT")
+                : "—"}
+            </span>
           </div>
         </div>
       </div>
 
-
-      {/* Privacy Controls */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Data Collection */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Controlli Privacy</h2>
-          
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
+      {/* Esercita i tuoi diritti */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">Esercita i tuoi diritti GDPR</h2>
+        <div className="grid lg:grid-cols-2 gap-4">
+          {/* Export */}
+          <div className="p-5 bg-white border border-gray-200 rounded flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded bg-blue-50 flex items-center justify-center">
+                <Download className="h-4 w-4 text-blue-600" />
+              </div>
               <div>
-                <h3 className="font-medium text-gray-900">Raccolta dati essenziali</h3>
-                <p className="text-sm text-gray-500">Dati necessari per il funzionamento</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={privacySettings.dataCollection}
-                  onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataCollection: e.target.checked }))}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
-              <div>
-                <h3 className="font-medium text-gray-900">Analytics anonime</h3>
-                <p className="text-sm text-gray-500">Dati aggregati per migliorare il servizio</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={privacySettings.analytics}
-                  onChange={(e) => setPrivacySettings(prev => ({ ...prev, analytics: e.target.checked }))}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
-              <div>
-                <h3 className="font-medium text-gray-900">Marketing</h3>
-                <p className="text-sm text-gray-500">Comunicazioni promozionali</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={privacySettings.marketing}
-                  onChange={(e) => setPrivacySettings(prev => ({ ...prev, marketing: e.target.checked }))}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Data Management */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Gestione Dati</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Conservazione dati
-              </label>
-              <select
-                value={privacySettings.dataRetention}
-                onChange={(e) => setPrivacySettings(prev => ({ ...prev, dataRetention: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
-              >
-                {dataRetentionOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="p-4  bg-blue-50 border border-blue-200">
-              <h3 className="font-medium text-blue-900 mb-2">I tuoi dati</h3>
-              <div className="space-y-2 text-sm text-blue-600">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>Profilo: {userData?.full_name || "N/A"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4" />
-                  <span>Organizzazione: {userData?.current_org ? "Presente" : "Nessuna"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>Account: {userData?.created_at ? new Date(userData.created_at).toLocaleDateString('it-IT') : "N/A"}</span>
-                </div>
+                <h3 className="text-sm font-semibold text-gray-900">Esporta i tuoi dati</h3>
+                <p className="text-xs text-gray-500">Portabilità — art. 20 GDPR</p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Data Actions */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Export Data */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Download className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Export Dati</h2>
-              <p className="text-sm text-gray-500">Scarica una copia dei tuoi dati</p>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <p className="text-sm text-gray-500">
-              Puoi richiedere una copia completa dei tuoi dati personali in formato JSON. 
-              Il processo può richiedere fino a 24 ore.
+            <p className="text-sm text-gray-500 mb-4 flex-1">
+              Invii al nostro team una richiesta per ricevere una copia dei tuoi dati personali. La
+              richiesta viene tracciata come ticket e gestita entro 30 giorni.
             </p>
-            
-            <div className="p-4  bg-amber-500/10 border border-amber-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <span className="text-sm font-medium text-yellow-900">Nota importante</span>
-              </div>
-              <p className="text-sm text-yellow-800">
-                L'export includerà tutti i tuoi dati personali, inclusi file e documenti.
-              </p>
-            </div>
-            
             <button
-              onClick={handleExportData}
+              onClick={() => openGdprRequest("export")}
               disabled={actionWorking !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600   hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-60"
             >
               <Download className="h-4 w-4" />
-              Richiedi Export Dati
+              {actionWorking === "export" ? "Invio…" : "Richiedi i miei dati"}
             </button>
           </div>
-        </div>
 
-        {/* Delete Account */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10  bg-gray-600 flex items-center justify-center">
-              <Trash2 className="h-5 w-5 text-gray-900" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Elimina Account</h2>
-              <p className="text-sm text-gray-500">Cancella permanentemente il tuo account</p>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <p className="text-sm text-gray-500">
-              Eliminando il tuo account, tutti i tuoi dati verranno cancellati permanentemente.
-            </p>
-            
-            <div className="p-4  bg-red-50 border border-red-200">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium text-red-900">Azione irreversibile</span>
+          {/* Delete */}
+          <div className="p-5 bg-white border border-gray-200 rounded flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded bg-red-50 flex items-center justify-center">
+                <Trash2 className="h-4 w-4 text-red-600" />
               </div>
-              <p className="text-sm text-red-800">
-                Questa azione eliminerà definitivamente tutti i tuoi dati.
-              </p>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">Elimina l'account</h3>
+                <p className="text-xs text-gray-500">Diritto all'oblio — art. 17 GDPR</p>
+              </div>
             </div>
-            
+            <p className="text-sm text-gray-500 mb-4 flex-1">
+              Invii una richiesta di cancellazione dell'account e dei dati associati. Il team la
+              verifica (es. obblighi fiscali sui documenti) e procede secondo legge.
+            </p>
             <button
-              onClick={handleDeleteAccount}
+              onClick={() => openGdprRequest("delete")}
               disabled={actionWorking !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600   hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-700 rounded hover:bg-red-50 transition-colors text-sm font-medium disabled:opacity-60"
             >
               <Trash2 className="h-4 w-4" />
-              Elimina Account
+              {actionWorking === "delete" ? "Invio…" : "Richiedi cancellazione"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Privacy Documentation */}
-      <div className="p-6  bg-gradient-to-r from-gray-50/50 via-white to-slate-50/30 border border-gray-200 ">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Documentazione Privacy</h2>
-        <div className="grid md:grid-cols-3 gap-4">
-          <Link
-            href="/privacy-policy"
-            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
-          >
-            <FileText className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-medium text-gray-900">Privacy Policy</div>
-              <div className="text-sm text-gray-500">Come utilizziamo i tuoi dati</div>
-            </div>
-          </Link>
-          
-          <Link
-            href="/terms-of-use"
-            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
-          >
-            <Shield className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-medium text-gray-900">Termini di Servizio</div>
-              <div className="text-sm text-gray-500">Condizioni di utilizzo</div>
-            </div>
-          </Link>
-          
-          <Link
-            href="/cookie-policy"
-            className="flex items-center gap-3 p-4  bg-white border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all duration-200"
-          >
-            <Settings className="h-5 w-5 text-primary" />
-            <div>
-              <div className="font-medium text-gray-900">Cookie Policy</div>
-              <div className="text-sm text-gray-500">Gestione dei cookie</div>
-            </div>
-          </Link>
+      {/* Documenti legali (reali, linkabili) */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">Documenti legali</h2>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {legalDocs.map((d) => (
+            <Link
+              key={d.href}
+              href={d.href}
+              className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
+            >
+              <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center shrink-0">
+                <d.icon className="h-4 w-4 text-gray-700" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-gray-900">{d.title}</div>
+                <div className="text-xs text-gray-500">{d.sub}</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-gray-700 transition-colors shrink-0" />
+            </Link>
+          ))}
         </div>
+        <p className="text-xs text-gray-400 mt-3 flex items-center gap-1.5">
+          <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+          Le preferenze cookie si gestiscono dal banner mostrato all'accesso al sito.
+        </p>
       </div>
     </div>
   );

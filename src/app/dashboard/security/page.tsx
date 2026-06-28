@@ -4,184 +4,149 @@ import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { 
-  Shield, 
-  Lock, 
-  Key, 
-  Activity, 
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Eye,
-  EyeOff,
+import {
+  Shield,
+  Key,
   Smartphone,
   Monitor,
-  Globe,
-  Database,
-  Settings,
   ArrowRight,
-  TrendingUp,
-  Users,
-  Zap
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
+
+type SecurityState = {
+  securityScore: number;
+  twoFactorEnabled: boolean;
+  emailVerified: boolean;
+  lastSignIn: string | null;
+};
 
 export default function SecurityPage() {
   usePageTitle("Sicurezza");
   const [loading, setLoading] = useState(true);
-  const [securityData, setSecurityData] = useState({
-    securityScore: 85,
-    lastLogin: "2024-01-15T10:30:00Z",
-    activeSessions: 3,
+  const [sec, setSec] = useState<SecurityState>({
+    securityScore: 0,
     twoFactorEnabled: false,
-    passwordStrength: "strong",
-    recentActivity: [
-      { action: "Login", device: "Chrome on Mac", location: "Milano, IT", time: "2 ore fa", status: "success" },
-      { action: "Password changed", device: "Chrome on Mac", location: "Milano, IT", time: "1 giorno fa", status: "success" },
-      { action: "Failed login", device: "Safari on iPhone", location: "Roma, IT", time: "3 giorni fa", status: "failed" }
-    ],
-    securityAlerts: [
-      { type: "warning", message: "Password scade tra 30 giorni", action: "Cambia password" },
-      { type: "info", message: "2FA non abilitato", action: "Abilita 2FA" }
-    ]
+    emailVerified: false,
+    lastSignIn: null,
   });
 
   useEffect(() => {
-    const loadSecurityData = async () => {
+    const load = async () => {
       try {
         const supabase = supabaseBrowser();
-        
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          console.error("Error getting user:", userError);
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
           setLoading(false);
           return;
         }
-        
-        // Carica dati reali di sicurezza
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        
-        if (profile) {
-          // Calcola score sicurezza basato su dati reali
-          let score = 50; // Base score
-          if (profile.full_name) score += 10;
-          if (profile.phone) score += 10;
-          if (profile.avatar_url) score += 5;
-          // Qui potresti aggiungere controlli per 2FA, password strength, etc.
-          
-          setSecurityData(prev => ({
-            ...prev,
-            securityScore: Math.min(score, 100),
-            lastLogin: profile.updated_at || new Date().toISOString(),
-            twoFactorEnabled: false // Da implementare con tabella dedicata
-          }));
+
+        // 2FA REALE: un factor TOTP verificato = abilitato.
+        let twoFA = false;
+        try {
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          twoFA = !!factors?.totp?.some((f) => f.status === "verified");
+        } catch {
+          /* MFA non disponibile → resta false */
         }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading security data:", error);
+
+        const emailVerified = !!(user.email_confirmed_at || user.confirmed_at);
+
+        // Score su SEGNALI REALI di sicurezza (non "completezza profilo"):
+        // credenziali attive (40) + email verificata (20) + 2FA (40).
+        let score = 40;
+        if (emailVerified) score += 20;
+        if (twoFA) score += 40;
+
+        setSec({
+          securityScore: Math.min(score, 100),
+          twoFactorEnabled: twoFA,
+          emailVerified,
+          lastSignIn: user.last_sign_in_at ?? null,
+        });
+      } catch {
+        /* no-op */
+      } finally {
         setLoading(false);
       }
     };
-
-    loadSecurityData();
+    load();
   }, []);
 
-  const getSecurityScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-amber-600";
-    return "text-red-600";
-  };
+  const scoreColor = (s: number) =>
+    s >= 80 ? "text-emerald-600" : s >= 60 ? "text-amber-600" : "text-red-600";
+  const scoreBar = (s: number) =>
+    s >= 80 ? "bg-emerald-500" : s >= 60 ? "bg-amber-500" : "bg-red-500";
 
-  const getSecurityScoreBg = (score: number) => {
-    if (score >= 80) return "bg-emerald-500/10 border-gray-200";
-    if (score >= 60) return "bg-amber-500/10 border-amber-500/20";
-    return "bg-red-50 border-red-200";
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "success":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "failed":
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      case "warning":
-        return <AlertTriangle className="h-4 w-4 text-amber-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+  const fmtDate = (iso: string | null) => {
+    if (!iso) return null;
+    try {
+      return new Date(iso).toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return null;
     }
   };
 
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case "warning":
-        return <AlertTriangle className="h-5 w-5 text-amber-600" />;
-      case "info":
-        return <Shield className="h-5 w-5 text-blue-600" />;
-      case "error":
-        return <AlertTriangle className="h-5 w-5 text-red-600" />;
-      default:
-        return <Shield className="h-5 w-5 text-gray-500" />;
-    }
-  };
+  // Azioni residue calcolate sui segnali reali (checklist dinamica, non fissa).
+  const todo: { label: string; desc: string; href: string }[] = [];
+  if (!sec.twoFactorEnabled)
+    todo.push({
+      label: "Abilita l'autenticazione a due fattori",
+      desc: "Aggiunge un secondo livello di protezione all'accesso.",
+      href: "/dashboard/security/2fa",
+    });
+  if (!sec.emailVerified)
+    todo.push({
+      label: "Verifica l'indirizzo email",
+      desc: "Conferma la tua email per proteggere il recupero dell'account.",
+      href: "/dashboard/profile",
+    });
 
   if (loading) {
     return (
       <div className="space-y-8">
-        {/* Header Skeleton */}
         <div>
           <div className="w-48 h-8 bg-gray-200 rounded animate-pulse mb-2" />
           <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
         </div>
-
-        {/* Security Score Skeleton */}
         <div className="p-6 bg-white border border-gray-100 rounded-lg">
           <div className="flex items-center justify-between mb-4">
-             <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
-                <div className="space-y-2">
-                   <div className="w-40 h-5 bg-gray-200 rounded animate-pulse" />
-                   <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
-                </div>
-             </div>
-             <div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />
+            <div className="flex gap-3 items-center">
+              <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
+              <div className="space-y-2">
+                <div className="w-40 h-5 bg-gray-200 rounded animate-pulse" />
+                <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
+              </div>
+            </div>
+            <div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />
           </div>
           <div className="w-full h-3 bg-gray-100 rounded-full animate-pulse mb-4" />
           <div className="w-1/3 h-4 bg-gray-100 rounded animate-pulse" />
         </div>
-
-        {/* Quick Actions Skeletons */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(3)].map((_, i) => (
-             <div key={i} className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
-                <div className="flex gap-3 items-center">
-                   <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
-                   <div className="space-y-2 flex-1">
-                      <div className="w-2/3 h-5 bg-gray-200 rounded animate-pulse" />
-                      <div className="w-full h-3 bg-gray-100 rounded animate-pulse" />
-                   </div>
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
+              <div className="flex gap-3 items-center">
+                <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
+                <div className="space-y-2 flex-1">
+                  <div className="w-2/3 h-5 bg-gray-200 rounded animate-pulse" />
+                  <div className="w-full h-3 bg-gray-100 rounded animate-pulse" />
                 </div>
-                <div className="flex justify-between items-center">
-                   <div className="w-1/2 h-4 bg-gray-100 rounded animate-pulse" />
-                   <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-                </div>
-             </div>
+              </div>
+            </div>
           ))}
-        </div>
-        
-        {/* Footer actions skeleton */}
-        <div className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
-           <div className="w-64 h-6 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-3 bg-gray-100 rounded-full animate-pulse" />
-           <div className="w-48 h-5 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-12 bg-gray-50 border border-gray-100 rounded animate-pulse" />
         </div>
       </div>
     );
   }
+
+  const lastSignIn = fmtDate(sec.lastSignIn);
 
   return (
     <div className="space-y-8">
@@ -200,29 +165,31 @@ export default function SecurityPage() {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-gray-900">Score sicurezza</h2>
-              <p className="text-xs text-gray-500">Valutazione generale del tuo account</p>
+              <p className="text-xs text-gray-500">Credenziali, email verificata e 2FA</p>
             </div>
           </div>
-          <div className={`text-2xl font-semibold tabular-nums ${getSecurityScoreColor(securityData.securityScore)}`}>
-            {securityData.securityScore}%
+          <div className={`text-2xl font-semibold tabular-nums ${scoreColor(sec.securityScore)}`}>
+            {sec.securityScore}%
           </div>
         </div>
 
         <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
           <div
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              securityData.securityScore >= 80 ? 'bg-emerald-500' :
-              securityData.securityScore >= 60 ? 'bg-amber-500' : 'bg-red-500'
-            }`}
-            style={{ width: `${securityData.securityScore}%` }}
+            className={`h-1.5 rounded-full transition-all duration-500 ${scoreBar(sec.securityScore)}`}
+            style={{ width: `${sec.securityScore}%` }}
           />
         </div>
 
         <p className="text-xs text-gray-500">
-          {securityData.securityScore >= 80 ? "Ottimo: il tuo account è ben protetto." :
-           securityData.securityScore >= 60 ? "Buono — puoi ancora migliorare." :
-           "Attenzione: la sicurezza necessita di miglioramenti."}
+          {sec.securityScore >= 80
+            ? "Ottimo: il tuo account è ben protetto."
+            : sec.securityScore >= 60
+            ? "Buono — abilita il 2FA per la protezione massima."
+            : "Attenzione: completa i passaggi consigliati qui sotto."}
         </p>
+        {lastSignIn && (
+          <p className="text-xs text-gray-400 mt-2">Ultimo accesso: {lastSignIn}</p>
+        )}
       </div>
 
       {/* Quick Actions — tiles uniformi, neutre */}
@@ -260,8 +227,8 @@ export default function SecurityPage() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${securityData.twoFactorEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
-              {securityData.twoFactorEnabled ? 'Abilitato' : 'Non abilitato'}
+            <span className={`text-xs font-medium ${sec.twoFactorEnabled ? "text-emerald-700" : "text-amber-700"}`}>
+              {sec.twoFactorEnabled ? "Abilitato" : "Non abilitato"}
             </span>
             <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
@@ -281,7 +248,7 @@ export default function SecurityPage() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">{securityData.activeSessions} dispositivi</span>
+            <span className="text-xs text-gray-500">Gestisci dispositivi</span>
             <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
@@ -306,41 +273,42 @@ export default function SecurityPage() {
         </Link>
       </div>
 
-      {/* Security Progress */}
-      <div className="p-6  bg-white border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Migliora la Sicurezza del tuo Account</h2>
-        
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Livello di Sicurezza</span>
-            <span className="text-sm font-bold text-gray-900">{securityData.securityScore}%</span>
-          </div>
-          <div className="w-full bg-gray-50 rounded-full h-3">
-            <div 
-              className={`h-3 rounded-full transition-all duration-500 ${
-                securityData.securityScore < 40 ? 'bg-red-500' : 
-                securityData.securityScore < 70 ? 'bg-amber-500/100' : 'bg-emerald-500/100'
-              }`}
-              style={{ width: `${securityData.securityScore}%` }}
-            ></div>
-          </div>
-        </div>
+      {/* Azioni consigliate — dinamiche sui segnali reali */}
+      <div className="p-6 bg-white border border-gray-200 rounded">
+        <h2 className="text-base font-semibold text-gray-900 mb-1">Migliora la sicurezza</h2>
+        <p className="text-sm text-gray-500 mb-5">
+          {todo.length === 0
+            ? "Hai attivato tutte le protezioni disponibili."
+            : `${todo.length} ${todo.length === 1 ? "azione consigliata" : "azioni consigliate"} per rafforzare l'account.`}
+        </p>
 
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Azioni per raggiungere il 100%:</h3>
-          
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3  bg-white border border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <Shield className="h-4 w-4 text-gray-500" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Abilita l'autenticazione a due fattori</p>
-                <p className="text-sm text-gray-500">Aggiungi un ulteriore livello di sicurezza</p>
-              </div>
-            </div>
+        {todo.length === 0 ? (
+          <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
+            <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+            <p className="text-sm font-medium text-emerald-800">
+              Account protetto: 2FA attivo ed email verificata.
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-2">
+            {todo.map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{t.label}</p>
+                  <p className="text-xs text-gray-500">{t.desc}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-gray-700 transition-colors shrink-0" />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
