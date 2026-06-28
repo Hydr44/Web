@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
+import NewsletterForm from "./NewsletterForm";
 
 export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="bg-[#0f172a] text-white">
+      {/* Newsletter */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-6 items-center">
+          <div>
+            <h3 className="text-lg font-bold text-white">Resta aggiornato</h3>
+            <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+              Novità di prodotto e aggiornamenti normativi (RENTRI, SDI, RVFU) direttamente nella tua casella. Niente spam.
+            </p>
+          </div>
+          <NewsletterForm source="footer" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 py-14">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
