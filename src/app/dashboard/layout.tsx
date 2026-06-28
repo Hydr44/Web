@@ -8,6 +8,7 @@ import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import PageTransition from "@/components/dashboard/PageTransition";
 import DemoLanding from "@/components/dashboard/DemoLanding";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import LegalConsentModal from "@/components/dashboard/LegalConsentModal";
 
 export default function DashboardLayout({
   children,
@@ -265,6 +266,7 @@ export default function DashboardLayout({
 
   return (
     <DashboardShell userEmail={userEmail} orgName={orgName}>
+      <LegalConsentModal />
       <Breadcrumbs />
       <PageTransition>{children}</PageTransition>
     </DashboardShell>
