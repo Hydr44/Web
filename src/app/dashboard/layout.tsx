@@ -10,6 +10,7 @@ import DemoLanding from "@/components/dashboard/DemoLanding";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import LegalConsentModal from "@/components/dashboard/LegalConsentModal";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
+import MaintenanceGate from "@/components/dashboard/MaintenanceGate";
 
 export default function DashboardLayout({
   children,
@@ -267,6 +268,7 @@ export default function DashboardLayout({
 
   return (
     <DashboardShell userEmail={userEmail} orgName={orgName}>
+      <MaintenanceGate />
       <LegalConsentModal />
       <AnnouncementBanner />
       <Breadcrumbs />
