@@ -46,7 +46,8 @@ export async function OPTIONS(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
   try {
-    const status = await readMaintenance();
+    const platform = new URL(request.url).searchParams.get("platform") || "web";
+    const status = await readMaintenance(platform);
     // Ritorna stato calcolato (state) + is_active per retro-compat con la
     // desktop app già in produzione (MaintenanceOverlay legge is_active).
     return corsJson(origin, { ...status }, 200);
