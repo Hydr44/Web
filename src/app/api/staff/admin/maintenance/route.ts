@@ -29,8 +29,8 @@ function fmt(iso: string): string {
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
   const status = await readMaintenance('web');
-  // Quanti clienti riceverebbero l'email (esclusi staff e org demo).
-  const recipientCount = (await getClientRecipients()).length;
+  // Lista clienti che riceverebbero l'email (esclusi staff e org demo).
+  const recipients = await getClientRecipients();
   const { data, error } = await supabaseAdmin
     .from('maintenance_windows')
     .select('*')
@@ -38,11 +38,14 @@ export async function GET(request: NextRequest) {
     .limit(100);
   if (error) {
     return NextResponse.json(
-      { success: true, windows: [], status, recipientCount, tableMissing: true },
+      { success: true, windows: [], status, recipients, recipientCount: recipients.length, tableMissing: true },
       { headers: corsHeaders(origin) },
     );
   }
-  return NextResponse.json({ success: true, windows: data || [], status, recipientCount }, { headers: corsHeaders(origin) });
+  return NextResponse.json(
+    { success: true, windows: data || [], status, recipients, recipientCount: recipients.length },
+    { headers: corsHeaders(origin) },
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -86,7 +89,8 @@ export async function POST(request: NextRequest) {
         `\n` +
         `Quando: dal ${fmt(starts_at)} al ${fmt(ends_at)}.\n` +
         `Durante questo intervallo l'applicazione (web, desktop e mobile) non sarà accessibile. Ci scusiamo per il disagio.`;
-      notified = await sendToAllClients(subject, body, { subtitle: 'Manutenzione programmata' });
+      const exclude = Array.isArray(b.exclude_emails) ? b.exclude_emails : [];
+      notified = await sendToAllClients(subject, body, { subtitle: 'Manutenzione programmata' }, exclude);
       await supabaseAdmin
         .from('maintenance_windows')
         .update({ notified_at: new Date().toISOString() })

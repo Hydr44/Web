@@ -40,8 +40,13 @@ export async function sendToAllClients(
   subject: string,
   body: string,
   opts: BrandedEmailOpts = {},
+  excludeEmails?: Iterable<string>,
 ): Promise<{ sent: number; failed: number; total: number }> {
-  const recipients = await getClientRecipients();
+  const exclude = new Set(
+    excludeEmails ? Array.from(excludeEmails, (e) => String(e).trim().toLowerCase()) : [],
+  );
+  let recipients = await getClientRecipients();
+  if (exclude.size) recipients = recipients.filter((r) => !exclude.has(r.email));
   let sent = 0;
   let failed = 0;
   const CHUNK = 20;
