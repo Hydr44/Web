@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { readMaintenance } from '@/lib/maintenance';
-import { sendToAllClients } from '@/lib/client-mailer';
+import { sendToAllClients, getClientRecipients } from '@/lib/client-mailer';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +29,8 @@ function fmt(iso: string): string {
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
   const status = await readMaintenance('web');
+  // Quanti clienti riceverebbero l'email (esclusi staff e org demo).
+  const recipientCount = (await getClientRecipients()).length;
   const { data, error } = await supabaseAdmin
     .from('maintenance_windows')
     .select('*')
@@ -36,11 +38,11 @@ export async function GET(request: NextRequest) {
     .limit(100);
   if (error) {
     return NextResponse.json(
-      { success: true, windows: [], status, tableMissing: true },
+      { success: true, windows: [], status, recipientCount, tableMissing: true },
       { headers: corsHeaders(origin) },
     );
   }
-  return NextResponse.json({ success: true, windows: data || [], status }, { headers: corsHeaders(origin) });
+  return NextResponse.json({ success: true, windows: data || [], status, recipientCount }, { headers: corsHeaders(origin) });
 }
 
 export async function POST(request: NextRequest) {
