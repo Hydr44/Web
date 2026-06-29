@@ -91,16 +91,11 @@ export function useCookieConsent() {
         // Utente non autenticato - normale per visitatori
       }
 
-      // Ottieni IP e user agent (se disponibili)
-      let ipAddress: string | null = null;
-      try {
-        const ipResponse = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipResponse.json();
-        ipAddress = maskIp(ipData.ip); // Maschera IP per privacy
-      } catch {
-        // Ignora errori IP
-      }
-
+      // IP NON recuperato lato client: niente chiamata a servizi esterni
+      // (api.ipify era bloccata dalla CSP e generava un errore in console, e
+      // l'IP risultava comunque null). Se serve per audit GDPR va catturato
+      // server-side dall'header x-forwarded-for.
+      const ipAddress: string | null = null;
       const userAgent = navigator.userAgent;
 
       // Inserisci consenso
