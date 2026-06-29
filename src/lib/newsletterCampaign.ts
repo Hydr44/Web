@@ -6,10 +6,10 @@
  * - createBroadcast / sendBroadcast: API Resend Broadcasts verso l'Audience.
  */
 
+import { brandedHtml, BRAND_BLUE } from '@/lib/email-template';
+
 const RESEND_API = 'https://api.resend.com';
 const FROM = process.env.NEWSLETTER_FROM || 'RescueManager <noreply@rescuemanager.eu>';
-const BRAND_DARK = '#0f172a';
-const BRAND_BLUE = '#2563eb';
 
 export interface RegEvent {
   id: string;
@@ -67,27 +67,15 @@ export function templateFromEvents(events: RegEvent[]): { title: string; subject
     })
     .join('');
 
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
-        <tr><td style="background:${BRAND_DARK};padding:24px 32px;">
-          <span style="font-size:18px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">RESCUE<span style="color:${BRAND_BLUE};">MANAGER</span></span>
-        </td></tr>
-        <tr><td style="padding:30px 32px 8px;">
-          ${sections}
-        </td></tr>
-        <tr><td style="background:${BRAND_DARK};padding:18px 32px;border-top:3px solid ${BRAND_BLUE};">
-          <p style="margin:0 0 6px;font-size:11px;color:rgba(255,255,255,0.45);text-align:center;">
-            RescueManager · <a href="https://rescuemanager.eu" style="color:${BRAND_BLUE};text-decoration:none;">rescuemanager.eu</a>
-          </p>
-          <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.35);text-align:center;">
-            Non vuoi più ricevere queste email? <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:rgba(255,255,255,0.6);">Disiscriviti</a>
-          </p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table></body></html>`;
+  // Usa il template brand canonico (@/lib/email-template): header con logo,
+  // card bianca, footer barra blu. Le sezioni vanno in extraHtml; il link di
+  // disiscrizione (merge tag Resend) nel footerNote.
+  const intro = `Ecco le ultime novità${groups.length ? ' su ' + groups.join(', ') : ''}.`;
+  const html = brandedHtml(intro, {
+    subtitle: 'Aggiornamenti',
+    extraHtml: sections,
+    footerNote: 'Non vuoi più ricevere queste email? <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#94a3b8;">Disiscriviti</a>.',
+  });
 
   return { title, subject, html };
 }
