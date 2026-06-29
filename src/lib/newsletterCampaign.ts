@@ -21,19 +21,6 @@ export interface RegEvent {
   detected_at: string;
 }
 
-function addedToLinks(added: unknown): { url: string; title: string }[] {
-  if (!added) return [];
-  if (Array.isArray(added)) {
-    return added
-      .map((a: any) => (typeof a === 'object' && a ? { url: a.url || '', title: a.title || a.url || '' } : null))
-      .filter((x): x is { url: string; title: string } => !!x && !!x.url);
-  }
-  if (typeof added === 'object') {
-    return Object.entries(added as Record<string, string>).map(([url, title]) => ({ url, title: title || url }));
-  }
-  return [];
-}
-
 function esc(s: string): string {
   return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] as string));
 }
@@ -41,40 +28,36 @@ function esc(s: string): string {
 /** Costruisce una bozza (title/subject/html) da uno o più eventi normativi. */
 export function templateFromEvents(events: RegEvent[]): { title: string; subject: string; html: string } {
   const groups = Array.from(new Set(events.map((e) => e.group_label).filter(Boolean))) as string[];
-  const subject =
-    events.length === 1 && events[0].label
-      ? `Novità ${events[0].group_label || ''}: ${events[0].label}`.trim()
-      : `Aggiornamenti normativi${groups.length ? ' — ' + groups.join(', ') : ''}`;
+  const subject = groups.length === 1 ? `Aggiornamento normativo: ${groups[0]}` : 'Aggiornamenti normativi';
   const title = subject;
 
+  // BOZZA EDITORIALE per il CLIENTE (non i dettagli tecnici del monitor).
+  // La segnalazione del monitor è solo lo spunto: qui mettiamo un punto di
+  // partenza in linguaggio cliente + la fonte ufficiale. Il team RIVEDE e
+  // riscrive "Cosa cambia per te" prima dell'invio (i riferimenti tecnici
+  // restano a lato nell'editor admin, non nell'email).
   const sections = events
     .map((e) => {
-      const links = addedToLinks(e.added)
-        .slice(0, 8)
-        .map(
-          (l) =>
-            `<li style="margin:0 0 6px;"><a href="${esc(l.url)}" style="color:${BRAND_BLUE};text-decoration:none;">${esc(l.title)}</a></li>`,
-        )
-        .join('');
+      const cosaCambia = e.summary
+        ? esc(e.summary)
+        : '[Spiega in 2-3 righe, in parole semplici, cosa cambia per il cliente e cosa deve fare.]';
       return `
       <div style="margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid #e2e8f0;">
         ${e.group_label ? `<span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${BRAND_BLUE};margin-bottom:6px;">${esc(e.group_label)}</span>` : ''}
-        <h2 style="margin:0 0 8px;font-size:16px;color:#0f172a;">${esc(e.label || 'Aggiornamento')}</h2>
-        ${e.summary ? `<p style="margin:0 0 10px;font-size:14px;color:#475569;line-height:1.6;">${esc(e.summary)}</p>` : ''}
-        ${links ? `<ul style="margin:0 0 12px;padding-left:18px;">${links}</ul>` : ''}
-        ${e.url ? `<a href="${esc(e.url)}" style="display:inline-block;font-size:13px;font-weight:600;color:${BRAND_BLUE};text-decoration:none;">Leggi la novità →</a>` : ''}
+        <h2 style="margin:0 0 8px;font-size:17px;color:#0f172a;">${esc(e.label || 'Aggiornamento normativo')}</h2>
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Cosa cambia per te</p>
+        <p style="margin:0 0 12px;font-size:15px;color:#475569;line-height:1.65;">${cosaCambia}</p>
+        ${e.url ? `<a href="${esc(e.url)}" style="display:inline-block;font-size:13px;font-weight:600;color:${BRAND_BLUE};text-decoration:none;">Fonte ufficiale →</a>` : ''}
       </div>`;
     })
     .join('');
 
-  // Usa il template brand canonico (@/lib/email-template): header con logo,
-  // card bianca, footer barra blu. Le sezioni vanno in extraHtml; il link di
-  // disiscrizione (merge tag Resend) nel footerNote.
-  const intro = `Ecco le ultime novità${groups.length ? ' su ' + groups.join(', ') : ''}.`;
+  const intro = 'Ti teniamo aggiornato sulle novità normative che riguardano la tua attività.';
   const html = brandedHtml(intro, {
-    subtitle: 'Aggiornamenti',
+    subtitle: 'Aggiornamento normativo',
     extraHtml: sections,
-    footerNote: 'Non vuoi più ricevere queste email? <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#94a3b8;">Disiscriviti</a>.',
+    cta: { href: 'https://rescuemanager.eu', label: 'Scopri come RescueManager ti aiuta' },
+    footerNote: 'Ricevi questa email perché ti sei iscritto agli aggiornamenti RescueManager. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#94a3b8;">Disiscriviti</a>.',
   });
 
   return { title, subject, html };
