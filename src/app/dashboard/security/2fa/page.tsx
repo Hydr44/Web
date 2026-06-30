@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
 import {
   Smartphone,
   ArrowLeft,
@@ -300,6 +301,31 @@ export default function TwoFactorAuthPage() {
       setError("Impossibile copiare negli appunti.");
     }
   };
+
+  // 2FA temporaneamente bloccato (vedi lib/feature-2fa): blocca anche l'accesso
+  // diretto via URL all'enroll/challenge finché non è pronto su tutte le app.
+  if (!TWO_FACTOR_ENABLED) {
+    return (
+      <div className="space-y-6">
+        <Link href="/dashboard/security" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700">
+          <ArrowLeft className="h-4 w-4" /> Sicurezza
+        </Link>
+        <div className="max-w-xl border border-gray-200 bg-white rounded p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-gray-700" />
+            </div>
+            <h1 className="text-lg font-semibold text-gray-900">Autenticazione a due fattori</h1>
+          </div>
+          <p className="text-sm text-gray-600">
+            La verifica in due passaggi è <strong>temporaneamente non disponibile</strong>: la stiamo
+            completando su tutte le app (web e desktop) per garantire la stessa sicurezza ovunque.
+            Sarà riattivata a breve.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

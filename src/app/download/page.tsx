@@ -9,8 +9,8 @@ export const metadata = {
 export default function Page() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-2 border-gray-300 border-t-blue-600 rounded-full" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-2 border-gray-200 border-t-[#2563EB] rounded-full" />
       </div>
     }>
       <DownloadPage />

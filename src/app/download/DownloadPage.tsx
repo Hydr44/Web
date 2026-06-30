@@ -75,12 +75,13 @@ export default function DownloadPage() {
   const platformLabel = (p: Platform) => p === "win" ? "Windows" : p === "mac" ? "macOS" : "Linux";
   const archLabel = (a: Arch) => a === "arm64" ? "Apple Silicon" : "Intel";
 
+  // Bottone download — squadrato, stile sito (blu #2563EB primario / contorno grigio).
   const DownloadBtn = ({ rel, label, primary }: { rel: Rel; label: string; primary?: boolean }) => (
     <a
       href={rel.url}
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
+      className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
         primary
-          ? "bg-blue-600 text-white hover:bg-blue-700"
+          ? "bg-[#2563EB] text-white hover:bg-blue-700"
           : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
       }`}
     >
@@ -90,21 +91,22 @@ export default function DownloadPage() {
     </a>
   );
 
+  // Card piattaforma — squadrata, bordo grigio sito; quella consigliata bordo blu.
   const PlatformCard = ({ platform, title, sub, icon }: { platform: Platform; title: string; sub: string; icon: React.ReactNode }) => {
     const archs = (byArch?.[platform] || {}) as Partial<Record<Arch, Rel>>;
     const hasAny = !!(archs.arm64 || archs.x64);
     const isRecommended = recommended?.platform === platform;
 
     return (
-      <div className={`rounded-xl border bg-white p-6 flex flex-col items-center text-center gap-3 ${isRecommended ? "ring-2 ring-blue-500" : ""}`}>
+      <div className={`border bg-white p-6 flex flex-col items-center text-center gap-3 ${isRecommended ? "border-[#2563EB] ring-1 ring-[#2563EB]" : "border-gray-200"}`}>
         {isRecommended && (
-          <div className="text-xs font-medium uppercase tracking-wide text-blue-600 -mb-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2563EB] -mb-1">
             Consigliato per il tuo computer
           </div>
         )}
-        <div className="text-blue-600">{icon}</div>
+        <div className="text-[#2563EB]">{icon}</div>
         <div>
-          <h2 className="font-semibold text-lg">{title}</h2>
+          <h2 className="font-bold text-lg text-gray-900">{title}</h2>
           <p className="text-sm text-gray-500">{sub}</p>
         </div>
         {!hasAny ? (
@@ -141,47 +143,54 @@ export default function DownloadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-16">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-10">
-          <h1 className="text-3xl font-bold">Scarica RescueManager Desktop</h1>
-          <p className="mt-2 text-gray-500">
-            Installa l&apos;app desktop. Dopo l&apos;installazione gli
-            aggiornamenti successivi arrivano automaticamente in-app.
+    <main className="min-h-screen bg-white">
+      {/* Hero scuro, stile sito (#0f172a + accento blu) */}
+      <section className="bg-[#0f172a] px-6 pt-16 pb-14">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white">
+            Scarica RescueManager<span className="text-blue-500">.</span>
+          </h1>
+          <p className="mt-3 text-base md:text-lg text-slate-400 max-w-2xl">
+            Installa l&apos;app desktop. Dopo l&apos;installazione gli aggiornamenti
+            successivi arrivano automaticamente in-app.
           </p>
-        </header>
-
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-7 w-7 animate-spin text-blue-600" />
-          </div>
-        ) : (
-          <>
-            {recommended && (
-              <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 flex items-start gap-2">
-                <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>
-                  Abbiamo rilevato <strong>{platformLabel(recommended.platform)}{recommended.platform === "mac" ? ` · ${archLabel(recommended.arch)}` : ""}</strong>.
-                  Il bottone evidenziato è la versione consigliata.
-                </span>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <PlatformCard platform="win" title="Windows" sub="Windows 10/11 · installer .exe" icon={<Monitor className="h-10 w-10" />} />
-              <PlatformCard platform="mac" title="macOS" sub="Apple Silicon o Intel · .dmg" icon={<Apple className="h-10 w-10" />} />
-              <PlatformCard platform="linux" title="Linux" sub="AppImage / .deb" icon={<Monitor className="h-10 w-10" />} />
-            </div>
-          </>
-        )}
-
-        <div className="mt-10 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          <strong>macOS Apple Silicon vs Intel:</strong> se hai un Mac con chip M1/M2/M3 scarica
-          la versione &quot;Apple Silicon&quot;. I Mac più vecchi (2019 e precedenti)
-          usano la versione &quot;Intel&quot;. In dubbio: apri &gt; Informazioni su questo Mac
-          &gt; cerca &quot;Chip&quot; o &quot;Processore&quot;.
         </div>
-      </div>
-    </div>
+      </section>
+
+      <section className="px-6 py-12">
+        <div className="max-w-5xl mx-auto">
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="h-7 w-7 animate-spin text-[#2563EB]" />
+            </div>
+          ) : (
+            <>
+              {recommended && (
+                <div className="mb-6 border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 flex items-start gap-2">
+                  <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>
+                    Abbiamo rilevato <strong>{platformLabel(recommended.platform)}{recommended.platform === "mac" ? ` · ${archLabel(recommended.arch)}` : ""}</strong>.
+                    Il bottone evidenziato è la versione consigliata.
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <PlatformCard platform="win" title="Windows" sub="Windows 10/11 · installer .exe" icon={<Monitor className="h-10 w-10" />} />
+                <PlatformCard platform="mac" title="macOS" sub="Apple Silicon o Intel · .dmg" icon={<Apple className="h-10 w-10" />} />
+                <PlatformCard platform="linux" title="Linux" sub="AppImage / .deb" icon={<Monitor className="h-10 w-10" />} />
+              </div>
+            </>
+          )}
+
+          <div className="mt-10 border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <strong>macOS Apple Silicon vs Intel:</strong> se hai un Mac con chip M1/M2/M3 scarica
+            la versione &quot;Apple Silicon&quot;. I Mac più vecchi (2019 e precedenti)
+            usano la versione &quot;Intel&quot;. In dubbio: apri &gt; Informazioni su questo Mac
+            &gt; cerca &quot;Chip&quot; o &quot;Processore&quot;.
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
