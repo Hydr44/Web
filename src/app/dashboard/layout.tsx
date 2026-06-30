@@ -11,6 +11,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import LegalConsentModal from "@/components/dashboard/LegalConsentModal";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
 import MaintenanceGate from "@/components/dashboard/MaintenanceGate";
+import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
 
 export default function DashboardLayout({
   children,
@@ -123,7 +124,8 @@ export default function DashboardLayout({
         // Le pagine security/* (incluso /security/2fa per l'enroll) sono
         // safe-zone per evitare loop di redirect.
         const onSecurityPage = pathname?.startsWith('/dashboard/security');
-        if (!onSecurityPage) {
+        // 2FA temporaneamente bloccato (vedi lib/feature-2fa): niente enforcement.
+        if (TWO_FACTOR_ENABLED && !onSecurityPage) {
           try {
             const res = await fetch('/api/auth/2fa-status', { cache: 'no-store' });
             if (!res.ok) {

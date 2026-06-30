@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
 import {
   Shield,
   Key,
@@ -95,7 +96,7 @@ export default function SecurityPage() {
 
   // Azioni residue calcolate sui segnali reali (checklist dinamica, non fissa).
   const todo: { label: string; desc: string; href: string }[] = [];
-  if (!sec.twoFactorEnabled)
+  if (TWO_FACTOR_ENABLED && !sec.twoFactorEnabled)
     todo.push({
       label: "Abilita l'autenticazione a due fattori",
       desc: "Aggiunge un secondo livello di protezione all'accesso.",
@@ -213,6 +214,7 @@ export default function SecurityPage() {
           </div>
         </Link>
 
+        {TWO_FACTOR_ENABLED && (
         <Link
           href="/dashboard/security/2fa"
           className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
@@ -233,6 +235,7 @@ export default function SecurityPage() {
             <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
         </Link>
+        )}
 
         <Link
           href="/dashboard/security/sessions"
