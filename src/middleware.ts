@@ -65,21 +65,23 @@ function buildCorsHeaders(origin: string) {
 }
 
 /**
- * Path che richiedono auth staff fuori dall'albero `/api/staff/admin/*`.
- * Il workflow security audit ha trovato cross-tenant leak su queste route:
- *   - /api/staff/leads/* e /api/staff/users/* (C3)
- *   - /api/staff/support/*, /api/staff/monitoring/*
- *   - /api/monitoring/users (C4)
- *   - /api/version/publish, /api/version/enforce (C5)
- *   - /api/sync/push (C7)
- * Da qui in poi tutte le mutation/leak vanno gate-ate.
+ * AUTH STAFF — allowlist model (fix pentest 2026-07-01).
+ *
+ * PRIMA il gate era per-prefisso con TRAILING SLASH (`/api/staff/leads/`),
+ * quindi le collection senza slash (`/api/staff/leads`, `/api/staff/users`,
+ * `/api/staff/analytics`, `/api/staff/dashboard`) e i seeder (`/api/staff/
+ * create-users`…) cadevano nel ramo CORS-only = ESPOSTI SENZA AUTH (dump PII +
+ * creazione admin non autenticata). Ora si gate-a TUTTO l'albero `/api/staff/`
+ * e si esenta SOLO l'allowlist pubblica (login/logout/seed).
  */
-const STAFF_AUTH_PATHS = [
-  '/api/staff/admin/',
-  '/api/staff/leads/',
-  '/api/staff/users/',
-  '/api/staff/support/',
-  '/api/staff/monitoring/',
+const STAFF_PUBLIC_PATHS = new Set([
+  '/api/staff/auth/login',
+  '/api/staff/auth/seed',
+  '/api/staff/logout',
+]);
+
+// Route sensibili FUORI da /api/staff che pure richiedono auth staff.
+const STAFF_AUTH_EXTRA = [
   '/api/monitoring/users',
   '/api/version/publish',
   '/api/version/enforce',
@@ -87,7 +89,10 @@ const STAFF_AUTH_PATHS = [
 ];
 
 function requiresStaffAuth(pathname: string): boolean {
-  return STAFF_AUTH_PATHS.some((p) => pathname.startsWith(p));
+  if (STAFF_PUBLIC_PATHS.has(pathname)) return false;
+  // Intero albero staff protetto: niente più buchi da trailing-slash.
+  if (pathname.startsWith('/api/staff/')) return true;
+  return STAFF_AUTH_EXTRA.some((p) => pathname.startsWith(p));
 }
 
 export async function middleware(request: NextRequest) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { readPolicy, evaluatePolicy } from "@/lib/appUpdatePolicy";
+import { isAllowedOrigin } from "@/lib/cors";
 
 export const runtime = "nodejs";
 
@@ -10,7 +11,8 @@ export const runtime = "nodejs";
  */
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin');
-  const allowOrigin = origin ?? '*';
+  const allowed = isAllowedOrigin(origin);
+  const allowOrigin = allowed ? origin! : '*';
   const requestedHeaders = request.headers.get('access-control-request-headers') || '*';
 
   const headers: Record<string, string> = {
@@ -20,7 +22,7 @@ export async function OPTIONS(request: NextRequest) {
     'Access-Control-Max-Age': '86400',
   };
 
-  if (origin) {
+  if (allowed) {
     headers['Access-Control-Allow-Credentials'] = 'true';
     headers['Vary'] = 'Origin, Access-Control-Request-Headers';
   }
@@ -30,7 +32,8 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
-  const allowOrigin = origin ?? '*';
+  const allowed = isAllowedOrigin(origin);
+  const allowOrigin = allowed ? origin! : '*';
   const corsJson = (body: any, status = 200) =>
     NextResponse.json(body, {
       status,
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
         'Access-Control-Allow-Origin': allowOrigin,
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': '*',
-        ...(origin ? { 'Access-Control-Allow-Credentials': 'true', Vary: 'Origin' } : {}),
+        ...(allowed ? { 'Access-Control-Allow-Credentials': 'true', Vary: 'Origin' } : {}),
       },
     });
 

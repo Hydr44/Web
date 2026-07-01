@@ -35,6 +35,23 @@ export function corsHeaders(origin?: string | null) {
   };
 }
 
+/**
+ * True se l'origin è nella allowlist (siti + app desktop `app://` + mobile
+ * capacitor + localhost in dev). Usare per NON riflettere origin arbitrari con
+ * `Allow-Credentials: true` (che permetterebbe a un sito esterno di leggere
+ * risposte con la sessione della vittima).
+ */
+export function isAllowedOrigin(origin?: string | null): boolean {
+  if (!origin) return false;
+  const isDev = process.env.NODE_ENV === 'development';
+  return (
+    ALLOWED_ORIGINS.includes(origin) ||
+    origin.startsWith('app://') ||
+    (isDev && origin.startsWith('http://localhost:')) ||
+    (isDev && origin.startsWith('http://127.0.0.1:'))
+  );
+}
+
 export function handleCors(request: Request) {
   const origin = request.headers.get('origin');
 

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import jwt from 'jsonwebtoken';
+import { isAllowedOrigin } from "@/lib/cors";
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // 30 secondi per Supabase queries
@@ -26,14 +27,15 @@ function withCORS(
   allowHeaders: string = DEFAULT_ALLOW_HEADERS
 ) {
   const origin = request.headers.get('origin');
-  const allowOrigin = origin ?? '*';
+  const allowed = isAllowedOrigin(origin);
+  const allowOrigin = allowed ? origin! : '*';
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': allowHeaders,
   };
 
-  if (origin) {
+  if (allowed) {
     headers['Access-Control-Allow-Credentials'] = 'true';
     headers['Vary'] = 'Origin';
   }
@@ -43,7 +45,8 @@ function withCORS(
 
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin');
-  const allowOrigin = origin ?? '*';
+  const allowed = isAllowedOrigin(origin);
+  const allowOrigin = allowed ? origin! : '*';
   const requestedHeaders = request.headers.get('access-control-request-headers');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': allowOrigin,
@@ -53,7 +56,7 @@ export async function OPTIONS(request: NextRequest) {
       : DEFAULT_ALLOW_HEADERS,
     'Access-Control-Max-Age': '86400',
   };
-  if (origin) {
+  if (allowed) {
     headers['Access-Control-Allow-Credentials'] = 'true';
     headers['Vary'] = 'Origin, Access-Control-Request-Headers';
   }

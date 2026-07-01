@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getRequestUser } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export async function POST(req: Request) {
   try {
+    // Auth obbligatoria: prima era pubblica e scriveva subscriptions/profiles
+    // usando l'user_id preso dai metadata Stripe (falsificabile) → hijack piano.
+    const user = await getRequestUser(req);
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    }
+
     const { session_id } = await req.json();
     if (!session_id) {
       return NextResponse.json(
@@ -33,24 +41,19 @@ export async function POST(req: Request) {
 
     const sub = session.subscription as Stripe.Subscription;
 
-    // Tentativi per ricavare user_id e customer_id
-    const userId =
-      session.metadata?.user_id ?? sub.metadata?.user_id ?? null;
+    // SICUREZZA: la sessione Stripe deve appartenere all'utente autenticato, e
+    // scriviamo SEMPRE sul suo id — mai sull'user_id preso dai metadata Stripe.
+    const metaUserId = session.metadata?.user_id ?? sub.metadata?.user_id ?? null;
+    if (metaUserId && metaUserId !== user.id) {
+      return NextResponse.json({ ok: false, error: "session_not_yours" }, { status: 403 });
+    }
+    const userId = user.id;
     const customerId =
       (session.customer as string | undefined) ??
       (sub.customer as string | undefined) ??
       null;
 
     const priceId = sub.items?.data?.[0]?.price?.id ?? null;
-    
-    console.log("Sync debug:", { userId, customerId, priceId, sessionId: session.id });
-
-    if (!userId) {
-      return NextResponse.json(
-        { ok: false, error: "missing_user_id" },
-        { status: 400 }
-      );
-    }
 
     // Aggiorna la tabella subscriptions
     await supabaseAdmin
