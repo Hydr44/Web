@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { isAllowedOrigin } from "@/lib/cors";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,7 @@ function createCorsHeaders(origin: string | null) {
     "Access-Control-Allow-Headers": "*",
   };
 
-  if (origin) {
+  if (origin && isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
     headers["Access-Control-Allow-Credentials"] = "true";
     headers["Vary"] = "Origin";
