@@ -54,6 +54,24 @@ export async function GET(request: Request, { params }: { params: { id: string }
       profile: profilesMap.get(m.user_id) || null,
     }));
 
+    // Ultimo login REALE da auth.users. `user_sessions` non è affidabile
+    // (schema diverso: manca started_at) → prima last_access risultava vuoto
+    // anche se l'utente aveva fatto accesso. getUserById per ogni membro
+    // (pochi) → mappa id → last_sign_in_at.
+    const lastSignInMap = new Map<string, string | null>();
+    await Promise.all(
+      memberIds.map(async (uid) => {
+        try {
+          const { data } = await supabaseAdmin.auth.admin.getUserById(uid);
+          lastSignInMap.set(uid, data?.user?.last_sign_in_at ?? null);
+        } catch {
+          /* ignora singolo */
+        }
+      }),
+    );
+    for (const m of members) (m as any).last_sign_in_at = lastSignInMap.get(m.user_id) ?? null;
+    const lastLoginAll = [...lastSignInMap.values()].filter(Boolean).sort().pop() || null;
+
     // 4. Operators (per cross-check ruoli desktop)
     const { data: operators } = await supabaseAdmin
       .from('operators')
@@ -133,7 +151,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // 9. Stats
     const activeMembersCount = members.length;
     const lastActivity = sessions && sessions.length > 0 ? sessions[0].started_at : null;
-    const lastAccessAt = lastSession?.started_at || lastActivity;
+    // Ultimo accesso: prima il login reale da auth, poi eventuali sessioni.
+    const lastAccessAt = lastLoginAll || lastSession?.started_at || lastActivity;
 
     const client = {
       // Identity
