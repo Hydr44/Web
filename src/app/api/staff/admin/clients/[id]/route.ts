@@ -95,9 +95,45 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .order('started_at', { ascending: false })
       .limit(20);
 
+    // 8b. Ultimo accesso ALL-TIME (non solo 30gg) + conteggi utilizzo del gestionale.
+    //     Tutto server-side con service role → conta anche cross-org.
+    const { data: lastSession } = await supabaseAdmin
+      .from('user_sessions')
+      .select('started_at')
+      .in('user_id', memberIds.length ? memberIds : ['00000000-0000-0000-0000-000000000000'])
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Conteggio robusto: se una tabella non esiste/ha errore ritorna 0 (niente 500).
+    const countOf = async (table: string) => {
+      try {
+        const { count, error } = await supabaseAdmin
+          .from(table)
+          .select('*', { count: 'exact', head: true })
+          .eq('org_id', orgId);
+        return error ? 0 : (count ?? 0);
+      } catch {
+        return 0;
+      }
+    };
+    const [transportsCount, vehiclesCount, clientsCount, driversCount, invoicesCount] = await Promise.all([
+      countOf('transports'),
+      countOf('vehicles'),
+      countOf('clients'),
+      countOf('staff_drivers'),
+      countOf('invoices'),
+    ]);
+    const { count: transports30dRaw } = await supabaseAdmin
+      .from('transports')
+      .select('*', { count: 'exact', head: true })
+      .eq('org_id', orgId)
+      .gt('created_at', thirtyDaysAgo);
+
     // 9. Stats
     const activeMembersCount = members.length;
     const lastActivity = sessions && sessions.length > 0 ? sessions[0].started_at : null;
+    const lastAccessAt = lastSession?.started_at || lastActivity;
 
     const client = {
       // Identity
@@ -142,6 +178,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
       // Activity
       recent_sessions: sessions || [],
       last_activity_at: lastActivity,
+      last_access_at: lastAccessAt,
+      // Utilizzo del gestionale (conteggi)
+      usage: {
+        transports: transportsCount,
+        transports_30d: transports30dRaw ?? 0,
+        vehicles: vehiclesCount,
+        clients: clientsCount,
+        drivers: driversCount,
+        invoices: invoicesCount,
+      },
     };
 
     return NextResponse.json({ success: true, client }, { headers: corsHeaders(origin) });
