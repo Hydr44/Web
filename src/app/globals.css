@@ -185,13 +185,13 @@ main {
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Ottimizzazioni specifiche per iOS Safari */
-  * {
-    -webkit-transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    -webkit-perspective: 1000;
-  }
-  
+  /* NB: qui c'era un `* { -webkit-transform: translateZ(0); -webkit-perspective: 1000 }`
+     pensato come "ottimizzazione iOS". In realtà applicare transform/perspective a
+     OGNI elemento rende ogni antenato il containing block di `position: fixed`/`absolute`:
+     risultato → i fixed (banner cookie, FAB WhatsApp, ecc.) smettono di seguire il
+     viewport e restano ancorati in fondo alla pagina. Rimosso. Per la GPU-acceleration
+     mirata usare la utility `.gpu-accelerated` / `transform-gpu` sui singoli elementi. */
+
   /* Riduci reflow su animazioni */
   .motion-safe\:transform-gpu {
     transform: translateZ(0);
