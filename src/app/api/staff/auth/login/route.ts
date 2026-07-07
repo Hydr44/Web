@@ -5,7 +5,7 @@ import { generateStaffToken } from '@/lib/staff-auth';
 import { checkRateLimit, getRateLimitIdentifier, logSecurityEvent, validateEmail } from '@/lib/security';
 import { maskEmail } from '@/lib/otp';
 import {
-  STAFF_OTP_ENABLED, isTrustedDevice, createAndSendOtp, issueOtpTicket,
+  isStaffOtpEnabled, isTrustedDevice, createAndSendOtp, issueOtpTicket,
   DEVICE_COOKIE, LOGIN_LOCK_THRESHOLD, LOGIN_LOCK_MS,
 } from '@/lib/staff-flows';
 
@@ -160,8 +160,10 @@ export async function POST(req: NextRequest) {
     // ── Step-up OTP (dietro flag): se il dispositivo NON è fidato, non emettiamo
     //    subito il token: mandiamo un OTP via email e restituiamo un "ticket".
     //    Con STAFF_OTP_ENABLED=false il comportamento è identico a prima. ──────
-    if (STAFF_OTP_ENABLED) {
-      const deviceToken = req.cookies.get(DEVICE_COOKIE)?.value;
+    if (await isStaffOtpEnabled()) {
+      // Electron è cross-site rispetto all'API → il cookie sameSite=strict non
+      // viaggia: accettiamo il device token anche via header X-Staff-Device.
+      const deviceToken = req.headers.get('x-staff-device') || req.cookies.get(DEVICE_COOKIE)?.value;
       const trusted = await isTrustedDevice(staff.id, deviceToken);
       if (!trusted) {
         await createAndSendOtp({ id: staff.id, email: staff.email }, 'login', ip);

@@ -22,7 +22,26 @@ import { brandedHtml } from './email-template';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu';
 const JWT_ISSUER = 'rescuemanager-admin';
 
+// Fallback env (build-time). La fonte primaria è il toggle a DB (vedi sotto).
 export const STAFF_OTP_ENABLED = process.env.STAFF_OTP_ENABLED === 'true';
+
+/**
+ * OTP step-up attivo? Letto a RUNTIME da system_settings key='staff_otp'
+ * ({ enabled: bool }), con fallback all'env. Così si accende/spegne all'istante
+ * dal DB SENZA redeploy — escape hatch fondamentale se l'email OTP avesse problemi.
+ */
+export async function isStaffOtpEnabled(): Promise<boolean> {
+  try {
+    const { data } = await supabaseAdmin
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'staff_otp')
+      .maybeSingle();
+    const v = data?.value as { enabled?: boolean } | null;
+    if (v && typeof v.enabled === 'boolean') return v.enabled;
+  } catch { /* DB non raggiungibile → fallback env */ }
+  return STAFF_OTP_ENABLED;
+}
 
 export const INVITE_TTL_MS = 48 * 3600 * 1000;      // 48 ore
 export const DEVICE_TTL_DAYS = 7;
