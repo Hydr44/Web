@@ -1,7 +1,7 @@
 /**
  * Fatturazione clienti (SaaS) — lista + creazione bozza.
  *
- * GET  /api/staff/admin/invoices           → fatture SaaS (serie RM/, org emittente)
+ * GET  /api/staff/admin/invoices?scope=attive|autofatture|passive|all
  * POST /api/staff/admin/invoices           → crea una BOZZA (invoice + invoice_items)
  *
  * La bozza NON viene inviata allo SDI (sdi_status='draft'). L'invio è una fase
@@ -13,9 +13,9 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 import {
-  EMITTER_ORG_ID, SAAS_PREFIX, AF_PREFIX, SDI_PROVIDER, AUTOFATTURA_TIPI,
+  EMITTER_ORG_ID, SDI_PROVIDER, AUTOFATTURA_TIPI,
   nextSaasInvoiceNumber, nextAutofatturaNumber, computeTotals, loadCustomerFiscal, loadSupplierFiscal,
-  type InvoiceItemInput,
+  listInvoices, type InvoiceItemInput, type InvoiceScope,
 } from '@/lib/admin-invoices';
 
 export async function GET(request: NextRequest) {
@@ -25,31 +25,10 @@ export async function GET(request: NextRequest) {
   if (!staff) return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401, headers });
 
   try {
-    const { data, error } = await supabaseAdmin
-      .from('invoices')
-      .select('id, number, date, total, currency, sdi_status, payment_status, customer_name, customer_vat, direction, meta, created_at')
-      .eq('org_id', EMITTER_ORG_ID)
-      .or(`number.like.${SAAS_PREFIX}/%,number.like.${AF_PREFIX}/%`)
-      .order('created_at', { ascending: false })
-      .limit(500);
-    if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500, headers });
-
-    const invoices = (data || []).map((r) => ({
-      id: r.id,
-      number: r.number,
-      date: r.date,
-      total: Number(r.total) || 0,
-      currency: r.currency || 'EUR',
-      sdi_status: r.sdi_status || 'draft',
-      payment_status: r.payment_status || 'unpaid',
-      customer_name: r.customer_name,
-      customer_vat: r.customer_vat,
-      billed_org_id: (r.meta as any)?.saas?.billed_org_id || null,
-      plan: (r.meta as any)?.saas?.plan || null,
-      kind: r.direction === 'passive' ? 'autofattura' : 'fattura',
-      tipo_documento: (r.meta as any)?.sdi?.documento?.tipo_documento || null,
-      created_at: r.created_at,
-    }));
+    const raw = (request.nextUrl.searchParams.get('scope') || 'attive').toLowerCase();
+    const scope: InvoiceScope = (['attive', 'autofatture', 'passive', 'all'] as const).includes(raw as any)
+      ? (raw as InvoiceScope) : 'attive';
+    const invoices = await listInvoices(scope);
     return NextResponse.json({ success: true, invoices }, { headers });
   } catch (e: any) {
     console.error('[admin invoices GET] error:', e);
@@ -72,9 +51,23 @@ export async function POST(request: NextRequest) {
     const items: InvoiceItemInput[] = Array.isArray(body.items) ? body.items : [];
     const dateStr = body.date ? new Date(body.date).toISOString() : new Date().toISOString();
     const noteExternal = body.note_external ? String(body.note_external) : null;
+    const causale = body.causale ? String(body.causale) : null;
+
+    // Dati pagamento opzionali (DatiPagamento FatturaPA) → meta.pagamento.
+    const pagamento: Record<string, unknown> | null = (body.modalita_pagamento || body.scadenza || body.iban)
+      ? {
+          modalita: body.modalita_pagamento ? String(body.modalita_pagamento) : null,
+          scadenza: body.scadenza ? new Date(body.scadenza).toISOString().slice(0, 10) : null,
+          iban: body.iban ? String(body.iban).replace(/\s+/g, '') : null,
+        }
+      : null;
 
     if (!items.length || items.some((i) => !i.description || !(Number(i.qty) > 0))) {
       return NextResponse.json({ success: false, error: 'Almeno una riga valida (descrizione + quantità) richiesta' }, { status: 400, headers });
+    }
+    // Natura IVA obbligatoria sulle righe con aliquota 0.
+    if (items.some((i) => (Number(i.vat_perc) || 0) === 0 && !i.vat_nature)) {
+      return NextResponse.json({ success: false, error: 'Le righe con IVA 0% richiedono la Natura (es. N6.9, N4, N2.2)' }, { status: 400, headers });
     }
 
     // Controparte + serie + tipo documento in base al modo.
@@ -130,10 +123,16 @@ export async function POST(request: NextRequest) {
           sdi_status: 'draft',
           payment_status: 'unpaid',
           note_external: noteExternal,
+          bollo_virtuale: totals.bollo > 0,
+          bollo_importo: totals.bollo || null,
           meta: {
             ...metaExtra,
             imponibile: totals.imponibile,
-            iva: totals.iva,
+            iva: totals.imposta,
+            bollo: totals.bollo,
+            riepilogo: totals.riepilogo,
+            causale,
+            ...(pagamento ? { pagamento } : {}),
             sdi: {
               controparte: {
                 denominazione: counterparty.name, partita_iva: counterparty.vat, codice_fiscale: counterparty.tax_code,
@@ -153,16 +152,22 @@ export async function POST(request: NextRequest) {
     if (!invoiceId) return NextResponse.json({ success: false, error: 'Impossibile assegnare un numero univoco' }, { status: 409, headers });
 
     // Righe
-    const rows = items.map((it) => ({
-      invoice_id: invoiceId,
-      // Nelle fatture esistenti il testo riga sta in item_code (NOT NULL) ed è
-      // ciò che il generatore XML usa come descrizione. item_description resta gemello.
-      item_code: it.description,
-      item_description: it.description,
-      qty: Number(it.qty) || 1,
-      price: Number(it.price) || 0,
-      vat_perc: Number(it.vat_perc) || 0,
-    }));
+    const rows = items.map((it) => {
+      const disc = Number(it.discount_perc) || 0;
+      return {
+        invoice_id: invoiceId,
+        // Nelle fatture esistenti il testo riga sta in item_code (NOT NULL) ed è
+        // ciò che il generatore XML usa come descrizione. item_description resta gemello.
+        item_code: it.description,
+        item_description: it.description,
+        qty: Number(it.qty) || 1,
+        price: Number(it.price) || 0,
+        vat_perc: Number(it.vat_perc) || 0,
+        vat_nature: (Number(it.vat_perc) || 0) === 0 ? (it.vat_nature || null) : null,
+        discount_type: disc > 0 ? 'percent' : null,
+        discount_value: disc > 0 ? disc : null,
+      };
+    });
     const { error: itemsErr } = await supabaseAdmin.from('invoice_items').insert(rows);
     if (itemsErr) {
       // rollback best-effort della testata per non lasciare fatture senza righe
@@ -172,7 +177,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      invoice: { id: invoiceId, number, total: totals.totale, imponibile: totals.imponibile, iva: totals.iva, sdi_status: 'draft' },
+      invoice: { id: invoiceId, number, total: totals.totale, imponibile: totals.imponibile, iva: totals.imposta, sdi_status: 'draft' },
     }, { headers });
   } catch (e: any) {
     console.error('[admin invoices POST] error:', e);
