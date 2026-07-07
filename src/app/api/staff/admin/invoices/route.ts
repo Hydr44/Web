@@ -13,7 +13,8 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 import {
-  EMITTER_ORG_ID, SAAS_PREFIX, SDI_PROVIDER, nextSaasInvoiceNumber, computeTotals, loadCustomerFiscal,
+  EMITTER_ORG_ID, SAAS_PREFIX, AF_PREFIX, SDI_PROVIDER, AUTOFATTURA_TIPI,
+  nextSaasInvoiceNumber, nextAutofatturaNumber, computeTotals, loadCustomerFiscal, loadSupplierFiscal,
   type InvoiceItemInput,
 } from '@/lib/admin-invoices';
 
@@ -26,9 +27,9 @@ export async function GET(request: NextRequest) {
   try {
     const { data, error } = await supabaseAdmin
       .from('invoices')
-      .select('id, number, date, total, currency, sdi_status, payment_status, customer_name, customer_vat, meta, created_at')
+      .select('id, number, date, total, currency, sdi_status, payment_status, customer_name, customer_vat, direction, meta, created_at')
       .eq('org_id', EMITTER_ORG_ID)
-      .like('number', `${SAAS_PREFIX}/%`)
+      .or(`number.like.${SAAS_PREFIX}/%,number.like.${AF_PREFIX}/%`)
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500, headers });
@@ -45,6 +46,8 @@ export async function GET(request: NextRequest) {
       customer_vat: r.customer_vat,
       billed_org_id: (r.meta as any)?.saas?.billed_org_id || null,
       plan: (r.meta as any)?.saas?.plan || null,
+      kind: r.direction === 'passive' ? 'autofattura' : 'fattura',
+      tipo_documento: (r.meta as any)?.sdi?.documento?.tipo_documento || null,
       created_at: r.created_at,
     }));
     return NextResponse.json({ success: true, invoices }, { headers });
@@ -65,55 +68,78 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const billedOrgId = String(body.billed_org_id || '').trim();
+    const mode: 'fattura' | 'autofattura' = body.mode === 'autofattura' ? 'autofattura' : 'fattura';
     const items: InvoiceItemInput[] = Array.isArray(body.items) ? body.items : [];
     const dateStr = body.date ? new Date(body.date).toISOString() : new Date().toISOString();
-    const plan = body.plan ? String(body.plan) : null;
-    const period = body.period ? String(body.period) : null;
     const noteExternal = body.note_external ? String(body.note_external) : null;
 
-    if (!billedOrgId) return NextResponse.json({ success: false, error: 'Cliente (billed_org_id) richiesto' }, { status: 400, headers });
     if (!items.length || items.some((i) => !i.description || !(Number(i.qty) > 0))) {
       return NextResponse.json({ success: false, error: 'Almeno una riga valida (descrizione + quantità) richiesta' }, { status: 400, headers });
     }
 
-    // Dati fiscali del cliente destinatario
-    const cust = await loadCustomerFiscal(billedOrgId);
-    if (!cust) return NextResponse.json({ success: false, error: 'Cliente non trovato' }, { status: 404, headers });
+    // Controparte + serie + tipo documento in base al modo.
+    let counterparty: Awaited<ReturnType<typeof loadSupplierFiscal>>;
+    let direction: 'active' | 'passive';
+    let tipoDocumento: string;
+    let makeNumber: (y: number) => Promise<string>;
+    const metaExtra: Record<string, unknown> = {};
+
+    if (mode === 'autofattura') {
+      const supplierId = String(body.supplier_id || '').trim();
+      const tipo = String(body.tipo_documento || '');
+      if (!supplierId) return NextResponse.json({ success: false, error: 'Fornitore richiesto' }, { status: 400, headers });
+      if (!AUTOFATTURA_TIPI.includes(tipo as typeof AUTOFATTURA_TIPI[number])) {
+        return NextResponse.json({ success: false, error: `Tipo documento non valido (ammessi: ${AUTOFATTURA_TIPI.join(', ')})` }, { status: 400, headers });
+      }
+      counterparty = await loadSupplierFiscal(supplierId);
+      if (!counterparty) return NextResponse.json({ success: false, error: 'Fornitore non trovato' }, { status: 404, headers });
+      direction = 'passive'; tipoDocumento = tipo; makeNumber = nextAutofatturaNumber;
+      metaExtra.autofattura = { supplier_id: supplierId };
+    } else {
+      const billedOrgId = String(body.billed_org_id || '').trim();
+      if (!billedOrgId) return NextResponse.json({ success: false, error: 'Cliente (billed_org_id) richiesto' }, { status: 400, headers });
+      const cust = await loadCustomerFiscal(billedOrgId);
+      if (!cust) return NextResponse.json({ success: false, error: 'Cliente non trovato' }, { status: 404, headers });
+      counterparty = { ...cust, paese: null };
+      direction = 'active'; tipoDocumento = 'TD01'; makeNumber = nextSaasInvoiceNumber;
+      metaExtra.saas = { billed_org_id: billedOrgId, plan: body.plan ? String(body.plan) : null, period: body.period ? String(body.period) : null };
+    }
 
     const totals = computeTotals(items);
     const year = new Date(dateStr).getUTCFullYear();
 
-    // Crea la fattura con numerazione dedicata; retry su collisione numero (23505).
+    // Numerazione dedicata; retry su collisione (23505).
     let invoiceId: string | null = null;
     let number = '';
     for (let attempt = 0; attempt < 3 && !invoiceId; attempt++) {
-      number = await nextSaasInvoiceNumber(year);
+      number = await makeNumber(year);
       const { data: inv, error: insErr } = await supabaseAdmin
         .from('invoices')
         .insert({
           org_id: EMITTER_ORG_ID,
-          direction: 'active',
+          direction,
           provider_id: SDI_PROVIDER,
           number,
           date: dateStr,
           currency: 'EUR',
           total: totals.totale,
-          customer_name: cust.name,
-          customer_vat: cust.vat,
-          customer_tax_code: cust.tax_code,
-          customer_address: cust.address,
+          customer_name: counterparty.name,
+          customer_vat: counterparty.vat,
+          customer_tax_code: counterparty.tax_code,
+          customer_address: counterparty.address,
           sdi_status: 'draft',
           payment_status: 'unpaid',
           note_external: noteExternal,
           meta: {
-            saas: { billed_org_id: billedOrgId, plan, period, imponibile: totals.imponibile, iva: totals.iva },
+            ...metaExtra,
+            imponibile: totals.imponibile,
+            iva: totals.iva,
             sdi: {
-              cessionario: {
-                denominazione: cust.name, partita_iva: cust.vat, codice_fiscale: cust.tax_code,
-                pec: cust.pec, codice_destinatario: cust.codice_destinatario, regime_fiscale: cust.regime_fiscale,
+              controparte: {
+                denominazione: counterparty.name, partita_iva: counterparty.vat, codice_fiscale: counterparty.tax_code,
+                pec: counterparty.pec, codice_destinatario: counterparty.codice_destinatario, regime_fiscale: counterparty.regime_fiscale,
               },
-              documento: { tipo_documento: 'TD01' },
+              documento: { tipo_documento: tipoDocumento },
             },
           },
         })
@@ -121,11 +147,10 @@ export async function POST(request: NextRequest) {
         .single();
       if (!insErr && inv) { invoiceId = inv.id; break; }
       if ((insErr as any)?.code !== '23505') {
-        return NextResponse.json({ success: false, error: `Errore creazione fattura: ${insErr?.message}` }, { status: 500, headers });
+        return NextResponse.json({ success: false, error: `Errore creazione: ${insErr?.message}` }, { status: 500, headers });
       }
-      // collisione numero → ricalcola e riprova
     }
-    if (!invoiceId) return NextResponse.json({ success: false, error: 'Impossibile assegnare un numero fattura univoco' }, { status: 409, headers });
+    if (!invoiceId) return NextResponse.json({ success: false, error: 'Impossibile assegnare un numero univoco' }, { status: 409, headers });
 
     // Righe
     const rows = items.map((it) => ({

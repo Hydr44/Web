@@ -21,19 +21,40 @@ export interface InvoiceItemInput {
   vat_perc: number;  // aliquota IVA %
 }
 
-/** Prossimo numero della serie SaaS `RM/YYYY/NNNN` (progressivo annuo). */
-export async function nextSaasInvoiceNumber(year: number): Promise<string> {
+export const AF_PREFIX = 'AF';                       // serie autofatture
+export const AUTOFATTURA_TIPI = ['TD16', 'TD17', 'TD18'] as const; // reverse charge interno / servizi estero / beni intra-UE
+
+async function nextNumber(prefix: string, year: number): Promise<string> {
   const { data } = await supabaseAdmin
     .from('invoices')
     .select('number')
     .eq('org_id', EMITTER_ORG_ID)
-    .like('number', `${SAAS_PREFIX}/${year}/%`);
+    .like('number', `${prefix}/${year}/%`);
   let max = 0;
   for (const r of data || []) {
     const m = /\/(\d+)\s*$/.exec(r.number || '');
     if (m) max = Math.max(max, parseInt(m[1], 10));
   }
-  return `${SAAS_PREFIX}/${year}/${String(max + 1).padStart(4, '0')}`;
+  return `${prefix}/${year}/${String(max + 1).padStart(4, '0')}`;
+}
+
+/** Prossimo numero serie SaaS `RM/YYYY/NNNN`. */
+export function nextSaasInvoiceNumber(year: number): Promise<string> { return nextNumber(SAAS_PREFIX, year); }
+/** Prossimo numero serie autofatture `AF/YYYY/NNNN`. */
+export function nextAutofatturaNumber(year: number): Promise<string> { return nextNumber(AF_PREFIX, year); }
+
+/** Dati fiscali di un fornitore (per le autofatture) dal registro suppliers. */
+export async function loadSupplierFiscal(supplierId: string): Promise<{
+  name: string; vat: string | null; tax_code: string | null; pec: string | null;
+  codice_destinatario: string | null; address: any; regime_fiscale: string | null; paese: string | null;
+} | null> {
+  const { data } = await supabaseAdmin.from('suppliers').select('*').eq('id', supplierId).maybeSingle();
+  if (!data) return null;
+  return {
+    name: data.denominazione, vat: data.vat, tax_code: data.tax_code, pec: data.pec,
+    codice_destinatario: data.codice_destinatario, address: data.address,
+    regime_fiscale: data.regime_fiscale, paese: data.paese,
+  };
 }
 
 /** Totali di una fattura dai suoi item (imponibile, IVA, totale lordo). */
