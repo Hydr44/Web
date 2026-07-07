@@ -1,4 +1,5 @@
 // Staff Audit Log System
+import { supabaseAdmin } from './supabase-admin';
 
 export interface AuditLogEntry {
   id: string;
@@ -69,9 +70,26 @@ export class AuditLogger {
     };
 
     this.logs.push(entry);
-    
-    // In a real implementation, you would save to database here
-    console.log('Audit Log:', entry);
+
+    // Persistenza REALE su DB (staff_audit_log). Best-effort: un errore di audit
+    // non deve mai far fallire l'azione principale che l'ha generato.
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+      await supabaseAdmin.from('staff_audit_log').insert({
+        staff_id: isUuid ? userId : null,        // 'system'/anonimo → null (colonna resa nullable)
+        staff_email: userName || null,           // etichetta attore (nome o email)
+        action,
+        target_type: resourceType || null,
+        target_id: resourceId || null,
+        target_label: resourceName || null,
+        details: { ...(details || {}), actor_role: userRole, success, ...(errorMessage ? { error: errorMessage } : {}) },
+        ip_address: this.getClientIP(request),
+        user_agent: this.getUserAgent(request),
+        org_id: (details && (details.org_id as string)) || null,
+      });
+    } catch (e) {
+      console.error('[audit] insert staff_audit_log fallito:', e);
+    }
   }
 
   async getLogs(
