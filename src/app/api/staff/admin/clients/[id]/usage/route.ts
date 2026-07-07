@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     // Identità org
     const { data: org, error: orgErr } = await supabaseAdmin
-      .from('orgs').select('id, name, created_at, is_demo').eq('id', orgId).single();
+      .from('orgs').select('id, name, created_at, is_demo, desktop_modules').eq('id', orgId).single();
     if (orgErr || !org) return NextResponse.json({ success: false, error: 'Cliente non trovato' }, { status: 404, headers });
 
     const { data: settings } = await supabaseAdmin.from('org_settings').select('key, value').eq('org_id', orgId);
@@ -96,7 +96,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     // Moduli attivi
     const { data: mods } = await supabaseAdmin.from('org_modules').select('module, status').eq('org_id', orgId);
-    const modulesEnabled = (mods || []).filter((m: any) => m.status === 'active' || m.status === 'trial').map((m: any) => m.module);
+    const orgModuleList = (mods || []).filter((m: any) => m.status === 'active' || m.status === 'trial').map((m: any) => m.module);
+    // Fallback: molte org tengono i moduli in orgs.desktop_modules (array) e non
+    // in org_modules → usiamo quello se org_modules è vuoto.
+    const modulesEnabled = orgModuleList.length ? orgModuleList : (Array.isArray(org.desktop_modules) ? org.desktop_modules : []);
 
     return NextResponse.json({
       success: true,
