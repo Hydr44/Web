@@ -3,11 +3,11 @@ import { Suspense } from "react";
 import HomeClient from "./_HomeClient";
 
 export const metadata: Metadata = {
-  // Title bilanciato per non penalizzare gli autodemolitori nei risultati Google.
-  // L'ordine delle parole conta: la prima dopo il brand pesa di più.
-  title: "Gestionale per autodemolitori, soccorso stradale e officine",
+  // Focus soccorso stradale + trasporti (prima parola dopo il brand = più peso),
+  // poi autodemolitori. Niente officine/carrozzerie (non è il nostro pubblico).
+  title: "Gestionale per soccorso stradale, trasporti e autodemolitori",
   description:
-    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Prova gratis 30 giorni, installazione inclusa.",
+    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica SDI, Registro RENTRI rifiuti, Registro VFU, custodia veicoli e ricambi. Prova gratis 30 giorni, installazione inclusa.",
 };
 
 export default function Home() {

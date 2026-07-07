@@ -9,7 +9,7 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "RescueManager — Gestionale soccorso stradale e autodemolizione",
+    name: "RescueManager — Gestionale soccorso stradale, trasporti e autodemolizione",
     short_name: "RescueManager",
     description:
       "Software gestionale per soccorso stradale e autodemolizioni. Soccorso & trasporti, RVFU, RENTRI, fatturazione SDI.",
