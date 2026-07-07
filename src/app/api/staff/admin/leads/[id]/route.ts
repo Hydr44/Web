@@ -151,6 +151,12 @@ export async function DELETE(
     // email_campaigns ha ON DELETE SET NULL nella migration, lo rendiamo esplicito
     await supabaseAdmin.from('email_campaigns').update({ lead_id: null }).eq('lead_id', leadId);
 
+    // BUGFIX: orgs.converted_from_lead_id ha FK verso leads(id) SENZA ON DELETE
+    // (= NO ACTION) → un lead già convertito in cliente era BLOCCATO in delete
+    // (23503) e falliva "senza motivo". Nullifichiamo il puntatore dall'org
+    // (il cliente resta, si gestisce da Clienti) così il lead è eliminabile.
+    await supabaseAdmin.from('orgs').update({ converted_from_lead_id: null }).eq('converted_from_lead_id', leadId);
+
     // Lead stesso
     const { error: deleteErr } = await supabaseAdmin.from('leads').delete().eq('id', leadId);
     if (deleteErr) {

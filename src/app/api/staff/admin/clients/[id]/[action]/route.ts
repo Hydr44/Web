@@ -17,6 +17,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
+import { deleteOrgCascade } from '@/lib/admin-delete';
 
 export async function POST(
   request: Request,
@@ -31,23 +32,11 @@ export async function POST(
 
     switch (action) {
       case 'delete': {
-        // Cascade cleanup (allineato a /organizations delete)
-        await supabaseAdmin.from('leads').update({ demo_org_id: null }).eq('demo_org_id', orgId);
-        await supabaseAdmin.from('lead_demos').delete().eq('demo_org_id', orgId);
-        await supabaseAdmin.from('org_subscriptions').delete().eq('org_id', orgId);
-        await supabaseAdmin.from('org_settings').delete().eq('org_id', orgId);
-        await supabaseAdmin.from('operators').delete().eq('org_id', orgId);
-        await supabaseAdmin.from('org_modules').delete().eq('org_id', orgId);
-        await supabaseAdmin.from('org_members').delete().eq('org_id', orgId);
-
-        // Nullifica profiles.current_org se puntava qui
-        await supabaseAdmin.from('profiles').update({ current_org: null }).eq('current_org', orgId);
-
-        const { error: orgErr } = await supabaseAdmin.from('orgs').delete().eq('id', orgId);
-        if (orgErr) {
-          return NextResponse.json({ success: false, error: orgErr.message }, { status: 500, headers: corsHeaders(origin) });
+        // Cascade centralizzato (condiviso con clients/bulk) — vedi admin-delete.ts
+        const res = await deleteOrgCascade(orgId);
+        if (!res.success) {
+          return NextResponse.json({ success: false, error: res.error }, { status: 500, headers: corsHeaders(origin) });
         }
-
         responseData = { success: true, message: 'Cliente eliminato con successo' };
         break;
       }
