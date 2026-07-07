@@ -11,7 +11,7 @@ export async function GET() {
     // Conteggio sessioni attive per arricchire la lista
     const { data: staffUsers, error } = await supabaseAdmin
       .from('staff')
-      .select('id, email, full_name, role, is_active, last_login_at, last_login_ip, created_at, updated_at')
+      .select('id, email, full_name, role, is_active, status, email_verified_at, last_login_at, last_login_ip, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -46,6 +46,10 @@ export async function GET() {
       last_login: user.last_login_at,
       last_login_ip: user.last_login_ip,
       status: user.is_active ? 'active' : 'inactive',
+      // Ciclo di vita reale (invited/active/suspended) per distinguere gli
+      // inviti in sospeso dagli account attivi nell'UI.
+      account_status: user.status || (user.is_active ? 'active' : 'suspended'),
+      email_verified: !!user.email_verified_at,
       session_count: sessionCount.get(user.id) || 0,
       total_actions: 0
     }));
