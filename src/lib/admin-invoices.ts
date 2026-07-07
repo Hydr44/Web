@@ -10,6 +10,9 @@ import { supabaseAdmin } from './supabase-admin';
 // Org emittente = "RescueManager S.R.L.". Override via env se cambia.
 export const EMITTER_ORG_ID = process.env.RESCUEMANAGER_ORG_ID || '1ea3be12-a439-46ac-94d9-eaff1bb346c2';
 export const SAAS_PREFIX = 'RM';
+// Ambiente SDI per queste fatture (colonna invoices.provider_id, NOT NULL).
+// Le bozze non vengono inviate: si passa a 'sdi_prod' quando si attiva l'invio reale.
+export const SDI_PROVIDER = process.env.SAAS_SDI_PROVIDER || 'sdi_test';
 
 export interface InvoiceItemInput {
   description: string;
