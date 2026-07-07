@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { findProtectedStaffIds } from '@/lib/staff-protected';
 
 const VALID_ROLES = ['super_admin', 'admin', 'marketing', 'sales', 'support', 'staff'];
 
@@ -12,6 +13,17 @@ export async function POST(
     const { id: staffId, action } = params;
 
     console.log(`Performing action ${action} on staff ${staffId}`);
+
+    // Guard account primario protetto: non eliminabile né sospendibile.
+    if (action === 'delete' || action === 'suspend') {
+      const prot = await findProtectedStaffIds([staffId]);
+      if (prot.has(staffId)) {
+        return NextResponse.json({
+          success: false,
+          error: 'Account primario protetto: non può essere eliminato o sospeso.',
+        }, { status: 403 });
+      }
+    }
 
     let message;
 
