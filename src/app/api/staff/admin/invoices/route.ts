@@ -13,7 +13,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 import {
-  EMITTER_ORG_ID, SAAS_PREFIX, nextSaasInvoiceNumber, computeTotals, loadCustomerFiscal,
+  EMITTER_ORG_ID, SAAS_PREFIX, SDI_PROVIDER, nextSaasInvoiceNumber, computeTotals, loadCustomerFiscal,
   type InvoiceItemInput,
 } from '@/lib/admin-invoices';
 
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
         .insert({
           org_id: EMITTER_ORG_ID,
           direction: 'active',
+          provider_id: SDI_PROVIDER,
           number,
           date: dateStr,
           currency: 'EUR',
