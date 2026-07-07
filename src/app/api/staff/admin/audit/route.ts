@@ -4,7 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 /**
  * GET /api/staff/admin/audit?dateRange=1d|7d|30d|90d
  * Legge lo storico azioni staff da `staff_audit_log` (DB reale) e mappa le
- * colonne (target_*/staff_*) sui nomi attesi dal frontend (resource_*/user_*).
+ * colonne DB (target_type/target_id, staff_id/staff_email) sui nomi attesi
+ * dal frontend (resource_type/resource_id, user_id/user_email).
  */
 export async function GET(request: Request) {
   try {
