@@ -1,0 +1,70 @@
+/**
+ * Fatturazione clienti (SaaS) — helper admin.
+ * RescueManager SRL (org emittente) fattura le org clienti per l'abbonamento.
+ * Riusa la tabella `invoices` (+ `invoice_items`) e la serie DEDICATA `RM/YYYY/NNN`
+ * per non mischiarsi con le fatture operative dell'org (numerate `NN/YYYY`).
+ * Ref: docs/specs/admin-fatturazione-clienti.md
+ */
+import { supabaseAdmin } from './supabase-admin';
+
+// Org emittente = "RescueManager S.R.L.". Override via env se cambia.
+export const EMITTER_ORG_ID = process.env.RESCUEMANAGER_ORG_ID || '1ea3be12-a439-46ac-94d9-eaff1bb346c2';
+export const SAAS_PREFIX = 'RM';
+
+export interface InvoiceItemInput {
+  description: string;
+  qty: number;
+  price: number;     // prezzo unitario netto (imponibile)
+  vat_perc: number;  // aliquota IVA %
+}
+
+/** Prossimo numero della serie SaaS `RM/YYYY/NNNN` (progressivo annuo). */
+export async function nextSaasInvoiceNumber(year: number): Promise<string> {
+  const { data } = await supabaseAdmin
+    .from('invoices')
+    .select('number')
+    .eq('org_id', EMITTER_ORG_ID)
+    .like('number', `${SAAS_PREFIX}/${year}/%`);
+  let max = 0;
+  for (const r of data || []) {
+    const m = /\/(\d+)\s*$/.exec(r.number || '');
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return `${SAAS_PREFIX}/${year}/${String(max + 1).padStart(4, '0')}`;
+}
+
+/** Totali di una fattura dai suoi item (imponibile, IVA, totale lordo). */
+export function computeTotals(items: InvoiceItemInput[]): { imponibile: number; iva: number; totale: number } {
+  let imponibile = 0;
+  let iva = 0;
+  for (const it of items) {
+    const net = (Number(it.qty) || 0) * (Number(it.price) || 0);
+    imponibile += net;
+    iva += net * ((Number(it.vat_perc) || 0) / 100);
+  }
+  const round = (n: number) => Math.round(n * 100) / 100;
+  return { imponibile: round(imponibile), iva: round(iva), totale: round(imponibile + iva) };
+}
+
+/** Dati fiscali del cliente (destinatario) da org_settings.company. */
+export async function loadCustomerFiscal(orgId: string): Promise<{
+  name: string; vat: string | null; tax_code: string | null; pec: string | null;
+  codice_destinatario: string | null; address: any; regime_fiscale: string | null;
+} | null> {
+  const { data: org } = await supabaseAdmin.from('orgs').select('id, name').eq('id', orgId).maybeSingle();
+  if (!org) return null;
+  const { data: rows } = await supabaseAdmin.from('org_settings').select('key, value').eq('org_id', orgId);
+  const map: Record<string, any> = {};
+  for (const r of rows || []) map[r.key] = r.value;
+  const company = map.company || {};
+  const sdi = map.sdi || {};
+  return {
+    name: company.company_name || org.name,
+    vat: company.vat || null,
+    tax_code: company.tax_code || null,
+    pec: sdi.pec || company.pec || null,
+    codice_destinatario: sdi.codice_destinatario || company.codice_destinatario || null,
+    address: company.address || null,
+    regime_fiscale: sdi.regime_fiscale || company.regime_fiscale || null,
+  };
+}
