@@ -130,6 +130,9 @@ export async function POST(request: NextRequest) {
     // Righe
     const rows = items.map((it) => ({
       invoice_id: invoiceId,
+      // Nelle fatture esistenti il testo riga sta in item_code (NOT NULL) ed è
+      // ciò che il generatore XML usa come descrizione. item_description resta gemello.
+      item_code: it.description,
       item_description: it.description,
       qty: Number(it.qty) || 1,
       price: Number(it.price) || 0,
