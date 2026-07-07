@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   // poi autodemolitori. Niente officine/carrozzerie (non è il nostro pubblico).
   title: "Gestionale per soccorso stradale, trasporti e autodemolitori",
   description:
-    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica SDI, Registro RENTRI rifiuti, Registro VFU, custodia veicoli e ricambi. Prova gratis 30 giorni, installazione inclusa.",
+    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica SDI, Registro RENTRI rifiuti, Registro VFU, custodia veicoli e ricambi. 14 giorni soddisfatti o rimborsati, installazione inclusa.",
 };
 
 export default function Home() {

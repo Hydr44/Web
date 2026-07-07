@@ -585,7 +585,7 @@ export default function HomeClient() {
                             <span className="text-6xl font-extrabold text-blue-500">3</span>
                             <h3 className="text-lg font-extrabold text-[#0f172a] mb-2 mt-2">Inizi a lavorare</h3>
                             <p className="text-sm text-gray-500">
-                                Provi gratis per 30 giorni. Se non ti convince, non paghi nulla. Nessun vincolo.
+                                14 giorni soddisfatti o rimborsati: se non ti convince, ti restituiamo tutto. Nessun vincolo.
                             </p>
                         </div>
                     </div>
