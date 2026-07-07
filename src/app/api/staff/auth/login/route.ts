@@ -3,6 +3,11 @@ import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { generateStaffToken } from '@/lib/staff-auth';
 import { checkRateLimit, getRateLimitIdentifier, logSecurityEvent, validateEmail } from '@/lib/security';
+import { maskEmail } from '@/lib/otp';
+import {
+  STAFF_OTP_ENABLED, isTrustedDevice, createAndSendOtp, issueOtpTicket,
+  DEVICE_COOKIE, LOGIN_LOCK_THRESHOLD, LOGIN_LOCK_MS,
+} from '@/lib/staff-flows';
 
 function getCorsHeaders(origin: string | null) {
   // Admin panel ora e' Electron desktop (origin `app://` in prod). Sottodominio
@@ -84,7 +89,7 @@ export async function POST(req: NextRequest) {
     // Find staff by email
     const { data: staff, error } = await supabaseAdmin
       .from('staff')
-      .select('id, email, password_hash, full_name, role, is_active')
+      .select('id, email, password_hash, full_name, role, is_active, status, failed_login_count, locked_until')
       .eq('email', email.toLowerCase().trim())
       .single();
 
@@ -95,29 +100,84 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!staff.is_active) {
+    if (!staff.is_active || staff.status === 'suspended') {
       return NextResponse.json(
         { success: false, error: 'Account disabilitato. Contatta un amministratore.' },
         { status: 403, headers: corsHeaders }
       );
     }
 
+    // Lockout durevole (a DB): dopo troppi tentativi falliti l'account è bloccato
+    // per LOGIN_LOCK_MS a prescindere dal rate-limit per-IP (best-effort su serverless).
+    if (staff.locked_until && new Date(staff.locked_until).getTime() > Date.now()) {
+      const mins = Math.ceil((new Date(staff.locked_until).getTime() - Date.now()) / 60000);
+      return NextResponse.json(
+        { success: false, error: `Account temporaneamente bloccato. Riprova tra ${mins} minuti.` },
+        { status: 429, headers: corsHeaders }
+      );
+    }
+
+    // Account invitato ma senza password ancora impostata (o disattivo):
+    // non facciamo bcrypt.compare su null.
+    if (!staff.password_hash) {
+      return NextResponse.json(
+        { success: false, error: staff.status === 'invited' ? 'Completa prima l\'invito ricevuto via email.' : 'Credenziali non valide' },
+        { status: staff.status === 'invited' ? 403 : 401, headers: corsHeaders }
+      );
+    }
+
     // Verify password
     const passwordValid = await bcrypt.compare(password, staff.password_hash);
     if (!passwordValid) {
-      // Log failed attempt
+      // Incrementa il contatore fallimenti; oltre soglia → lock temporaneo.
+      const nextCount = (staff.failed_login_count || 0) + 1;
+      const lock = nextCount >= LOGIN_LOCK_THRESHOLD;
+      await supabaseAdmin.from('staff').update(
+        lock
+          ? { failed_login_count: 0, locked_until: new Date(Date.now() + LOGIN_LOCK_MS).toISOString() }
+          : { failed_login_count: nextCount },
+      ).eq('id', staff.id);
+
       await logSecurityEvent({
         type: 'login_failed',
         email: staff.email,
         ip_address: ip,
         user_agent: userAgent,
-        metadata: { reason: 'invalid_password', endpoint: 'staff_login' },
+        metadata: { reason: 'invalid_password', endpoint: 'staff_login', locked: lock },
       });
 
       return NextResponse.json(
         { success: false, error: 'Credenziali non valide' },
         { status: 401, headers: corsHeaders }
       );
+    }
+
+    // Password corretta → azzera i contatori di fallimento.
+    if (staff.failed_login_count || staff.locked_until) {
+      await supabaseAdmin.from('staff').update({ failed_login_count: 0, locked_until: null }).eq('id', staff.id);
+    }
+
+    // ── Step-up OTP (dietro flag): se il dispositivo NON è fidato, non emettiamo
+    //    subito il token: mandiamo un OTP via email e restituiamo un "ticket".
+    //    Con STAFF_OTP_ENABLED=false il comportamento è identico a prima. ──────
+    if (STAFF_OTP_ENABLED) {
+      const deviceToken = req.cookies.get(DEVICE_COOKIE)?.value;
+      const trusted = await isTrustedDevice(staff.id, deviceToken);
+      if (!trusted) {
+        await createAndSendOtp({ id: staff.id, email: staff.email }, 'login', ip);
+        const otpTicket = await issueOtpTicket(staff.id);
+        await logSecurityEvent({
+          type: 'login_success', user_id: staff.id, email: staff.email,
+          ip_address: ip, user_agent: userAgent,
+          metadata: { role: staff.role, endpoint: 'staff_login', step: 'otp_required' },
+        });
+        return NextResponse.json({
+          success: true,
+          otp_required: true,
+          otp_ticket: otpTicket,
+          email: maskEmail(staff.email),
+        }, { headers: corsHeaders });
+      }
     }
 
     // Generate JWT

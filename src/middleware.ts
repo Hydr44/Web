@@ -78,6 +78,13 @@ const STAFF_PUBLIC_PATHS = new Set([
   '/api/staff/auth/login',
   '/api/staff/auth/seed',
   '/api/staff/logout',
+  // Flussi auth self-service (Fase 2): NON richiedono un JWT staff perché si
+  // proteggono da soli col token invito / ticket OTP / codice OTP.
+  '/api/staff/invite/verify',
+  '/api/staff/invite/accept',
+  '/api/staff/auth/otp/verify',
+  '/api/staff/auth/password/forgot',
+  '/api/staff/auth/password/reset',
 ]);
 
 // Route sensibili FUORI da /api/staff che pure richiedono auth staff.

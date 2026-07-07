@@ -278,7 +278,7 @@ export function validatePhone(phone: string): ValidationResult {
 // ═══════════════════════════════════════════════════════════════
 
 export interface SecurityEvent {
-  type: 'login_attempt' | 'login_success' | 'login_failed' | 'rate_limit_exceeded' | 'suspicious_activity' | 'api_call';
+  type: 'login_attempt' | 'login_success' | 'login_failed' | 'rate_limit_exceeded' | 'suspicious_activity' | 'api_call' | 'staff_invite_accepted' | 'password_reset';
   user_id?: string;
   email?: string;
   ip_address?: string;
