@@ -17,6 +17,7 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import WhatsAppFab from "@/components/WhatsAppFab";
 
 export default function HomeClient() {
     const searchParams = useSearchParams();
@@ -616,6 +617,9 @@ export default function HomeClient() {
                     </div>
                 </div>
             </section>
+
+            {/* Contatto diretto WhatsApp — sticky, solo sulla home */}
+            <WhatsAppFab />
         </main>
     );
 }
