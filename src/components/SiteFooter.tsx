@@ -82,6 +82,20 @@ export default function SiteFooter() {
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Contattaci</Link></li>
               <li><Link href="/chi-siamo" className="text-slate-400 hover:text-white transition-colors">Chi siamo</Link></li>
               <li><Link href="/demo" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
+              <li>
+                <a
+                  href="https://stats.uptimerobot.com/vqC6fnBuTL"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                  </span>
+                  Stato servizi
+                </a>
+              </li>
             </ul>
           </div>
 
