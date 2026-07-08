@@ -25,6 +25,16 @@ export async function GET(request: NextRequest) {
   if (!staff) return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401, headers });
 
   try {
+    // Anteprima prossimo numero documento (peek=number). Inline qui invece di un
+    // route figlio /invoices/next-number, che verrebbe intercettato dal dinamico [id].
+    if (request.nextUrl.searchParams.get('peek') === 'number') {
+      const m = (request.nextUrl.searchParams.get('mode') || 'fattura').toLowerCase();
+      const yRaw = parseInt(request.nextUrl.searchParams.get('year') || '', 10);
+      const year = Number.isFinite(yRaw) && yRaw > 2000 ? yRaw : new Date().getUTCFullYear();
+      const number = m === 'autofattura' ? await nextAutofatturaNumber(year) : await nextSaasInvoiceNumber(year);
+      return NextResponse.json({ success: true, number }, { headers });
+    }
+
     const raw = (request.nextUrl.searchParams.get('scope') || 'attive').toLowerCase();
     const scope: InvoiceScope = (['attive', 'autofatture', 'passive', 'all'] as const).includes(raw as any)
       ? (raw as InvoiceScope) : 'attive';
