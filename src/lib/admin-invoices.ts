@@ -512,7 +512,8 @@ export async function buildFatturaPaXml(id: string): Promise<{ xml: string; file
   // Progressivo invio (alfanumerico) dal numero documento.
   const numDigits = (invoice.number || '').replace(/\D/g, '') || '1';
   const prog = (parseInt(numDigits.slice(-8), 10) || 1).toString(36).toUpperCase().padStart(5, '0').slice(-5);
-  const idTrasmittente = process.env.SDI_ID_NODO || emitterParty.piva || '02166430856';
+  // Trasmittente = soggetto accreditato al SdI (RescueManager), indipendente dal cedente.
+  const idTrasmittente = process.env.SDI_ID_NODO || '02176370852';
 
   const righe = items.map((it, i) => {
     const disc = Number(it.discount_perc) || 0;
