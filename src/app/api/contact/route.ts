@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { findDuplicateLead } from "@/lib/lead-dedup";
 import { brandedHtml, EMAIL_FONT } from "@/lib/email-template";
 import {
   checkRateLimit, 
@@ -135,29 +136,50 @@ export async function POST(request: NextRequest) {
     const sanitizedCompany = company ? sanitizeInput(company) : null;
     const sanitizedMessage = message ? sanitizeInput(message) : null;
 
-    // Create lead in database
-    const { data: lead, error } = await supabaseAdmin
-      .from('leads')
-      .insert({
-        type,
-        source,
-        name: sanitizedName,
-        email: sanitizedEmail,
-        phone: phone || null,
-        company: sanitizedCompany,
-        notes: sanitizedMessage,
-        status: 'new',
-        priority: type === 'quote' ? 'high' : 'medium'
-      })
-      .select()
-      .single();
+    // Anti-duplicati (Fase 0): se esiste già un lead con questa email NON creiamo
+    // un doppione — riusiamo il lead esistente e vi alleghiamo il nuovo contatto.
+    const dup = await findDuplicateLead(supabaseAdmin, { email: sanitizedEmail, phone });
+    let lead: { id: string };
+    if (dup.exact) {
+      lead = dup.exact;
+      await supabaseAdmin.from('lead_activities').insert({
+        lead_id: lead.id,
+        activity_type: 'contact',
+        title: `Nuovo contatto dal sito (${type})`,
+        description: sanitizedMessage || null,
+        performed_by_type: 'lead',
+        metadata: { source, type, via: 'contact_form', deduped: true },
+      });
+      // Riporta a galla il lead nella lista (ordinata per attività/aggiornamento).
+      await supabaseAdmin
+        .from('leads')
+        .update({ last_activity_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq('id', lead.id);
+    } else {
+      const { data: created, error } = await supabaseAdmin
+        .from('leads')
+        .insert({
+          type,
+          source,
+          name: sanitizedName,
+          email: sanitizedEmail,
+          phone: phone || null,
+          company: sanitizedCompany,
+          notes: sanitizedMessage,
+          status: 'new',
+          priority: type === 'quote' ? 'high' : 'medium'
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating lead:', error);
-      return NextResponse.json(
-        { success: false, error: "Errore durante il salvataggio" },
-        { status: 500 }
-      );
+      if (error || !created) {
+        console.error('Error creating lead:', error);
+        return NextResponse.json(
+          { success: false, error: "Errore durante il salvataggio" },
+          { status: 500 }
+        );
+      }
+      lead = created;
     }
 
     // Log successful submission
