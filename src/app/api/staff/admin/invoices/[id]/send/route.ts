@@ -18,6 +18,13 @@ import { EMITTER_ORG_ID, loadInvoiceDetail, loadCustomerFiscal } from '@/lib/adm
 const SDI_WS_PROD = process.env.SDI_WS_PROD_URL || 'https://sdi-ws.rescuemanager.eu';
 const SDI_WS_TEST = process.env.SDI_WS_TEST_URL || 'https://sdi-api-test.rescuemanager.eu';
 
+// L'ambiente SDI segue il deploy: il website di STAGING legge il Supabase staging
+// (le fatture stanno lì) → deve usare il sdi-ws di TEST. Il website di PRODUZIONE
+// (Supabase prod) usa il sdi-ws di produzione. Così l'admin puntato a staging fa
+// solo prove (nessun effetto legale), quello puntato a prod fa invii reali.
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const IS_STAGING = /rqwdimgwtewrsintvwoe/i.test(SUPA_URL);
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const headers = corsHeaders(request.headers.get('origin'));
   const staff = await getStaffFromRequest(request);
@@ -25,8 +32,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   if (!requireStaffRole(staff, 'admin')) return NextResponse.json({ success: false, error: 'Permessi insufficienti' }, { status: 403, headers });
 
   try {
-    const body = await request.json().catch(() => ({}));
-    const env: 'test' | 'prod' = body.env === 'test' ? 'test' : 'prod';
+    // Ambiente determinato dal deploy (staging→test, prod→prod), NON dal client.
+    const env: 'test' | 'prod' = IS_STAGING ? 'test' : 'prod';
 
     const detail = await loadInvoiceDetail(params.id);
     if (!detail || detail.invoice.org_id !== EMITTER_ORG_ID) {
