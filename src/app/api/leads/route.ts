@@ -1,5 +1,6 @@
 import { supabaseServer } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
+import { findDuplicateLead } from "@/lib/lead-dedup";
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,6 +64,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, email, phone, company, type, status, priority, source, notes, assigned_to } = body;
+
+    // Anti-duplicati (Fase 0): blocca se esiste già un lead con la stessa email.
+    const dup = await findDuplicateLead(supabase, { email, phone });
+    if (dup.exact) {
+      return NextResponse.json(
+        { error: "Esiste già un lead con questa email", duplicate: dup.exact },
+        { status: 409 }
+      );
+    }
 
     // Crea nuovo lead
     const { data: lead, error: leadError } = await supabase
