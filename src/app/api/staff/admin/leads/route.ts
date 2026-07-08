@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
+import { findDuplicateLead } from '@/lib/lead-dedup';
 
 export async function GET(request: Request) {
   try {
@@ -114,6 +115,16 @@ export async function POST(request: Request) {
       if (v !== undefined && v !== null && v !== '') insertPayload[k] = v;
     }
 
+    // Anti-duplicati (Fase 0): blocco su email uguale, avviso su P.IVA/telefono.
+    const dup = await findDuplicateLead(supabaseAdmin, { email, phone, vat_number });
+    if (dup.exact) {
+      return NextResponse.json({
+        success: false,
+        error: 'Esiste già un lead con questa email',
+        duplicate: dup.exact,
+      }, { status: 409, headers: corsHeaders(origin) });
+    }
+
     const { data: lead, error } = await supabaseAdmin
       .from('leads')
       .insert(insertPayload)
@@ -121,18 +132,19 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ 
-        success: false, 
-        error: error.message 
-      }, { 
+      return NextResponse.json({
+        success: false,
+        error: error.message
+      }, {
         status: 500,
         headers: corsHeaders(origin)
       });
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       lead,
+      duplicate_warning: dup.soft || undefined,
       message: 'Lead creato con successo'
     }, {
       headers: corsHeaders(origin)
