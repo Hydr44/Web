@@ -9,15 +9,30 @@ export async function POST(
   try {
     const origin = request.headers.get('origin');
     const leadId = params.id;
-    
+
     console.log(`Admin lead lose API called for: ${leadId}`);
-    
+
+    // Motivo di perdita (opzionale): validato contro l'enum a DB.
+    const ALLOWED_LOST_REASONS = ['price', 'competitor', 'timing', 'not_fit', 'no_response', 'features', 'other'];
+    let lost_reason: string | null = null;
+    try {
+      const body = await request.json();
+      if (body?.lost_reason && ALLOWED_LOST_REASONS.includes(body.lost_reason)) {
+        lost_reason = body.lost_reason;
+      }
+    } catch {
+      // nessun body / body non-JSON → motivo non specificato
+    }
+
+    const updatePayload: Record<string, unknown> = {
+      status: 'lost',
+      lost_at: new Date().toISOString(),
+    };
+    if (lost_reason) updatePayload.lost_reason = lost_reason;
+
     const { data, error } = await supabaseAdmin
       .from('leads')
-      .update({ 
-        status: 'lost',
-        lost_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', leadId)
       .select()
       .single();
