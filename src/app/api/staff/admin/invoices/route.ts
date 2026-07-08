@@ -148,6 +148,12 @@ export async function POST(request: NextRequest) {
                 denominazione: counterparty.name, partita_iva: counterparty.vat, codice_fiscale: counterparty.tax_code,
                 pec: counterparty.pec, codice_destinatario: counterparty.codice_destinatario, regime_fiscale: counterparty.regime_fiscale,
               },
+              // trasmissione = struttura che il generatore XML del VPS (sdi-ws) legge per il destinatario.
+              trasmissione: {
+                codice_destinatario: (counterparty.codice_destinatario || '0000000').toUpperCase(),
+                pec_destinatario: counterparty.pec || null,
+                formato_trasmissione: String(counterparty.codice_destinatario || '').trim().length === 6 ? 'FPA12' : 'FPR12',
+              },
               documento: { tipo_documento: tipoDocumento },
             },
           },
