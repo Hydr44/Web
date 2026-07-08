@@ -80,7 +80,10 @@ export async function GET() {
       database: dbHealth,
       redis: redisHealth
     },
-    version: process.env.npm_package_version || '0.1.0'
+    version: process.env.npm_package_version || '0.1.0',
+    // Commit deployato — permette di verificare che i deploy da main atterrino.
+    commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local',
+    branch: process.env.VERCEL_GIT_COMMIT_REF || null
   };
   
   return NextResponse.json(response, {
