@@ -464,6 +464,12 @@ function num2(n: any): string { return (Number(n) || 0).toFixed(2); }
 interface XmlParty {
   denom: string; piva: string | null; cf: string | null; regime: string | null;
   pec: string | null; codDest: string | null; address: any;
+  paese: string | null; // codice paese IdFiscaleIVA (IT o estero, es. DE/FR) per autofatture da fornitori esteri
+}
+// Normalizza un codice paese a 2 lettere maiuscole (default IT).
+function paese2(v: any): string {
+  const s = String(v || '').trim().toUpperCase().slice(0, 2);
+  return /^[A-Z]{2}$/.test(s) ? s : 'IT';
 }
 function sedeXml(address: any): string {
   const a = address || {};
@@ -489,6 +495,7 @@ export async function buildFatturaPaXml(id: string): Promise<{ xml: string; file
     denom: emitter?.name || 'RescueManager S.R.L.', piva: emitter?.vat || null, cf: emitter?.tax_code || null,
     regime: emitter?.regime_fiscale || 'RF01', pec: emitter?.pec || null, codDest: emitter?.codice_destinatario || null,
     address: emitter?.address || null,
+    paese: paese2(emitter?.address?.country || 'IT'),
   };
   const controParty: XmlParty = {
     denom: controparte?.denominazione || invoice.customer_name || 'ND',
@@ -497,6 +504,8 @@ export async function buildFatturaPaXml(id: string): Promise<{ xml: string; file
     regime: controparte?.regime_fiscale || 'RF01',
     pec: controparte?.pec || null, codDest: controparte?.codice_destinatario || null,
     address: invoice.customer_address || null,
+    // Paese del fornitore (per autofatture estere TD17/TD18): dal paese salvato o dall'indirizzo.
+    paese: paese2((controparte as any)?.paese || invoice.customer_address?.country || 'IT'),
   };
 
   const isAuto = kind === 'autofattura';
@@ -561,7 +570,7 @@ export async function buildFatturaPaXml(id: string): Promise<{ xml: string; file
     </DatiPagamento>` : '';
 
   const anagrafica = (p: XmlParty, withRegime: boolean) => `<DatiAnagrafici>
-        ${p.piva ? `<IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>${xesc(p.piva)}</IdCodice></IdFiscaleIVA>` : ''}
+        ${p.piva ? `<IdFiscaleIVA><IdPaese>${xesc(p.paese || 'IT')}</IdPaese><IdCodice>${xesc(p.piva)}</IdCodice></IdFiscaleIVA>` : ''}
         ${p.cf ? `<CodiceFiscale>${xesc(p.cf)}</CodiceFiscale>` : ''}
         <Anagrafica><Denominazione>${xesc(p.denom)}</Denominazione></Anagrafica>${withRegime ? `
         <RegimeFiscale>${xesc(p.regime || 'RF01')}</RegimeFiscale>` : ''}
