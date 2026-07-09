@@ -12,8 +12,9 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { corsHeaders } from '@/lib/cors';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
-import { EMITTER_ORG_ID, loadInvoiceDetail, loadCustomerFiscal } from '@/lib/admin-invoices';
+import { EMITTER_ORG_ID, loadInvoiceDetail, loadCustomerFiscal, buildFatturaPaXml } from '@/lib/admin-invoices';
 
 const SDI_WS_PROD = process.env.SDI_WS_PROD_URL || 'https://sdi-ws.rescuemanager.eu';
 const SDI_WS_TEST = process.env.SDI_WS_TEST_URL || 'https://sdi-api-test.rescuemanager.eu';
@@ -65,6 +66,55 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const base = env === 'prod' ? SDI_WS_PROD : SDI_WS_TEST;
+    const envLabel = env === 'prod' ? 'PRODUCTION' : 'TEST';
+
+    // ── AUTOFATTURA (TD16/17/18) ──
+    // Il generatore del VPS mette sempre l'org come cedente: sbagliato per le
+    // autofatture (cedente = FORNITORE, cessionario = RescueManager). Usiamo l'XML
+    // del website (buildFatturaPaXml, che inverte correttamente) via tx-auto, che
+    // firma e trasmette l'XML fornito. Lo stato lo aggiorniamo noi (tx-auto non tocca il DB).
+    if (detail.kind === 'autofattura') {
+      const built = await buildFatturaPaXml(params.id);
+      if (!built) return NextResponse.json({ success: false, error: 'Impossibile generare l\'XML autofattura' }, { status: 500, headers });
+      const nomeFile = built.filename.replace(/\.p7m$/i, '');
+      let afRes: Response;
+      try {
+        afRes = await fetch(`${base}/api/sdi/tx-auto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nomeFile, contenutoBase64: Buffer.from(built.xml, 'utf8').toString('base64') }),
+        });
+      } catch (e: any) {
+        return NextResponse.json({ success: false, error: `sdi-ws non raggiungibile: ${e?.message || e}` }, { status: 502, headers });
+      }
+      const afData = await afRes.json().catch(() => ({}));
+      if (!afRes.ok || afData?.ok === false) {
+        return NextResponse.json({ success: false, error: afData?.error || `sdi-ws HTTP ${afRes.status}` }, { status: 422, headers });
+      }
+      const idSdI = afData?.esito?.IdentificativoSdI || null;
+      const outNome = afData?.nomeFile || `${nomeFile}.p7m`;
+      const baseMeta: any = detail.invoice.meta || {};
+      await supabaseAdmin.from('invoices').update({
+        sdi_status: 'sent',
+        provider_ext_id: outNome,
+        meta: {
+          ...baseMeta,
+          sdi_ws_nomefile: outNome,
+          sdi_ws_signature_id: afData?.signatureId || null,
+          sdi_ws_sent_at: new Date().toISOString(),
+          sdi_environment: envLabel,
+          sdi_identificativo: idSdI,
+          generated_xml: built.xml,
+          sdi: { ...(baseMeta.sdi || {}), trasmissione: { ...(baseMeta.sdi?.trasmissione || {}), ambiente: envLabel, canale: 'WS-tx-auto' } },
+        },
+      }).eq('id', params.id).eq('org_id', EMITTER_ORG_ID);
+      return NextResponse.json({
+        success: true, environment: envLabel, test_mode: env !== 'prod',
+        identificativo_sdi: idSdI, nomeFile: outNome, signature_id: afData?.signatureId || null,
+      }, { headers });
+    }
+
+    // ── FATTURA (TD01) ── il VPS rigenera dal DB.
     let wsRes: Response;
     try {
       wsRes = await fetch(`${base}/api/sdi/send-from-db`, {
