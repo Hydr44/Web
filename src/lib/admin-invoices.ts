@@ -16,7 +16,7 @@ export const SAAS_PREFIX = 'RM';
 export const SDI_PROVIDER = process.env.SAAS_SDI_PROVIDER || 'sdi_test';
 
 export const AF_PREFIX = 'AF';                       // serie autofatture
-export const AUTOFATTURA_TIPI = ['TD16', 'TD17', 'TD18'] as const; // reverse charge interno / servizi estero / beni intra-UE
+export const AUTOFATTURA_TIPI = ['TD16', 'TD17', 'TD18', 'TD19'] as const; // reverse charge interno / servizi estero / beni intra-UE / beni ex art.17 c.2 (esteri già in Italia)
 
 export interface InvoiceItemInput {
   description: string;
@@ -569,12 +569,18 @@ export async function buildFatturaPaXml(id: string): Promise<{ xml: string; file
       </DettaglioPagamento>
     </DatiPagamento>` : '';
 
-  const anagrafica = (p: XmlParty, withRegime: boolean) => `<DatiAnagrafici>
-        ${p.piva ? `<IdFiscaleIVA><IdPaese>${xesc(p.paese || 'IT')}</IdPaese><IdCodice>${xesc(p.piva)}</IdCodice></IdFiscaleIVA>` : ''}
+  const anagrafica = (p: XmlParty, withRegime: boolean) => {
+    const foreign = (p.paese || 'IT') !== 'IT';
+    // Cedente estero senza identificativo (es. TD19 da soggetto non residente privo di
+    // P.IVA): placeholder convenzionale OO99999999999 nell'IdFiscaleIVA.
+    const idCodice = p.piva || (foreign && !p.cf ? 'OO99999999999' : null);
+    return `<DatiAnagrafici>
+        ${idCodice ? `<IdFiscaleIVA><IdPaese>${xesc(p.paese || 'IT')}</IdPaese><IdCodice>${xesc(idCodice)}</IdCodice></IdFiscaleIVA>` : ''}
         ${p.cf ? `<CodiceFiscale>${xesc(p.cf)}</CodiceFiscale>` : ''}
         <Anagrafica><Denominazione>${xesc(p.denom)}</Denominazione></Anagrafica>${withRegime ? `
         <RegimeFiscale>${xesc(p.regime || 'RF01')}</RegimeFiscale>` : ''}
       </DatiAnagrafici>`;
+  };
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <p:FatturaElettronica versione="FPR12" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd">
