@@ -53,7 +53,14 @@ export async function PUT(
       'priority', 'source', 'notes', 'assigned_to', 'assigned_staff_id',
       'vat_number', 'codice_fiscale', 'pec',
       'address_street', 'address_city', 'address_province', 'address_postal_code',
-      'forma_giuridica', 'codice_ateco'
+      'forma_giuridica', 'codice_ateco',
+      // ─── Campi vendita (colonne 20260512): rendono editabile la qualifica/pipeline dal dettaglio ───
+      'lifecycle_stage', 'lead_score', 'lead_temperature', 'tags', 'industry',
+      'company_size', 'vehicles_per_month', 'current_software', 'pain_points',
+      'expected_deal_value', 'probability_to_close', 'decision_timeline',
+      'expected_close_date', 'next_followup_at', 'next_followup_action', 'lost_to_competitor',
+      'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+      'referrer_url', 'landing_page', 'first_contact_channel', 'custom_fields',
     ];
 
     const updateData: Record<string, unknown> = {
