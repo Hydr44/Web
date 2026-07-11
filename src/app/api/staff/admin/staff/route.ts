@@ -34,6 +34,22 @@ export async function GET() {
       sessionCount.set(s.staff_id, (sessionCount.get(s.staff_id) || 0) + 1);
     }
 
+    // Provvigione fissa per commerciale (CRM). Lettura DIFENSIVA: se la migration
+    // 20260711_staff_commission_amount non è ancora applicata, la colonna manca e
+    // la query fallisce — in quel caso ignoriamo, l'endpoint resta funzionante.
+    const commissionByStaff = new Map<string, { commission_amount: number | null; is_external: boolean }>();
+    try {
+      const { data: comm } = await supabaseAdmin
+        .from('staff')
+        .select('id, commission_amount, is_external');
+      for (const c of comm || []) {
+        commissionByStaff.set(c.id, {
+          commission_amount: c.commission_amount ?? null,
+          is_external: !!c.is_external,
+        });
+      }
+    } catch { /* colonna non ancora presente: nessuna provvigione */ }
+
     const transformedUsers = (staffUsers || []).map(user => ({
       id: user.id,
       email: user.email,
@@ -51,7 +67,9 @@ export async function GET() {
       account_status: user.status || (user.is_active ? 'active' : 'suspended'),
       email_verified: !!user.email_verified_at,
       session_count: sessionCount.get(user.id) || 0,
-      total_actions: 0
+      total_actions: 0,
+      commission_amount: commissionByStaff.get(user.id)?.commission_amount ?? null,
+      is_external: commissionByStaff.get(user.id)?.is_external ?? false,
     }));
 
     return NextResponse.json({
