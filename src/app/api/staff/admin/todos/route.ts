@@ -9,7 +9,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest } from '@/lib/staff-auth';
 
-const STATUSES = ['open', 'doing', 'done'] as const;
+const STATUSES = ['open', 'doing', 'staging', 'done'] as const;
 const PRIORITIES = ['high', 'medium', 'low'] as const;
 
 export async function GET(request: NextRequest) {
