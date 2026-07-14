@@ -6,7 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest } from '@/lib/staff-auth';
 
-const STATUSES = ['open', 'doing', 'done'];
+const STATUSES = ['open', 'doing', 'staging', 'done'];
 const PRIORITIES = ['high', 'medium', 'low'];
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
