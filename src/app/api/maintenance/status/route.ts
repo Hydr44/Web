@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { readMaintenance } from "@/lib/maintenance";
+import { isAllowedOrigin } from "@/lib/cors";
 
 export const runtime = "nodejs";
 
@@ -9,7 +10,7 @@ function createCorsHeaders(origin: string | null) {
     "Access-Control-Allow-Headers": "*",
   };
 
-  if (origin) {
+  if (origin && isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
     headers["Access-Control-Allow-Credentials"] = "true";
     headers["Vary"] = "Origin";
@@ -46,28 +47,14 @@ export async function OPTIONS(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
   try {
-    const { data, error } = await supabaseAdmin
-      .from("maintenance_mode")
-      .select("*")
-      .maybeSingle();
-
-    if (error) {
-      console.error("Error getting maintenance status:", error);
-      return corsJson(origin, { is_active: false, message: null }, 200);
-    }
-
-    return corsJson(
-      origin,
-      {
-        is_active: data?.is_active || false,
-        message: data?.message || null,
-        started_at: data?.started_at || null,
-      },
-      200
-    );
+    const platform = new URL(request.url).searchParams.get("platform") || "web";
+    const status = await readMaintenance(platform);
+    // Ritorna stato calcolato (state) + is_active per retro-compat con la
+    // desktop app già in produzione (MaintenanceOverlay legge is_active).
+    return corsJson(origin, { ...status }, 200);
   } catch (error) {
     console.error("Maintenance status error:", error);
-    return corsJson(origin, { is_active: false, message: null }, 200);
+    return corsJson(origin, { state: "none", is_active: false, message: null }, 200);
   }
 }
 

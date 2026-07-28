@@ -54,6 +54,24 @@ export async function GET(request: Request, { params }: { params: { id: string }
       profile: profilesMap.get(m.user_id) || null,
     }));
 
+    // Ultimo login REALE da auth.users. `user_sessions` non è affidabile
+    // (schema diverso: manca started_at) → prima last_access risultava vuoto
+    // anche se l'utente aveva fatto accesso. getUserById per ogni membro
+    // (pochi) → mappa id → last_sign_in_at.
+    const lastSignInMap = new Map<string, string | null>();
+    await Promise.all(
+      memberIds.map(async (uid) => {
+        try {
+          const { data } = await supabaseAdmin.auth.admin.getUserById(uid);
+          lastSignInMap.set(uid, data?.user?.last_sign_in_at ?? null);
+        } catch {
+          /* ignora singolo */
+        }
+      }),
+    );
+    for (const m of members) (m as any).last_sign_in_at = lastSignInMap.get(m.user_id) ?? null;
+    const lastLoginAll = [...lastSignInMap.values()].filter(Boolean).sort().pop() || null;
+
     // 4. Operators (per cross-check ruoli desktop)
     const { data: operators } = await supabaseAdmin
       .from('operators')
@@ -95,9 +113,46 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .order('started_at', { ascending: false })
       .limit(20);
 
+    // 8b. Ultimo accesso ALL-TIME (non solo 30gg) + conteggi utilizzo del gestionale.
+    //     Tutto server-side con service role → conta anche cross-org.
+    const { data: lastSession } = await supabaseAdmin
+      .from('user_sessions')
+      .select('started_at')
+      .in('user_id', memberIds.length ? memberIds : ['00000000-0000-0000-0000-000000000000'])
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Conteggio robusto: se una tabella non esiste/ha errore ritorna 0 (niente 500).
+    const countOf = async (table: string) => {
+      try {
+        const { count, error } = await supabaseAdmin
+          .from(table)
+          .select('*', { count: 'exact', head: true })
+          .eq('org_id', orgId);
+        return error ? 0 : (count ?? 0);
+      } catch {
+        return 0;
+      }
+    };
+    const [transportsCount, vehiclesCount, clientsCount, driversCount, invoicesCount] = await Promise.all([
+      countOf('transports'),
+      countOf('vehicles'),
+      countOf('clients'),
+      countOf('staff_drivers'),
+      countOf('invoices'),
+    ]);
+    const { count: transports30dRaw } = await supabaseAdmin
+      .from('transports')
+      .select('*', { count: 'exact', head: true })
+      .eq('org_id', orgId)
+      .gt('created_at', thirtyDaysAgo);
+
     // 9. Stats
     const activeMembersCount = members.length;
     const lastActivity = sessions && sessions.length > 0 ? sessions[0].started_at : null;
+    // Ultimo accesso: prima il login reale da auth, poi eventuali sessioni.
+    const lastAccessAt = lastLoginAll || lastSession?.started_at || lastActivity;
 
     const client = {
       // Identity
@@ -142,6 +197,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
       // Activity
       recent_sessions: sessions || [],
       last_activity_at: lastActivity,
+      last_access_at: lastAccessAt,
+      // Utilizzo del gestionale (conteggi)
+      usage: {
+        transports: transportsCount,
+        transports_30d: transports30dRaw ?? 0,
+        vehicles: vehiclesCount,
+        clients: clientsCount,
+        drivers: driversCount,
+        invoices: invoicesCount,
+      },
     };
 
     return NextResponse.json({ success: true, client }, { headers: corsHeaders(origin) });

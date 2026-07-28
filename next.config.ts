@@ -58,7 +58,7 @@ const nextConfig: NextConfig = {
               // Wildcard *.supabase.co per supportare sia main (ienzdgrqalltvkdkuamp)
               // sia branch staging (rqwdimgwtewrsintvwoe) sia futuri preview branch
               // senza dover ridepiegate al cambio branch.
-              "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://help.rescuemanager.eu wss://help.rescuemanager.eu https://*.hotjar.com wss://*.hotjar.com https://connect.facebook.net https://www.facebook.com",
+              "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://help.rescuemanager.eu wss://help.rescuemanager.eu https://*.hotjar.com wss://*.hotjar.com https://connect.facebook.net https://www.facebook.com https://router.project-osrm.org",
               // frame-src: Hotjar surveys/recordings + Meta Pixel iframes
               "frame-src 'self' https://vercel.live https://help.rescuemanager.eu https://*.hotjar.com https://www.facebook.com",
               "frame-ancestors 'none'",

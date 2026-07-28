@@ -1,10 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-img-element */
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { FiMail, FiUser, FiLock, FiCheck, FiAlertCircle, FiLoader } from 'react-icons/fi';
+import { FiMail, FiUser, FiCheck, FiAlertCircle, FiLoader } from 'react-icons/fi';
+
+const ROLE_LABELS: Record<string, string> = {
+  owner: 'Proprietario',
+  admin: 'Amministratore',
+  manager: 'Responsabile',
+  operator: 'Operatore',
+  viewer: 'Visualizzatore',
+};
+
+const INPUT_CLASS =
+  'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm';
+const LABEL_CLASS = 'block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2';
 
 function AcceptInviteContent() {
   const router = useRouter();
@@ -23,14 +35,6 @@ function AcceptInviteContent() {
 
   const supabase = createClientComponentClient();
 
-  const roleLabels: Record<string, string> = {
-    owner: 'Proprietario',
-    admin: 'Amministratore',
-    manager: 'Responsabile',
-    operator: 'Operatore',
-    viewer: 'Visualizzatore',
-  };
-
   useEffect(() => {
     if (!token) {
       setError('Link invito non valido (token mancante)');
@@ -38,56 +42,24 @@ function AcceptInviteContent() {
       setLoading(false);
       return;
     }
-
     loadInvite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   async function loadInvite() {
     try {
       setLoading(true);
-      
-      // Carica invito
-      const { data: inviteData, error: inviteError } = await supabase
-        .from('org_invites')
-        .select('*')
-        .eq('token', token)
-        .eq('status', 'pending')
-        .single();
-
-      if (inviteError || !inviteData) {
-        setError('Invito non trovato o già utilizzato');
+      const { data, error: rpcError } = await supabase.rpc('verify_team_invite', { p_token: token });
+      if (rpcError || !data?.success) {
+        setError(data?.error || 'Invito non trovato o già utilizzato');
         setStep('error');
         return;
       }
-
-      // Carica nome organizzazione separatamente
-      const { data: orgData } = await supabase
-        .from('orgs')
-        .select('name')
-        .eq('id', inviteData.org_id)
-        .single();
-
-      console.log('Invite data:', inviteData);
-      console.log('Org data:', orgData);
-
-      const expiresAt = new Date(inviteData.expires_at);
-      if (expiresAt < new Date()) {
-        setError('Questo invito è scaduto');
-        setStep('error');
-        return;
-      }
-
-      // Combina i dati
-      const combinedData = {
-        ...inviteData,
-        orgs: orgData,
-      };
-
-      setInvite(combinedData);
+      setInvite({ id: data.id, org_id: data.org_id, role: data.role, email: data.email, orgName: data.org_name });
       setStep('register');
     } catch (err: any) {
       console.error('Error loading invite:', err);
-      setError('Errore durante il caricamento dell\'invito');
+      setError("Errore durante il caricamento dell'invito");
       setStep('error');
     } finally {
       setLoading(false);
@@ -96,124 +68,55 @@ function AcceptInviteContent() {
 
   async function handleAccept(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!fullName.trim()) {
-      setError('Inserisci il tuo nome completo');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('La password deve essere di almeno 8 caratteri');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Le password non corrispondono');
-      return;
-    }
+    if (!fullName.trim()) return setError('Inserisci il tuo nome completo');
+    if (password.length < 8) return setError('La password deve essere di almeno 8 caratteri');
+    if (password !== confirmPassword) return setError('Le password non corrispondono');
 
     try {
       setAccepting(true);
       setError('');
-
-      // 1. Registra utente (il trigger handle_new_user crea SOLO la riga in profiles,
-      //    NON gestisce org_members né current_org — vedi migration 20260315)
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: invite.email,
-        password: password,
-        options: {
-          data: {
-            full_name: fullName.trim(),
-          },
-        },
+      const res = await fetch('/api/invite/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, fullName: fullName.trim(), password }),
       });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || "Errore durante l'accettazione dell'invito");
 
-      if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error('Registrazione fallita');
-
-      const userId = authData.user.id;
-      const role = invite.role || 'operator';
-
-      // 2. Login automatico (RLS: serve sessione utente per i prossimi insert)
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: invite.email,
-        password: password,
+        email: json.email || invite.email,
+        password,
       });
-      if (signInError) {
-        console.warn('Auto-login failed:', signInError);
-      }
-
-      // 3. Aggiungi a org_members con il ruolo dell'invito (idempotente con upsert)
-      const { error: memberError } = await supabase
-        .from('org_members')
-        .upsert(
-          { user_id: userId, org_id: invite.org_id, role },
-          { onConflict: 'org_id,user_id' }
-        );
-      if (memberError) {
-        console.error('[accept-invite] org_members upsert error:', memberError);
-        throw new Error(`Impossibile aggiungerti al team: ${memberError.message}`);
-      }
-
-      // 4. Setta profiles.current_org così il sito/desktop sanno qual è l'org corrente
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ current_org: invite.org_id })
-        .eq('id', userId);
-      if (profileError) {
-        console.warn('[accept-invite] profiles.current_org update error:', profileError);
-        // non bloccare: l'utente può comunque accedere via org_members
-      }
-
-      // 5. Marca invito come accettato
-      const { error: inviteError } = await supabase
-        .from('org_invites')
-        .update({ status: 'accepted', accepted_at: new Date().toISOString() })
-        .eq('token', token);
-      if (inviteError) {
-        console.warn('[accept-invite] org_invites update error:', inviteError);
-        // non bloccare
-      }
-
       setStep('success');
-
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
-
+      setTimeout(() => router.push(signInError ? '/login' : '/dashboard'), 1800);
     } catch (err: any) {
       console.error('Accept invite error:', err);
-      setError(err.message || 'Errore durante l\'accettazione dell\'invito');
+      setError(err.message || "Errore durante l'accettazione dell'invito");
     } finally {
       setAccepting(false);
     }
   }
 
+  // — Stati semplici (no split) —
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Caricamento invito...</p>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="h-9 w-9 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   if (step === 'error') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiAlertCircle className="w-8 h-8 text-red-400" />
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="w-14 h-14 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiAlertCircle className="w-7 h-7 text-red-500" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Invito Non Valido</h1>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <button
-            onClick={() => router.push('/login')}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-          >
-            Vai al Login
+          <h1 className="text-2xl font-extrabold text-[#0f172a] mb-2">Invito non valido</h1>
+          <p className="text-sm text-gray-500 mb-6">{error}</p>
+          <button onClick={() => router.push('/login')} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+            Vai al login
           </button>
         </div>
       </div>
@@ -222,145 +125,120 @@ function AcceptInviteContent() {
 
   if (step === 'success') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiCheck className="w-8 h-8 text-green-400" />
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="w-14 h-14 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiCheck className="w-7 h-7 text-green-500" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Benvenuto nel Team!</h1>
-          <p className="text-slate-400 mb-2">
-            Ti sei unito con successo a <strong className="text-white">{invite?.orgs?.name}</strong>
+          <h1 className="text-2xl font-extrabold text-[#0f172a] mb-2">Benvenuto nel team!</h1>
+          <p className="text-sm text-gray-500">
+            Ti sei unito a <strong className="text-gray-900">{invite?.orgName}</strong>. Reindirizzamento…
           </p>
-          <p className="text-sm text-slate-500">Reindirizzamento in corso...</p>
         </div>
       </div>
     );
   }
 
+  // — Registrazione: split scuro/bianco come il login —
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Unisciti al Team</h1>
-          <p className="text-slate-400">
-            Sei stato invitato a far parte di{' '}
-            <strong className="text-white">{invite?.orgs?.name}</strong>
+    <div className="min-h-screen flex">
+      {/* LEFT — brand panel (scuro) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
+        <a href="/" className="inline-flex items-center">
+          <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={160} height={53} className="h-auto" />
+        </a>
+        <div>
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Invito al team</p>
+          <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
+            Unisciti a<br />{invite?.orgName}<span className="text-blue-500">.</span>
+          </h2>
+          <p className="text-slate-400 text-base mb-10 max-w-sm">
+            Completa la registrazione per accedere alla piattaforma del tuo team.
           </p>
-        </div>
-
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 mb-6">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center shrink-0">
-              <FiCheck className="w-6 h-6 text-emerald-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-slate-400 mb-1">Organizzazione</p>
-              <p className="text-white font-medium">{invite?.orgs?.name || 'N/A'}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center shrink-0">
-              <FiMail className="w-6 h-6 text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-slate-400 mb-1">Email</p>
-              <p className="text-white font-medium">{invite?.email}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center shrink-0">
-              <FiUser className="w-6 h-6 text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-slate-400 mb-1">Ruolo Assegnato</p>
-              <p className="text-white font-medium">{roleLabels[invite?.role] || invite?.role}</p>
-            </div>
+          <div className="space-y-3">
+            {[
+              'Soccorso & trasporti e tracking GPS',
+              'Magazzino ricambi TecDoc',
+              'RENTRI, SDI e RVFU integrati',
+              'App mobile per autisti inclusa',
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
+                <span className="text-sm text-slate-300">{f}</span>
+              </div>
+            ))}
           </div>
         </div>
+        <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
+      </div>
 
-        <form onSubmit={handleAccept} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Completa la Registrazione</h2>
+      {/* RIGHT — form panel (bianco) */}
+      <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
+        <div className="w-full max-w-sm">
+          <div className="lg:hidden mb-8 text-center">
+            <img src="/assets/logos/logo-principale-a-colori.svg" alt="RescueManager" width={200} height={67} className="h-auto inline-block" />
+          </div>
+
+          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Invito</p>
+          <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Unisciti al team</h1>
+          <p className="text-sm text-gray-500 mb-6">
+            Sei stato invitato in <strong className="text-gray-900">{invite?.orgName}</strong>.
+          </p>
+
+          {/* Riepilogo invito */}
+          <div className="mb-6 border border-gray-200">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
+              <FiMail className="h-4 w-4 text-gray-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wider text-gray-400">Email</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{invite?.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3">
+              <FiUser className="h-4 w-4 text-gray-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wider text-gray-400">Ruolo</p>
+                <p className="text-sm font-medium text-gray-900">{ROLE_LABELS[invite?.role] || invite?.role}</p>
+              </div>
+            </div>
+          </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2">
-              <FiAlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-400">{error}</p>
-            </div>
+            <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
           )}
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Nome Completo *
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Mario Rossi"
-              className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              required
-            />
-          </div>
+          <form onSubmit={handleAccept} className="space-y-5">
+            <div>
+              <label htmlFor="ai-name" className={LABEL_CLASS}>Nome completo</label>
+              <input id="ai-name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className={INPUT_CLASS} placeholder="Mario Rossi" required />
+            </div>
+            <div>
+              <label htmlFor="ai-pwd" className={LABEL_CLASS}>Password</label>
+              <input id="ai-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={INPUT_CLASS} placeholder="Minimo 8 caratteri" required minLength={8} />
+            </div>
+            <div>
+              <label htmlFor="ai-pwd2" className={LABEL_CLASS}>Conferma password</label>
+              <input id="ai-pwd2" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={INPUT_CLASS} placeholder="Ripeti la password" required minLength={8} />
+            </div>
+            <button
+              type="submit"
+              disabled={accepting}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
+            >
+              {accepting ? (
+                <><div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" /> Registrazione…</>
+              ) : (
+                'Accetta invito e registrati'
+              )}
+            </button>
+          </form>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Password *
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimo 8 caratteri"
-              className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              required
-              minLength={8}
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Conferma Password *
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Ripeti la password"
-              className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              required
-              minLength={8}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={accepting}
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            {accepting ? (
-              <>
-                <FiLoader className="w-5 h-5 animate-spin" />
-                Registrazione in corso...
-              </>
-            ) : (
-              <>
-                <FiCheck className="w-5 h-5" />
-                Accetta Invito e Registrati
-              </>
-            )}
-          </button>
-
-          <p className="mt-4 text-xs text-slate-500 text-center">
-            Accettando l&apos;invito, accetti i{' '}
-            <a href="/terms" className="text-blue-400 hover:underline">
-              Termini di Servizio
-            </a>{' '}
-            e la{' '}
-            <a href="/privacy" className="text-blue-400 hover:underline">
-              Privacy Policy
-            </a>
+          <p className="mt-6 text-xs text-gray-400 text-center">
+            Accettando accetti i{' '}
+            <a href="/terms" className="text-blue-600 hover:underline">Termini</a>{' '}e la{' '}
+            <a href="/privacy" className="text-blue-600 hover:underline">Privacy</a>.
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );
@@ -368,14 +246,13 @@ function AcceptInviteContent() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <FiLoader className="w-8 h-8 text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Caricamento...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <FiLoader className="w-8 h-8 text-blue-600 animate-spin" />
         </div>
-      </div>
-    }>
+      }
+    >
       <AcceptInviteContent />
     </Suspense>
   );

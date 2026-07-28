@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       utm_source, utm_medium, utm_campaign, utm_content, utm_term,
       referrer_url, landing_page, first_contact_channel,
       // Sales pipeline
-      assigned_to, next_followup_at, next_followup_action,
+      assigned_to, assigned_staff_id, next_followup_at, next_followup_action,
       expected_close_date, expected_deal_value, probability_to_close,
       decision_timeline, decision_makers,
       // Primo contatto
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       industry, company_size, vehicles_per_month, current_software, pain_points,
       utm_source, utm_medium, utm_campaign, utm_content, utm_term,
       referrer_url, landing_page, first_contact_channel,
-      assigned_to, next_followup_at, next_followup_action,
+      assigned_to, assigned_staff_id, next_followup_at, next_followup_action,
       expected_close_date, expected_deal_value, probability_to_close,
       decision_timeline, decision_makers,
       first_contact_at, first_contact_method, first_contact_notes,

@@ -19,39 +19,37 @@ const SITE_URL = "https://rescuemanager.eu";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    // Title bilanciato: ENTRAMBI gli intent (autodemolitori + soccorso stradale)
-    // sono in posizione di prima parola dopo il brand. "Gestionale" generico
-    // copre anche officine/carrozzerie. Era penalizzante mettere "soccorso
-    // stradale" come prima parola: Google ci indicizzava forte come tale ma
-    // gli autodemolitori non trovavano match.
-    default: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
+    // Focus: soccorso stradale + trasporti in prima posizione (target primario,
+    // dove puntiamo a scalare la SERP di "gestionale soccorso stradale"), poi
+    // autodemolitori. NIENTE officine/carrozzerie: non è il nostro pubblico —
+    // serviamo soccorritori, trasportatori e autodemolitori.
+    default: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     template: "%s — RescueManager",
   },
   description:
-    "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
+    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica SDI, Registro RENTRI rifiuti e Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
   keywords: [
-    // Autodemolitori — keywords primarie (era il target sotto-rappresentato)
+    // Soccorso stradale — target PRIMARIO (obiettivo: 1° su queste query)
+    "gestionale soccorso stradale",
+    "software soccorso stradale",
+    "gestionale carro attrezzi",
+    "software carroattrezzi",
+    "dispatch soccorso stradale",
+    "gestione interventi soccorso stradale",
+    // Trasporti veicoli
+    "gestionale trasporti veicoli",
+    "software trasporto auto",
+    "dispatch autisti su mappa",
+    "tracking mezzi in tempo reale",
+    // Autodemolitori / RENTRI / VFU
     "gestionale autodemolitori",
     "software autodemolizione",
     "gestionale rottamatori",
-    "software demolizioni auto",
     "registro VFU",
     "registro veicoli fuori uso",
-    "centro rottamazione gestionale",
-    // RENTRI
     "gestionale RENTRI",
     "registro RENTRI rifiuti",
-    "software RENTRI autodemolitori",
-    // Soccorso stradale (mantenuto, era il target già forte)
-    "gestionale soccorso stradale",
-    "software soccorso stradale",
-    "dispatch mappa autisti",
-    // Officine / carrozzerie (intent secondario, ma stesso prodotto)
-    "gestionale officina",
-    "software autofficina",
-    "gestionale carrozzeria",
     // Fatturazione / SDI
-    "fatturazione elettronica autodemolitori",
     "fatturazione elettronica SDI",
     "RescueManager",
   ],
@@ -86,9 +84,9 @@ export const metadata: Metadata = {
     locale: "it_IT",
     url: SITE_URL,
     siteName: "RescueManager",
-    title: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
+    title: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     description:
-      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI, Registro VFU, fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi.",
+      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica SDI, Registro RENTRI, Registro VFU, custodia veicoli e ricambi.",
     images: [
       {
         url: "/assets/logos/logo-principale-a-colori.svg",
@@ -101,9 +99,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RescueManager — Gestionale per autodemolitori, soccorso stradale e officine",
+    title: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     description:
-      "Software gestionale: autodemolitori, soccorso stradale, officine, carrozzerie. Registro RENTRI, registro VFU, fatturazione elettronica.",
+      "Software gestionale: soccorso stradale, trasporti, autodemolitori. Dispatch su mappa, Registro RENTRI, registro VFU, fatturazione elettronica SDI.",
     images: ["/assets/logos/logo-principale-a-colori.svg"],
   },
 };
@@ -152,27 +150,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     "@type": "SoftwareApplication",
     name: "RescueManager",
     applicationCategory: "BusinessApplication",
-    // Sotto-categorie esplicite: aiutano Google a indicizzare il prodotto
-    // per tutti i settori target, non solo per "soccorso stradale".
+    // Sotto-categorie esplicite per i settori target (soccorso stradale,
+    // trasporti, autodemolitori) — aiutano Google a indicizzare il prodotto.
     applicationSubCategory: [
+      "Gestionale soccorso stradale",
+      "Gestionale trasporto veicoli",
+      "Gestionale carro attrezzi",
       "Gestionale autodemolitori",
       "Software RENTRI",
-      "Gestionale soccorso stradale",
-      "Gestionale officina",
-      "Gestionale carrozzeria",
       "Fatturazione elettronica SDI",
     ],
     operatingSystem: "Web, Windows, macOS, iOS, Android",
     description:
-      "Gestionale per autodemolitori, soccorso stradale, officine e carrozzerie. Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), fatturazione elettronica SDI, dispatch su mappa, gestione custodia veicoli e ricambi. Conforme D.Lgs 209/2003.",
+      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica SDI, Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003.",
     audience: {
       "@type": "BusinessAudience",
       audienceType: [
+        "Soccorso stradale",
+        "Aziende di trasporto veicoli",
+        "Carro attrezzi",
         "Autodemolitori",
         "Centri di rottamazione",
-        "Soccorso stradale",
-        "Autofficine",
-        "Carrozzerie",
       ],
     },
     url: SITE_URL,

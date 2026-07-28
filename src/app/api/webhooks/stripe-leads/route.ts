@@ -84,6 +84,14 @@ export async function POST(request: Request) {
           .eq('id', quote.lead_id)
           .in('status', ['quote_sent', 'trattativa']);
       }
+      // Gate verifica dati: marca la org demo come verification_pending → l'app
+      // resta bloccata (overlay) finché non viene attivata post-verifica.
+      if (quote?.lead_id) {
+        const { data: ld } = await supabaseAdmin.from('leads').select('demo_org_id').eq('id', quote.lead_id).maybeSingle();
+        if (ld?.demo_org_id) {
+          await supabaseAdmin.from('orgs').update({ verification_pending: true }).eq('id', ld.demo_org_id);
+        }
+      }
       console.log('[STRIPE-LEADS] Lead → in_verifica (revisione manuale) for quote', quote_id);
     } catch (err: any) {
       console.error('[STRIPE-LEADS] Error processing payment:', err.message);

@@ -8,6 +8,9 @@ import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import PageTransition from "@/components/dashboard/PageTransition";
 import DemoLanding from "@/components/dashboard/DemoLanding";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import LegalConsentModal from "@/components/dashboard/LegalConsentModal";
+import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
+import MaintenanceGate from "@/components/dashboard/MaintenanceGate";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
 
 export default function DashboardLayout({
@@ -267,6 +270,9 @@ export default function DashboardLayout({
 
   return (
     <DashboardShell userEmail={userEmail} orgName={orgName}>
+      <MaintenanceGate />
+      <LegalConsentModal />
+      <AnnouncementBanner />
       <Breadcrumbs />
       <PageTransition>{children}</PageTransition>
     </DashboardShell>

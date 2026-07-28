@@ -11,7 +11,7 @@ export async function GET() {
     // Conteggio sessioni attive per arricchire la lista
     const { data: staffUsers, error } = await supabaseAdmin
       .from('staff')
-      .select('id, email, full_name, role, is_active, last_login_at, last_login_ip, created_at, updated_at')
+      .select('id, email, full_name, role, is_active, status, email_verified_at, last_login_at, last_login_ip, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -34,6 +34,22 @@ export async function GET() {
       sessionCount.set(s.staff_id, (sessionCount.get(s.staff_id) || 0) + 1);
     }
 
+    // Provvigione fissa per commerciale (CRM). Lettura DIFENSIVA: se la migration
+    // 20260711_staff_commission_amount non è ancora applicata, la colonna manca e
+    // la query fallisce — in quel caso ignoriamo, l'endpoint resta funzionante.
+    const commissionByStaff = new Map<string, { commission_amount: number | null; is_external: boolean }>();
+    try {
+      const { data: comm } = await supabaseAdmin
+        .from('staff')
+        .select('id, commission_amount, is_external');
+      for (const c of comm || []) {
+        commissionByStaff.set(c.id, {
+          commission_amount: c.commission_amount ?? null,
+          is_external: !!c.is_external,
+        });
+      }
+    } catch { /* colonna non ancora presente: nessuna provvigione */ }
+
     const transformedUsers = (staffUsers || []).map(user => ({
       id: user.id,
       email: user.email,
@@ -46,8 +62,14 @@ export async function GET() {
       last_login: user.last_login_at,
       last_login_ip: user.last_login_ip,
       status: user.is_active ? 'active' : 'inactive',
+      // Ciclo di vita reale (invited/active/suspended) per distinguere gli
+      // inviti in sospeso dagli account attivi nell'UI.
+      account_status: user.status || (user.is_active ? 'active' : 'suspended'),
+      email_verified: !!user.email_verified_at,
       session_count: sessionCount.get(user.id) || 0,
-      total_actions: 0
+      total_actions: 0,
+      commission_amount: commissionByStaff.get(user.id)?.commission_amount ?? null,
+      is_external: commissionByStaff.get(user.id)?.is_external ?? false,
     }));
 
     return NextResponse.json({

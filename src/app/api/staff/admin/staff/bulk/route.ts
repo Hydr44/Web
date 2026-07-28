@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createAuditLog } from '@/lib/staff-audit';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
+import { findProtectedStaffIds } from '@/lib/staff-protected';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,10 +10,19 @@ export async function POST(request: NextRequest) {
     if (!staff) {
       return NextResponse.json({ success: false, error: 'Non autenticato' }, { status: 401 });
     }
-    const { userIds, action } = await request.json();
+    const body = await request.json();
+    const action = body.action;
+    let userIds = body.userIds;
     // Azioni distruttive (sospensione/eliminazione) solo per admin/super_admin
     if ((action === 'delete' || action === 'suspend') && !requireStaffRole(staff, 'admin')) {
       return NextResponse.json({ success: false, error: 'Permessi insufficienti per questa azione' }, { status: 403 });
+    }
+
+    // Guard account primario protetto: rimuovi gli id protetti dalle azioni
+    // distruttive così un bulk delete/suspend non li tocca mai.
+    if ((action === 'delete' || action === 'suspend') && Array.isArray(userIds)) {
+      const prot = await findProtectedStaffIds(userIds);
+      userIds = userIds.filter((id: string) => !prot.has(id));
     }
 
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {

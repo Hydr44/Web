@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Settings, Shield, Eye, Database } from "lucide-react";
 import { useCookieConsent, type CookiePreferences } from "@/hooks/useCookieConsent";
 
@@ -16,6 +17,7 @@ export default function CookieConsentModal() {
   const [visible, setVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [localPreferences, setLocalPreferences] = useState<CookiePreferences>(preferences);
+  const pathname = usePathname();
 
   // Mostra banner solo se non c'è consenso
   useEffect(() => {
@@ -28,6 +30,9 @@ export default function CookieConsentModal() {
   useEffect(() => {
     setLocalPreferences(preferences);
   }, [preferences]);
+
+  // Niente banner cookie sulle pagine cliente a tutto schermo (tracking/posizione).
+  if (pathname?.startsWith("/track") || pathname?.startsWith("/assist")) return null;
 
   const acceptAll = () => {
     handleAcceptAll();
@@ -56,11 +61,10 @@ export default function CookieConsentModal() {
         bottom: 0,
         zIndex: 9999,
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "center",
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         padding: "1rem",
-        paddingTop: "120px",
       }}
     >
       <div
@@ -74,18 +78,9 @@ export default function CookieConsentModal() {
       >
         <div className="bg-white border-2 border-[#0f172a] shadow-2xl">
           {/* Header dark — stile sito */}
-          <div className="bg-[#0f172a] px-6 py-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-0.5">Privacy</p>
-              <h2 className="text-lg font-extrabold text-white leading-tight">Utilizziamo i cookie</h2>
-            </div>
-            <button
-              onClick={rejectNonEssential}
-              className="text-slate-400 hover:text-white transition-colors text-xl font-bold leading-none"
-              aria-label="Chiudi"
-            >
-              ×
-            </button>
+          <div className="bg-[#0f172a] px-6 py-4">
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-0.5">Privacy</p>
+            <h2 className="text-lg font-extrabold text-white leading-tight">Utilizziamo i cookie</h2>
           </div>
 
           {/* Corpo */}

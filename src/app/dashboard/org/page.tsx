@@ -11,7 +11,6 @@ import {
   FileText,
   CreditCard,
   Hash,
-  Pencil,
 } from "lucide-react";
 
 export default function OrgPage() {
@@ -150,15 +149,8 @@ export default function OrgPage() {
             Informazioni operative e fiscali in sola lettura
           </p>
         </div>
-        {orgData && (
-          <a
-            href="/dashboard/org/edit"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-gray-900 rounded hover:bg-primary/90 transition-colors"
-          >
-            <Pencil className="h-4 w-4" />
-            Modifica
-          </a>
-        )}
+        {/* Tasto "Modifica" rimosso dalla dashboard web: i dati org sono in sola
+            lettura qui (si modificano dall'app desktop / pannello admin). */}
       </div>
 
       {orgData ? (

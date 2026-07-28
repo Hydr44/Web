@@ -17,6 +17,7 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import WhatsAppFab from "@/components/WhatsAppFab";
 
 export default function HomeClient() {
     const searchParams = useSearchParams();
@@ -156,20 +157,22 @@ export default function HomeClient() {
                     <div className="flex items-center px-6 lg:px-12 xl:px-20 py-20 bg-[#0f172a] relative z-10">
                         <div className="max-w-lg">
                             <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-[1.05]">
-                                Gestisci.<br />
-                                Demolisci.<br />
+                                Soccorri.<br />
+                                Trasporta.<br />
                                 <span className="text-blue-500">Fattura.</span>
                             </h1>
                             {/* Il sottotitolo dell'hero è anche segnale SEO forte.
-                                Citiamo esplicitamente i settori target (autodemolitori,
-                                soccorso stradale, officine, carrozzerie) e le sigle che
-                                gli utenti cercano (RENTRI, VFU, SDI). */}
+                                Settori target in ordine di focus: soccorso stradale,
+                                trasporti, autodemolitori. Sigle cercate: RENTRI, VFU,
+                                SDI. Niente officine/carrozzerie (non è il pubblico). */}
                             <p className="text-lg text-slate-400 mb-10 leading-relaxed">
                                 {"Il software gestionale per "}
-                                <strong className="text-slate-200">autodemolitori</strong>
-                                {", "}
                                 <strong className="text-slate-200">soccorso stradale</strong>
-                                {", officine e carrozzerie. Registro "}
+                                {", "}
+                                <strong className="text-slate-200">trasporti</strong>
+                                {" e "}
+                                <strong className="text-slate-200">autodemolitori</strong>
+                                {". Dispatch interventi su mappa, Registro "}
                                 <strong className="text-slate-200">RENTRI</strong>
                                 {", Registro Veicoli Fuori Uso ("}
                                 <strong className="text-slate-200">VFU</strong>
@@ -583,7 +586,7 @@ export default function HomeClient() {
                             <span className="text-6xl font-extrabold text-blue-500">3</span>
                             <h3 className="text-lg font-extrabold text-[#0f172a] mb-2 mt-2">Inizi a lavorare</h3>
                             <p className="text-sm text-gray-500">
-                                Provi gratis per 30 giorni. Se non ti convince, non paghi nulla. Nessun vincolo.
+                                14 giorni soddisfatti o rimborsati: se non ti convince, ti restituiamo tutto. Nessun vincolo.
                             </p>
                         </div>
                     </div>
@@ -614,6 +617,9 @@ export default function HomeClient() {
                     </div>
                 </div>
             </section>
+
+            {/* Contatto diretto WhatsApp — sticky, solo sulla home */}
+            <WhatsAppFab />
         </main>
     );
 }

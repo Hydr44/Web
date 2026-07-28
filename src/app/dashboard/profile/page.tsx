@@ -13,7 +13,6 @@ import {
   Edit,
   Save,
   X,
-  Camera,
   Globe,
   Clock,
   Bell,
@@ -207,11 +206,6 @@ export default function ProfilePage() {
                 <div className="w-24 h-24 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100  text-2xl font-bold">
                   {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
                 </div>
-                {editing && (
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors duration-200">
-                    <Camera className="h-4 w-4" />
-                  </button>
-                )}
               </div>
               
               <h2 className="text-xl font-semibold text-gray-900 mb-1">
@@ -370,10 +364,11 @@ export default function ProfilePage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
-                    <option value="Europe/Rome">Europa/Roma (GMT+1)</option>
+                    <option value="Europe/Rome">Italia — Europa/Roma (GMT+1)</option>
                     <option value="Europe/London">Europa/Londra (GMT+0)</option>
-                    <option value="America/New_York">America/New York (GMT-5)</option>
-                    <option value="Asia/Tokyo">Asia/Tokyo (GMT+9)</option>
+                    <option value="Europe/Paris">Europa/Parigi (GMT+1)</option>
+                    <option value="Europe/Berlin">Europa/Berlino (GMT+1)</option>
+                    <option value="Europe/Madrid">Europa/Madrid (GMT+1)</option>
                   </select>
                 ) : (
                   <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">

@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
+import NewsletterForm from "./NewsletterForm";
 
 export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="bg-[#0f172a] text-white">
+      {/* Newsletter */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-6 items-center">
+          <div>
+            <h3 className="text-lg font-bold text-white">Resta aggiornato</h3>
+            <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+              Novità di prodotto e aggiornamenti normativi (RENTRI, SDI, RVFU) direttamente nella tua casella. Niente spam.
+            </p>
+          </div>
+          <NewsletterForm source="footer" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 py-14">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
@@ -68,6 +82,20 @@ export default function SiteFooter() {
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Contattaci</Link></li>
               <li><Link href="/chi-siamo" className="text-slate-400 hover:text-white transition-colors">Chi siamo</Link></li>
               <li><Link href="/demo" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
+              <li>
+                <a
+                  href="https://stats.uptimerobot.com/vqC6fnBuTL"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                  </span>
+                  Stato servizi
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { corsHeaders } from '@/lib/cors';
 import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanager.eu").replace(/^http:/, "https:");
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
@@ -31,6 +32,15 @@ export async function POST(
       body: JSON.stringify(body),
     });
     const data = await response.json();
+    // Attivazione riuscita = verifica completata+approvata → rimuovi il gate
+    // così l'app si sblocca (overlay "verifica dati" scompare).
+    if (response.ok && data?.org_id) {
+      try {
+        await supabaseAdmin.from('orgs').update({ verification_pending: false }).eq('id', data.org_id);
+      } catch (e: any) {
+        console.error('[activate] clear verification_pending failed:', e?.message);
+      }
+    }
     return NextResponse.json(data, { status: response.status, headers: corsHeaders(origin) });
   } catch (error: any) {
     return NextResponse.json(

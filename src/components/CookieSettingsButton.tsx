@@ -2,12 +2,18 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Settings } from "lucide-react";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 export default function CookieSettingsButton() {
   const { hasConsent } = useCookieConsent();
   const [showModal, setShowModal] = useState(false);
+  const pathname = usePathname();
+
+  // Pagine cliente a tutto schermo (tracking mezzo / condivisione posizione):
+  // niente rotellina cookie che copre la mappa.
+  if (pathname?.startsWith("/track") || pathname?.startsWith("/assist")) return null;
 
   // Mostra solo se l'utente ha già dato il consenso
   if (!hasConsent) return null;
