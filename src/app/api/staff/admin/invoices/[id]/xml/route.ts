@@ -19,7 +19,23 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, error: 'Fattura non trovata' }, { status: 404, headers });
     }
     const out = await buildFatturaPaXml(params.id);
-    if (!out) return NextResponse.json({ success: false, error: 'XML non disponibile per questo documento (le fatture passive non sono emesse da noi)' }, { status: 400, headers });
+    if (!out) {
+      // Passive: non le emettiamo noi → serviamo l'XML RICEVUTO, estratto dal
+      // file firmato .p7m e salvato in meta.sdi_xml dallo sdi-processor (VPS).
+      const receivedXml = (detail.meta as { sdi_xml?: string } | null)?.sdi_xml;
+      if (receivedXml) {
+        return new NextResponse(String(receivedXml), {
+          status: 200,
+          headers: {
+            ...headers,
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Content-Disposition': `attachment; filename="${detail.invoice.number || 'fattura'}.xml"`,
+            'Cache-Control': 'no-store',
+          },
+        });
+      }
+      return NextResponse.json({ success: false, error: 'XML non ancora disponibile (in attesa di ricezione/elaborazione SDI)' }, { status: 400, headers });
+    }
     return new NextResponse(out.xml, {
       status: 200,
       headers: {
