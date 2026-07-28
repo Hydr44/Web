@@ -32,6 +32,10 @@ const ARCHS: Record<Platform, Arch[]> = {
   linux: ['x64'],
 };
 
+// Scheda App Store iOS pubblica (default). Sovrascrivibile da admin via
+// system_settings.mobile_app_store_url senza toccare il codice.
+const DEFAULT_IOS_APP_STORE_URL = 'https://apps.apple.com/it/app/rescuemanager/id6774180587';
+
 export async function GET(request: Request) {
   const origin = request.headers.get('origin');
   try {
@@ -115,7 +119,7 @@ export async function GET(request: Request) {
       ? { ...android, url: `/api/app-update/${encodeURIComponent(android.filename)}` }
       : null;
 
-    let iosAppStoreUrl: string | null = null;
+    let iosAppStoreUrl: string | null = DEFAULT_IOS_APP_STORE_URL;
     const { data: cfg } = await supabaseAdmin
       .from('system_settings')
       .select('key, value')
