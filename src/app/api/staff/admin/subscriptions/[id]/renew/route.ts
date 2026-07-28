@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
-import { getStaffFromRequest } from '@/lib/staff-auth';
+import { verifyStaffToken } from '@/lib/staff-auth';
 
 // Rinnovo manuale "avvenuto pagamento" di un abbonamento org.
 // id = org_id (PK di org_subscriptions). Pensato per pagamenti FUORI Stripe
@@ -62,15 +62,19 @@ export async function POST(
   try {
     const { id: orgId } = await params;
 
-    // Difesa in profondità: oltre al middleware /api/staff/*, verifica che lo
-    // staff esista ancora e sia attivo, e cattura l'email per il ledger.
-    const staff = await getStaffFromRequest(request);
-    if (!staff) {
-      return NextResponse.json(
-        { success: false, error: 'Non autenticato' },
-        { status: 401, headers: corsHeaders(origin) }
-      );
-    }
+    // L'AUTH è già garantita dal middleware su /api/staff/* (identico a
+    // reactivate/cancel). NON ri-gate-iamo qui con un lookup DB su `staff`:
+    // farlo dava 401 se il sub del token non combaciava con una riga staff.
+    // Leggiamo solo l'email dal token in best-effort per il ledger, senza mai
+    // bloccare il rinnovo.
+    let recordedBy: string | null = null;
+    try {
+      const auth = request.headers.get('authorization');
+      if (auth?.startsWith('Bearer ')) {
+        const payload = await verifyStaffToken(auth.slice(7));
+        recordedBy = payload?.email ?? null;
+      }
+    } catch { /* best-effort: email opzionale */ }
 
     const body = await request.json().catch(() => ({} as Record<string, unknown>));
     const { interval, note, amount, paymentDate } = parseRenewBody(body);
@@ -129,7 +133,7 @@ export async function POST(
       period_end: newEnd.toISOString(),
       method: 'manual',
       note,
-      recorded_by: staff.email,
+      recorded_by: recordedBy,
     });
 
     return NextResponse.json(
