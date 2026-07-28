@@ -32,7 +32,7 @@ export async function GET(request: Request) {
         'email_from', 'email_support', 'max_users_per_org', 'max_vehicles_per_org',
         'maintenance_enabled', 'maintenance_message', 'registration_enabled',
         'trial_days', 'default_plan', 'website_maintenance_enabled', 'website_maintenance_message',
-        'mandatory_2fa_enabled'
+        'mandatory_2fa_enabled', 'mobile_app_store_url'
       ]);
 
     const settings: Record<string, any> = {};
@@ -53,6 +53,7 @@ export async function GET(request: Request) {
       website_maintenance_enabled: settings.website_maintenance_enabled === true,
       website_maintenance_message: settings.website_maintenance_message || '',
       mandatory_2fa_enabled: settings.mandatory_2fa_enabled === true || settings.mandatory_2fa_enabled === 'true',
+      mobile_app_store_url: settings.mobile_app_store_url || '',
     };
 
     return NextResponse.json({ success: true, config }, { headers: corsHeaders(origin) });
@@ -84,6 +85,7 @@ export async function PUT(request: Request) {
     if (body.trial_days !== undefined) updates.push({ key: 'trial_days', value: body.trial_days, desc: 'Giorni di prova gratuita' });
     if (body.default_plan !== undefined) updates.push({ key: 'default_plan', value: body.default_plan, desc: 'Piano di default' });
     if (body.mandatory_2fa_enabled !== undefined) updates.push({ key: 'mandatory_2fa_enabled', value: body.mandatory_2fa_enabled === true || body.mandatory_2fa_enabled === 'true', desc: '2FA obbligatoria per accesso dashboard' });
+    if (body.mobile_app_store_url !== undefined) updates.push({ key: 'mobile_app_store_url', value: String(body.mobile_app_store_url || '').trim(), desc: 'URL App Store app mobile iOS (bottone in /download)' });
 
     for (const u of updates) {
       const err = await setSetting(u.key, u.value, u.desc);

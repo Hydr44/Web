@@ -48,11 +48,15 @@ export async function GET(request: Request) {
     };
     const legacyArch: Record<Platform, Record<string, Rel>> = { win: {}, mac: {}, linux: {} };
     const legacyV1: Partial<Record<Platform, Rel>> = {};
+    let android: Rel | null = null;
 
     for (const row of data || []) {
       const key = String(row.key);
       const v = (row.value || {}) as Rel;
       if (!v.filename) continue;
+
+      // Mobile Android: APK universale ospitato (nessun arch, nessun manifest).
+      if (key === 'app_release_android_apk') { android = v; continue; }
 
       // Nuovo formato: app_release_<plat>_<arch>_<asset>
       const m3 = key.match(/^app_release_(win|mac|linux)_(arm64|x64)_([a-z]+)$/);
@@ -103,10 +107,28 @@ export async function GET(request: Request) {
     const flat: Record<Platform, (Rel & { url: string }) | null> = { win: null, mac: null, linux: null };
     for (const plat of ['win', 'mac', 'linux'] as Platform[]) {
       // Preferenza per il "default" flat: arm64 su mac (la maggioranza moderna), x64 su win/linux
-      flat[plat] = out[plat].arm64 || out[plat].x64 || null;
+      flat[plat] = out[plat].arm64 ?? out[plat].x64 ?? null;
     }
 
-    return NextResponse.json({ success: true, releases: flat, releasesByArch: out }, { headers: corsHeaders(origin) });
+    // Mobile: APK Android (download diretto) + URL App Store iOS (config admin).
+    const androidOut = android?.filename
+      ? { ...android, url: `/api/app-update/${encodeURIComponent(android.filename)}` }
+      : null;
+
+    let iosAppStoreUrl: string | null = null;
+    const { data: cfg } = await supabaseAdmin
+      .from('system_settings')
+      .select('key, value')
+      .eq('key', 'mobile_app_store_url')
+      .maybeSingle();
+    if (cfg?.value && typeof cfg.value === 'string' && cfg.value.trim()) {
+      iosAppStoreUrl = cfg.value.trim();
+    }
+
+    return NextResponse.json(
+      { success: true, releases: flat, releasesByArch: out, android: androidOut, iosAppStoreUrl },
+      { headers: corsHeaders(origin) }
+    );
   } catch (error) {
     console.error('app-release/latest error:', error);
     return NextResponse.json({ success: false, error: 'Errore' }, { status: 500, headers: corsHeaders(origin) });

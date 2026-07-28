@@ -70,6 +70,35 @@ export async function POST(request: NextRequest) {
   try {
     const { version: rawVersion, platform, filename, sha512, size } = await request.json();
 
+    // --- Android (APK ospitato da noi) --------------------------------------
+    // Nessun manifest electron-updater e nessuno split per architettura: un solo
+    // APK universale servito in download diretto da /download. La version è
+    // opzionale (informativa) — se il filename la contiene la mostriamo.
+    if (platform === 'android') {
+      if (!filename || !sha512 || !size) {
+        return NextResponse.json({ success: false, error: 'Campi mancanti (filename, sha512, size)' }, { status: 400, headers: corsHeaders(origin) });
+      }
+      if (!String(filename).toLowerCase().endsWith('.apk')) {
+        return NextResponse.json({ success: false, error: 'Android accetta solo file .apk' }, { status: 400, headers: corsHeaders(origin) });
+      }
+      const safeName = String(filename).replace(/[/\\]/g, '_');
+      const releaseDate = new Date().toISOString();
+      const version = normalizeVersion(String(rawVersion || ''), String(filename)) || null;
+      await supabaseAdmin.from('system_settings').upsert(
+        {
+          key: 'app_release_android_apk',
+          value: { version, filename: safeName, size, sha512, releaseDate, assetType: 'apk', platform: 'android' },
+          description: 'Release mobile Android (APK, download diretto)',
+          updated_at: releaseDate,
+        },
+        { onConflict: 'key' }
+      );
+      return NextResponse.json(
+        { success: true, version, platform: 'android', assetType: 'apk', manifestUpdated: false },
+        { headers: corsHeaders(origin) }
+      );
+    }
+
     if (!rawVersion || !platform || !filename || !sha512 || !size) {
       return NextResponse.json({ success: false, error: 'Campi mancanti' }, { status: 400, headers: corsHeaders(origin) });
     }
