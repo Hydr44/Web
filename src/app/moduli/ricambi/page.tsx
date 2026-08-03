@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Package, Search, ShoppingCart, CheckCircle2, Barcode, Tag, ArrowRight } from "lucide-react";
+import { ArrowLeft, Package, Search, ShoppingCart, Barcode, Tag, ArrowRight } from "lucide-react";
 
 export default function RicambiPage() {
   return (
@@ -100,35 +100,35 @@ export default function RicambiPage() {
           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Modalità di Ricerca</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
               <div>
                 <div className="text-sm font-medium text-gray-800">Codice OEM</div>
                 <div className="text-xs text-gray-500">Ricerca per codice originale costruttore con cross-reference automatico</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
               <div>
                 <div className="text-sm font-medium text-gray-800">Codice EAN</div>
                 <div className="text-xs text-gray-500">Identificazione tramite barcode EAN-13 con scanner integrato</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
               <div>
                 <div className="text-sm font-medium text-gray-800">Targa Veicolo</div>
                 <div className="text-xs text-gray-500">Ricerca ricambi compatibili inserendo solo la targa</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
               <div>
                 <div className="text-sm font-medium text-gray-800">Numero Telaio (VIN)</div>
                 <div className="text-xs text-gray-500">Decodifica VIN per identificazione precisa del veicolo</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
               <div>
                 <div className="text-sm font-medium text-gray-800">Ricerca Testuale</div>
                 <div className="text-xs text-gray-500">Ricerca libera per nome ricambio o categoria (es. "filtro olio")</div>
