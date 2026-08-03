@@ -6,7 +6,6 @@ import {
     ArrowRight,
     CheckCircle2,
     Phone,
-    Receipt,
     Recycle,
     AlertCircle,
     Truck,
@@ -35,7 +34,7 @@ export default function HomeClient() {
             steps: [
                 "Nuovo intervento e assegnazione dell'autista",
                 "Tracking GPS e navigazione turn-by-turn",
-                "Foto, firma digitale e fattura al SdI",
+                "Foto, firma digitale e fattura elettronica",
             ],
             src: "/video/soccorso.mp4",
             poster: "/video/soccorso-poster.jpg",
@@ -55,6 +54,54 @@ export default function HomeClient() {
             poster: "/video/demolizione-poster.jpg",
         },
     } as const;
+
+    const ENTI = [
+        "RENTRI",
+        "Agenzia delle Entrate",
+        "ACI · PRA",
+        "Ministero dei Trasporti",
+        "Motorizzazione · STA",
+        "UNRAE",
+        "RicambiPro",
+    ];
+
+    const INTEGRAZIONI = [
+        {
+            num: "01",
+            ente: "Ministero dei Trasporti · STA",
+            title: "Radiazioni RVFU",
+            desc: "Colleghi il gestionale al Registro nazionale: radi il veicolo e generi il certificato di rottamazione senza passare da altri portali.",
+            points: ["Ricerca dati veicolo da targa", "Certificato di demolizione automatico", "Invio telematico a STA"],
+        },
+        {
+            num: "02",
+            ente: "Agenzia delle Entrate",
+            title: "Fatturazione elettronica",
+            desc: "Crei la fattura, il sistema genera l'XML e lo trasmette all'Agenzia delle Entrate. Ricevi le notifiche di consegna in automatico.",
+            points: ["Trasmissione automatica", "Bollo, ritenuta e cassa previdenziale", "Scadenzario e solleciti"],
+        },
+        {
+            num: "03",
+            ente: "Registro RENTRI",
+            title: "Rifiuti e formulari",
+            desc: "Registro di carico e scarico, formulari e trasmissione dati al registro nazionale, tutto integrato nel gestionale.",
+            points: ["Registro carico/scarico digitale", "Formulari di trasporto rifiuti", "Trasmissione automatica al registro"],
+        },
+        {
+            num: "04",
+            ente: "UNRAE",
+            title: "Statistiche e demolizioni",
+            desc: "Trasmetti le demolizioni e consulti i dati di settore direttamente dal gestionale, senza reinserire nulla a mano.",
+            points: ["Inserimento demolizioni", "Reti di vendita", "Statistiche di settore"],
+        },
+        {
+            num: "05",
+            ente: "RicambiPro",
+            title: "Catalogo ricambi",
+            desc: "Catalogo ricambi integrato: cerchi il pezzo, verifichi compatibilità e disponibilità senza uscire dal gestionale.",
+            points: ["Ricerca per veicolo", "Compatibilità e cross-reference", "Disponibilità e ordini"],
+        },
+    ];
 
     useEffect(() => {
         const handleAuthCallback = async () => {
@@ -206,7 +253,7 @@ export default function HomeClient() {
                                 <strong className="text-slate-200">RENTRI</strong>
                                 {", Registro Veicoli Fuori Uso ("}
                                 <strong className="text-slate-200">VFU</strong>
-                                {"), fatturazione elettronica SDI. Un programma. Zero complicazioni."}
+                                {"), fatturazione elettronica. Un programma. Zero complicazioni."}
                             </p>
                             <div className="flex flex-wrap gap-4">
                                 <Link
@@ -379,12 +426,12 @@ export default function HomeClient() {
                                 Fatture elettroniche in automatico
                             </h3>
                             <p className="text-gray-500 mb-5">
-                                Crei la fattura, la invii allo SDI e il sistema ti avvisa quando è accettata.
+                                Crei la fattura, la trasmetti all&apos;Agenzia delle Entrate e il sistema ti avvisa quando è accettata.
                                 Tutto conforme alla normativa italiana, senza pensieri.
                             </p>
                             <ul className="space-y-2.5">
                                 {[
-                                    "Invio automatico allo SDI",
+                                    "Trasmissione automatica all'Agenzia delle Entrate",
                                     "Notifiche di accettazione in tempo reale",
                                     "Conservazione sostitutiva inclusa",
                                     "Gestione note di credito e storni"
@@ -408,93 +455,58 @@ export default function HomeClient() {
                     <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4">
                         Integrazioni certificate<span className="text-blue-500">.</span>
                     </h2>
-                    <p className="text-slate-400 mb-14 max-w-2xl">
-                        Collegamento diretto con gli enti governativi. Niente copia-incolla, niente doppio lavoro.
+                    <p className="text-slate-400 mb-10 max-w-2xl">
+                        Collegamento diretto con enti e servizi certificati. Niente copia-incolla, niente doppio lavoro.
                     </p>
 
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {/* RVFU */}
-                        <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
-                            <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                                <Image
-                                    src="/icons/icons8/icons8-auto-50-10.png"
-                                    alt="RVFU"
-                                    width={20}
-                                    height={20}
-                                />
-                            </div>
-                            <h3 className="text-lg font-bold text-white mb-2">Radiazioni RVFU</h3>
-                            <p className="text-sm text-slate-400 mb-4">
-                                Collegamento diretto al Ministero dei Trasporti.
-                                Radi il veicolo dal gestionale senza passare da altri portali.
-                            </p>
-                            <ul className="space-y-2 text-sm text-slate-400">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Certificato di demolizione automatico
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Ricerca dati veicolo da targa
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Invio telematico a STA
-                                </li>
-                            </ul>
+                    {/* Striscia integrazioni (scorrevole) */}
+                    <div className="rm-marquee py-6 border-y border-slate-800">
+                        <div className="rm-marquee-track items-center">
+                            {[...ENTI, ...ENTI].map((n, i) => (
+                                <span key={i} className="flex items-center whitespace-nowrap">
+                                    <span className="text-lg lg:text-xl font-bold uppercase tracking-wider text-slate-400 px-8">
+                                        {n}
+                                    </span>
+                                    <span className="text-blue-500/50">•</span>
+                                </span>
+                            ))}
                         </div>
+                    </div>
 
-                        {/* SDI */}
-                        <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
-                            <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                                <Receipt className="h-5 w-5 text-blue-500" />
+                    {/* Integrazioni — layout editoriale */}
+                    <div className="mt-14 border-t border-slate-800">
+                        {INTEGRAZIONI.map((it) => (
+                            <div
+                                key={it.num}
+                                className="grid md:grid-cols-12 gap-x-8 gap-y-4 py-8 border-b border-slate-800"
+                            >
+                                <div className="md:col-span-4 flex items-start gap-4">
+                                    <span className="text-sm font-mono text-blue-500/60 mt-1.5">{it.num}</span>
+                                    <div>
+                                        <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1.5">
+                                            {it.ente}
+                                        </div>
+                                        <h3 className="text-xl lg:text-2xl font-extrabold text-white leading-tight">
+                                            {it.title}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-8">
+                                    <p className="text-slate-400 mb-4 max-w-2xl">{it.desc}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {it.points.map((p) => (
+                                            <span
+                                                key={p}
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1.5"
+                                            >
+                                                <CheckCircle2 className="h-3 w-3 text-blue-500 flex-shrink-0" />
+                                                {p}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-2">Fatturazione Elettronica</h3>
-                            <p className="text-sm text-slate-400 mb-4">
-                                Crei la fattura, il sistema genera l&apos;XML e lo invia all&apos;Agenzia delle Entrate.
-                                Ricevi le notifiche di consegna in automatico.
-                            </p>
-                            <ul className="space-y-2 text-sm text-slate-400">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Invio automatico via SDI
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Bollo, ritenuta, cassa previdenziale
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Scadenzario e solleciti
-                                </li>
-                            </ul>
-                        </div>
-
-                        {/* RENTRI */}
-                        <div className="bg-[#1e293b] rounded-lg border border-slate-700 p-7">
-                            <div className="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                                <Recycle className="h-5 w-5 text-blue-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-white mb-2">Registro RENTRI</h3>
-                            <p className="text-sm text-slate-400 mb-4">
-                                Registro di carico e scarico rifiuti, formulari,
-                                trasmissione dati al registro nazionale. Tutto integrato.
-                            </p>
-                            <ul className="space-y-2 text-sm text-slate-400">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Registro carico/scarico digitale
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Formulari di trasporto rifiuti
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-                                    Trasmissione automatica al ministero
-                                </li>
-                            </ul>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
