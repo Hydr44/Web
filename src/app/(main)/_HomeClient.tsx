@@ -55,14 +55,12 @@ export default function HomeClient() {
         },
     } as const;
 
-    const ENTI = [
-        "RENTRI",
-        "Agenzia delle Entrate",
-        "ACI · PRA",
-        "Ministero dei Trasporti",
-        "Motorizzazione · STA",
-        "UNRAE",
-        "RicambiPro",
+    const LOGHI = [
+        { src: "/loghi/rentri.jpg", alt: "RENTRI", w: 900, h: 520 },
+        { src: "/loghi/fatturapa.jpg", alt: "FatturaPA", w: 660, h: 360 },
+        { src: "/loghi/mit.webp", alt: "Ministero delle Infrastrutture e dei Trasporti", w: 960, h: 640 },
+        { src: "/loghi/unrae.png", alt: "UNRAE", w: 300, h: 260 },
+        { src: "/loghi/ricambipro.png", alt: "RicambiPro", w: 600, h: 170 },
     ];
 
     const INTEGRAZIONI = [
@@ -459,16 +457,22 @@ export default function HomeClient() {
                         Collegamento diretto con enti e servizi certificati. Niente copia-incolla, niente doppio lavoro.
                     </p>
 
-                    {/* Striscia integrazioni (scorrevole) */}
-                    <div className="rm-marquee py-6 border-y border-slate-800">
+                    {/* Striscia loghi integrazioni (scorrevole) */}
+                    <div className="rm-marquee py-8 border-y border-slate-800">
                         <div className="rm-marquee-track items-center">
-                            {[...ENTI, ...ENTI].map((n, i) => (
-                                <span key={i} className="flex items-center whitespace-nowrap">
-                                    <span className="text-lg lg:text-xl font-bold uppercase tracking-wider text-slate-400 px-8">
-                                        {n}
-                                    </span>
-                                    <span className="text-blue-500/50">•</span>
-                                </span>
+                            {[...LOGHI, ...LOGHI].map((l, i) => (
+                                <div
+                                    key={i}
+                                    className="mx-4 flex h-16 shrink-0 items-center justify-center rounded-lg bg-white px-7"
+                                >
+                                    <Image
+                                        src={l.src}
+                                        alt={l.alt}
+                                        width={l.w}
+                                        height={l.h}
+                                        className="h-9 lg:h-10 w-auto object-contain"
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
