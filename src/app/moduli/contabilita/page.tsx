@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, TrendingUp, FileText, CheckCircle2, Receipt, PieChart, ArrowRight } from "lucide-react";
+import { ArrowLeft, TrendingUp, FileText, Receipt, PieChart, ArrowRight } from "lucide-react";
 
 export default function ContabilitaPage() {
   return (
@@ -65,7 +65,7 @@ export default function ContabilitaPage() {
           <div className="grid sm:grid-cols-3 gap-3">
             {["Fattura Emessa","Fattura Ricevuta","Incasso Cliente","Pagamento Fornitore","Nota Spese","Stipendi"].map((c) => (
               <div key={c} className="flex items-center gap-2 p-3 border border-gray-200 bg-white">
-                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <span className="h-1.5 w-1.5 shrink-0 bg-blue-500" />
                 <span className="text-sm font-medium text-gray-800">{c}</span>
               </div>
             ))}
