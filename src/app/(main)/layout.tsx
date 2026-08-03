@@ -1,5 +1,4 @@
 import SiteFooter from "@/components/SiteFooter";
-import ChatwootWidget from "@/components/ChatwootWidget";
 import ImagePreloader from "@/components/ImagePreloader";
 
 export default function MainLayout({
@@ -13,8 +12,7 @@ export default function MainLayout({
       
       {/* Footer e componenti per pagine principali */}
       <SiteFooter />
-      <ChatwootWidget />
-      <ImagePreloader 
+      <ImagePreloader
         images={[
           "/mockups/dashboard-mockup.jpg",
           "/670shots_so.png"
