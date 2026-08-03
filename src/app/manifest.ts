@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "RescueManager — Gestionale soccorso stradale, trasporti e autodemolizione",
     short_name: "RescueManager",
     description:
-      "Software gestionale per soccorso stradale e autodemolizioni. Soccorso & trasporti, RVFU, RENTRI, fatturazione SDI.",
+      "Software gestionale per soccorso stradale e autodemolizioni. Soccorso & trasporti, RVFU, RENTRI, fatturazione elettronica.",
     start_url: "/",
     scope: "/",
     display: "standalone",
