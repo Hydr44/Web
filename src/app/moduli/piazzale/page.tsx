@@ -135,7 +135,7 @@ export default function PiazzalePage() {
       <section className="py-16 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-extrabold text-white mb-4">La custodia veicoli sempre sotto controllo.</h2>
-          <p className="text-blue-100 mb-8">Mappa veicoli, stati, operatori. Demo gratuita, 30 minuti.</p>
+          <p className="text-blue-50 mb-8">Mappa veicoli, stati, operatori. Demo gratuita, 30 minuti.</p>
           <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
             RICHIEDI DEMO <ArrowRight className="h-4 w-4" />
           </Link>

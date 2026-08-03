@@ -100,7 +100,7 @@ export default function ChiSiamoPage() {
       <section className="py-24 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
-          <p className="text-blue-100 mb-10 text-lg">
+          <p className="text-blue-50 mb-10 text-lg">
             Raccontaci cosa fai e ti mostriamo come possiamo semplificarti il lavoro.
             Dimostrazione gratuita, zero impegno.
           </p>
@@ -113,7 +113,7 @@ export default function ChiSiamoPage() {
             </Link>
             <Link
               href="tel:+393921723028"
-              className="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors flex items-center gap-2"
+              className="px-8 py-4 text-white font-bold border-2 border-white/40 hover:bg-white/10 transition-colors flex items-center gap-2"
             >
               <Phone className="h-4 w-4" />
               392 172 3028

@@ -141,7 +141,7 @@ export default function CookieConsentModal() {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-400 text-center mt-4">
+                <p className="text-xs text-gray-500 text-center mt-4">
                   Conforme GDPR (UE 2016/679) · D.Lgs. 196/2003
                 </p>
               </>
