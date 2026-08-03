@@ -5,6 +5,7 @@ import HomeClient from "./_HomeClient";
 export const metadata: Metadata = {
   // Focus soccorso stradale + trasporti (prima parola dopo il brand = più peso),
   // poi autodemolitori. Niente officine/carrozzerie (non è il nostro pubblico).
+  alternates: { canonical: "/" },
   title: "Gestionale per soccorso stradale, trasporti e autodemolitori",
   description:
     "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica, Registro RENTRI rifiuti, Registro VFU, custodia veicoli e ricambi. 14 giorni soddisfatti o rimborsati, installazione inclusa.",

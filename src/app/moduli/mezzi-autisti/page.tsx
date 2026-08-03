@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Truck, UserCheck, Wrench, Clock, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Mezzi e autisti",
+  description: "Gestisci flotta e autisti: disponibilità, assegnazioni, scadenze e tracking dei mezzi in tempo reale.",
+  alternates: { canonical: "/moduli/mezzi-autisti" },
+};
 
 export default function MezziAutistiPage() {
   return (

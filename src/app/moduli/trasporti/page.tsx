@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Users, BarChart3, CheckCircle2, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Soccorso stradale e trasporti",
+  description: "Dispatch degli interventi su mappa, assegnazione di autisti e mezzi, tracking GPS in tempo reale e navigazione per gli autisti.",
+  alternates: { canonical: "/moduli/trasporti" },
+};
 
 export default function TrasportiPage() {
   return (

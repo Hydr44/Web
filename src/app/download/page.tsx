@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import DownloadPage from "./DownloadPage";
 
 export const metadata = {
+  alternates: { canonical: "/download" },
   title: "Scarica RescueManager Desktop",
   description: "Download dell'app desktop RescueManager per Windows, macOS e Linux.",
 };

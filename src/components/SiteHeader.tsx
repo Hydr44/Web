@@ -479,6 +479,8 @@ export default function SiteHeader() {
             <button
               className="lg:hidden p-2 rounded hover:bg-white/10 transition-colors text-slate-400"
               onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? "Chiudi menu" : "Apri menu"}
+              aria-expanded={menuOpen}
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>

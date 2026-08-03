@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, FileText, Send, CheckCircle2, AlertCircle, Download, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Fatturazione elettronica",
+  description: "Crea, trasmetti e monitora le fatture elettroniche verso l'Agenzia delle Entrate, con notifiche di consegna automatiche.",
+  alternates: { canonical: "/moduli/sdi" },
+};
 
 export default function SDIPage() {
   return (

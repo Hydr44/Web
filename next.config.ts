@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
     serverMinification: true,
   },
   poweredByHeader: false,
+  // Canonicalizza l'host: www.rescuemanager.eu -> rescuemanager.eu (301)
+  // Evita contenuti duplicati www/apex in Google Search Console.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.rescuemanager.eu" }],
+        destination: "https://rescuemanager.eu/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     // CORS per /api/staff/* gestita dinamicamente in src/middleware.ts
     // (allow-list che include Electron `app://` e localhost dev).
