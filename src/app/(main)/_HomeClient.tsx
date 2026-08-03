@@ -165,6 +165,8 @@ export default function HomeClient() {
 
     return (
         <main>
+            {/* Preload del poster hero (elemento LCP) con priorità alta: elimina il "resource load delay" */}
+            <link rel="preload" as="image" href="/video/soccorso-poster.jpg" fetchPriority="high" />
             {/* Error Banner */}
             {showError && (
                 <div className="fixed top-28 left-1/2 -translate-x-1/2 z-50 max-w-2xl w-full mx-4">
@@ -500,6 +502,7 @@ export default function HomeClient() {
                                     key={demoTab}
                                     controls
                                     playsInline
+                                    preload="none"
                                     className="w-full aspect-video"
                                     poster={DEMOS[demoTab].poster}
                                 >
