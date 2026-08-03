@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteHeader from "@/components/SiteHeader";
+import PromoBanner from "@/components/PromoBanner";
 import CookieConsentModal from "@/components/CookieConsentModal";
 import CookieSettingsButton from "@/components/CookieSettingsButton";
 import ConditionalScripts from "@/components/ConditionalScripts";
@@ -267,6 +268,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ConditionalScripts />
             <SpeedInsights />
             <ChatwootWidget />
+            <PromoBanner />
           </>
         )}
       </body>
