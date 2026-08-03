@@ -4,9 +4,8 @@
  * Pulsante sticky WhatsApp (contatto diretto).
  *
  * Reso SOLO sulla home (montato in _HomeClient.tsx). È posizionato in basso
- * a destra, IMPILATO SOPRA la bolla Chatwoot (che sta a bottom:20px/right:20px):
- * per questo usa bottom-24 così da non sovrapporsi al launcher della chat.
- * z-index alto per stare sopra i contenuti, ma sotto la finestra Chatwoot aperta.
+ * a destra, sollevato (bottom-24) per non sovrapporsi al banner promo che
+ * occupa la fascia inferiore. z-index alto per stare sopra i contenuti.
  */
 export default function WhatsAppFab() {
   const phone = "393921723028";
