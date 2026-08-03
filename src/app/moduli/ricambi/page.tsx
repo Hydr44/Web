@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Package, Search, ShoppingCart, Barcode, Tag, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Catalogo e magazzino ricambi",
+  description: "Magazzino ricambi e catalogo integrato: ricerca per veicolo, compatibilità, disponibilità e ordini senza uscire dal gestionale.",
+  alternates: { canonical: "/moduli/ricambi" },
+};
 
 export default function RicambiPage() {
   return (

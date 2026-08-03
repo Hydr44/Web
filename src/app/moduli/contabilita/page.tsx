@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, FileText, Receipt, PieChart, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Contabilità",
+  description: "Prima nota, partita doppia e piano dei conti, integrati con la fatturazione elettronica e la liquidazione IVA.",
+  alternates: { canonical: "/moduli/contabilita" },
+};
 
 export default function ContabilitaPage() {
   return (

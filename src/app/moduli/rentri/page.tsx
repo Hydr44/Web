@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Recycle, FileCheck, TrendingUp, AlertCircle, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Registro RENTRI rifiuti",
+  description: "Registro di carico e scarico, formulari e trasmissione automatica al RENTRI, tutto integrato nel gestionale.",
+  alternates: { canonical: "/moduli/rentri" },
+};
 
 export default function RENTRIPage() {
   return (
