@@ -491,17 +491,14 @@ export default function HomeClient() {
                                 </div>
                                 <div className="md:col-span-8">
                                     <p className="text-slate-400 mb-4 max-w-2xl">{it.desc}</p>
-                                    <div className="flex flex-wrap gap-2">
+                                    <ul className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2">
                                         {it.points.map((p) => (
-                                            <span
-                                                key={p}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-slate-800/60 border border-slate-700 rounded-full px-3 py-1.5"
-                                            >
-                                                <CheckCircle2 className="h-3 w-3 text-blue-500 flex-shrink-0" />
+                                            <li key={p} className="flex items-center gap-3 text-sm text-slate-300">
+                                                <span className="h-1.5 w-1.5 bg-blue-500 flex-shrink-0" />
                                                 {p}
-                                            </span>
+                                            </li>
                                         ))}
-                                    </div>
+                                    </ul>
                                 </div>
                             </div>
                         ))}
