@@ -62,41 +62,11 @@ export default function HomeClient() {
     ];
 
     const INTEGRAZIONI = [
-        {
-            num: "01",
-            ente: "Ministero dei Trasporti · STA",
-            title: "Radiazioni RVFU",
-            desc: "Colleghi il gestionale al Registro nazionale: radi il veicolo e generi il certificato di rottamazione senza passare da altri portali.",
-            points: ["Ricerca dati veicolo da targa", "Certificato di demolizione automatico", "Invio telematico a STA"],
-        },
-        {
-            num: "02",
-            ente: "Agenzia delle Entrate",
-            title: "Fatturazione elettronica",
-            desc: "Crei la fattura, il sistema genera l'XML e lo trasmette all'Agenzia delle Entrate. Ricevi le notifiche di consegna in automatico.",
-            points: ["Trasmissione automatica", "Bollo, ritenuta e cassa previdenziale", "Scadenzario e solleciti"],
-        },
-        {
-            num: "03",
-            ente: "Registro RENTRI",
-            title: "Rifiuti e formulari",
-            desc: "Registro di carico e scarico, formulari e trasmissione dati al registro nazionale, tutto integrato nel gestionale.",
-            points: ["Registro carico/scarico digitale", "Formulari di trasporto rifiuti", "Trasmissione automatica al registro"],
-        },
-        {
-            num: "04",
-            ente: "UNRAE",
-            title: "Statistiche e demolizioni",
-            desc: "Trasmetti le demolizioni e consulti i dati di settore direttamente dal gestionale, senza reinserire nulla a mano.",
-            points: ["Inserimento demolizioni", "Reti di vendita", "Statistiche di settore"],
-        },
-        {
-            num: "05",
-            ente: "RicambiPro",
-            title: "Catalogo ricambi",
-            desc: "Catalogo ricambi integrato: cerchi il pezzo, verifichi compatibilità e disponibilità senza uscire dal gestionale.",
-            points: ["Ricerca per veicolo", "Compatibilità e cross-reference", "Disponibilità e ordini"],
-        },
+        { ente: "Ministero dei Trasporti · STA", title: "Radiazioni RVFU", short: "Radi il veicolo e generi il certificato di rottamazione, collegato al Registro nazionale." },
+        { ente: "Agenzia delle Entrate", title: "Fatturazione elettronica", short: "Crei, trasmetti e monitori le fatture con notifiche automatiche." },
+        { ente: "Registro RENTRI", title: "Rifiuti e formulari", short: "Carico/scarico, formulari e trasmissione al registro nazionale." },
+        { ente: "UNRAE", title: "Statistiche e demolizioni", short: "Trasmetti le demolizioni e consulti i dati di settore." },
+        { ente: "RicambiPro", title: "Catalogo ricambi", short: "Cerchi il pezzo, verifichi compatibilità e disponibilità." },
     ];
 
     useEffect(() => {
@@ -471,35 +441,15 @@ export default function HomeClient() {
                         </div>
                     </div>
 
-                    {/* Integrazioni — layout editoriale */}
-                    <div className="mt-14 border-t border-slate-800">
+                    {/* Integrazioni — griglia minimale */}
+                    <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {INTEGRAZIONI.map((it) => (
-                            <div
-                                key={it.num}
-                                className="grid md:grid-cols-12 gap-x-8 gap-y-4 py-8 border-b border-slate-800"
-                            >
-                                <div className="md:col-span-4 flex items-start gap-4">
-                                    <span className="text-sm font-mono text-blue-500/60 mt-1.5">{it.num}</span>
-                                    <div>
-                                        <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1.5">
-                                            {it.ente}
-                                        </div>
-                                        <h3 className="text-xl lg:text-2xl font-extrabold text-white leading-tight">
-                                            {it.title}
-                                        </h3>
-                                    </div>
+                            <div key={it.title} className="border border-slate-800 p-7 transition-colors hover:border-blue-500/40">
+                                <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">
+                                    {it.ente}
                                 </div>
-                                <div className="md:col-span-8">
-                                    <p className="text-slate-400 mb-4 max-w-2xl">{it.desc}</p>
-                                    <ul className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2">
-                                        {it.points.map((p) => (
-                                            <li key={p} className="flex items-center gap-3 text-sm text-slate-300">
-                                                <span className="h-1.5 w-1.5 bg-blue-500 flex-shrink-0" />
-                                                {p}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                <h3 className="text-lg font-extrabold text-white mb-2">{it.title}</h3>
+                                <p className="text-sm text-slate-400 leading-relaxed">{it.short}</p>
                             </div>
                         ))}
                     </div>
