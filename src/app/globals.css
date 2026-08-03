@@ -1,6 +1,25 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* === Marquee striscia integrazioni === */
+@keyframes rm-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.rm-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.rm-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: rm-marquee 32s linear infinite;
+}
+.rm-marquee:hover .rm-marquee-track {
+  animation-play-state: paused;
+}
+
 /* Prevenire scroll extra sotto il footer */
 html, body {
   overflow-x: hidden;
