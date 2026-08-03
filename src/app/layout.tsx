@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s — RescueManager",
   },
   description:
-    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica SDI, Registro RENTRI rifiuti e Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
+    "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi in tempo reale, fatturazione elettronica, Registro RENTRI rifiuti e Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003 e RENTRI.",
   keywords: [
     // Soccorso stradale — target PRIMARIO (obiettivo: 1° su queste query)
     "gestionale soccorso stradale",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     "gestionale RENTRI",
     "registro RENTRI rifiuti",
     // Fatturazione / SDI
-    "fatturazione elettronica SDI",
+    "fatturazione elettronica",
     "RescueManager",
   ],
   authors: [{ name: "RescueManager", url: SITE_URL }],
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     siteName: "RescueManager",
     title: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     description:
-      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica SDI, Registro RENTRI, Registro VFU, custodia veicoli e ricambi.",
+      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica, Registro RENTRI, Registro VFU, custodia veicoli e ricambi.",
     images: [
       {
         url: "/assets/logos/logo-principale-a-colori.svg",
@@ -101,7 +101,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     description:
-      "Software gestionale: soccorso stradale, trasporti, autodemolitori. Dispatch su mappa, Registro RENTRI, registro VFU, fatturazione elettronica SDI.",
+      "Software gestionale: soccorso stradale, trasporti, autodemolitori. Dispatch su mappa, Registro RENTRI, registro VFU, fatturazione elettronica.",
     images: ["/assets/logos/logo-principale-a-colori.svg"],
   },
 };
@@ -158,11 +158,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       "Gestionale carro attrezzi",
       "Gestionale autodemolitori",
       "Software RENTRI",
-      "Fatturazione elettronica SDI",
+      "Fatturazione elettronica",
     ],
     operatingSystem: "Web, Windows, macOS, iOS, Android",
     description:
-      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica SDI, Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003.",
+      "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica, Registro RENTRI rifiuti, Registro Veicoli Fuori Uso (VFU), custodia veicoli e ricambi. Conforme D.Lgs 209/2003.",
     audience: {
       "@type": "BusinessAudience",
       audienceType: [

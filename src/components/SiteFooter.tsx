@@ -15,7 +15,7 @@ export default function SiteFooter() {
           <div>
             <h3 className="text-lg font-bold text-white">Resta aggiornato</h3>
             <p className="text-sm text-slate-400 mt-1 leading-relaxed">
-              Novità di prodotto e aggiornamenti normativi (RENTRI, SDI, RVFU) direttamente nella tua casella. Niente spam.
+              Novità di prodotto e aggiornamenti normativi (RENTRI, RVFU) direttamente nella tua casella. Niente spam.
             </p>
           </div>
           <NewsletterForm source="footer" />
