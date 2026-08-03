@@ -8,7 +8,6 @@ import CookieConsentModal from "@/components/CookieConsentModal";
 import CookieSettingsButton from "@/components/CookieSettingsButton";
 import ConditionalScripts from "@/components/ConditionalScripts";
 import ConsoleFilter from "@/components/ConsoleFilter";
-import ChatwootWidget from "@/components/ChatwootWidget";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -267,7 +266,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <CookieSettingsButton />
             <ConditionalScripts />
             <SpeedInsights />
-            <ChatwootWidget />
             <PromoBanner />
           </>
         )}
