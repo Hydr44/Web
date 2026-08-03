@@ -148,7 +148,7 @@ export default function TrasportiPage() {
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-start gap-3 p-6 border border-gray-200 bg-white">
-            <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
             <div>
               <p className="font-bold text-gray-900 mb-1">Incluso in tutti i piani</p>
               <p className="text-sm text-gray-600">Il modulo Soccorso & trasporti fa parte dell'App Base ed è incluso in tutti i piani.</p>

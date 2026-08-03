@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
     ArrowRight,
-    CheckCircle2,
     Phone,
     Recycle,
     AlertCircle,
@@ -282,7 +281,7 @@ export default function HomeClient() {
                                     "Rapportino digitale con firma del cliente"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                                        <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
                                         {item}
                                     </li>
                                 ))}
@@ -329,7 +328,7 @@ export default function HomeClient() {
                                     "Ricerca rapida per targa o proprietario"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                                        <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
                                         {item}
                                     </li>
                                 ))}
@@ -356,7 +355,7 @@ export default function HomeClient() {
                                     "Import da file Excel o CSV"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                                        <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
                                         {item}
                                     </li>
                                 ))}
@@ -403,7 +402,7 @@ export default function HomeClient() {
                                     "Gestione note di credito e storni"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                                        <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
                                         {item}
                                     </li>
                                 ))}
@@ -522,7 +521,7 @@ export default function HomeClient() {
                             <ul className="space-y-3 mb-8">
                                 {DEMOS[demoTab].steps.map((s) => (
                                     <li key={s} className="flex items-start gap-3 text-sm font-medium text-[#0f172a]">
-                                        <CheckCircle2 className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
                                         <span>{s}</span>
                                     </li>
                                 ))}
