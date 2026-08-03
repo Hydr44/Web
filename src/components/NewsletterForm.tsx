@@ -61,7 +61,7 @@ export default function NewsletterForm({ source = 'footer' }: { source?: string 
         </button>
       </div>
 
-      <label className="flex items-start gap-2 text-[11px] text-slate-500 leading-snug cursor-pointer">
+      <label className="flex items-start gap-2 text-[11px] text-slate-400 leading-snug cursor-pointer">
         <input
           type="checkbox"
           checked={consent}

@@ -139,7 +139,7 @@ export default function RENTRIPage() {
       <section className="py-16 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-extrabold text-white mb-4">Conformità RENTRI garantita.</h2>
-          <p className="text-blue-100 mb-8">Obbligatorio dal 2025. Noi lo gestiamo per te. Demo gratuita.</p>
+          <p className="text-blue-50 mb-8">Obbligatorio dal 2025. Noi lo gestiamo per te. Demo gratuita.</p>
           <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
             RICHIEDI DEMO <ArrowRight className="h-4 w-4" />
           </Link>

@@ -266,7 +266,7 @@ export default function HomeClient() {
                     {/* Blocco 1: Trasporti */}
                     <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
                         <div>
-                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">01</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500">01</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Chiamate, autisti e mezzi sotto controllo
                             </h3>
@@ -313,7 +313,7 @@ export default function HomeClient() {
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">02</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500">02</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Ogni veicolo tracciato dal primo giorno
                             </h3>
@@ -340,7 +340,7 @@ export default function HomeClient() {
                     {/* Blocco 3: Clienti */}
                     <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
                         <div>
-                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">03</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500">03</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Tutti i tuoi clienti in un posto solo
                             </h3>
@@ -387,7 +387,7 @@ export default function HomeClient() {
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">04</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500">04</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Fatture elettroniche in automatico
                             </h3>
@@ -607,7 +607,7 @@ export default function HomeClient() {
             <section className="py-24 bg-blue-600">
                 <div className="max-w-3xl mx-auto px-6 text-center">
                     <h2 className="text-4xl font-extrabold text-white mb-4">Non aspettare.</h2>
-                    <p className="text-blue-100 mb-10 text-lg">Demo gratuita. Installazione inclusa. Assistenza diretta.</p>
+                    <p className="text-blue-50 mb-10 text-lg">Demo gratuita. Installazione inclusa. Assistenza diretta.</p>
                     <div className="flex flex-wrap gap-4 justify-center">
                         <Link
                             href="/contatti"
@@ -617,7 +617,7 @@ export default function HomeClient() {
                         </Link>
                         <Link
                             href="tel:+393921723028"
-                            className="px-8 py-4 bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 transition-colors flex items-center gap-2"
+                            className="px-8 py-4 text-white font-bold border-2 border-white/40 hover:bg-white/10 transition-colors flex items-center gap-2"
                         >
                             <Phone className="h-4 w-4" />
                             392 172 3028
