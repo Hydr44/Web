@@ -18,16 +18,26 @@ export default function CookieSettingsButton() {
   // Mostra solo se l'utente ha già dato il consenso
   if (!hasConsent) return null;
 
+  // In home c'è anche il FAB WhatsApp (bottom-24): il cookie va sopra di esso.
+  // Nelle altre pagine il cookie prende il posto in basso a destra, sopra il banner promo.
+  const isHome = pathname === "/";
+
   return (
     <>
-      {/* Bottone fisso in basso a sinistra */}
+      {/* Bottone tondo fisso in basso a destra (biscotto), sopra il FAB WhatsApp e il banner promo */}
       <button
         onClick={() => setShowModal(true)}
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-4 py-3 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-lg shadow-lg border border-slate-700 transition-all hover:scale-105"
+        className={`fixed right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#0f172a] text-white shadow-lg border border-slate-700 transition-transform hover:scale-110 ${isHome ? "bottom-44" : "bottom-24"}`}
         aria-label="Gestisci preferenze cookie"
       >
-        <Settings className="h-4 w-4" />
-        <span className="text-sm font-medium hidden sm:inline">Cookie</span>
+        {/* Biscotto morso */}
+        <span className="relative inline-flex h-6 w-6">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" fillRule="evenodd" clipRule="evenodd" aria-hidden="true">
+            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-3.2 6.4a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Zm4.9 4a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Zm-5 1.4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" />
+          </svg>
+          {/* morso in alto a destra, stesso colore del bottone */}
+          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-[#0f172a]" />
+        </span>
       </button>
 
       {/* Modal preferenze */}
@@ -180,7 +190,7 @@ function CookieSettingsModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
 
-          <p className="text-xs text-gray-400 text-center pt-2">
+          <p className="text-xs text-gray-500 text-center pt-2">
             Le modifiche saranno applicate immediatamente
           </p>
         </div>
