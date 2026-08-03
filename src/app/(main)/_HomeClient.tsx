@@ -57,8 +57,6 @@ export default function HomeClient() {
 
     const LOGHI = [
         { src: "/loghi/rentri.jpg", alt: "RENTRI", w: 900, h: 520 },
-        { src: "/loghi/fatturapa.jpg", alt: "FatturaPA", w: 660, h: 360 },
-        { src: "/loghi/mit.webp", alt: "Ministero delle Infrastrutture e dei Trasporti", w: 960, h: 640 },
         { src: "/loghi/unrae.png", alt: "UNRAE", w: 300, h: 260 },
         { src: "/loghi/ricambipro.png", alt: "RicambiPro", w: 600, h: 170 },
     ];
@@ -457,22 +455,18 @@ export default function HomeClient() {
                         Collegamento diretto con enti e servizi certificati. Niente copia-incolla, niente doppio lavoro.
                     </p>
 
-                    {/* Striscia loghi integrazioni (scorrevole) */}
-                    <div className="rm-marquee py-8 border-y border-slate-800">
+                    {/* Striscia loghi integrazioni (scorrevole, fascia bianca continua) */}
+                    <div className="rm-marquee rounded-xl bg-white py-7">
                         <div className="rm-marquee-track items-center">
-                            {[...LOGHI, ...LOGHI].map((l, i) => (
-                                <div
+                            {Array.from({ length: 6 }).flatMap(() => LOGHI).map((l, i) => (
+                                <Image
                                     key={i}
-                                    className="mx-4 flex h-16 shrink-0 items-center justify-center rounded-lg bg-white px-7"
-                                >
-                                    <Image
-                                        src={l.src}
-                                        alt={l.alt}
-                                        width={l.w}
-                                        height={l.h}
-                                        className="h-9 lg:h-10 w-auto object-contain"
-                                    />
-                                </div>
+                                    src={l.src}
+                                    alt={l.alt}
+                                    width={l.w}
+                                    height={l.h}
+                                    className="mx-10 lg:mx-12 h-9 lg:h-11 w-auto object-contain shrink-0"
+                                />
                             ))}
                         </div>
                     </div>
