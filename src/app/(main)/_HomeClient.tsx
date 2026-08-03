@@ -6,12 +6,10 @@ import {
     ArrowRight,
     CheckCircle2,
     Phone,
-    Shield,
-    Monitor,
-    Headphones,
     Receipt,
     Recycle,
     AlertCircle,
+    Truck,
     X
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -25,6 +23,38 @@ export default function HomeClient() {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [processing, setProcessing] = useState(false);
+    const [demoTab, setDemoTab] = useState<"soccorso" | "demolizione">("soccorso");
+
+    const DEMOS = {
+        soccorso: {
+            label: "Soccorso stradale",
+            icon: Truck,
+            kicker: "Soccorso & trasporti",
+            title: "Dalla chiamata alla fattura",
+            desc: "Ricevi la richiesta, assegni l'autista e lo segui in tempo reale. L'autista naviga, scatta le foto e fa firmare il cliente dall'app; poi la fattura elettronica parte in un clic.",
+            steps: [
+                "Nuovo intervento e assegnazione dell'autista",
+                "Tracking GPS e navigazione turn-by-turn",
+                "Foto, firma digitale e fattura al SdI",
+            ],
+            src: "/video/soccorso.mp4",
+            poster: "/video/soccorso-poster.jpg",
+        },
+        demolizione: {
+            label: "Demolizione veicoli",
+            icon: Recycle,
+            kicker: "Demolizioni VFU",
+            title: "Dall'accettazione alla fattura",
+            desc: "Registri il veicolo nel Registro ACI/MIT, segui la lavorazione a norma fase per fase, trasmetti a RENTRI ed emetti il certificato di rottamazione e la fattura.",
+            steps: [
+                "Pratica VFU e Registro ACI/MIT",
+                "Lavorazione, RENTRI e radiazione PRA",
+                "Certificato di rottamazione e fattura",
+            ],
+            src: "/video/demolizione.mp4",
+            poster: "/video/demolizione-poster.jpg",
+        },
+    } as const;
 
     useEffect(() => {
         const handleAuthCallback = async () => {
@@ -202,9 +232,10 @@ export default function HomeClient() {
                             loop
                             muted
                             playsInline
+                            poster="/video/soccorso-poster.jpg"
                             className="w-full h-full object-contain"
                         >
-                            <source src="/demo-video.mp4" type="video/mp4" />
+                            <source src="/video/soccorso.mp4" type="video/mp4" />
                         </video>
                     </div>
                 </div>
@@ -469,64 +500,83 @@ export default function HomeClient() {
             </section>
 
             {/* ============================================ */}
-            {/* VIDEO DEMO — Bold Split style                  */}
+            {/* VIDEO DEMO — Tabbed showcase (soccorso/VFU)    */}
             {/* ============================================ */}
             <section className="py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        {/* Left: Video */}
-                        <div className="order-2 lg:order-1">
-                            <div className="rounded-lg overflow-hidden shadow-2xl border-2 border-[#0f172a]">
-                                <video
-                                    controls
-                                    className="w-full h-auto"
-                                    poster="/appshots/365shots_so.png"
+                    <div className="text-center mb-10">
+                        <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-4">
+                            Vedi in azione<span className="text-blue-500">.</span>
+                        </h2>
+                        <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                            Due flussi reali, dall&apos;inizio alla fattura. Scegli quale guardare.
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex flex-wrap justify-center gap-3 mb-10">
+                        {(["soccorso", "demolizione"] as const).map((k) => {
+                            const D = DEMOS[k];
+                            const Ic = D.icon;
+                            const on = demoTab === k;
+                            return (
+                                <button
+                                    key={k}
+                                    onClick={() => setDemoTab(k)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded font-bold text-sm transition-colors ${on
+                                        ? "bg-[#0f172a] text-white"
+                                        : "border-2 border-slate-200 text-slate-600 hover:border-blue-500 hover:text-[#0f172a]"
+                                        }`}
                                 >
-                                    <source src="/demo-video.mp4" type="video/mp4" />
+                                    <Ic className="h-4 w-4" />
+                                    {D.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Player + info */}
+                    <div className="grid lg:grid-cols-3 gap-8 items-start">
+                        <div className="lg:col-span-2">
+                            <div className="rounded-lg overflow-hidden shadow-2xl border-2 border-[#0f172a] bg-black">
+                                <video
+                                    key={demoTab}
+                                    controls
+                                    playsInline
+                                    className="w-full aspect-video"
+                                    poster={DEMOS[demoTab].poster}
+                                >
+                                    <source src={DEMOS[demoTab].src} type="video/mp4" />
                                     Il tuo browser non supporta il tag video.
                                 </video>
                             </div>
                         </div>
 
-                        {/* Right: Text */}
-                        <div className="order-1 lg:order-2">
-                            <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-6">
-                                Vedi in azione<span className="text-blue-500">.</span>
-                            </h2>
-                            <p className="text-lg text-gray-500 mb-8">
-                                Guarda come RescueManager semplifica la gestione quotidiana della tua autodemolizione.
-                                Dal primo contatto con il cliente fino alla radiazione del veicolo.
+                        <div>
+                            <span className="inline-block text-xs font-bold tracking-wider text-blue-600 uppercase mb-3">
+                                {DEMOS[demoTab].kicker}
+                            </span>
+                            <h3 className="text-2xl lg:text-3xl font-extrabold text-[#0f172a] mb-4">
+                                {DEMOS[demoTab].title}
+                            </h3>
+                            <p className="text-gray-500 mb-6">
+                                {DEMOS[demoTab].desc}
                             </p>
-
-                            <div className="space-y-4">
-                                {[
-                                    {
-                                        icon: Monitor,
-                                        title: "Interfaccia intuitiva",
-                                        desc: "Tutto a portata di click, senza complicazioni"
-                                    },
-                                    {
-                                        icon: Shield,
-                                        title: "Dati sempre al sicuro",
-                                        desc: "Backup automatici e crittografia avanzata"
-                                    },
-                                    {
-                                        icon: Headphones,
-                                        title: "Supporto dedicato",
-                                        desc: "Ti aiutiamo quando ne hai bisogno"
-                                    }
-                                ].map((item) => (
-                                    <div key={item.title} className="flex gap-4">
-                                        <div className="w-12 h-12 bg-[#0f172a] rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <item.icon className="h-6 w-6 text-blue-500" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-base font-extrabold text-[#0f172a] mb-1">{item.title}</h3>
-                                            <p className="text-sm text-gray-500">{item.desc}</p>
-                                        </div>
-                                    </div>
+                            <ul className="space-y-3 mb-8">
+                                {DEMOS[demoTab].steps.map((s) => (
+                                    <li key={s} className="flex items-start gap-3 text-sm font-medium text-[#0f172a]">
+                                        <CheckCircle2 className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                        <span>{s}</span>
+                                    </li>
                                 ))}
-                            </div>
+                            </ul>
+                            <Link
+                                href="/contatti"
+                                className="inline-flex items-center gap-2 px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors rounded"
+                            >
+                                RICHIEDI DEMO
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
                         </div>
                     </div>
                 </div>
