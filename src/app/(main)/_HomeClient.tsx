@@ -266,7 +266,7 @@ export default function HomeClient() {
                     {/* Blocco 1: Trasporti */}
                     <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
                         <div>
-                            <span className="text-6xl font-extrabold text-blue-500/20">01</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">01</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Chiamate, autisti e mezzi sotto controllo
                             </h3>
@@ -313,7 +313,7 @@ export default function HomeClient() {
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <span className="text-6xl font-extrabold text-blue-500/20">02</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">02</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Ogni veicolo tracciato dal primo giorno
                             </h3>
@@ -340,7 +340,7 @@ export default function HomeClient() {
                     {/* Blocco 3: Clienti */}
                     <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
                         <div>
-                            <span className="text-6xl font-extrabold text-blue-500/20">03</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">03</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Tutti i tuoi clienti in un posto solo
                             </h3>
@@ -387,7 +387,7 @@ export default function HomeClient() {
                             />
                         </div>
                         <div className="order-1 lg:order-2">
-                            <span className="text-6xl font-extrabold text-blue-500/20">04</span>
+                            <span aria-hidden className="text-6xl font-extrabold text-blue-500/30">04</span>
                             <h3 className="text-2xl font-extrabold text-[#0f172a] mb-3 -mt-4">
                                 Fatture elettroniche in automatico
                             </h3>
@@ -548,19 +548,19 @@ export default function HomeClient() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         <div className="text-center lg:text-left">
                             <div className="text-6xl font-extrabold text-blue-500 mb-2">4</div>
-                            <div className="text-sm text-slate-500 font-medium">Integrazioni governative</div>
+                            <div className="text-sm text-slate-400 font-medium">Integrazioni governative</div>
                         </div>
                         <div className="text-center lg:text-left">
                             <div className="text-6xl font-extrabold text-blue-500 mb-2">3</div>
-                            <div className="text-sm text-slate-500 font-medium">Piattaforme</div>
+                            <div className="text-sm text-slate-400 font-medium">Piattaforme</div>
                         </div>
                         <div className="text-center lg:text-left">
                             <div className="text-6xl font-extrabold text-white mb-2">100<span className="text-blue-500">%</span></div>
-                            <div className="text-sm text-slate-500 font-medium">Made in Italy</div>
+                            <div className="text-sm text-slate-400 font-medium">Made in Italy</div>
                         </div>
                         <div className="text-center lg:text-left">
                             <div className="text-6xl font-extrabold text-white mb-2">24<span className="text-blue-500">/7</span></div>
-                            <div className="text-sm text-slate-500 font-medium">Accesso dati</div>
+                            <div className="text-sm text-slate-400 font-medium">Accesso dati</div>
                         </div>
                     </div>
                 </div>
