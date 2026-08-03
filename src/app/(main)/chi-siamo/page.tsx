@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Phone } from "lucide-react";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/chi-siamo" },
   title: "Chi siamo",
   description:
     "RescueManager nasce dal settore: un software costruito per chi gestisce autodemolizioni e soccorso stradale, in sviluppo continuo con chi lo usa ogni giorno.",

@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, FileText, Calculator, Send, CheckCircle, Clock, TrendingUp, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Preventivi",
+  description: "Crea preventivi professionali e convertili in interventi e fatture, senza reinserire i dati.",
+  alternates: { canonical: "/moduli/preventivi" },
+};
 
 export default function PreventiviPage() {
   return (

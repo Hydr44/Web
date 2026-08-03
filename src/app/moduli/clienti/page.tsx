@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Users, Phone, TrendingUp, History, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Gestione clienti",
+  description: "Anagrafica clienti e committenti con dati fiscali pronti per fatture e interventi, senza doppio inserimento.",
+  alternates: { canonical: "/moduli/clienti" },
+};
 
 export default function ClientiPage() {
   return (

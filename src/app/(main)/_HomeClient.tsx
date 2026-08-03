@@ -248,6 +248,7 @@ export default function HomeClient() {
                             className="w-full h-full object-contain"
                         >
                             <source src="/video/soccorso.mp4" type="video/mp4" />
+                            <track kind="captions" />
                         </video>
                     </div>
                 </div>
@@ -503,6 +504,7 @@ export default function HomeClient() {
                                     poster={DEMOS[demoTab].poster}
                                 >
                                     <source src={DEMOS[demoTab].src} type="video/mp4" />
+                                    <track kind="captions" />
                                     Il tuo browser non supporta il tag video.
                                 </video>
                             </div>

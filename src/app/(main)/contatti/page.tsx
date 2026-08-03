@@ -3,6 +3,7 @@ import { Mail, Phone, Clock, CheckCircle2 } from "lucide-react";
 import ContattiForm from "./_ContattiForm";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contatti" },
   title: "Contattaci",
   description:
     "Richiedi una demo gratuita di RescueManager. Raccontaci la tua attività e ti mostriamo come semplificare la gestione. Risposta entro 24 ore, nessun impegno.",

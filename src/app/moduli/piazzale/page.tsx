@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Filter, Car, ArrowRight, AlertTriangle } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Custodia veicoli",
+  description: "Gestione del piazzale e della custodia veicoli: posizioni, stati, tag e pratiche collegate.",
+  alternates: { canonical: "/moduli/piazzale" },
+};
 
 export default function PiazzalePage() {
   return (

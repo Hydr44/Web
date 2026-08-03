@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, FileText, CheckCircle2, AlertCircle, Car, ArrowRight } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "Radiazioni RVFU",
+  description: "Radia i veicoli fuori uso collegato al Registro ACI/MIT: ricerca dati da targa, certificato di rottamazione e invio telematico a STA.",
+  alternates: { canonical: "/moduli/rvfu" },
+};
 
 export default function RVFUPage() {
   return (
