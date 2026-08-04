@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Apple, Monitor, Loader2, Download, Info } from "lucide-react";
+import Link from "next/link";
+import { Apple, Monitor, Loader2, Download, Info, Smartphone, ArrowLeft } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Rel = { version?: string; filename?: string; size?: number; releaseDate?: string; sha512?: string; url: string };
@@ -25,12 +26,15 @@ function detectClient(): ClientHint {
   if (typeof navigator === "undefined") return { platform: null, arch: null };
   const ua = navigator.userAgent;
   const uad = (navigator as unknown as { userAgentData?: { platform?: string; getHighEntropyValues?: (k: string[]) => Promise<unknown> } }).userAgentData;
-  // Platform
+  // Platform desktop. I dispositivi mobile (android/iphone/ipad) NON vengono
+  // classificati qui: hanno una sezione dedicata più in basso (detectMobile).
   let platform: Platform | null = null;
   const platStr = (uad?.platform || ua).toLowerCase();
-  if (platStr.includes("win")) platform = "win";
-  else if (platStr.includes("mac") || /iphone|ipad|ipod/.test(platStr)) platform = "mac";
-  else if (platStr.includes("linux") && !platStr.includes("android")) platform = "linux";
+  if (!/android|iphone|ipad|ipod/.test(platStr)) {
+    if (platStr.includes("win")) platform = "win";
+    else if (platStr.includes("mac")) platform = "mac";
+    else if (platStr.includes("linux")) platform = "linux";
+  }
   // Arch
   let arch: Arch | null = null;
   if (/arm64|aarch64/.test(ua.toLowerCase())) arch = "arm64";
@@ -40,9 +44,21 @@ function detectClient(): ClientHint {
   return { platform, arch };
 }
 
+/** Rileva se il client è un telefono/tablet mobile, per evidenziare la card giusta. */
+function detectMobile(): "android" | "ios" | null {
+  if (typeof navigator === "undefined") return null;
+  const ua = navigator.userAgent.toLowerCase();
+  if (/android/.test(ua)) return "android";
+  if (/iphone|ipad|ipod/.test(ua)) return "ios";
+  return null;
+}
+
 export default function DownloadPage() {
   const [byArch, setByArch] = useState<ReleasesByArch | null>(null);
   const [flat, setFlat] = useState<LegacyReleases | null>(null);
+  const [android, setAndroid] = useState<Rel | null>(null);
+  const [iosUrl, setIosUrl] = useState<string | null>(null);
+  const [mobileHint, setMobileHint] = useState<"android" | "ios" | null>(null);
   const [loading, setLoading] = useState(true);
   const [client, setClient] = useState<ClientHint>({ platform: null, arch: null });
   const router = useRouter();
@@ -62,14 +78,17 @@ export default function DownloadPage() {
         return;
       }
       setClient(detectClient());
+      setMobileHint(detectMobile());
       try {
         const r = await fetch("/api/app-release/latest", { cache: "no-store" });
         const d = await r.json();
         if (cancelled) return;
         setByArch(d?.releasesByArch || null);
         setFlat(d?.releases || null);
+        setAndroid(d?.android || null);
+        setIosUrl(d?.iosAppStoreUrl || null);
       } catch {
-        if (!cancelled) { setByArch(null); setFlat(null); }
+        if (!cancelled) { setByArch(null); setFlat(null); setAndroid(null); setIosUrl(null); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -163,17 +182,55 @@ export default function DownloadPage() {
     );
   };
 
+  // Card mobile — stessa estetica squadrata delle card desktop. Quella rilevata
+  // dallo UA del telefono prende il bordo blu (consigliata).
+  const MobileCard = ({ title, sub, icon, recommended, children }: {
+    title: string; sub: string; icon: React.ReactNode; recommended?: boolean; children: React.ReactNode;
+  }) => (
+    <div className={`border bg-white p-6 flex flex-col items-center text-center gap-3 ${recommended ? "border-[#2563EB] ring-1 ring-[#2563EB]" : "border-gray-200"}`}>
+      {recommended && (
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2563EB] -mb-1">
+          Consigliato per il tuo telefono
+        </div>
+      )}
+      <div className="text-[#2563EB]">{icon}</div>
+      <div>
+        <h3 className="font-bold text-lg text-gray-900">{title}</h3>
+        <p className="text-sm text-gray-500">{sub}</p>
+      </div>
+      {children}
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-white">
+      {/* Top bar standalone (il SiteHeader pubblico è nascosto su /download) */}
+      <header className="bg-[#0f172a] border-b border-white/10">
+        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
+          <Link href="/dashboard" className="text-white font-extrabold tracking-tight">
+            RescueManager<span className="text-blue-500">.</span>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Torna alla dashboard
+          </Link>
+        </div>
+      </header>
+
       {/* Hero scuro, stile sito (#0f172a + accento blu) */}
-      <section className="bg-[#0f172a] px-6 pt-16 pb-14">
+      <section className="bg-[#0f172a] px-6 pt-10 pb-14">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white">
+          <span className="inline-flex items-center gap-1.5 bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+            Area riservata · Download
+          </span>
+          <h1 className="mt-4 text-3xl md:text-5xl font-extrabold text-white">
             Scarica RescueManager<span className="text-blue-500">.</span>
           </h1>
           <p className="mt-3 text-base md:text-lg text-slate-400 max-w-2xl">
-            Installa l&apos;app desktop. Dopo l&apos;installazione gli aggiornamenti
-            successivi arrivano automaticamente in-app.
+            Installa l&apos;app desktop e l&apos;app autisti. Dopo l&apos;installazione gli
+            aggiornamenti successivi arrivano automaticamente in-app.
           </p>
         </div>
       </section>
@@ -201,15 +258,73 @@ export default function DownloadPage() {
                 <PlatformCard platform="mac" title="macOS" sub="Apple Silicon o Intel · .dmg" icon={<Apple className="h-10 w-10" />} />
                 <PlatformCard platform="linux" title="Linux" sub="AppImage / .deb" icon={<Monitor className="h-10 w-10" />} />
               </div>
+
+              <div className="mt-8 border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                <strong>macOS Apple Silicon vs Intel:</strong> se hai un Mac con chip M1/M2/M3 scarica
+                la versione &quot;Apple Silicon&quot;. I Mac più vecchi (2019 e precedenti)
+                usano la versione &quot;Intel&quot;. In dubbio: apri &gt; Informazioni su questo Mac
+                &gt; cerca &quot;Chip&quot; o &quot;Processore&quot;.
+              </div>
+
+              {/* === App per gli autisti (mobile) === */}
+              <div className="mt-14">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">App per gli autisti</h2>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                  L&apos;app da campo per chi guida: trasporti assegnati, navigazione, foto e firma sul posto.
+                </p>
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Android — APK scaricato direttamente da noi */}
+                  <MobileCard
+                    title="Android"
+                    sub="Telefoni e tablet Android · file .apk"
+                    icon={<Smartphone className="h-10 w-10" />}
+                    recommended={mobileHint === "android"}
+                  >
+                    {android?.url ? (
+                      <div className="flex flex-col w-full gap-2 mt-1">
+                        <a
+                          href={android.url}
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors bg-[#2563EB] text-white hover:bg-blue-700"
+                        >
+                          <Download className="h-4 w-4" />
+                          Scarica APK
+                          {android.version ? <span className="text-xs text-blue-100">· v{android.version}</span> : null}
+                          {android.size ? <span className="text-xs text-blue-100">· {fmtSize(android.size)}</span> : null}
+                        </a>
+                        <p className="text-xs text-gray-400">
+                          Al primo avvio Android chiede di autorizzare l&apos;installazione da questa fonte: conferma per procedere.
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">Non ancora disponibile</span>
+                    )}
+                  </MobileCard>
+
+                  {/* iOS — link alla scheda App Store (configurato da admin) */}
+                  <MobileCard
+                    title="iPhone e iPad"
+                    sub="iOS · App Store"
+                    icon={<Apple className="h-10 w-10" />}
+                    recommended={mobileHint === "ios"}
+                  >
+                    {iosUrl ? (
+                      <a
+                        href={iosUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors bg-[#2563EB] text-white hover:bg-blue-700 mt-1"
+                      >
+                        <Apple className="h-4 w-4" />
+                        Scarica su App Store
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-400">Non ancora disponibile</span>
+                    )}
+                  </MobileCard>
+                </div>
+              </div>
             </>
           )}
-
-          <div className="mt-10 border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            <strong>macOS Apple Silicon vs Intel:</strong> se hai un Mac con chip M1/M2/M3 scarica
-            la versione &quot;Apple Silicon&quot;. I Mac più vecchi (2019 e precedenti)
-            usano la versione &quot;Intel&quot;. In dubbio: apri &gt; Informazioni su questo Mac
-            &gt; cerca &quot;Chip&quot; o &quot;Processore&quot;.
-          </div>
         </div>
       </section>
     </main>

@@ -85,8 +85,8 @@ export default function InvoicesPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded animate-pulse" />
+        <div className="w-48 h-8 bg-gray-200 animate-pulse" />
+        <div className="h-64 bg-white border border-gray-100 animate-pulse" />
       </div>
     );
   }
@@ -108,19 +108,19 @@ export default function InvoicesPage() {
       </header>
 
       {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
+        <div className="p-4 bg-red-50 border border-red-200 flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-red-600" />
           <span className="text-red-800">{error}</span>
         </div>
       )}
 
       {invoices.length === 0 ? (
-        <div className="p-8 text-center bg-white border border-gray-200 rounded">
+        <div className="p-8 text-center bg-white border border-gray-200 ">
           <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500">Nessuna fattura emessa al momento.</p>
         </div>
       ) : (
-        <div className="border rounded overflow-hidden bg-white">
+        <div className="border overflow-hidden bg-white">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500">
               <tr>
@@ -140,7 +140,7 @@ export default function InvoicesPage() {
                     <td className="px-4 py-3">{fmtDate(inv.date)}</td>
                     <td className="px-4 py-3 text-right font-medium">{fmtMoney(inv.total, inv.currency)}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border ${pay.cls}`}>
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 border ${pay.cls}`}>
                         <pay.Icon className="h-3 w-3" />
                         {pay.label}
                       </span>
