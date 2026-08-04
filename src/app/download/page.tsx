@@ -1,20 +1,7 @@
-import { Suspense } from "react";
-import DownloadPage from "./DownloadPage";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  alternates: { canonical: "/download" },
-  title: "Scarica RescueManager Desktop",
-  description: "Download dell'app desktop RescueManager per Windows, macOS e Linux.",
-};
-
+// Il download vive nel portale (con sidebar e gate auth): /dashboard/download.
+// /download resta come scorciatoia e reindirizza lì.
 export default function Page() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-2 border-gray-200 border-t-[#2563EB] rounded-full" />
-      </div>
-    }>
-      <DownloadPage />
-    </Suspense>
-  );
+  redirect("/dashboard/download");
 }

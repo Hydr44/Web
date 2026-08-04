@@ -341,7 +341,7 @@ export default function DashboardPanoramica() {
               <p className="text-sm text-slate-500 mb-3">
                 Ultima versione per macOS e Windows. Se hai già l&apos;app, l&apos;aggiornamento parte da solo al prossimo avvio.
               </p>
-              <Link href="/download" className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline">
+              <Link href="/dashboard/download" className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline">
                 Scarica l&apos;app <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

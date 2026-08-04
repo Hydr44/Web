@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Apple, Monitor, Loader2, Download, Info, Smartphone, ArrowLeft } from "lucide-react";
+import { Apple, Monitor, Loader2, Download, Info, Smartphone } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Rel = { version?: string; filename?: string; size?: number; releaseDate?: string; sha512?: string; url: string };
@@ -53,7 +52,7 @@ function detectMobile(): "android" | "ios" | null {
   return null;
 }
 
-export default function DownloadPage() {
+export default function DownloadPage({ embedded = false }: { embedded?: boolean }) {
   const [byArch, setByArch] = useState<ReleasesByArch | null>(null);
   const [flat, setFlat] = useState<LegacyReleases | null>(null);
   const [android, setAndroid] = useState<Rel | null>(null);
@@ -73,8 +72,9 @@ export default function DownloadPage() {
       // autenticarsi come utente web).
       const { data: { user }, error } = await supabase.auth.getUser();
       if (cancelled) return;
-      if (error || !user) {
-        router.replace("/login?redirect=/download");
+      // Standalone: gate proprio. Embedded (/dashboard/download): gate del layout dashboard.
+      if ((error || !user) && !embedded) {
+        router.replace("/login?redirect=/dashboard/download");
         return;
       }
       setClient(detectClient());
@@ -203,40 +203,13 @@ export default function DownloadPage() {
   );
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Top bar standalone (il SiteHeader pubblico è nascosto su /download) */}
-      <header className="bg-[#0f172a] border-b border-white/10">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-white font-extrabold tracking-tight">
-            RescueManager<span className="text-blue-500">.</span>
-          </Link>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" /> Torna alla dashboard
-          </Link>
-        </div>
-      </header>
-
-      {/* Hero scuro, stile sito (#0f172a + accento blu) */}
-      <section className="bg-[#0f172a] px-6 pt-10 pb-14">
-        <div className="max-w-5xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-            Area riservata · Download
-          </span>
-          <h1 className="mt-4 text-3xl md:text-5xl font-extrabold text-white">
-            Scarica RescueManager<span className="text-blue-500">.</span>
-          </h1>
-          <p className="mt-3 text-base md:text-lg text-slate-400 max-w-2xl">
-            Installa l&apos;app desktop e l&apos;app autisti. Dopo l&apos;installazione gli
-            aggiornamenti successivi arrivano automaticamente in-app.
-          </p>
-        </div>
-      </section>
-
-      <section className="px-6 py-12">
-        <div className="max-w-5xl mx-auto">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Download</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Scarica l&apos;app desktop e l&apos;app autisti — poi gli aggiornamenti arrivano da soli in-app.
+        </p>
+      </div>
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-7 w-7 animate-spin text-[#2563EB]" />
@@ -325,8 +298,6 @@ export default function DownloadPage() {
               </div>
             </>
           )}
-        </div>
-      </section>
-    </main>
+    </div>
   );
 }
