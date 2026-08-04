@@ -229,7 +229,7 @@ export default function SiteHeader() {
   // Pagine cliente a tutto schermo (tracking mezzo / condivisione posizione):
   // nessun header del sito (logo/login). Il cliente vede solo la mappa + il
   // nome dell'azienda nella pagina stessa.
-  if (pathname?.startsWith("/track") || pathname?.startsWith("/assist") || pathname?.startsWith("/download")) return null;
+  if (pathname?.startsWith("/track") || pathname?.startsWith("/assist")) return null;
 
   return (
     <>

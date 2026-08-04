@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import DownloadPage from "@/app/download/DownloadPage";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
- * Redirect a /download (pagina pubblica).
- *
- * La versione embed del componente dentro il layout dashboard manteneva il
- * bug per cui il bottone Scarica non triggerava effettivamente il download
- * su alcuni browser. La pagina pubblica funziona regolarmente: redirigiamo
- * lì per usarla 1:1.
+ * Download dentro il portale: eredita la sidebar dal layout /dashboard e il gate auth.
+ * DownloadPage in modalità `embedded` (senza hero/top-bar standalone).
  */
 export default function DashboardDownloadPage() {
-  redirect("/download");
+  usePageTitle("Download");
+  return <DownloadPage embedded />;
 }
