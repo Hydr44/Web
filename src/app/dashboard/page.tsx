@@ -165,7 +165,7 @@ export default function DashboardPanoramica() {
     return (
       <div className="space-y-8">
         <div className="text-center py-12">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100 mx-auto mb-6">
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 mx-auto mb-6">
             <Building2 className="h-6 w-6" />
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 mb-3">Benvenuto in RescueManager!</h1>
@@ -175,7 +175,7 @@ export default function DashboardPanoramica() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/onboarding"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
             >
               <Building2 className="h-4 w-4" />
               Inizia l&apos;onboarding
@@ -196,17 +196,17 @@ export default function DashboardPanoramica() {
       </div>
 
       {/* Abbonamento operativo */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-br from-blue-50/60 to-white p-5">
+      <div className="overflow-hidden border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-slate-50 p-5">
           <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center border border-blue-100 bg-white text-blue-600 shadow-sm">
               <CreditCard className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-slate-900">{subscription.planProfile}</h2>
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border ${
+                  className={`inline-flex items-center px-2 py-0.5 text-xs font-medium border ${
                     subscription.isTrial
                       ? "border-amber-200 bg-amber-50 text-amber-700"
                       : subscription.status === "active"
@@ -222,7 +222,7 @@ export default function DashboardPanoramica() {
           </div>
           <Link
             href="/dashboard/billing"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
           >
             Gestisci <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -249,7 +249,7 @@ export default function DashboardPanoramica() {
       </div>
 
       {/* Ultime fatture */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
           <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
             <FileText className="h-4 w-4 text-slate-400" /> Ultime fatture
@@ -277,7 +277,7 @@ export default function DashboardPanoramica() {
                       {new Intl.NumberFormat("it-IT", { style: "currency", currency: inv.currency || "EUR" }).format(inv.total || 0)}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${
+                      className={`inline-flex items-center gap-1 border px-2 py-0.5 text-[11px] font-medium ${
                         paid ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"
                       }`}
                     >
@@ -293,9 +293,9 @@ export default function DashboardPanoramica() {
       </div>
 
       {/* Info organizzazione */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-slate-200 bg-slate-50 text-slate-500">
             <Building2 className="h-5 w-5" />
           </div>
           <div className="flex-1">
@@ -326,15 +326,15 @@ export default function DashboardPanoramica() {
 
       {/* App Desktop */}
       {latestDesktopVersion && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-600">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-emerald-100 bg-emerald-50 text-emerald-600">
               <Download className="h-5 w-5" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="font-bold text-slate-900">App desktop</h2>
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-mono font-medium text-emerald-700">
+                <span className="border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-mono font-medium text-emerald-700">
                   v{latestDesktopVersion}
                 </span>
               </div>
@@ -364,9 +364,9 @@ export default function DashboardPanoramica() {
             <Link
               key={a.href}
               href={a.href}
-              className="group flex items-center rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
+              className="group flex items-center border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
             >
-              <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
+              <div className="mr-3 flex h-9 w-9 items-center justify-center border border-slate-200 bg-slate-50">
                 <a.icon className="h-4 w-4 text-slate-600" />
               </div>
               <div className="flex-1">

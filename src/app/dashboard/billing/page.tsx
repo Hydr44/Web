@@ -121,7 +121,7 @@ export default async function BillingPage({
 
       {/* Success / Error */}
       {sp.status === "success" && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+        <div className="flex items-center gap-3 border border-emerald-200 bg-emerald-50 p-4">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
           <div>
             <span className="font-semibold text-emerald-800">Abbonamento attivato</span>
@@ -130,7 +130,7 @@ export default async function BillingPage({
         </div>
       )}
       {sp.err && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+        <div className="flex items-center gap-3 border border-red-200 bg-red-50 p-4">
           <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
           <div>
             <span className="font-semibold text-red-800">Errore</span>
@@ -145,18 +145,18 @@ export default async function BillingPage({
 
       {/* Piano attuale */}
       {hasActivePlan ? (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 bg-gradient-to-br from-blue-50/60 to-white p-6">
+        <div className="overflow-hidden border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 bg-slate-50 p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-100 bg-white text-blue-600 shadow-sm">
+                <div className="flex h-12 w-12 items-center justify-center border border-blue-100 bg-white text-blue-600 shadow-sm">
                   <CreditCard className="h-6 w-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-xl font-bold text-slate-900">{profileName}</h2>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                      className={`inline-flex items-center gap-1 border px-2 py-0.5 text-xs font-medium ${
                         isTrial
                           ? "border-amber-200 bg-amber-50 text-amber-700"
                           : "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -172,7 +172,7 @@ export default async function BillingPage({
                 <Link
                   href="/api/billing/portal"
                   prefetch={false}
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800"
+                  className="inline-flex items-center gap-2 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800"
                 >
                   <CreditCard className="h-4 w-4" />
                   Gestisci pagamento
@@ -199,9 +199,9 @@ export default async function BillingPage({
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
+            <div className="flex h-12 w-12 items-center justify-center border border-slate-200 bg-slate-50 text-slate-400">
               <Package className="h-6 w-6" />
             </div>
             <div>
@@ -215,7 +215,7 @@ export default async function BillingPage({
       )}
 
       {/* Moduli */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">Moduli</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {MODULES.map((mod) => {
@@ -223,7 +223,7 @@ export default async function BillingPage({
             return (
               <div
                 key={mod.key}
-                className={`rounded-xl border p-4 transition-colors ${
+                className={`border p-4 transition-colors ${
                   on ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50/60"
                 }`}
               >
@@ -235,7 +235,7 @@ export default async function BillingPage({
                     </span>
                   </div>
                   {on ? (
-                    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
+                    <span className="inline-flex items-center gap-0.5 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
                       <Check className="h-2.5 w-2.5" /> Attivo
                     </span>
                   ) : (
@@ -254,7 +254,7 @@ export default async function BillingPage({
 
       {/* Portale fatturazione */}
       {hasStripeCustomer && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-semibold text-slate-900">Portale Fatturazione</h3>
@@ -265,7 +265,7 @@ export default async function BillingPage({
             <Link
               href="/api/billing/portal"
               prefetch={false}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              className="inline-flex items-center gap-2 border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
               <ExternalLink className="h-4 w-4" />
               Apri Portale
@@ -275,9 +275,9 @@ export default async function BillingPage({
       )}
 
       {/* Help */}
-      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6">
+      <div className="border border-slate-200 bg-slate-50/60 p-6">
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-600">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-slate-200 bg-white text-blue-600">
             <CreditCard className="h-5 w-5" />
           </div>
           <div>
@@ -287,7 +287,7 @@ export default async function BillingPage({
             </p>
             <a
               href="mailto:info@rescuemanager.eu"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              className="inline-flex items-center gap-2 border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
               info@rescuemanager.eu
             </a>
