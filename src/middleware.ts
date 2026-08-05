@@ -105,6 +105,25 @@ function requiresStaffAuth(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Gate PORTALE (/dashboard/*) — server-side ──────────────────────────────
+  // Prima il gate era SOLO client (dashboard/layout.tsx, useEffect → router.push):
+  // un utente non loggato riceveva il redirect solo dopo il JS. Qui, a monte,
+  // se manca del tutto il cookie di sessione Supabase reindirizziamo subito a
+  // /login. Controllo di PRESENZA (veloce, no rete): la validità/scadenza resta
+  // verificata dal layout client e dai fetch delle pagine. Non blocca chi HA il
+  // cookie (evita lockout: gli utenti loggati hanno sempre sb-*-auth-token).
+  if (pathname.startsWith('/dashboard')) {
+    const hasSupabaseSession = request.cookies
+      .getAll()
+      .some((c) => c.name.startsWith('sb-') && c.name.includes('auth-token'));
+    if (!hasSupabaseSession) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   // Pre-flight OPTIONS sempre senza auth (CORS preflight).
   if (
     request.method === 'OPTIONS' &&
