@@ -12,6 +12,7 @@ import {
   FileText,
   CheckCircle,
   Clock,
+  Gauge,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -50,6 +51,7 @@ export default function DashboardPanoramica() {
   }>({});
   const [invoices, setInvoices] = useState<DashInvoice[]>([]);
   const [latestDesktopVersion, setLatestDesktopVersion] = useState<string | null>(null);
+  const [limits, setLimits] = useState<Record<string, number | boolean | string | null> | null>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -134,6 +136,13 @@ export default function DashboardPanoramica() {
           const r = await fetch("/api/dashboard/invoices");
           const j = await r.json().catch(() => ({}));
           if (r.ok && j.ok) setInvoices((j.invoices || []).slice(0, 4));
+        } catch { /* opzionale */ }
+
+        // Limiti effettivi del piano (override cliente sopra default piano). Fase 1: solo inclusi.
+        try {
+          const r = await fetch("/api/dashboard/usage");
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok && j.limits) setLimits(j.limits);
         } catch { /* opzionale */ }
 
         // Ultima versione desktop.
@@ -247,6 +256,36 @@ export default function DashboardPanoramica() {
           </div>
         </div>
       </div>
+
+      {/* Utilizzi e limiti del piano */}
+      {limits && (
+        <div className="border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <Gauge className="h-4 w-4 text-slate-400" /> Utilizzi e limiti del piano
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+            {[
+              { label: "Archivio", value: limits.storage_gb != null ? `${limits.storage_gb} GB` : "—" },
+              { label: "Foto in linea", value: limits.photo_months != null ? `${limits.photo_months} mesi` : "—" },
+              { label: "Compilazione auto.", value: limits.autocompile_month != null ? `${limits.autocompile_month} /mese` : "—" },
+              { label: "SMS", value: limits.sms_month != null ? `${limits.sms_month} /mese` : "—" },
+              { label: "Consulente IA", value: limits.ai_included ? (limits.ai_budget_eur != null ? `€ ${limits.ai_budget_eur} /mese` : "Incluso") : "Non incluso" },
+              { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} /anno` : "—" },
+              { label: "Sedi", value: limits.sites != null ? String(limits.sites) : "—" },
+            ].map((m) => (
+              <div key={m.label} className="border-b border-r border-slate-100 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{m.label}</p>
+                <p className="mt-0.5 font-semibold text-slate-900">{m.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="px-5 py-2.5 text-[11px] text-slate-400">
+            Limiti inclusi nel tuo piano. Il monitoraggio dei consumi in tempo reale arriverà a breve.
+          </div>
+        </div>
+      )}
 
       {/* Ultime fatture */}
       <div className="border border-slate-200 bg-white shadow-sm">

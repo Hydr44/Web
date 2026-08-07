@@ -101,6 +101,26 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       if (error) errors.push(`org_settings.features: ${error.message}`);
     }
 
+    // ─── 3b. org_settings.limits (override per-cliente, merge JSONB) ─
+    //    Fase 1 "limiti d'uso": stesso pattern di features, ma una chiave con
+    //    valore null/'' viene RIMOSSA dall'override → torna a ereditare il piano.
+    //    Chiavi attese: storage_gb, photo_months, postal_year, autocompile_month,
+    //    sms_month, ai_budget_eur, sites. (ai_included NON è overridabile.)
+    if (body.limits && typeof body.limits === 'object') {
+      const { data: existing } = await supabaseAdmin
+        .from('org_settings').select('value').eq('org_id', orgId).eq('key', 'limits').maybeSingle();
+      const prev = (existing?.value as Record<string, any>) || {};
+      const merged: Record<string, any> = { ...prev };
+      for (const [k, v] of Object.entries(body.limits)) {
+        if (v === null || v === '') delete merged[k];
+        else merged[k] = v;
+      }
+      const { error } = await supabaseAdmin.from('org_settings').upsert({
+        org_id: orgId, key: 'limits', value: merged, updated_at: new Date().toISOString(),
+      }, { onConflict: 'org_id,key' });
+      if (error) errors.push(`org_settings.limits: ${error.message}`);
+    }
+
     // ─── 4. subscription overrides ─────────────────────────────────
     if (body.subscription && typeof body.subscription === 'object') {
       const subAllowed = [
