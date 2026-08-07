@@ -52,6 +52,7 @@ export default function DashboardPanoramica() {
   const [invoices, setInvoices] = useState<DashInvoice[]>([]);
   const [latestDesktopVersion, setLatestDesktopVersion] = useState<string | null>(null);
   const [limits, setLimits] = useState<Record<string, number | boolean | string | null> | null>(null);
+  const [usage, setUsage] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -143,6 +144,7 @@ export default function DashboardPanoramica() {
           const r = await fetch("/api/dashboard/usage");
           const j = await r.json().catch(() => ({}));
           if (r.ok && j.ok && j.limits) setLimits(j.limits);
+          if (r.ok && j.ok && j.usage && typeof j.usage === "object") setUsage(j.usage);
         } catch { /* opzionale */ }
 
         // Ultima versione desktop.
@@ -195,6 +197,51 @@ export default function DashboardPanoramica() {
       </div>
     );
   }
+
+  // Fase 2 — barre di consumo per le metriche con contatore mensile.
+  const numVal = (v: unknown): number => (typeof v === "number" && isFinite(v) ? v : 0);
+  const barColor = (pct: number) => (pct >= 100 ? "bg-red-500" : pct >= 80 ? "bg-amber-500" : "bg-emerald-500");
+  const meteredRows = (limits
+    ? [
+        {
+          key: "autocompile",
+          label: "Compilazione automatica",
+          used: numVal(usage.autocompile),
+          limit: numVal(limits.autocompile_month),
+          fmtUsed: (n: number) => `${n}`,
+          fmtLimit: (n: number) => `${n} /mese`,
+          show: true,
+        },
+        {
+          key: "sms",
+          label: "SMS",
+          used: numVal(usage.sms),
+          limit: numVal(limits.sms_month),
+          fmtUsed: (n: number) => `${n}`,
+          fmtLimit: (n: number) => `${n} /mese`,
+          show: true,
+        },
+        {
+          key: "ai_eur",
+          label: "Consulente IA",
+          used: numVal(usage.ai_eur),
+          limit: numVal(limits.ai_budget_eur),
+          fmtUsed: (n: number) => `€ ${n}`,
+          fmtLimit: (n: number) => `€ ${n} /mese`,
+          show: !!limits.ai_included,
+        },
+      ].filter((r) => r.show)
+    : []);
+  // Metriche solo-incluse (nessun contatore in Fase 2): mostrano il valore del piano.
+  const includedTiles = limits
+    ? [
+        { label: "Archivio", value: limits.storage_gb != null ? `${limits.storage_gb} GB` : "—" },
+        { label: "Foto in linea", value: limits.photo_months != null ? `${limits.photo_months} mesi` : "—" },
+        { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} /anno` : "—" },
+        { label: "Sedi", value: limits.sites != null ? String(limits.sites) : "—" },
+        ...(!limits.ai_included ? [{ label: "Consulente IA", value: "Non incluso" }] : []),
+      ]
+    : [];
 
   return (
     <div className="space-y-6">
@@ -265,16 +312,36 @@ export default function DashboardPanoramica() {
               <Gauge className="h-4 w-4 text-slate-400" /> Utilizzi e limiti del piano
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-            {[
-              { label: "Archivio", value: limits.storage_gb != null ? `${limits.storage_gb} GB` : "—" },
-              { label: "Foto in linea", value: limits.photo_months != null ? `${limits.photo_months} mesi` : "—" },
-              { label: "Compilazione auto.", value: limits.autocompile_month != null ? `${limits.autocompile_month} /mese` : "—" },
-              { label: "SMS", value: limits.sms_month != null ? `${limits.sms_month} /mese` : "—" },
-              { label: "Consulente IA", value: limits.ai_included ? (limits.ai_budget_eur != null ? `€ ${limits.ai_budget_eur} /mese` : "Incluso") : "Non incluso" },
-              { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} /anno` : "—" },
-              { label: "Sedi", value: limits.sites != null ? String(limits.sites) : "—" },
-            ].map((m) => (
+          {/* Metriche con contatore mensile: barra di consumo tri-colore. */}
+          {meteredRows.length > 0 && (
+            <div className="divide-y divide-slate-100">
+              {meteredRows.map((row) => {
+                const hasLimit = row.limit > 0;
+                const pct = hasLimit ? (row.used / row.limit) * 100 : 0;
+                const width = Math.min(100, pct);
+                return (
+                  <div key={row.key} className="px-5 py-4">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-sm font-medium text-slate-700">{row.label}</p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {hasLimit
+                          ? `${row.fmtUsed(row.used)} / ${row.fmtLimit(row.limit)}`
+                          : row.fmtUsed(row.used)}
+                      </p>
+                    </div>
+                    {hasLimit && (
+                      <div className="mt-2 h-1.5 w-full bg-slate-100">
+                        <div className={`h-full ${barColor(pct)}`} style={{ width: `${width}%` }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {/* Metriche solo-incluse (nessun contatore in Fase 2). */}
+          <div className="grid grid-cols-2 border-t border-slate-100 sm:grid-cols-3 lg:grid-cols-4">
+            {includedTiles.map((m) => (
               <div key={m.label} className="border-b border-r border-slate-100 p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{m.label}</p>
                 <p className="mt-0.5 font-semibold text-slate-900">{m.value}</p>
@@ -282,7 +349,7 @@ export default function DashboardPanoramica() {
             ))}
           </div>
           <div className="px-5 py-2.5 text-[11px] text-slate-400">
-            Limiti inclusi nel tuo piano. Il monitoraggio dei consumi in tempo reale arriverà a breve.
+            I consumi si azzerano ogni mese. Archivio, foto e sedi mostrano i limiti inclusi nel tuo piano.
           </div>
         </div>
       )}

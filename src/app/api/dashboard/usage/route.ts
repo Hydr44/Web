@@ -27,12 +27,28 @@ export async function GET(request: Request) {
       return NextResponse.json({ ok: true, limits: null }, { headers: corsHeaders(origin) });
     }
     const { data, error } = await supabaseAdmin.rpc("get_org_effective_limits", { p_org_id: orgId });
+
+    // Consumi del mese corrente (Fase 2). Degrada a {} se la funzione non è
+    // ancora presente (prod pre-migration) o restituisce null: non deve mai
+    // impedire il rendering della sezione limiti.
+    let usage: Record<string, number> = {};
+    try {
+      const { data: usageData, error: usageErr } = await supabaseAdmin.rpc("get_org_usage", { p_org_id: orgId });
+      if (usageErr) {
+        console.warn("[dashboard/usage] rpc get_org_usage:", usageErr.message);
+      } else if (usageData && typeof usageData === "object") {
+        usage = usageData as Record<string, number>;
+      }
+    } catch (e) {
+      console.warn("[dashboard/usage] get_org_usage:", e instanceof Error ? e.message : String(e));
+    }
+
     if (error) {
       // Funzione non ancora presente (prod pre-migration) o altro: degrada senza rompere.
       console.warn("[dashboard/usage] rpc get_org_effective_limits:", error.message);
-      return NextResponse.json({ ok: true, limits: null }, { headers: corsHeaders(origin) });
+      return NextResponse.json({ ok: true, limits: null, usage }, { headers: corsHeaders(origin) });
     }
-    return NextResponse.json({ ok: true, limits: data }, { headers: corsHeaders(origin) });
+    return NextResponse.json({ ok: true, limits: data, usage }, { headers: corsHeaders(origin) });
   } catch (e: unknown) {
     console.error("[dashboard/usage] error:", e);
     const msg = e instanceof Error ? e.message : "Errore interno";
