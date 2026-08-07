@@ -56,6 +56,27 @@ export async function POST(
         break;
       }
 
+      case 'seed-demo': {
+        // Popola un'org DEMO con dati realistici (module-aware + idempotente, via RPC seed_demo_data).
+        // Consentito SOLO su organizzazioni demo, per non toccare dati reali.
+        const { data: org, error: orgErr } = await supabaseAdmin
+          .from('orgs').select('is_demo').eq('id', orgId).single();
+        if (orgErr || !org) {
+          return NextResponse.json({ success: false, error: 'Organizzazione non trovata' }, { status: 404 });
+        }
+        if (!org.is_demo) {
+          return NextResponse.json({ success: false, error: 'Il popolamento demo è consentito solo sulle organizzazioni demo.' }, { status: 400 });
+        }
+        const { data: counts, error } = await supabaseAdmin.rpc('seed_demo_data', { p_org_id: orgId });
+        if (error) {
+          return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        }
+        // Marca il demo come popolato (best-effort, non blocca).
+        await supabaseAdmin.from('lead_demos').update({ seed_data: true }).eq('demo_org_id', orgId);
+        responseData = { success: true, counts: Array.isArray(counts) ? counts[0] : counts };
+        break;
+      }
+
       case 'edit': {
         const { 
           name, 

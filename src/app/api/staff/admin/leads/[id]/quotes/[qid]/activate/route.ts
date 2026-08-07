@@ -37,8 +37,15 @@ export async function POST(
     if (response.ok && data?.org_id) {
       try {
         await supabaseAdmin.from('orgs').update({ verification_pending: false }).eq('id', data.org_id);
+        // Allinea il piano della subscription al preventivo: senza questo, un'org
+        // promossa da demo resta con plan='demo' e mostra "Demo" anche da attivata.
+        const { data: q } = await supabaseAdmin
+          .from('lead_quotes').select('plan_type').eq('id', params.qid).maybeSingle();
+        if (q?.plan_type) {
+          await supabaseAdmin.from('org_subscriptions').update({ plan: q.plan_type }).eq('org_id', data.org_id);
+        }
       } catch (e: any) {
-        console.error('[activate] clear verification_pending failed:', e?.message);
+        console.error('[activate] post-activation update failed:', e?.message);
       }
     }
     return NextResponse.json(data, { status: response.status, headers: corsHeaders(origin) });

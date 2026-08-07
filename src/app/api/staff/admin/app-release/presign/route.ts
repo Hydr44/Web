@@ -4,7 +4,8 @@ import { getStaffFromRequest } from '@/lib/staff-auth';
 import { corsHeaders } from '@/lib/cors';
 
 const RELEASE_PREFIX = 'app-releases/stable';
-const ALLOWED_EXT = /\.(exe|dmg|zip|appimage|deb|blockmap|yml)$/i;
+// .apk = release mobile Android (download diretto ospitato da noi).
+const ALLOWED_EXT = /\.(exe|dmg|zip|appimage|deb|blockmap|yml|apk)$/i;
 
 /**
  * Restituisce un URL firmato per caricare l'installer direttamente su R2

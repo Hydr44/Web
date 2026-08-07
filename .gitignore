@@ -24,3 +24,8 @@ node_modules/
 # Build output
 .next/
 .vercel
+
+# junk (aggiunto durante cleanup)
+.DS_Store
+tsconfig.tsbuildinfo
+supabase/.temp/

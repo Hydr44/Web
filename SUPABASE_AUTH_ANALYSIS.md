@@ -28,9 +28,9 @@ reale https://ienzdgrqalltvkdkuamp.supabase.co
    - **anon/public key** (per il frontend)
    - **service_role key** (per il backend - NON condividere!)
 
-anon public = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllbnpkZ3JxYWxsdHZrZGt1YW1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxNzcwNDUsImV4cCI6MjA3Mzc1MzA0NX0.sj4ZQJcSMjGkqpizDgmUDImm9esIvTLrsPOT0IIBegA
+anon public = <REDACTED>
 
-service_role secret = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllbnpkZ3JxYWxsdHZrZGt1YW1wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODE3NzA0NSwiZXhwIjoyMDczNzUzMDQ1fQ.sET1rBO-r0tT-GIVC_2Zalc0qAQ0i5C22PybvThFf4o
+service_role secret = <REDACTED>
 
 
 **C. Configurazione Auth Settings:**
@@ -190,8 +190,8 @@ drivers: by org
 ```bash
 # Controlla se hai queste variabili:
 NEXT_PUBLIC_SUPABASE_URL=https://ienzdgrqalltvkdkuamp.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<REDACTED>
+SUPABASE_SERVICE_ROLE_KEY=<REDACTED>
 
 
 li ho poiche prima funzionava, ma mi hanno rimosso la stripe key anonima la devo rigenerare ma il login funziona anche senza almeno credo

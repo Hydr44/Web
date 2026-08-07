@@ -7,9 +7,10 @@
  *   system: string,
  *   prompt: string,
  *   image_base64?: string,           // legacy singola foto
- *   image_base64s?: string[],        // nuovo: array multi-foto (max 4)
+ *   image_base64s?: string[],        // array multi-foto (max 4)
+ *   pdf_base64s?: string[],          // PDF nativi → blocco document (max 3, tutte le pagine)
  * }
- * Almeno UNO tra image_base64 / image_base64s deve essere presente.
+ * Almeno UNO tra image_base64 / image_base64s / pdf_base64s deve essere presente.
  * Risposta: { text: string }  (blocco testo della risposta Claude)
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,6 +23,8 @@ export const runtime = 'nodejs';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_IMAGE_B64 = 8 * 1024 * 1024; // ~8MB base64 per singola foto
 const MAX_IMAGES = 4;                  // limite Claude vision multi-image
+const MAX_PDF_B64 = 32 * 1024 * 1024;  // ~32MB base64 per PDF (limite Anthropic per richiesta)
+const MAX_PDFS = 3;                     // pochi PDF per richiesta (ognuno può essere multipagina)
 
 export function OPTIONS(request: NextRequest) {
   return new NextResponse(null, { status: 204, headers: corsHeaders(request.headers.get('origin')) });
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
       { error: 'ANTHROPIC_API_KEY non configurata sul server' }, { status: 500, headers });
   }
 
-  let body: { system?: string; prompt?: string; image_base64?: string; image_base64s?: string[] };
+  let body: { system?: string; prompt?: string; image_base64?: string; image_base64s?: string[]; pdf_base64s?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -76,9 +79,15 @@ export async function POST(request: NextRequest) {
   }
   const images = arr.slice(0, MAX_IMAGES);
 
-  if (!system || !prompt || images.length === 0) {
+  // PDF nativi (opzionali): Claude li legge via blocco `document`.
+  const pdfs = (Array.isArray(body.pdf_base64s)
+    ? body.pdf_base64s.filter((s) => typeof s === 'string' && s.length > 0)
+    : []
+  ).slice(0, MAX_PDFS);
+
+  if (!system || !prompt || (images.length === 0 && pdfs.length === 0)) {
     return NextResponse.json(
-      { error: 'system, prompt e image_base64 / image_base64s obbligatori' },
+      { error: 'system, prompt e almeno un documento (image_base64 / image_base64s / pdf_base64s) obbligatori' },
       { status: 400, headers },
     );
   }
@@ -87,17 +96,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Una delle immagini è troppo grande (>8MB base64)' }, { status: 413, headers });
     }
   }
+  for (const pdf of pdfs) {
+    if (pdf.length > MAX_PDF_B64) {
+      return NextResponse.json({ error: 'Uno dei PDF è troppo grande (>32MB base64)' }, { status: 413, headers });
+    }
+  }
 
   // Costruisce il content multi-modale per Claude: tutte le immagini prima,
   // poi il prompt testo. Claude vision accetta più image blocks in un solo
   // turn (multi-image analysis nativa).
   const content: Array<
     | { type: 'image'; source: { type: 'base64'; media_type: 'image/jpeg'; data: string } }
+    | { type: 'document'; source: { type: 'base64'; media_type: 'application/pdf'; data: string } }
     | { type: 'text'; text: string }
   > = images.map((data) => ({
     type: 'image' as const,
     source: { type: 'base64' as const, media_type: 'image/jpeg' as const, data },
   }));
+  // PDF nativi: Claude legge tutte le pagine dal blocco `document` (niente
+  // rasterizzazione lato client, niente tetto a 4 pagine della vision).
+  for (const data of pdfs) {
+    content.push({
+      type: 'document' as const,
+      source: { type: 'base64' as const, media_type: 'application/pdf' as const, data },
+    });
+  }
   content.push({ type: 'text', text: prompt });
 
   try {
