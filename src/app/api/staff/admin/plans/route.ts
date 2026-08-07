@@ -16,7 +16,21 @@ import { getStaffFromRequest, requireStaffRole } from '@/lib/staff-auth';
 
 export const runtime = 'nodejs';
 
-const PLAN_COLS = 'id,label,monthly_price,yearly_price,max_modules,description,is_active,sort_order';
+// NB: si usa select('*') (non una lista esplicita) così l'endpoint resta
+// retro-compatibile con DB che non hanno ancora le colonne "limiti d'uso"
+// (Fase 1): le colonne mancanti semplicemente non compaiono, senza errori.
+
+// Coercizioni difensive per le colonne limite (numeri o null).
+const toIntOrNull = (v: unknown): number | null => {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.round(n) : null;
+};
+const toNumOrNull = (v: unknown): number | null => {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
 
 export async function GET(request: NextRequest) {
   const staff = await getStaffFromRequest(request);
@@ -26,7 +40,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('plans')
-    .select(PLAN_COLS)
+    .select('*')
     .order('sort_order', { ascending: true });
 
   if (error) {
@@ -73,7 +87,7 @@ export async function PUT(request: NextRequest) {
 
   const maxModulesRaw = Number(body.max_modules);
   const sortOrderRaw = Number(body.sort_order);
-  const row = {
+  const row: Record<string, unknown> = {
     id,
     label,
     monthly_price: monthly,
@@ -84,10 +98,21 @@ export async function PUT(request: NextRequest) {
     sort_order: Number.isFinite(sortOrderRaw) ? Math.round(sortOrderRaw) : 0,
   };
 
+  // Fase 1 "limiti d'uso": scrivi le 8 colonne solo se presenti nel body
+  // (assenti = lasciate invariate). Numeri/null per i limiti, boolean per ai_included.
+  if ('limit_storage_gb' in body) row.limit_storage_gb = toIntOrNull(body.limit_storage_gb);
+  if ('limit_photo_months' in body) row.limit_photo_months = toIntOrNull(body.limit_photo_months);
+  if ('limit_postal_year' in body) row.limit_postal_year = toIntOrNull(body.limit_postal_year);
+  if ('limit_autocompile_month' in body) row.limit_autocompile_month = toIntOrNull(body.limit_autocompile_month);
+  if ('limit_sms_month' in body) row.limit_sms_month = toIntOrNull(body.limit_sms_month);
+  if ('ai_included' in body) row.ai_included = body.ai_included === true || body.ai_included === 'true';
+  if ('ai_budget_eur' in body) row.ai_budget_eur = toNumOrNull(body.ai_budget_eur);
+  if ('limit_sites' in body) row.limit_sites = toIntOrNull(body.limit_sites);
+
   const { data, error } = await supabaseAdmin
     .from('plans')
     .upsert(row, { onConflict: 'id' })
-    .select(PLAN_COLS)
+    .select('*')
     .single();
 
   if (error) {

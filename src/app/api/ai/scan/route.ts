@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
 import { checkRateLimit } from '@/lib/security';
+import { getCallerOrgId } from '@/lib/portal-invoices';
 
 export const runtime = 'nodejs';
 
@@ -158,6 +159,19 @@ export async function POST(request: NextRequest) {
     if (!text) {
       return NextResponse.json({ error: 'Risposta Claude vuota' }, { status: 502, headers });
     }
+
+    // Fase 2 — conta la compilazione automatica per l'org del chiamante.
+    // BEST-EFFORT: risoluzione org + increment_usage non devono MAI far
+    // fallire lo scan (funzione assente su prod, errore rete, ecc.).
+    try {
+      const orgId = await getCallerOrgId(userData.user.id);
+      if (orgId) {
+        await supabaseAdmin.rpc('increment_usage', { p_org_id: orgId, p_metric: 'autocompile', p_amount: 1 });
+      }
+    } catch (e) {
+      console.warn('[ai/scan] increment_usage autocompile:', e instanceof Error ? e.message : String(e));
+    }
+
     return NextResponse.json({ text }, { headers });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
