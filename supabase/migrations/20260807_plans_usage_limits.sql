@@ -35,14 +35,18 @@ returns jsonb language sql stable as $$
     select plan from public.org_subscriptions where org_id = p_org_id limit 1
   ),
   pl as (
-    select * from public.plans where id = coalesce((select plan from sub), 'starter') limit 1
+    -- Piano dell'org se valido; altrimenti (null/custom/sconosciuto) ripiega su 'business'
+    -- (piano top attivo) così i limiti non risultano mai vuoti.
+    select * from public.plans
+    where id = coalesce((select id from public.plans where id = (select plan from sub)), 'business')
+    limit 1
   ),
   ovr as (
     select coalesce((select value from public.org_settings
                      where org_id = p_org_id and key = 'limits' limit 1), '{}'::jsonb) as v
   )
   select jsonb_build_object(
-    'plan',              (select id from pl),
+    'plan',              coalesce((select plan from sub), (select id from pl)),
     'storage_gb',        coalesce((select nullif(v->>'storage_gb','')::numeric from ovr),        (select limit_storage_gb from pl)),
     'photo_months',      coalesce((select nullif(v->>'photo_months','')::numeric from ovr),      (select limit_photo_months from pl)),
     'postal_year',       coalesce((select nullif(v->>'postal_year','')::numeric from ovr),       (select limit_postal_year from pl)),
