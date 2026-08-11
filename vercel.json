@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/usage-alerts",
+      "schedule": "0 7 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/api/maintenance/status",
