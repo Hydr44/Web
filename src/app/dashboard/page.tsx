@@ -13,6 +13,7 @@ import {
   CheckCircle,
   Clock,
   Gauge,
+  AlertTriangle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -201,8 +202,23 @@ export default function DashboardPanoramica() {
   // Fase 2 — barre di consumo per le metriche con contatore mensile.
   const numVal = (v: unknown): number => (typeof v === "number" && isFinite(v) ? v : 0);
   const barColor = (pct: number) => (pct >= 100 ? "bg-red-500" : pct >= 80 ? "bg-amber-500" : "bg-emerald-500");
+  const fmtBytes = (b: number): string => {
+    if (!(b > 0)) return "0 MB";
+    if (b >= 1024 ** 3) return `${(b / 1024 ** 3).toFixed(1)} GB`;
+    if (b >= 1024 ** 2) return `${(b / 1024 ** 2).toFixed(1)} MB`;
+    return `${(b / 1024).toFixed(0)} KB`;
+  };
   const meteredRows = (limits
     ? [
+        {
+          key: "storage",
+          label: "Archivio",
+          used: numVal(usage.storage_bytes),
+          limit: numVal(limits.storage_gb) * 1024 ** 3, // limite in byte
+          fmtUsed: (n: number) => fmtBytes(n),
+          fmtLimit: (n: number) => `${Math.round(n / 1024 ** 3)} GB`,
+          show: true,
+        },
         {
           key: "autocompile",
           label: "Compilazione automatica",
@@ -232,10 +248,15 @@ export default function DashboardPanoramica() {
         },
       ].filter((r) => r.show)
     : []);
-  // Metriche solo-incluse (nessun contatore in Fase 2): mostrano il valore del piano.
+  // Avvisi "superamento morbido": metriche con consumo ≥ 80% del limite.
+  const usageAlerts = meteredRows
+    .filter((r) => r.limit > 0)
+    .map((r) => ({ label: r.label, pct: (r.used / r.limit) * 100 }))
+    .filter((a) => a.pct >= 80);
+  const anyOver = usageAlerts.some((a) => a.pct >= 100);
+  // Metriche solo-incluse (nessun contatore): mostrano il valore del piano.
   const includedTiles = limits
     ? [
-        { label: "Archivio", value: limits.storage_gb != null ? `${limits.storage_gb} GB` : "—" },
         { label: "Foto in linea", value: limits.photo_months != null ? `${limits.photo_months} mesi` : "—" },
         { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} /anno` : "—" },
         { label: "Sedi", value: limits.sites != null ? String(limits.sites) : "—" },
@@ -250,6 +271,34 @@ export default function DashboardPanoramica() {
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-slate-500 text-sm mt-1">Benvenuto in {currentOrg}</p>
       </div>
+
+      {/* Avviso "superamento morbido": nessun blocco, solo un cortese heads-up. */}
+      {usageAlerts.length > 0 && (
+        <div
+          className={`flex items-start gap-3 border p-4 ${
+            anyOver ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
+          }`}
+        >
+          <AlertTriangle
+            className={`h-5 w-5 shrink-0 mt-0.5 ${anyOver ? "text-red-500" : "text-amber-500"}`}
+          />
+          <div className="text-sm">
+            <p className={`font-semibold ${anyOver ? "text-red-800" : "text-amber-800"}`}>
+              {anyOver
+                ? "Hai raggiunto alcuni limiti del piano"
+                : "Ti stai avvicinando ad alcuni limiti del piano"}
+            </p>
+            <p className={`mt-0.5 ${anyOver ? "text-red-700" : "text-amber-700"}`}>
+              {usageAlerts.map((a) => `${a.label} (${Math.round(a.pct)}%)`).join(" · ")}. Il
+              servizio continua a funzionare senza interruzioni.{" "}
+              <Link href="/dashboard/billing" className="font-medium underline">
+                Valuta un pacchetto o un upgrade
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Abbonamento operativo */}
       <div className="overflow-hidden border border-slate-200 bg-white shadow-sm">
