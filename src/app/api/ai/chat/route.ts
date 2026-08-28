@@ -133,8 +133,17 @@ export async function POST(request: NextRequest) {
       // NON propaghiamo i dettagli Anthropic al client (potrebbero contenere
       // info sulla nostra config). Loghiamo server-side per debug.
       console.error('[ai-chat] Anthropic error', resp.status, errText.slice(0, 500));
+      // Credito nostro esaurito: e un problema di RescueManager, non del cliente.
+      // Mandiamo un codice cosi l'app mostra "contatta l'amministrazione" invece
+      // di un generico "riprova piu tardi" che farebbe riprovare a vuoto.
+      const creditoFinito =
+        resp.status === 402 ||
+        /credit balance|insufficient (credit|funds)|billing/i.test(errText);
       return NextResponse.json(
-        { error: 'Errore servizio AI. Riprova più tardi.' },
+        {
+          error: 'Errore servizio AI. Riprova più tardi.',
+          code: creditoFinito ? 'AI_PROVIDER_UNAVAILABLE' : 'AI_SERVICE_ERROR',
+        },
         { status: 502, headers },
       );
     }
