@@ -7,6 +7,7 @@
 // /api/track/{token} ogni 10s. Nessuna dipendenza npm aggiuntiva.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { calcolaPercorso } from '@/lib/routing';
 
 type Vehicle = { lat: number | null; lng: number | null; heading: number | null; speed: number | null; recordedAt: string | null };
 type TrackData = {
@@ -98,9 +99,20 @@ export default function TrackPage({ params }: { params: { token: string } }) {
         const res = await fetch(`/api/track/${token}`, { cache: 'no-store' });
         const json: TrackData = await res.json();
         if (stop) return;
-        if (!json.ok) { setFatal(json.error || 'Link non valido.'); return; }
+        if (!json.ok) {
+          setFatal(json.error || 'Link non valido.');
+          // Link scaduto, revocato o non valido: si smette di interrogare.
+          // Il `finally` riprogrammava comunque il giro, quindi il telefono del
+          // cliente continuava a chiamare un indirizzo morto ogni 10 secondi,
+          // per sempre, con la pagina aperta.
+          stop = true;
+          return;
+        }
         setData(json);
         renderMap(json);
+        // Intervento concluso: l'ultimo aggiornamento è arrivato, non c'è più
+        // niente da seguire.
+        if (json.closed) stop = true;
       } catch {
         /* rete intermittente: riprova al giro dopo */
       } finally {
@@ -124,13 +136,10 @@ export default function TrackPage({ params }: { params: { token: string } }) {
 
     let coords: [number, number][] | null = null;
     try {
-      const url = `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`;
-      const res = await fetch(url);
-      const j = await res.json();
-      const g = j?.routes?.[0]?.geometry?.coordinates;
-      if (Array.isArray(g) && g.length > 1) coords = g.map((c: [number, number]) => [c[1], c[0]]);
+      const percorso = await calcolaPercorso([from, to]);
+      if (percorso?.coords && percorso.coords.length > 1) coords = percorso.coords;
     } catch {
-      /* offline / rate-limit → fallback retta */
+      /* offline / servizio giù → fallback retta */
     }
     const latlngs = coords ?? [from, to];
     const style = { color: '#3B82F6', weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round', dashArray: coords ? '' : '2 12' };
