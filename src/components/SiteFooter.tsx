@@ -23,9 +23,9 @@ export default function SiteFooter() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand */}
-          <div>
+          <div className="lg:col-span-2">
             <div className="mb-4">
               <img
                 src="/assets/logos/logo-principale-a-colori.svg"
@@ -62,15 +62,36 @@ export default function SiteFooter() {
             </div>
           </div>
 
+          {/* Soluzioni (pagine di settore) */}
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Soluzioni</h3>
+            <ul className="space-y-3 text-sm">
+              {/* Solo la label sta nel link: la riga descrittiva è un fratello,
+                  così l'anchor text resta pulito. */}
+              <li>
+                <Link href="/autodemolizioni" className="block text-slate-400 hover:text-white transition-colors">
+                  Gestionale per autodemolizioni
+                </Link>
+                <span className="block text-xs text-slate-500 mt-0.5">RVFU, RENTRI, ricambi usati, piazzale</span>
+              </li>
+              <li>
+                <Link href="/soccorso-stradale" className="block text-slate-400 hover:text-white transition-colors">
+                  Gestionale per soccorso stradale e carri attrezzi
+                </Link>
+                <span className="block text-xs text-slate-500 mt-0.5">Dispatch, app autisti, committenti, custodia</span>
+              </li>
+            </ul>
+          </div>
+
           {/* Moduli */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-white mb-4">Moduli</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/moduli/trasporti" className="text-slate-400 hover:text-white transition-colors">Soccorso & trasporti & Tracking</Link></li>
+              <li><Link href="/moduli/trasporti" className="text-slate-400 hover:text-white transition-colors">Soccorso & trasporti</Link></li>
               <li><Link href="/moduli/clienti" className="text-slate-400 hover:text-white transition-colors">Clienti & CRM</Link></li>
               <li><Link href="/moduli/piazzale" className="text-slate-400 hover:text-white transition-colors">Custodia veicoli & Deposito</Link></li>
-              <li><Link href="/moduli/rvfu" className="text-slate-400 hover:text-white transition-colors">Registro Veicoli Fuori Uso</Link></li>
-              <li><Link href="/moduli/rentri" className="text-slate-400 hover:text-white transition-colors">Rifiuti RENTRI</Link></li>
+              <li><Link href="/moduli/rvfu" className="text-slate-400 hover:text-white transition-colors">Registro veicoli fuori uso (RVFU)</Link></li>
+              <li><Link href="/moduli/rentri" className="text-slate-400 hover:text-white transition-colors">Registro RENTRI e formulari</Link></li>
               <li><Link href="/moduli/sdi" className="text-slate-400 hover:text-white transition-colors">Fatturazione Elettronica</Link></li>
             </ul>
           </div>
@@ -81,7 +102,7 @@ export default function SiteFooter() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Contattaci</Link></li>
               <li><Link href="/chi-siamo" className="text-slate-400 hover:text-white transition-colors">Chi siamo</Link></li>
-              <li><Link href="/demo" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
+              <li><Link href="/contatti" className="text-slate-400 hover:text-white transition-colors">Richiedi Demo</Link></li>
               <li>
                 <a
                   href="https://stats.uptimerobot.com/vqC6fnBuTL"

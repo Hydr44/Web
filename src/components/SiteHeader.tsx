@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { authManager, addAuthListener, type AuthUser } from "@/lib/auth";
 import { LogOut, User2, Menu, X, ChevronDown, Home, Building2 } from "lucide-react";
@@ -14,46 +14,54 @@ const NAV: NavItem[] = [
   { label: "Contatti", href: "/contatti", match: (p) => p === "/contatti" },
 ];
 
-const PRODOTTO_MODULES = [
-  { label: "Soccorso & trasporti", desc: "Gestione completa soccorso & trasporti e tracking GPS" },
-  { label: "RENTRI", desc: "Registro Elettronico Nazionale Tracciabilità Rifiuti" },
-  { label: "Ricambi TecDoc", desc: "Magazzino ricambi con integrazione TecDoc" },
-  { label: "Fatturazione Elettronica", desc: "Fatturazione elettronica via Sistema di Interscambio" },
-  { label: "Contabilità", desc: "Prima nota e piano dei conti" },
-];
+// Pagine di settore: una per tipo di azienda cliente.
+const SOLUZIONI = [
+  {
+    label: "Gestionale per autodemolizioni",
+    href: "/autodemolizioni",
+    desc: "RVFU, RENTRI, ricambi usati, piazzale",
+  },
+  {
+    label: "Gestionale per soccorso stradale e carri attrezzi",
+    href: "/soccorso-stradale",
+    desc: "Dispatch, app autisti, committenti, custodia",
+  },
+] as const;
+
+// Dropdown della barra desktop. Un solo menu aperto alla volta.
+type NavMenu = "funzionalita" | "soluzioni";
+
+const DROPDOWN_PANEL =
+  "absolute top-full left-0 mt-1 bg-white shadow-xl border border-gray-200 p-4 z-50";
+const DROPDOWN_TRIGGER =
+  "px-4 py-2 text-sm font-medium rounded transition-colors text-slate-400 hover:text-white flex items-center gap-1";
+const DROPDOWN_LINK =
+  "block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600";
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [orgs, setOrgs] = useState<Array<{ id: string; name: string }>>([]);
   const [currentOrg, setCurrentOrg] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutSuccess, setLogoutSuccess] = useState(false);
-  const [prodottoOpen, setProdottoOpen] = useState(false);
-  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [openMenu, setOpenMenu] = useState<NavMenu | null>(null);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Scroll handler
+  // Chiudi i dropdown (Funzionalità / Soluzioni) e il menu mobile al cambio di
+  // route + Escape + click fuori. Previene casi in cui il dropdown resta open
+  // dopo navigazione e copre visivamente i link vicini.
   useEffect(() => {
-    const handleScroll = () => setScrolled(globalThis.scrollY > 20);
-    globalThis.addEventListener("scroll", handleScroll);
-    return () => globalThis.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Chiudi dropdown "Funzionalità" al cambio di route + Escape + click fuori.
-  // Previene casi in cui il dropdown resta open dopo navigazione e copre
-  // visivamente i link vicini.
-  useEffect(() => {
-    setProdottoOpen(false);
+    setOpenMenu(null);
+    setMenuOpen(false);
   }, [pathname]);
   useEffect(() => {
-    if (!prodottoOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setProdottoOpen(false); };
+    if (!openMenu) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenMenu(null); };
     const onClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null;
-      if (t && !t.closest("[data-prodotto-dropdown]")) setProdottoOpen(false);
+      if (t && !t.closest("[data-nav-dropdown]")) setOpenMenu(null);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("click", onClick);
@@ -61,7 +69,54 @@ export default function SiteHeader() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("click", onClick);
     };
-  }, [prodottoOpen]);
+  }, [openMenu]);
+
+  // Hover: apertura ritardata (200ms) e chiusura ritardata (300ms) per non far
+  // sparire il pannello mentre il mouse passa dal bottone al contenuto.
+  // I pannelli sono SEMPRE nell'HTML (SEO + accessibilità) e vengono solo
+  // nascosti con la classe `hidden`.
+  const clearHover = () => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    hoverTimeout.current = null;
+  };
+  const hoverOpen = (menu: NavMenu) => {
+    clearHover();
+    hoverTimeout.current = setTimeout(() => setOpenMenu(menu), 200);
+  };
+  const hoverClose = () => {
+    clearHover();
+    hoverTimeout.current = setTimeout(() => setOpenMenu(null), 300);
+  };
+  const keepOpen = (menu: NavMenu) => {
+    clearHover();
+    setOpenMenu(menu);
+  };
+  const toggleMenu = (menu: NavMenu) => {
+    clearHover();
+    setOpenMenu((prev) => (prev === menu ? null : menu));
+  };
+  const closeMenus = () => {
+    clearHover();
+    setOpenMenu(null);
+  };
+  // Click sul bottone: da tastiera (Enter/Spazio, e.detail === 0) alterna
+  // apri/chiudi; col mouse il pannello è già aperto dall'hover, quindi il
+  // click lo tiene aperto invece di richiuderlo. Chiusura col mouse: uscita
+  // dal blocco, click fuori o Escape.
+  const onTriggerClick = (menu: NavMenu, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (e.detail === 0) toggleMenu(menu);
+    else keepOpen(menu);
+  };
+  // Cancella il timer dell'hover se il componente viene smontato.
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    };
+  }, []);
+  // Tastiera: quando il focus esce dal blocco (bottone + pannello) chiudi.
+  const onDropdownBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpenMenu(null);
+  };
 
   // Auth state management
   useEffect(() => {
@@ -83,7 +138,6 @@ export default function SiteHeader() {
           
           setTimeout(() => {
             setUser(null);
-            setOrgs([]);
             setCurrentOrg(null);
             setIsLoggingOut(false);
           }, 1500);
@@ -100,7 +154,6 @@ export default function SiteHeader() {
         if (!newUser) {
           setMenuOpen(false);
           setUserMenuOpen(false);
-          setOrgs([]);
           setCurrentOrg(null);
           return null;
         }
@@ -144,7 +197,6 @@ export default function SiteHeader() {
           }
 
           if (!userOrgId) {
-            setOrgs([]);
             setCurrentOrg(null);
             return;
           }
@@ -164,7 +216,6 @@ export default function SiteHeader() {
               .eq("key", "company")
               .maybeSingle();
             const companyName = (settings?.value as { company_name?: string } | null)?.company_name;
-            setOrgs([{ id: org.id, name: companyName || org.name }]);
             setCurrentOrg(companyName || org.name);
           }
         } catch (error) {
@@ -272,83 +323,109 @@ export default function SiteHeader() {
               Home
             </Link>
 
-            {/* Funzionalità dropdown */}
+            {/* Soluzioni dropdown (pagine di settore) */}
             <div
-              data-prodotto-dropdown
+              data-nav-dropdown
               className="relative"
-              onMouseEnter={() => {
-                if (hoverTimeout) clearTimeout(hoverTimeout);
-                const timeout = setTimeout(() => setProdottoOpen(true), 200);
-                setHoverTimeout(timeout);
-              }}
-              onMouseLeave={() => {
-                if (hoverTimeout) clearTimeout(hoverTimeout);
-                const timeout = setTimeout(() => setProdottoOpen(false), 300);
-                setHoverTimeout(timeout);
-              }}
+              onMouseEnter={() => hoverOpen("soluzioni")}
+              onMouseLeave={hoverClose}
+              onBlur={onDropdownBlur}
             >
               <button
-                className="px-4 py-2 text-sm font-medium rounded transition-colors text-slate-400 hover:text-white flex items-center gap-1"
+                type="button"
+                className={DROPDOWN_TRIGGER}
+                onClick={(e) => onTriggerClick("soluzioni", e)}
+                aria-expanded={openMenu === "soluzioni"}
+                aria-controls="nav-menu-soluzioni"
               >
-                Funzionalità
-                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${prodottoOpen ? 'rotate-180' : ''}`} />
+                Soluzioni
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openMenu === "soluzioni" ? 'rotate-180' : ''}`} />
               </button>
 
-              {prodottoOpen && (
-                <div 
-                  className="absolute top-full left-0 mt-1 w-[520px] bg-white shadow-xl border border-gray-200 p-4 z-50"
-                  onMouseEnter={() => {
-                    if (hoverTimeout) clearTimeout(hoverTimeout);
-                    setProdottoOpen(true);
-                  }}
-                  onMouseLeave={() => {
-                    if (hoverTimeout) clearTimeout(hoverTimeout);
-                    const timeout = setTimeout(() => setProdottoOpen(false), 300);
-                    setHoverTimeout(timeout);
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Funzioni base</div>
-                      <Link href="/moduli/trasporti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Soccorso & trasporti & Tracking</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch, mappa e stati intervento</div>
-                      </Link>
-                      <Link href="/moduli/clienti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Clienti</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Anagrafica, storico servizi e statistiche</div>
-                      </Link>
-                      <Link href="/moduli/mezzi-autisti" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Mezzi & Autisti</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Flotta, scadenze automatiche e turni</div>
-                      </Link>
-                      <Link href="/moduli/piazzale" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Custodia veicoli</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Posizioni veicoli, stati e scadenze deposito</div>
-                      </Link>
-                      <Link href="/moduli/preventivi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Preventivi</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Offerte, accettazione e conversione ordine</div>
-                      </Link>
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Moduli speciali</div>
-                      <Link href="/moduli/rvfu" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Registro Veicoli Fuori Uso</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Workflow D.Lgs 209/2003, radiazioni PRA</div>
-                      </Link>
-                      <Link href="/moduli/rentri" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Rifiuti RENTRI</div>
-                        <div className="text-xs text-gray-500 mt-0.5">FIR digitali, registro, MUD automatico</div>
-                      </Link>
-                      <Link href="/moduli/sdi" onClick={() => setProdottoOpen(false)} className="block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600">
-                        <div className="text-sm font-semibold text-gray-900">Fatturazione Elettronica</div>
-                        <div className="text-xs text-gray-500 mt-0.5">Prima nota, conservazione sostitutiva e TS</div>
-                      </Link>
-                    </div>
+              <div
+                id="nav-menu-soluzioni"
+                aria-hidden={openMenu !== "soluzioni"}
+                className={`${DROPDOWN_PANEL} w-[360px] ${openMenu === "soluzioni" ? "" : "hidden"}`}
+                onMouseEnter={() => keepOpen("soluzioni")}
+                onMouseLeave={hoverClose}
+              >
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Per chi lavori</div>
+                {SOLUZIONI.map((s) => (
+                  <Link key={s.href} href={s.href} onClick={closeMenus} className={DROPDOWN_LINK}>
+                    <div className="text-sm font-semibold text-gray-900">{s.label}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{s.desc}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Funzionalità dropdown */}
+            <div
+              data-nav-dropdown
+              className="relative"
+              onMouseEnter={() => hoverOpen("funzionalita")}
+              onMouseLeave={hoverClose}
+              onBlur={onDropdownBlur}
+            >
+              <button
+                type="button"
+                className={DROPDOWN_TRIGGER}
+                onClick={(e) => onTriggerClick("funzionalita", e)}
+                aria-expanded={openMenu === "funzionalita"}
+                aria-controls="nav-menu-funzionalita"
+              >
+                Funzionalità
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openMenu === "funzionalita" ? 'rotate-180' : ''}`} />
+              </button>
+
+              <div
+                id="nav-menu-funzionalita"
+                aria-hidden={openMenu !== "funzionalita"}
+                className={`${DROPDOWN_PANEL} w-[520px] ${openMenu === "funzionalita" ? "" : "hidden"}`}
+                onMouseEnter={() => keepOpen("funzionalita")}
+                onMouseLeave={hoverClose}
+              >
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Funzioni base</div>
+                    <Link href="/moduli/trasporti" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Soccorso & trasporti</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Soccorso, dispatch, mappa e stati intervento</div>
+                    </Link>
+                    <Link href="/moduli/clienti" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Clienti</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Anagrafica, storico servizi e statistiche</div>
+                    </Link>
+                    <Link href="/moduli/mezzi-autisti" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Mezzi & Autisti</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Flotta, scadenze automatiche e turni</div>
+                    </Link>
+                    <Link href="/moduli/piazzale" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Custodia veicoli</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Posizioni veicoli, stati e scadenze deposito</div>
+                    </Link>
+                    <Link href="/moduli/preventivi" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Preventivi</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Offerte, accettazione e conversione ordine</div>
+                    </Link>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">Moduli speciali</div>
+                    <Link href="/moduli/rvfu" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Registro Veicoli Fuori Uso</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Pratica D.Lgs 209/2003, radiazioni PRA</div>
+                    </Link>
+                    <Link href="/moduli/rentri" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Rifiuti RENTRI</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Registro di carico e scarico, formulari digitali, correzioni</div>
+                    </Link>
+                    <Link href="/moduli/sdi" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Fatturazione Elettronica</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Fatture e autofatture con notifiche di esito, prima nota</div>
+                    </Link>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             <Link
@@ -449,7 +526,7 @@ export default function SiteHeader() {
                           ) : (
                             <>
                               <LogOut className="h-4 w-4" />
-                              Esci dall'account
+                              Esci dall&apos;account
                             </>
                           )}
                         </button>
@@ -477,39 +554,67 @@ export default function SiteHeader() {
 
             {/* Mobile menu button */}
             <button
+              type="button"
               className="lg:hidden p-2 rounded hover:bg-white/10 transition-colors text-slate-400"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Chiudi menu" : "Apri menu"}
               aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="lg:hidden border-t border-slate-800 py-3">
+        {/* Mobile menu: sempre nell'HTML, nascosto con `hidden` quando chiuso */}
+        <div
+          id="mobile-menu"
+          aria-hidden={!menuOpen}
+          className={`lg:hidden border-t border-slate-800 py-3 ${menuOpen ? "" : "hidden"}`}
+        >
+          <div className="flex flex-col gap-1">
+            {NAV.map((item) => {
+              const active = item.match ? item.match(pathname) : pathname === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                    active
+                      ? "text-white bg-white/10"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Soluzioni (pagine di settore) */}
+          <div className="mt-3 pt-3 border-t border-slate-800">
+            <div className="px-4 mb-1 text-xs font-bold uppercase tracking-widest text-slate-500">Soluzioni</div>
             <div className="flex flex-col gap-1">
-              {NAV.map((item) => {
-                const active = item.match ? item.match(pathname) : pathname === item.href;
+              {SOLUZIONI.map((s) => {
+                const active = pathname === s.href;
                 return (
                   <Link
-                    key={item.label}
-                    href={item.href}
-                    className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
-                      active
-                        ? "text-white bg-white/10"
-                        : "text-slate-400 hover:text-white"
+                    key={s.href}
+                    href={s.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`px-4 py-2 rounded transition-colors ${
+                      active ? "bg-white/10" : "hover:bg-white/5"
                     }`}
                   >
-                    {item.label}
+                    <div className={`text-sm font-medium ${active ? "text-white" : "text-slate-300"}`}>{s.label}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{s.desc}</div>
                   </Link>
                 );
               })}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </header>
     </>

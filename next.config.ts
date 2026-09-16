@@ -37,12 +37,22 @@ const nextConfig: NextConfig = {
         destination: "https://rescuemanager.eu/:path*",
         permanent: true,
       },
+      // Alias della pagina di settore autodemolizioni (varianti digitate/cercate)
+      { source: "/autodemolitori", destination: "/autodemolizioni", permanent: true },
+      { source: "/autodemolizione", destination: "/autodemolizioni", permanent: true },
     ];
   },
   async headers() {
     // CORS per /api/staff/* gestita dinamicamente in src/middleware.ts
     // (allow-list che include Electron `app://` e localhost dev).
+    // Pagine riservate (login/portale): fuori dall'indice via X-Robots-Tag.
+    // Non sono bloccate in robots.txt proprio perché Google deve poter leggere
+    // questo header (vedi src/app/robots.ts).
+    const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
     return [
+      { source: "/login", headers: noindex },
+      { source: "/dashboard", headers: noindex },
+      { source: "/dashboard/:path*", headers: noindex },
       {
         source: "/(.*)",
         headers: [

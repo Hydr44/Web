@@ -11,7 +11,7 @@ import {
     X
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import WhatsAppFab from "@/components/WhatsAppFab";
 
@@ -22,6 +22,66 @@ export default function HomeClient() {
     const [errorMessage, setErrorMessage] = useState("");
     const [processing, setProcessing] = useState(false);
     const [demoTab, setDemoTab] = useState<"soccorso" | "demolizione">("soccorso");
+    // Entrambi i pannelli "Vedi in azione" stanno nell'HTML (solo uno visibile):
+    // quando si cambia scheda mettiamo in pausa il video che resta nascosto.
+    const demoVideoRefs = useRef<Partial<Record<"soccorso" | "demolizione", HTMLVideoElement | null>>>({});
+    const demoTabRefs = useRef<Partial<Record<"soccorso" | "demolizione", HTMLButtonElement | null>>>({});
+    const DEMO_KEYS = ["soccorso", "demolizione"] as const;
+
+    const selectDemoTab = (k: "soccorso" | "demolizione") => {
+        // Ferma il video del pannello che sta per essere nascosto
+        Object.values(demoVideoRefs.current).forEach((v) => v?.pause());
+        setDemoTab(k);
+    };
+    // Pattern "tabs": frecce sinistra/destra, Home e Fine spostano il focus e
+    // selezionano la scheda; solo la scheda attiva sta nell'ordine di Tab.
+    const onDemoTablistKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        const i = DEMO_KEYS.indexOf(demoTab);
+        let next: number | null = null;
+        if (e.key === "ArrowRight") next = (i + 1) % DEMO_KEYS.length;
+        else if (e.key === "ArrowLeft") next = (i - 1 + DEMO_KEYS.length) % DEMO_KEYS.length;
+        else if (e.key === "Home") next = 0;
+        else if (e.key === "End") next = DEMO_KEYS.length - 1;
+        if (next === null) return;
+        e.preventDefault();
+        const k = DEMO_KEYS[next];
+        selectDemoTab(k);
+        demoTabRefs.current[k]?.focus();
+    };
+
+    // Pagine di settore: una card per tipo di azienda cliente.
+    const SETTORI = [
+        {
+            key: "soccorso",
+            href: "/soccorso-stradale",
+            eyebrow: "Soccorso stradale",
+            title: "Carri attrezzi, chiamate, committenti.",
+            desc: "Ricevi la chiamata, assegni autista e mezzo e segui l'intervento sulla mappa. L'autista scatta le foto e fa firmare il cliente dall'app, tu stampi il documento di trasporto (DDT) e a fine mese fatturi ogni committente in un colpo solo.",
+            chips: ["Dispatch", "App autista", "Committenti", "Custodia", "DDT"],
+            cta: "Gestionale per soccorso stradale e carri attrezzi",
+            card: "bg-[#0f172a]",
+            eyebrowColor: "text-blue-400",
+            titleColor: "text-white",
+            text: "text-slate-400",
+            chip: "border-slate-700 text-slate-200",
+            link: "text-white hover:text-blue-400",
+        },
+        {
+            key: "autodemolizioni",
+            href: "/autodemolizioni",
+            eyebrow: "Autodemolitori",
+            title: "RVFU, RENTRI, ricambi.",
+            desc: "Prendi in carico il veicolo, segui le fasi di lavorazione e trasmetti la radiazione al Registro Unico Telematico dei veicoli fuori uso (RVFU). Registro RENTRI con formulari digitali, demolizioni a UNRAE, ricambi usati a scaffale: i dati per il MUD sono già nel registro.",
+            chips: ["Radiazione", "Formulari", "Registro", "Ricambi", "UNRAE"],
+            cta: "Gestionale per autodemolizioni",
+            card: "bg-white border border-gray-200",
+            eyebrowColor: "text-blue-600",
+            titleColor: "text-[#0f172a]",
+            text: "text-gray-500",
+            chip: "border-gray-200 text-gray-700",
+            link: "text-blue-600 hover:text-[#0f172a]",
+        },
+    ] as const;
 
     const DEMOS = {
         soccorso: {
@@ -61,10 +121,10 @@ export default function HomeClient() {
     ];
 
     const INTEGRAZIONI = [
-        { ente: "Ministero dei Trasporti · STA", title: "Radiazioni RVFU", short: "Radi il veicolo e generi il certificato di rottamazione, collegato al Registro nazionale." },
+        { ente: "ACI e Ministero dei Trasporti", title: "Radiazioni RVFU", short: "Radi il veicolo e generi il certificato di rottamazione, collegato al Registro Unico Telematico." },
         { ente: "Agenzia delle Entrate", title: "Fatturazione elettronica", short: "Crei, trasmetti e monitori le fatture con notifiche automatiche." },
         { ente: "Registro RENTRI", title: "Rifiuti e formulari", short: "Carico/scarico, formulari e trasmissione al registro nazionale." },
-        { ente: "UNRAE", title: "Statistiche e demolizioni", short: "Trasmetti le demolizioni e consulti i dati di settore." },
+        { ente: "UNRAE", title: "Trasmissione demolizioni", short: "Trasmetti le demolizioni effettuate." },
         { ente: "RicambiPro", title: "Catalogo ricambi", short: "Cerchi il pezzo, verifichi compatibilità e disponibilità." },
     ];
 
@@ -164,7 +224,7 @@ export default function HomeClient() {
     }
 
     return (
-        <main>
+        <div>
             {/* Preload del poster hero (elemento LCP) con priorità alta: elimina il "resource load delay" */}
             <link rel="preload" as="image" href="/video/soccorso-poster.jpg" fetchPriority="high" />
             {/* Error Banner */}
@@ -252,6 +312,45 @@ export default function HomeClient() {
                             <source src="/video/soccorso.mp4" type="video/mp4" />
                             <track kind="captions" />
                         </video>
+                    </div>
+                </div>
+            </section>
+
+            {/* ============================================ */}
+            {/* PER CHI LAVORI — due settori, due pagine       */}
+            {/* ============================================ */}
+            <section className="py-16 lg:py-20 bg-gray-50">
+                <div className="max-w-7xl mx-auto px-6">
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] mb-4">
+                        Per chi lavori<span className="text-blue-500">?</span>
+                    </h2>
+                    <p className="text-lg text-gray-500 mb-10 max-w-2xl">
+                        Due mestieri diversi, un solo programma. Scegli il tuo e vedi cosa fa per te.
+                    </p>
+                    <div className="grid lg:grid-cols-2 gap-6">
+                        {SETTORI.map((s) => (
+                            <div key={s.key} className={`${s.card} p-8 lg:p-10 flex flex-col`}>
+                                <span className={`text-xs font-bold uppercase tracking-widest mb-3 ${s.eyebrowColor}`}>
+                                    {s.eyebrow}
+                                </span>
+                                <h3 className={`text-2xl lg:text-3xl font-extrabold mb-4 ${s.titleColor}`}>{s.title}</h3>
+                                <p className={`${s.text} mb-6 leading-relaxed`}>{s.desc}</p>
+                                <ul className="flex flex-wrap gap-2 mb-8" aria-label={`Funzioni principali: ${s.eyebrow}`}>
+                                    {s.chips.map((c) => (
+                                        <li key={c} className={`px-3 py-1 text-xs font-bold uppercase tracking-wide border ${s.chip}`}>
+                                            {c}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Link
+                                    href={s.href}
+                                    className={`mt-auto inline-flex items-center gap-2 text-sm font-bold underline-offset-4 hover:underline transition-colors ${s.link}`}
+                                >
+                                    {s.cta}
+                                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                </Link>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -401,7 +500,7 @@ export default function HomeClient() {
                                 {[
                                     "Trasmissione automatica all'Agenzia delle Entrate",
                                     "Notifiche di accettazione in tempo reale",
-                                    "Conservazione sostitutiva inclusa",
+                                    "Scadenzario degli incassi",
                                     "Gestione note di credito e storni"
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
@@ -473,15 +572,22 @@ export default function HomeClient() {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex flex-wrap justify-center gap-3 mb-10">
-                        {(["soccorso", "demolizione"] as const).map((k) => {
+                    <div role="tablist" aria-label="Scegli il flusso da guardare" onKeyDown={onDemoTablistKeyDown} className="flex flex-wrap justify-center gap-3 mb-10">
+                        {DEMO_KEYS.map((k) => {
                             const D = DEMOS[k];
                             const Ic = D.icon;
                             const on = demoTab === k;
                             return (
                                 <button
                                     key={k}
-                                    onClick={() => setDemoTab(k)}
+                                    ref={(el) => { demoTabRefs.current[k] = el; }}
+                                    type="button"
+                                    role="tab"
+                                    id={`demo-tab-${k}`}
+                                    aria-selected={on}
+                                    aria-controls={`demo-panel-${k}`}
+                                    tabIndex={on ? 0 : -1}
+                                    onClick={() => selectDemoTab(k)}
                                     className={`flex items-center gap-2 px-6 py-3 rounded font-bold text-sm transition-colors ${on
                                         ? "bg-[#0f172a] text-white"
                                         : "border-2 border-slate-200 text-slate-600 hover:border-blue-500 hover:text-[#0f172a]"
@@ -494,52 +600,67 @@ export default function HomeClient() {
                         })}
                     </div>
 
-                    {/* Player + info */}
-                    <div className="grid lg:grid-cols-3 gap-8 items-start">
-                        <div className="lg:col-span-2">
-                            <div className="rounded-lg overflow-hidden shadow-2xl border-2 border-[#0f172a] bg-black">
-                                <video
-                                    key={demoTab}
-                                    controls
-                                    playsInline
-                                    preload="none"
-                                    className="w-full aspect-video"
-                                    poster={DEMOS[demoTab].poster}
-                                >
-                                    <source src={DEMOS[demoTab].src} type="video/mp4" />
-                                    <track kind="captions" />
-                                    Il tuo browser non supporta il tag video.
-                                </video>
-                            </div>
-                        </div>
-
-                        <div>
-                            <span className="inline-block text-xs font-bold tracking-wider text-blue-600 uppercase mb-3">
-                                {DEMOS[demoTab].kicker}
-                            </span>
-                            <h3 className="text-2xl lg:text-3xl font-extrabold text-[#0f172a] mb-4">
-                                {DEMOS[demoTab].title}
-                            </h3>
-                            <p className="text-gray-500 mb-6">
-                                {DEMOS[demoTab].desc}
-                            </p>
-                            <ul className="space-y-3 mb-8">
-                                {DEMOS[demoTab].steps.map((s) => (
-                                    <li key={s} className="flex items-start gap-3 text-sm font-medium text-[#0f172a]">
-                                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
-                                        <span>{s}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <Link
-                                href="/contatti"
-                                className="inline-flex items-center gap-2 px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors rounded"
+                    {/* Player + info — entrambi i pannelli nell'HTML, alternati con `hidden` */}
+                    {(["soccorso", "demolizione"] as const).map((k) => {
+                        const D = DEMOS[k];
+                        const on = demoTab === k;
+                        return (
+                            <div
+                                key={k}
+                                role="tabpanel"
+                                id={`demo-panel-${k}`}
+                                aria-labelledby={`demo-tab-${k}`}
+                                aria-hidden={!on}
+                                className={on ? "" : "hidden"}
                             >
-                                RICHIEDI DEMO
-                                <ArrowRight className="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
+                                <div className="grid lg:grid-cols-3 gap-8 items-start">
+                                    <div className="lg:col-span-2">
+                                        <div className="rounded-lg overflow-hidden shadow-2xl border-2 border-[#0f172a] bg-black">
+                                            <video
+                                                ref={(el) => { demoVideoRefs.current[k] = el; }}
+                                                controls
+                                                playsInline
+                                                preload="none"
+                                                className="w-full aspect-video"
+                                                poster={D.poster}
+                                            >
+                                                <source src={D.src} type="video/mp4" />
+                                                <track kind="captions" />
+                                                Il tuo browser non supporta il tag video.
+                                            </video>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span className="inline-block text-xs font-bold tracking-wider text-blue-600 uppercase mb-3">
+                                            {D.kicker}
+                                        </span>
+                                        <h3 className="text-2xl lg:text-3xl font-extrabold text-[#0f172a] mb-4">
+                                            {D.title}
+                                        </h3>
+                                        <p className="text-gray-500 mb-6">
+                                            {D.desc}
+                                        </p>
+                                        <ul className="space-y-3 mb-8">
+                                            {D.steps.map((s) => (
+                                                <li key={s} className="flex items-start gap-3 text-sm font-medium text-[#0f172a]">
+                                                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
+                                                    <span>{s}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <Link
+                                            href="/contatti"
+                                            className="inline-flex items-center gap-2 px-7 py-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors rounded"
+                                        >
+                                            RICHIEDI DEMO
+                                            <ArrowRight className="h-4 w-4" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
 
@@ -631,6 +752,6 @@ export default function HomeClient() {
 
             {/* Contatto diretto WhatsApp — sticky, solo sulla home */}
             <WhatsAppFab />
-        </main>
+        </div>
     );
 }

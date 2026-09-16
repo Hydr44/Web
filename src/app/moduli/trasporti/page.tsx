@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Users, BarChart3, CheckCircle2, ArrowRight } from "lucide-react";
+import { ArrowLeft, MapPin, Users, CheckCircle2, Smartphone, Receipt, Truck, ArrowRight } from "lucide-react";
 
 
 export const metadata: Metadata = {
-  title: "Soccorso stradale e trasporti",
-  description: "Dispatch degli interventi su mappa, assegnazione di autisti e mezzi, tracking GPS in tempo reale e navigazione per gli autisti.",
+  title: "Dispatch soccorso stradale: interventi, carro attrezzi e mappa",
+  description: "Gestionale soccorso stradale: dispatch interventi, assegnazione autista e carro attrezzi, mappa dei mezzi, app autisti con navigatore e WhatsApp al cliente.",
   alternates: { canonical: "/moduli/trasporti" },
 };
 
+const MODULI_COLLEGATI = [
+  { href: "/moduli/mezzi-autisti", title: "Mezzi e autisti", desc: "Disponibilità, turni e scadenze di revisione e assicurazione dei carri attrezzi." },
+  { href: "/moduli/clienti", title: "Clienti e committenti", desc: "Anagrafica con convenzioni e tariffari: il prezzo dell’intervento si calcola da solo." },
+  { href: "/moduli/piazzale", title: "Custodia veicoli", desc: "Il veicolo recuperato entra in deposito con posizione, conto giorni e verbale di riconsegna." },
+];
+
 export default function TrasportiPage() {
   return (
-    <main className="bg-white">
+    <div className="bg-white">
       {/* HERO */}
       <section className="pt-16 bg-[#0f172a]">
         <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
@@ -19,12 +25,18 @@ export default function TrasportiPage() {
             <ArrowLeft className="h-4 w-4" />
             Torna alla home
           </Link>
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">App Base</p>
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">App Base</p>
+          <div className="mb-5">
+            <Link href="/soccorso-stradale" className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-white transition-colors">
+              Fa parte del gestionale per il soccorso stradale
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-[1.05]">
-            Gestione Soccorso & trasporti<span className="text-blue-500">.</span>
+            Dispatch degli interventi di soccorso stradale<span className="text-blue-500">.</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl">
-            Sistema completo per soccorso stradale e demolizioni: creazione soccorso & trasporti, assegnazione autisti/mezzi, tracking su mappa, stati e storico. Tutto sincronizzato e tracciabile.
+            Dalla chiamata alla fattura: crei l’intervento, assegni autista e carro attrezzi, segui stato e posizione dei mezzi sulla mappa. L’autista riceve tutto sull’app, il cliente riceve un messaggio WhatsApp con il link per seguire l’intervento.
           </p>
         </div>
       </section>
@@ -36,10 +48,10 @@ export default function TrasportiPage() {
             <div>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Il problema che risolve</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                In un'autodemolizione o in un centro soccorso, i soccorso & trasporti si moltiplicano durante la giornata. Senza un sistema centrale, ogni intervento diventa una catena di telefonate: chi è libero? dov'è il carro attrezzi? è già partito? è arrivato? A fine giornata, ricostruire cosa è successo è quasi impossibile.
+                In un centro di soccorso stradale gli interventi si moltiplicano durante la giornata. Senza un sistema centrale, ogni chiamata diventa una catena di telefonate: chi è libero? dov’è il carro attrezzi? è già partito? è arrivato? A fine giornata, ricostruire cosa è successo è quasi impossibile.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Il modulo Soccorso & trasporti raccoglie tutto in un'unica schermata: ogni intervento ha un cliente, un indirizzo di ritiro e consegna, un autista, un mezzo e uno stato aggiornato in tempo reale. Non serve chiamare nessuno — basta aprire la lista e si vede tutto.
+                Il modulo Soccorso & trasporti raccoglie tutto in un’unica schermata: ogni intervento ha un cliente, un punto di intervento e una destinazione, un autista, un carro attrezzi e uno stato aggiornato in tempo reale. Non serve chiamare nessuno: apri la lista e vedi tutto.
               </p>
             </div>
             <div className="space-y-3">
@@ -49,7 +61,7 @@ export default function TrasportiPage() {
               </div>
               <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
                 <p className="text-sm font-semibold text-gray-900">Con RescueManager</p>
-                <p className="text-sm text-gray-600 mt-1">Lista aggiornata in tempo reale, stati visibili a tutti, storico completo per ogni trasporto, bozza fattura generata automaticamente a fine intervento.</p>
+                <p className="text-sm text-gray-600 mt-1">Lista aggiornata in tempo reale, stati visibili a tutti, storico completo per ogni intervento, prezzo calcolato in automatico dal tariffario e fattura pronta a fine mese.</p>
               </div>
             </div>
           </div>
@@ -60,27 +72,37 @@ export default function TrasportiPage() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Tutto quello che serve per gestire gli interventi dalla creazione alla chiusura.</p>
+          <p className="text-gray-500 text-center mb-10">Tutto quello che serve per gestire gli interventi dalla chiamata alla chiusura.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
               <Users className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Creazione e gestione interventi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Crea ogni intervento in pochi secondi: selezioni il cliente dall'anagrafica (o ne inserisci uno nuovo al volo), inserisci l'indirizzo di ritiro e quello di consegna, aggiungi note operative per l'autista e assegni mezzo e autista disponibili. Puoi modificare o riaprire qualsiasi intervento in qualunque momento, e tutto rimane nel sistema con data e ora.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Creazione e assegnazione degli interventi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Crei ogni intervento in pochi secondi: selezioni il cliente o il committente dall’anagrafica (o ne inserisci uno nuovo al volo), inserisci il punto di intervento e la destinazione, aggiungi le note per l’autista e assegni il carro attrezzi e l’autista disponibili. Puoi modificare o riaprire qualsiasi intervento in qualunque momento, e tutto resta nel sistema con data e ora.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <CheckCircle2 className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati intervento in tempo reale</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni trasporto ha uno stato chiaro — Da Fare, Assegnato, In Corso, Completato — che avanza man mano che l'operazione procede. Lo stato è visibile a chiunque abbia accesso al gestionale: l'ufficio vede subito che l'autista ha preso in carico il lavoro, e quando l'intervento si chiude il registro è già aggiornato. Nessuna chiamata di conferma necessaria.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati in tempo reale e messaggi al cliente</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento ha uno stato chiaro (Da fare, Assegnato, In corso, Completato) che avanza man mano che l’operazione procede ed è visibile a tutto l’ufficio. Alla creazione e a ogni cambio di stato il cliente riceve in automatico un messaggio WhatsApp con un link per seguire l’intervento: meno chiamate di conferma, in entrata e in uscita.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <MapPin className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa interventi attivi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">La vista mappa mostra in un colpo d'occhio tutti i soccorso & trasporti attivi: il punto di ritiro, il punto di consegna e, se disponibile, la posizione più recente del mezzo. Puoi cliccare su qualsiasi trasporto per vederne i dettagli, aprire l'indirizzo su Google Maps o contattare l'autista direttamente. Utile soprattutto nelle ore di punta quando ci sono più interventi contemporanei.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa interventi attivi e posizione dei mezzi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La vista mappa mostra in un colpo d’occhio tutti gli interventi attivi: il punto di intervento, la destinazione e la posizione più recente di ogni mezzo. Clicchi su un intervento per vederne i dettagli o contattare l’autista. Utile soprattutto nelle ore di punta, quando ci sono più interventi contemporanei.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <BarChart3 className="h-6 w-6 text-gray-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Export, report e bozza fattura</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">A fine giornata, settimana o mese puoi esportare i dati degli interventi in CSV per analisi, consuntivi o controllo costi. In più, a chiusura di ogni trasporto puoi generare in un click una bozza di fattura già precompilata con i dati del cliente, dell'intervento e dell'importo — così non devi reinserire nulla nel modulo contabilità.</p>
+              <Smartphone className="h-6 w-6 text-gray-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">App autisti con navigatore, foto e firma</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">L’autista riceve la notifica sull’app iOS e Android, apre il navigatore passo-passo verso il punto di intervento, aggiorna lo stato, scatta le foto del veicolo e fa firmare il cliente sul posto. Tutto finisce nella scheda dell’intervento, senza fogli da riportare in ufficio.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Receipt className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Convenzioni, tariffari e prezzo automatico</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per ogni committente (assicurazioni, società di assistenza, flotte) definisci la convenzione e il tariffario: il prezzo dell’intervento si calcola in automatico. Per i privati usi il tuo tariffario. A fine mese emetti la fattura massiva per committente e per ogni intervento stampi il DDT (documento di trasporto).</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Truck className="h-6 w-6 text-gray-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Mezzi, turni e custodia collegati</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">I carri attrezzi hanno le loro scadenze di revisione e assicurazione, gli autisti i loro turni. Se il veicolo recuperato resta in deposito, passa alla custodia veicoli con posizione e conto giorni, senza reinserire nulla.</p>
             </div>
           </div>
         </div>
@@ -89,9 +111,9 @@ export default function TrasportiPage() {
       {/* STATI */}
       <section className="py-10 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Stati Trasporto</h3>
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Stati dell’intervento</h3>
           <div className="grid sm:grid-cols-4 gap-4">
-            {[["bg-amber-500","Da Fare","Intervento creato, in attesa di assegnazione."],["bg-blue-500","Assegnato","Autista e mezzo assegnati, pronto a partire."],["bg-emerald-500","In Corso","Autista ha preso in carico, intervento attivo."],["bg-slate-400","Completato","Intervento chiuso, dati disponibili per fatturazione."]].map(([c,l,d]) => (
+            {[["bg-amber-500","Da fare","Intervento creato, in attesa di assegnazione."],["bg-blue-500","Assegnato","Autista e carro attrezzi assegnati, pronto a partire."],["bg-emerald-500","In corso","L’autista ha preso in carico, intervento attivo."],["bg-slate-400","Completato","Intervento chiuso, dati pronti per la fatturazione."]].map(([c,l,d]) => (
               <div key={l} className="flex gap-3 p-3 bg-gray-50">
                 <div className={`w-3 h-3 rounded-full ${c} mt-0.5 shrink-0`} />
                 <div>
@@ -110,10 +132,10 @@ export default function TrasportiPage() {
           <h2 className="text-2xl font-extrabold text-gray-900 mb-8 text-center">Come funziona in pratica</h2>
           <div className="space-y-4">
             {[
-              { n: "1", title: "Crea l'intervento", desc: "Ricevi la chiamata o la richiesta, apri un nuovo trasporto, inserisci il cliente e gli indirizzi. In 30 secondi l'intervento è nel sistema." },
-              { n: "2", title: "Assegna autista e mezzo", desc: "Vedi subito chi è disponibile tra i tuoi operatori e quale mezzo è libero. Assegni e aggiungi eventuali istruzioni o note per l'autista." },
-              { n: "3", title: "L'autista prende in carico", desc: "L'autista vede l'intervento assegnato e aggiorna lo stato. L'ufficio vede in tempo reale che il lavoro è partito, senza bisogno di chiamare." },
-              { n: "4", title: "Chiusura e consuntivo", desc: "A intervento completato, lo stato viene aggiornato. Puoi generare immediatamente la bozza fattura con i dati già compilati, oppure esportare i dati per i report mensili." },
+              { n: "1", title: "Crea l’intervento", desc: "Ricevi la chiamata o la richiesta del committente, apri un nuovo intervento, inserisci il cliente e gli indirizzi. In 30 secondi è nel sistema e il cliente riceve il messaggio WhatsApp con il link per seguirlo." },
+              { n: "2", title: "Assegna autista e carro attrezzi", desc: "Vedi subito chi è disponibile tra i tuoi autisti e quale mezzo è libero. Assegni e aggiungi eventuali istruzioni o note per l’autista." },
+              { n: "3", title: "L’autista prende in carico", desc: "L’autista riceve la notifica sull’app, apre il navigatore e aggiorna lo stato. L’ufficio vede in tempo reale che il lavoro è partito e il cliente lo segue dal link, senza bisogno di chiamare." },
+              { n: "4", title: "Foto, firma e chiusura", desc: "Sul posto l’autista scatta le foto e fa firmare il cliente. Il prezzo è già calcolato dal tariffario, il DDT si stampa dalla scheda e a fine mese la fattura per il committente si genera in blocco." },
             ].map((s) => (
               <div key={s.n} className="flex gap-4 p-5 bg-gray-50 border border-gray-200">
                 <div className="w-9 h-9 bg-blue-600 text-white font-bold text-lg flex items-center justify-center shrink-0">{s.n}</div>
@@ -134,7 +156,7 @@ export default function TrasportiPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 bg-white border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Meno telefonate, più chiarezza</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Quando tutti gli operatori vedono la stessa lista aggiornata, le chiamate "sei libero?", "sei arrivato?", "hai finito?" spariscono quasi del tutto. Chi è in ufficio ha sempre la situazione sotto controllo senza dover inseguire nessuno.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Quando tutti vedono la stessa lista aggiornata, le chiamate “sei libero?”, “sei arrivato?”, “hai finito?” spariscono quasi del tutto. E il cliente, che segue l’intervento dal link ricevuto su WhatsApp, non chiama per chiedere a che punto sei.</p>
             </div>
             <div className="p-6 bg-white border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Interventi più rapidi da assegnare</h3>
@@ -142,11 +164,11 @@ export default function TrasportiPage() {
             </div>
             <div className="p-6 bg-white border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Storico completo sempre disponibile</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento rimane nel sistema con tutti i dettagli: cliente, indirizzi, autista, mezzo, note, stato e data. Se un cliente chiama per contestare o per richiedere informazioni su un intervento passato, hai tutto a portata di mano in pochi secondi.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento resta nel sistema con tutti i dettagli: cliente, indirizzi, autista, mezzo, note, stati con data e ora, foto e firma del cliente. Se un committente contesta o chiede informazioni su un intervento passato, hai tutto a portata di mano in pochi secondi.</p>
             </div>
             <div className="p-6 bg-white border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-2">Fatturazione integrata con i soccorso & trasporti</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">A fine intervento, il gestionale ha già tutti i dati necessari per la fattura. Con un click generi la bozza precompilata e la passi al modulo contabilità. Niente doppio inserimento, niente errori di trascrizione, niente dati persi.</p>
+              <h3 className="font-bold text-gray-900 mb-2">Fatturazione integrata con gli interventi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">A fine intervento il gestionale ha già il prezzo calcolato dalla convenzione o dal tariffario. A fine mese emetti la fattura massiva per ogni committente e la trasmetti in fatturazione elettronica, con le notifiche di esito. Niente doppio inserimento, niente errori di trascrizione.</p>
             </div>
           </div>
         </div>
@@ -159,8 +181,26 @@ export default function TrasportiPage() {
             <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-500" />
             <div>
               <p className="font-bold text-gray-900 mb-1">Incluso in tutti i piani</p>
-              <p className="text-sm text-gray-600">Il modulo Soccorso & trasporti fa parte dell'App Base ed è incluso in tutti i piani.</p>
+              <p className="text-sm text-gray-600">Il modulo Soccorso & trasporti fa parte dell’App Base ed è incluso in tutti i piani.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* MODULI COLLEGATI */}
+      <section className="py-12 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Moduli collegati</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {MODULI_COLLEGATI.map((m) => (
+              <Link key={m.href} href={m.href} className="flex items-start justify-between gap-4 p-5 bg-gray-50 border border-gray-200 hover:border-blue-600 transition-colors">
+                <div>
+                  <p className="font-bold text-gray-900 mb-1">{m.title}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{m.desc}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-blue-600 shrink-0 mt-1" aria-hidden="true" />
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -168,13 +208,13 @@ export default function TrasportiPage() {
       {/* CTA */}
       <section className="py-16 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-extrabold text-white mb-4">Gestisci i soccorso & trasporti senza caos.</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-4">Gestisci gli interventi senza caos.</h2>
           <p className="text-blue-50 mb-8">Demo gratuita, 30 minuti, personalizzata per la tua attività.</p>
           <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
             RICHIEDI DEMO <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

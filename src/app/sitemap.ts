@@ -32,9 +32,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return [
         page("", 1.0, "weekly"),
+        // Pagine di settore (landing per tipo di azienda cliente)
+        page("/autodemolizioni", 0.9, "weekly"),
+        page("/soccorso-stradale", 0.9, "weekly"),
         page("/chi-siamo", 0.8, "monthly"),
         page("/contatti", 0.7, "yearly"),
-        page("/download", 0.7, "monthly"),
         page("/accessi", 0.6, "monthly"),
         ...moduli,
         // Legali

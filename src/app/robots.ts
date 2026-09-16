@@ -1,10 +1,12 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+    // /login e /dashboard NON sono qui apposta: sono esclusi dall'indice con
+    // l'header `X-Robots-Tag: noindex, nofollow` (vedi next.config.ts). Se le
+    // bloccassimo anche in robots.txt Google non potrebbe leggere quell'header
+    // e le URL resterebbero in indice come "bloccate da robots.txt".
     const disallow = [
-        "/dashboard/",
         "/api/",
-        "/login",
         "/logout",
         "/register",
         "/reset",
