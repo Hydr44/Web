@@ -1,16 +1,4 @@
 import type { Metadata } from "next";
-import {
-  Car,
-  ClipboardList,
-  Package,
-  Warehouse,
-  Receipt,
-  Calculator,
-  Landmark,
-  ClipboardCheck,
-  Send,
-  FileCheck,
-} from "lucide-react";
 import SectorPage from "@/components/sector/SectorPage";
 
 const TITLE = "Gestionale per autodemolizioni: RVFU, RENTRI e ricambi usati";
@@ -55,82 +43,102 @@ export default function AutodemolizioniPage() {
       path="/autodemolizioni"
       breadcrumb="Autodemolizioni"
       eyebrow="Per gli autodemolitori"
-      title="Il gestionale per le autodemolizioni"
-      subtitle="Un software per autodemolitori che segue il veicolo fuori uso dal cancello alla pressa: certificato di rottamazione, radiazione, registro rifiuti e formulari RENTRI (il registro elettronico nazionale dei rifiuti), ricambi usati e fatturazione. Tutto nello stesso programma, senza ricopiare i dati."
-      video={{
-        src: "/video/demolizione.mp4",
-        poster: "/video/demolizione-poster.jpg",
-        caption:
-          "Il gestionale in uso in un centro di raccolta: presa in carico del veicolo, pratica di demolizione e registro rifiuti.",
-      }}
-      scenariosIntro="Quattro momenti di una giornata in un centro di raccolta autorizzato (D.Lgs 209/2003), e cosa cambia con il programma."
-      scenarios={[
+      titleLines={["Il gestionale", "per le", "autodemolizioni."]}
+      subtitle={
+        <>
+          {"Il software per "}
+          <strong className="text-slate-200">autodemolitori</strong>
+          {" che segue il veicolo fuori uso dal cancello alla pressa: "}
+          <strong className="text-slate-200">certificato di rottamazione</strong>
+          {", "}
+          <strong className="text-slate-200">radiazione</strong>
+          {", registro rifiuti e formulari "}
+          <strong className="text-slate-200">RENTRI</strong>
+          {", ricambi usati, fattura elettronica. Un programma solo, niente da ricopiare."}
+        </>
+      }
+      video={{ src: "/video/demolizione.mp4", poster: "/video/demolizione-poster.jpg" }}
+      blocksTitle="Cosa fa per te"
+      blocks={[
         {
-          situation:
-            "Il cliente è al cancello con la macchina sul carro e vuole il certificato di rottamazione adesso, perché deve chiudere l’assicurazione.",
-          change:
-            "Inserisci targa e proprietario, alleghi le foto e stampi il certificato di rottamazione prima che il cliente riparta. La pratica del veicolo fuori uso è già aperta e la radiazione parte da lì, senza ribattere niente.",
-        },
-        {
-          situation:
-            "Il registro di carico e scarico va tenuto ogni giorno, e un errore su un codice rifiuto, una quantità o una data lo paghi al primo controllo.",
-          change:
-            "Il movimento guidato ti chiede solo quello che serve e controlla i dati prima della vidimazione. Se hai sbagliato, annulli o correggi il movimento in modo tracciato, come vuole il RENTRI.",
-        },
-        {
-          situation:
-            "È fine aprile e c’è il MUD (la dichiarazione ambientale annuale) da presentare: quantità per codice, destinatari, veicoli trattati nell’anno. Di solito partono giorni di ricostruzione tra fogli e raccoglitori.",
-          change:
-            "I dati sono già nel registro: carichi, scarichi, formulari e veicoli lavorati stanno in un posto solo, filtrabili per anno, codice e destinatario. Niente da ricostruire da fogli sparsi.",
-        },
-        {
-          situation:
-            "Sul veicolo appena entrato c’è un motore che vale più del rottame. Se finisce senza etichetta in fondo al capannone, nessuno lo troverà quando servirà.",
-          change:
-            "Il ricambio usato entra a magazzino con foto, prezzo, scaffale e posizione sulla mappa. Con il catalogo per compatibilità sai su quali modelli monta: quando arriva la richiesta, lo trovi subito.",
-        },
-      ]}
-      modulesIntro="I moduli che un’autodemolizione apre tutti i giorni. Ognuno ha la sua pagina con i dettagli."
-      modules={[
-        {
+          title: "Dal cancello al certificato di rottamazione",
+          text:
+            "Il cliente è al cancello con la macchina sul carro e vuole il certificato adesso, perché deve chiudere l’assicurazione. Inserisci targa e proprietario, alleghi le foto e stampi il certificato di rottamazione prima che riparta. La pratica del veicolo fuori uso è già aperta: la radiazione dal PRA parte da lì e l’esito torna sulla pratica.",
+          bullets: [
+            "Presa in carico con dati, documenti e foto dello stato del veicolo",
+            "Certificato di rottamazione stampato subito, con i dati già inseriti",
+            "Radiazione trasmessa al Registro Unico Telematico dei veicoli fuori uso (RVFU), il collegamento con ACI e Ministero dei Trasporti",
+            "Le fasi di lavorazione visibili sulla pratica, dall’ingresso alla chiusura",
+          ],
           href: "/moduli/rvfu",
-          title: "Veicoli fuori uso",
-          desc: "Presa in carico con dati e foto, pratica con le fasi di lavorazione visibili, certificato di rottamazione e radiazione trasmessa al Registro Unico Telematico dei veicoli fuori uso (RVFU), collegato ad ACI e Ministero dei Trasporti.",
-          icon: Car,
+          cta: "Vedi il modulo Veicoli fuori uso",
+          panel: {
+            big: "30",
+            unit: "giorni",
+            small:
+              "è il tempo che il D.Lgs 209/2003 dà al centro di raccolta per radiare il veicolo dal PRA dopo la consegna. La pratica li conta per te, dalla presa in carico.",
+          },
         },
         {
-          href: "/moduli/rentri",
-          title: "Registro RENTRI e formulari",
-          desc: "Registro di carico e scarico con movimento guidato, formulario (FIR) digitale, vidimazione e trasmissione, annullamento e correzione dei movimenti, stampa del modulo. Più registri e più siti, se ne hai.",
-          icon: ClipboardList,
-        },
-        {
-          href: "/moduli/ricambi",
-          title: "Ricambi usati",
-          desc: "Magazzino con scaffali e mappa, foto e prezzi, catalogo per compatibilità con RicambiPro: sai cosa hai, dove sta e su quali veicoli monta.",
-          icon: Package,
-        },
-        {
+          title: "Piazzale e lavorazione sotto controllo",
+          text:
+            "Ogni veicolo ha la sua posizione nel piazzale dal momento in cui entra. La bonifica si fa per isola, con le postazioni del tuo impianto; i ricambi buoni vanno a magazzino con scaffale e prezzo; chi resta in custodia ha il conto dei giorni e il verbale di riconsegna firmato dal cliente via link.",
+          bullets: [
+            "Posizione di ogni veicolo nel piazzale, sempre aggiornata",
+            "Bonifica per isola, con le postazioni del tuo impianto",
+            "Ricambi usati a magazzino con foto, prezzo, scaffale e mappa",
+            "Custodia con conto dei giorni e verbale di riconsegna firmato via link",
+          ],
           href: "/moduli/piazzale",
-          title: "Piazzale e custodia",
-          desc: "La posizione di ogni veicolo nel piazzale, il conto dei giorni per chi resta in custodia, il verbale di riconsegna con firma via link.",
-          icon: Warehouse,
+          cta: "Vedi il modulo Custodia veicoli",
+          image: {
+            src: "/appshots/piazzalenuovo.png",
+            alt: "Piazzale e custodia veicoli in RescueManager",
+            width: 1024,
+            height: 648,
+          },
         },
         {
+          title: "Registro RENTRI e formulari senza ricopiare",
+          text:
+            "Il registro di carico e scarico va tenuto ogni giorno, e un errore su un codice rifiuto, una quantità o una data lo paghi al primo controllo. Il movimento guidato ti chiede solo quello che serve e controlla i dati prima della vidimazione; il formulario digitale accompagna ogni uscita; la trasmissione al RENTRI parte dal programma. A fine aprile, i dati per il MUD sono già nel registro.",
+          bullets: [
+            "Movimento guidato con controllo dei dati prima della vidimazione",
+            "Formulario (FIR) digitale per ogni uscita di rifiuti",
+            "Annullamento e correzione dei movimenti, tracciati come vuole il RENTRI",
+            "Più registri e più siti, se ne hai",
+          ],
+          href: "/moduli/rentri",
+          cta: "Vedi il modulo Registro RENTRI",
+          panel: {
+            big: "1",
+            unit: "registro, un posto solo",
+            small:
+              "Carico e scarico, formulari e vidimazione stanno insieme alla pratica del veicolo. Quantità per codice, destinatari e veicoli lavorati si filtrano per anno: niente da ricostruire dai fogli.",
+          },
+        },
+        {
+          title: "Fattura, autofattura e incassi",
+          text:
+            "Chiusa la pratica, la demolizione va a UNRAE e la fattura o l’autofattura parte verso l’Agenzia delle Entrate con le notifiche di esito. Prima nota e scadenzario degli incassi si aggiornano da soli sulle fatture emesse. Se tra anni ti chiedono un documento, lo ritrovi dal telaio.",
+          bullets: [
+            "Trasmissione delle demolizioni effettuate a UNRAE, dalla pratica",
+            "Fatture e autofatture elettroniche con le notifiche di esito",
+            "Scadenzario degli incassi e prima nota aggiornati sulle fatture",
+            "Archivio della pratica con documenti, foto e certificati",
+          ],
           href: "/moduli/sdi",
-          title: "Fatturazione elettronica",
-          desc: "Fatture e autofatture inviate all’Agenzia delle Entrate con le notifiche di esito, senza passare da un altro programma.",
-          icon: Receipt,
-        },
-        {
-          href: "/moduli/contabilita",
-          title: "Prima nota e incassi",
-          desc: "Prima nota, scadenzario degli incassi e chi deve ancora pagare, aggiornati sulle fatture emesse.",
-          icon: Calculator,
+          cta: "Vedi il modulo Fatturazione elettronica",
+          image: {
+            src: "/appshots/fatture elettroniche.png",
+            alt: "Fatture elettroniche in RescueManager",
+            width: 1024,
+            height: 648,
+          },
         },
       ]}
-      flowTitle="Dal cancello alla pressa, in sei passi"
-      flowIntro="È la sequenza reale di un veicolo fuori uso in un centro di raccolta. Il programma la segue nello stesso ordine."
+      flowTitle="Dal cancello alla pressa"
+      flowIntro="È la sequenza reale di un veicolo fuori uso in un centro di raccolta autorizzato. Il programma la segue nello stesso ordine."
       flow={[
         {
           title: "Ingresso del veicolo",
@@ -142,59 +150,60 @@ export default function AutodemolizioniPage() {
         },
         {
           title: "Radiazione",
-          desc: "La radiazione dal PRA (il Pubblico Registro Automobilistico) viene trasmessa al Registro Unico Telematico dei veicoli fuori uso direttamente dal programma. L’esito torna sulla pratica e resta archiviato.",
+          desc: "La radiazione dal PRA (il Pubblico Registro Automobilistico) viene trasmessa al Registro Unico Telematico direttamente dal programma. L’esito torna sulla pratica.",
         },
         {
           title: "Lavorazione",
-          desc: "Bonifica per isola, con le postazioni del tuo impianto; smontaggio; i ricambi buoni vanno a magazzino con scaffale e prezzo. Ogni fase resta visibile sulla pratica.",
+          desc: "Bonifica per isola, con le postazioni del tuo impianto; smontaggio; i ricambi buoni vanno a magazzino con scaffale e prezzo.",
         },
         {
           title: "Rifiuti",
-          desc: "Carico e scarico sul registro RENTRI con il movimento guidato, formulario digitale per ogni uscita, vidimazione e trasmissione. Se serve, annulli o correggi in modo tracciato.",
+          desc: "Carico e scarico sul registro RENTRI con il movimento guidato, formulario digitale per ogni uscita, vidimazione e trasmissione.",
         },
         {
           title: "Chiusura",
-          desc: "Trasmissione della demolizione a UNRAE (l’Unione Nazionale Rappresentanti Autoveicoli Esteri), fattura o autofattura elettronica, pratica archiviata. Se tra anni ti chiedono un documento, lo ritrovi dal telaio.",
+          desc: "Trasmissione della demolizione a UNRAE, fattura o autofattura elettronica, pratica archiviata con tutti i documenti.",
         },
       ]}
-      connectionsIntro="Gli enti e i servizi con cui un’autodemolizione deve dialogare. Il programma è già collegato."
+      connectionsIntro="Gli enti e i servizi con cui un’autodemolizione deve dialogare. Il programma è già collegato: niente copia e incolla, niente doppio lavoro."
       connections={[
         {
-          name: "Registro Unico Telematico (RVFU)",
-          desc: "Radiazione dal PRA trasmessa dal programma al Registro Unico Telematico dei veicoli fuori uso, il collegamento con ACI e Ministero dei Trasporti.",
-          icon: Landmark,
+          ente: "ACI e Ministero dei Trasporti",
+          title: "Registro Unico Telematico (RVFU)",
+          short: "Radiazione dal PRA trasmessa dal programma al registro dei veicoli fuori uso, con l’esito sulla pratica.",
         },
         {
-          name: "Registro RENTRI",
-          desc: "Registro di carico e scarico e formulari digitali: vidimazione, trasmissione, annullamento e correzione.",
-          icon: ClipboardCheck,
+          ente: "Registro RENTRI",
+          title: "Rifiuti e formulari",
+          short: "Registro di carico e scarico, formulari digitali, vidimazione, trasmissione, annullamento e correzione.",
         },
         {
-          name: "UNRAE",
-          desc: "Trasmissione delle demolizioni effettuate, direttamente dalla pratica del veicolo.",
-          icon: Send,
+          ente: "UNRAE",
+          title: "Statistiche e demolizioni",
+          short: "Trasmissione delle demolizioni effettuate, direttamente dalla pratica del veicolo.",
         },
         {
-          name: "Agenzia delle Entrate",
-          desc: "Fatturazione elettronica e autofatture con le notifiche di esito.",
-          icon: FileCheck,
+          ente: "Agenzia delle Entrate",
+          title: "Fatturazione elettronica",
+          short: "Fatture e autofatture con le notifiche di esito, senza passare da un altro programma.",
         },
         {
-          name: "RicambiPro",
-          desc: "Catalogo dei ricambi per compatibilità, collegato al tuo magazzino.",
-          icon: Package,
+          ente: "RicambiPro",
+          title: "Catalogo ricambi",
+          short: "Catalogo per compatibilità collegato al tuo magazzino: sai su quali veicoli monta il pezzo che hai.",
         },
       ]}
       pkg={{
-        name: "Pacchetto Autodemolizioni",
+        title: "Il pacchetto Autodemolizioni",
         intro:
-          "Quello che consigliamo a un centro di raccolta autorizzato: i moduli che servono dal cancello alla fattura, senza pezzi lasciati fuori.",
-        modules: [
-          "Veicoli fuori uso (RVFU): pratica, certificato di rottamazione, radiazione",
-          "Registro RENTRI: carico e scarico, formulari, vidimazione e trasmissione",
-          "Custodia e piazzale",
-          "Ricambi usati con magazzino, scaffali e catalogo",
-          "Fatturazione elettronica e autofatture",
+          "Quello che consigliamo a un centro di raccolta autorizzato: i moduli che servono dal cancello alla fattura, senza pezzi lasciati fuori. Ognuno ha la sua pagina con i dettagli.",
+        items: [
+          { label: "Veicoli fuori uso: pratica, certificato di rottamazione, radiazione", href: "/moduli/rvfu" },
+          { label: "Registro RENTRI: carico e scarico, formulari, vidimazione e trasmissione", href: "/moduli/rentri" },
+          { label: "Custodia e piazzale", href: "/moduli/piazzale" },
+          { label: "Ricambi usati con magazzino, scaffali e catalogo", href: "/moduli/ricambi" },
+          { label: "Fatturazione elettronica e autofatture", href: "/moduli/sdi" },
+          { label: "Prima nota e scadenzario degli incassi", href: "/moduli/contabilita" },
         ],
         note: "Il preventivo dipende da quanti siti, registri e utenti hai. Raccontaci come lavori e ti rispondiamo con una proposta chiara.",
       }}
@@ -205,7 +214,7 @@ export default function AutodemolizioniPage() {
         },
         {
           q: "La radiazione la fate voi?",
-          a: "La fai tu, dal programma, in pochi passaggi: i dati del veicolo sono già nella pratica, la richiesta parte verso il Registro Unico Telematico dei veicoli fuori uso e l’esito torna sulla pratica. Non serve un altro portale né un intermediario. Per i primi invii ti seguiamo noi.",
+          a: "La fai tu, dal programma, in pochi passaggi: i dati del veicolo sono già nella pratica, la richiesta parte verso il Registro Unico Telematico e l’esito torna sulla pratica. Non serve un altro portale né un intermediario. Per i primi invii ti seguiamo noi.",
         },
         {
           q: "Faccio anche soccorso con il carro.",

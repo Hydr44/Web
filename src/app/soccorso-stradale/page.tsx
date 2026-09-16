@@ -1,16 +1,4 @@
 import type { Metadata } from "next";
-import {
-  Truck,
-  Smartphone,
-  Handshake,
-  Warehouse,
-  FileSignature,
-  Receipt,
-  FileCheck,
-  MessageCircle,
-  Navigation,
-  PenLine,
-} from "lucide-react";
 import SectorPage from "@/components/sector/SectorPage";
 
 const TITLE = "Gestionale soccorso stradale e carri attrezzi";
@@ -55,81 +43,98 @@ export default function SoccorsoStradalePage() {
       path="/soccorso-stradale"
       breadcrumb="Soccorso stradale"
       eyebrow="Per chi fa soccorso stradale"
-      title="Il gestionale per il soccorso stradale e i carri attrezzi"
-      subtitle="Dispatch degli interventi su mappa con i carri in movimento, app con navigatore per gli autisti, foto e firma del cliente sul posto, tariffari per ogni committente, custodia dei veicoli e fattura elettronica. Chi è in ufficio vede tutto, chi è sul carro non deve telefonare."
-      video={{
-        src: "/video/soccorso.mp4",
-        poster: "/video/soccorso-poster.jpg",
-        caption:
-          "Il gestionale in uso in un centro di soccorso stradale: mappa degli interventi, assegnazione ai carri attrezzi e app degli autisti.",
-      }}
-      scenariosIntro="Quattro momenti di una giornata normale per chi fa soccorso stradale, e cosa cambia quando il programma lavora con te."
-      scenarios={[
+      titleLines={["Il gestionale per il", "soccorso stradale", "e i carri attrezzi."]}
+      subtitle={
+        <>
+          <strong className="text-slate-200">Dispatch</strong>
+          {" degli interventi su mappa con i carri in movimento, "}
+          <strong className="text-slate-200">app con navigatore</strong>
+          {" per gli autisti, foto e firma del cliente sul posto, "}
+          <strong className="text-slate-200">tariffari per committente</strong>
+          {", custodia dei veicoli e fattura elettronica. Chi è in ufficio vede tutto, chi è sul carro non deve telefonare."}
+        </>
+      }
+      video={{ src: "/video/soccorso.mp4", poster: "/video/soccorso-poster.jpg" }}
+      blocksTitle="Cosa fa per te"
+      blocks={[
         {
-          situation:
-            "Sono le 18:40 e arrivano tre chiamate insieme: un’auto in tangenziale, un furgone fermo in un parcheggio e un committente che vuole sapere se avete un carro libero.",
-          change:
-            "Apri tre interventi in un minuto, vedi sulla mappa dove sono i carri e assegni autista e mezzo. Ognuno riceve la notifica sul telefono e parte con il navigatore; tu segui gli stati (Da fare, Assegnato, In corso, Completato) da una sola schermata.",
-        },
-        {
-          situation:
-            "Il committente chiede il riepilogo del mese con le tariffe della convenzione: chilometri, uscite notturne, fermo macchina, tutto come nell’accordo firmato mesi fa.",
-          change:
-            "Ogni committente ha la sua convenzione e il suo tariffario: il prezzo si calcola da solo su ogni intervento. A fine mese emetti una fattura massiva con tutti i trasporti di quel committente, già con gli importi giusti.",
-        },
-        {
-          situation:
-            "Il cliente in panne richiama per la terza volta per sapere quando arrivate. L’autista non risponde perché sta guidando, e in ufficio non sapete dirgli di più.",
-          change:
-            "Alla creazione dell’intervento e a ogni cambio di stato il cliente riceve un messaggio WhatsApp automatico con il link per seguire l’intervento. Sa che siete partiti, sa quando arrivate, e il telefono dell’ufficio smette di squillare per quello.",
-        },
-        {
-          situation:
-            "Un veicolo è in deposito da dodici giorni. Il proprietario si presenta per ritirarlo e vuole sapere quanto deve e dove firmare.",
-          change:
-            "La custodia tiene la posizione nel piazzale e il conto dei giorni. Alla riconsegna generi il verbale, il cliente firma via link dal suo telefono e il documento resta archiviato con foto e firma.",
-        },
-      ]}
-      modulesIntro="I moduli che un centro di soccorso apre tutti i giorni. Ognuno ha la sua pagina con i dettagli."
-      modules={[
-        {
+          title: "Tre chiamate insieme, nessuna persa",
+          text:
+            "Sono le 18:40 e arrivano tre chiamate: un’auto in tangenziale, un furgone fermo in un parcheggio e un committente che vuole sapere se avete un carro libero. Apri tre interventi in un minuto, vedi sulla mappa dove sono i carri e assegni autista e mezzo. Tu segui gli stati da una sola schermata, senza telefonare a nessuno.",
+          bullets: [
+            "Nuovo intervento in trenta secondi, con committente e prezzo già calcolato",
+            "Mappa degli interventi attivi con la posizione dei carri",
+            "Assegnazione di autista e mezzo con un click",
+            "Stati Da fare, Assegnato, In corso, Completato, visibili a tutti",
+          ],
           href: "/moduli/trasporti",
-          title: "Soccorso e trasporti",
-          desc: "Creazione dell’intervento, assegnazione di autista e mezzo, stati aggiornati in tempo reale, mappa degli interventi attivi con la posizione dei carri, DDT (documento di trasporto) stampabile.",
-          icon: Truck,
+          cta: "Vedi il modulo Soccorso e trasporti",
+          image: {
+            src: "/appshots/trasporti.jpg",
+            alt: "Elenco e mappa degli interventi di soccorso in RescueManager",
+            width: 1024,
+            height: 642,
+          },
         },
         {
+          title: "L’autista ha tutto sul telefono",
+          text:
+            "L’intervento arriva sull’app con la notifica. L’autista parte con il navigatore passo-passo, scatta le foto del veicolo, fa firmare il cliente sullo schermo e cambia lo stato. Il cliente in panne, intanto, riceve un messaggio WhatsApp con il link per seguire l’intervento: sa che siete partiti e quando arrivate, e il telefono dell’ufficio smette di squillare per quello.",
+          bullets: [
+            "App per iPhone e Android con la notifica dell’intervento",
+            "Navigatore passo-passo fino al punto di ritiro",
+            "Foto del veicolo e firma del cliente sul posto",
+            "Messaggio WhatsApp automatico al cliente, con il link per seguire l’intervento",
+          ],
           href: "/moduli/mezzi-autisti",
-          title: "Mezzi e autisti",
-          desc: "Il parco mezzi con le scadenze di revisione e assicurazione, i turni degli autisti e l’app iOS e Android con notifica, navigatore passo-passo, foto e firma sul posto.",
-          icon: Smartphone,
+          cta: "Vedi il modulo Mezzi e autisti",
+          image: {
+            src: "/appshots/autisti.png",
+            alt: "Gestione autisti e mezzi in RescueManager",
+            width: 1024,
+            height: 648,
+          },
         },
         {
+          title: "Ogni committente con la sua convenzione",
+          text:
+            "Il committente chiede il riepilogo del mese con le tariffe della convenzione: chilometri, uscite notturne, fermo macchina, tutto come nell’accordo firmato mesi fa. Ogni committente ha la sua convenzione e il suo tariffario: il prezzo si calcola da solo su ogni intervento, e a fine mese emetti una fattura massiva con tutti i suoi trasporti, già con gli importi giusti.",
+          bullets: [
+            "Tariffario per committente, prezzo calcolato sull’intervento",
+            "Tariffario per i privati",
+            "Fattura massiva mensile con tutti i trasporti del committente",
+            "Preventivi con accettazione online: quando il cliente accetta, l’intervento è pronto",
+          ],
           href: "/moduli/clienti",
-          title: "Clienti e committenti",
-          desc: "Anagrafica, convenzioni e tariffari per committente con il prezzo calcolato in automatico, tariffario per i privati, fattura massiva mensile.",
-          icon: Handshake,
+          cta: "Vedi il modulo Clienti e committenti",
+          image: {
+            src: "/appshots/clientinuovo.png",
+            alt: "Anagrafica clienti e committenti in RescueManager",
+            width: 1024,
+            height: 648,
+          },
         },
         {
+          title: "Custodia con il conto dei giorni",
+          text:
+            "Un veicolo è in deposito da dodici giorni e il proprietario si presenta per ritirarlo: vuole sapere quanto deve e dove firmare. La custodia tiene la posizione nel piazzale e il conto dei giorni; alla riconsegna generi il verbale, il cliente firma via link dal suo telefono e il documento resta archiviato con foto e firma. Se serve, stampi il DDT (documento di trasporto) e la fattura parte verso l’Agenzia delle Entrate.",
+          bullets: [
+            "Posizione di ogni veicolo nel piazzale",
+            "Conto dei giorni dall’ingresso alla riconsegna",
+            "Verbale di riconsegna firmato dal cliente via link",
+            "DDT stampabile e fattura elettronica con le notifiche di esito",
+          ],
           href: "/moduli/piazzale",
-          title: "Custodia veicoli",
-          desc: "Posizioni nel piazzale, conto dei giorni, verbale di riconsegna con firma via link. Funziona allo stesso modo per la depositeria.",
-          icon: Warehouse,
-        },
-        {
-          href: "/moduli/preventivi",
-          title: "Preventivi",
-          desc: "Preventivo inviato al cliente con accettazione online: quando accetta, l’intervento è già pronto da assegnare.",
-          icon: FileSignature,
-        },
-        {
-          href: "/moduli/sdi",
-          title: "Fatturazione elettronica",
-          desc: "Fatture inviate all’Agenzia delle Entrate con le notifiche di esito, scadenzario degli incassi e prima nota.",
-          icon: Receipt,
+          cta: "Vedi il modulo Custodia veicoli",
+          image: {
+            src: "/appshots/piazzalenuovo.png",
+            alt: "Custodia veicoli e piazzale in RescueManager",
+            width: 1024,
+            height: 648,
+          },
         },
       ]}
-      flowTitle="Dalla chiamata alla fattura, in cinque passi"
+      flowTitle="Dalla chiamata alla fattura"
       flowIntro="È la sequenza reale di un intervento di soccorso. Il programma la segue nello stesso ordine, dall’ufficio al carro."
       flow={[
         {
@@ -150,42 +155,43 @@ export default function SoccorsoStradalePage() {
         },
         {
           title: "Fattura",
-          desc: "Al privato la fattura subito; al committente la fattura massiva a fine mese, con tutti i trasporti alle tariffe della convenzione. Invio elettronico, esito, scadenzario degli incassi.",
+          desc: "Al privato la fattura subito; al committente la fattura massiva a fine mese, alle tariffe della convenzione. Invio elettronico, esito, scadenzario degli incassi.",
         },
       ]}
       connectionsIntro="I servizi che un centro di soccorso usa ogni giorno, collegati al programma senza passaggi in più."
       connections={[
         {
-          name: "Agenzia delle Entrate",
-          desc: "Fatturazione elettronica con le notifiche di esito, direttamente dal gestionale.",
-          icon: FileCheck,
+          ente: "Agenzia delle Entrate",
+          title: "Fatturazione elettronica",
+          short: "Fatture inviate dal gestionale con le notifiche di esito e lo scadenzario degli incassi.",
         },
         {
-          name: "WhatsApp Business",
-          desc: "Messaggi automatici al cliente alla creazione dell’intervento e a ogni cambio di stato, con il link per seguirlo.",
-          icon: MessageCircle,
+          ente: "WhatsApp Business",
+          title: "Messaggi al cliente",
+          short: "Messaggi automatici alla creazione dell’intervento e a ogni cambio di stato, con il link per seguirlo.",
         },
         {
-          name: "Mappe e navigazione",
-          desc: "Mappa degli interventi attivi in ufficio, navigatore passo-passo nell’app dell’autista.",
-          icon: Navigation,
+          ente: "Mappe e navigazione",
+          title: "App dell’autista",
+          short: "Mappa degli interventi attivi in ufficio, navigatore passo-passo nell’app dell’autista.",
         },
         {
-          name: "Firma via link",
-          desc: "Verbale di riconsegna firmato dal cliente dal suo telefono, archiviato con il veicolo.",
-          icon: PenLine,
+          ente: "Firma via link",
+          title: "Verbali di riconsegna",
+          short: "Il cliente firma dal suo telefono, il verbale resta archiviato con il veicolo.",
         },
       ]}
       pkg={{
-        name: "Pacchetto Soccorso",
+        title: "Il pacchetto Soccorso",
         intro:
-          "Quello che consigliamo a chi fa soccorso stradale con uno o più carri attrezzi: i moduli che servono dalla chiamata alla fattura.",
-        modules: [
-          "Soccorso e trasporti: interventi, stati, mappa",
-          "Mezzi e autisti, con l’app per gli autisti",
-          "Clienti e committenti, con convenzioni e tariffari",
-          "Custodia veicoli",
-          "Fatturazione elettronica",
+          "Quello che consigliamo a chi fa soccorso stradale con uno o più carri attrezzi: i moduli che servono dalla chiamata alla fattura. Ognuno ha la sua pagina con i dettagli.",
+        items: [
+          { label: "Soccorso e trasporti: interventi, stati, mappa", href: "/moduli/trasporti" },
+          { label: "Mezzi e autisti, con l’app per gli autisti", href: "/moduli/mezzi-autisti" },
+          { label: "Clienti e committenti, con convenzioni e tariffari", href: "/moduli/clienti" },
+          { label: "Custodia veicoli", href: "/moduli/piazzale" },
+          { label: "Preventivi con accettazione online", href: "/moduli/preventivi" },
+          { label: "Fatturazione elettronica", href: "/moduli/sdi" },
         ],
         note: "Il preventivo dipende da quanti carri, autisti e committenti hai. Raccontaci come lavori e ti rispondiamo con una proposta chiara.",
       }}
