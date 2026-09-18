@@ -14,12 +14,24 @@ const MODULE_LABELS: Record<string, string> = {
 };
 
 const PLAN_LABELS: Record<string, string> = {
-  starter: 'Starter', flotta: 'Flotta', enterprise: 'Enterprise', custom: 'Custom'
+  starter: 'Starter', professional: 'Professional', business: 'Business', full: 'Full',
+  flotta: 'Flotta', enterprise: 'Enterprise', custom: 'Personalizzato'
 };
 
 function fmt(n: number) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(n || 0);
 }
+
+interface QuotePackage {
+  key: string;
+  name: string;
+  description?: string;
+  billing: 'one_time' | 'monthly' | 'note';
+  price: number;
+  quantity: number;
+}
+const pkgTotal = (p: QuotePackage) =>
+  p.billing === 'note' ? 0 : (Number(p.price) || 0) * Math.max(1, Number(p.quantity) || 1);
 
 // Coordinate bancarie RescueManager SRL (conto Revolut Business) per il bonifico.
 const BANK_IBAN = 'LT18 3250 0510 5254 7082';
@@ -40,6 +52,12 @@ interface PublicQuote {
   monthly_total: number;
   yearly_total: number | null;
   setup_fee: number;
+  packages: QuotePackage[];
+  one_time_total: number;
+  prices_include_vat: boolean;
+  discount_reason: string | null;
+  setup_description: string | null;
+  quote_title: string | null;
   contract_duration: string;
   payment_method: string;
   billing_frequency: string;
@@ -171,11 +189,31 @@ export default function PublicQuotePage() {
   const billingLabel = quote.billing_frequency === 'yearly' ? 'Annuale' :
     quote.billing_frequency === 'quarterly' ? 'Trimestrale' : 'Mensile';
 
-  // Importo del bonifico: ricorrente (annuale se contratto annuale/biennale,
-  // altrimenti mensile) + eventuale setup una tantum.
-  const bonificoRecurring = (quote.contract_duration === 'yearly' || quote.contract_duration === 'biennial')
-    ? (quote.yearly_total || quote.monthly_total * 12) : quote.monthly_total;
-  const bonificoTotal = bonificoRecurring + (quote.setup_fee || 0);
+  // Riepilogo economico (stesso modello del PDF):
+  //  - canone mensile di listino → sconto → canone mensile scontato
+  //  - importo del periodo contrattuale (annuale -10% / biennale -15%)
+  //  - una tantum = setup + pacchetti una tantum (mai scontati)
+  const isYearly = quote.contract_duration === 'yearly';
+  const isBiennial = quote.contract_duration === 'biennial';
+  const packages: QuotePackage[] = Array.isArray(quote.packages) ? quote.packages : [];
+  const monthlyPkgs = packages.filter(p => p.billing === 'monthly');
+  const oneTimePkgs = packages.filter(p => p.billing === 'one_time');
+  const notePkgs = packages.filter(p => p.billing === 'note');
+  const monthlyList = (quote.monthly_total || 0) + (quote.discount_amount || 0);
+  const yearlyTotal = quote.yearly_total || Math.round(quote.monthly_total * 12 * 0.9 * 100) / 100;
+  const biennialTotal = Math.round(quote.monthly_total * 24 * 0.85 * 100) / 100;
+  const recurring = isYearly ? yearlyTotal : isBiennial ? biennialTotal : quote.monthly_total;
+  const periodLabel = isYearly ? '/anno' : isBiennial ? '/biennio' : '/mese';
+  const oneTimeTotal = quote.one_time_total ?? ((quote.setup_fee || 0) + oneTimePkgs.reduce((s, p) => s + pkgTotal(p), 0));
+  const firstPayment = recurring + oneTimeTotal;
+  const vatLabel = quote.prices_include_vat === false ? 'IVA esclusa' : 'IVA inclusa';
+  const vatFooter = quote.prices_include_vat === false
+    ? 'I prezzi sono IVA esclusa: l’IVA 22% verrà applicata in fattura.'
+    : 'I prezzi indicati sono IVA inclusa.';
+
+  // Importo del bonifico = totale al primo pagamento
+  const bonificoRecurring = recurring;
+  const bonificoTotal = firstPayment;
 
   const statusConfig: Record<string, { label: string; color: string; icon: typeof Check }> = {
     draft: { label: 'Bozza', color: 'text-slate-400', icon: FileText },
@@ -238,11 +276,19 @@ export default function PublicQuotePage() {
               <p className="text-xs text-slate-500 mt-1">Contratto {durationLabel} · Fatturazione {billingLabel}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Totale mensile</p>
-              <p className="text-3xl font-extrabold text-blue-400">{fmt(quote.monthly_total)}</p>
-              <p className="text-xs text-slate-500">/mese IVA esclusa</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
+                {isYearly ? 'Canone annuale' : isBiennial ? 'Canone biennale' : 'Canone mensile'}
+              </p>
+              <p className="text-3xl font-extrabold text-blue-400">{fmt(recurring)}</p>
+              <p className="text-xs text-slate-500">{periodLabel} · {vatLabel}</p>
+              {(isYearly || isBiennial) && (
+                <p className="text-xs text-slate-500">pari a {fmt(recurring / (isYearly ? 12 : 24))}/mese</p>
+              )}
             </div>
           </div>
+          {quote.quote_title && (
+            <p className="text-lg font-bold text-white mb-5">{quote.quote_title}</p>
+          )}
 
           {/* Base Modules */}
           <div className="mb-5">
@@ -274,9 +320,36 @@ export default function PublicQuotePage() {
 
           {/* Customizations */}
           {quote.customizations && (
-            <div className="p-4 bg-slate-800 border-l-2 border-slate-600">
+            <div className="p-4 bg-slate-800 border-l-2 border-slate-600 mb-5">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Personalizzazioni</p>
               <p className="text-sm text-slate-300">{quote.customizations}</p>
+            </div>
+          )}
+
+          {/* Pacchetti e servizi extra */}
+          {packages.length > 0 && (
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Pacchetti e servizi extra</p>
+              <div className="space-y-2">
+                {packages.map((p, i) => (
+                  <div key={`${p.key}-${i}`} className="flex items-start justify-between gap-4 px-3 py-2 bg-slate-800 border-l-2 border-slate-600">
+                    <div className="min-w-0">
+                      <p className="text-sm text-slate-200 font-medium">{p.name}{p.quantity > 1 ? ` × ${p.quantity}` : ''}</p>
+                      {p.description && <p className="text-xs text-slate-500 mt-0.5">{p.description}</p>}
+                    </div>
+                    <div className="text-right shrink-0">
+                      {p.billing === 'note' ? (
+                        <span className="text-xs text-slate-500 italic">voce informativa</span>
+                      ) : (
+                        <>
+                          <p className="text-sm text-slate-200">{fmt(pkgTotal(p))}</p>
+                          <p className="text-[11px] text-slate-500">{p.billing === 'monthly' ? 'al mese' : 'una tantum'}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -286,13 +359,15 @@ export default function PublicQuotePage() {
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Riepilogo Economico</p>
 
           <div className="space-y-3">
+            {/* Canone: voci di listino */}
+            <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Canone</p>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Piano Base</span>
+              <span className="text-slate-400">Piano {PLAN_LABELS[quote.plan_type] || quote.plan_type}</span>
               <span className="text-slate-200">{fmt(quote.base_price)}/mese</span>
             </div>
             {quote.special_modules_price > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Moduli Speciali</span>
+                <span className="text-slate-400">Moduli speciali</span>
                 <span className="text-slate-200">{fmt(quote.special_modules_price)}/mese</span>
               </div>
             )}
@@ -302,30 +377,80 @@ export default function PublicQuotePage() {
                 <span className="text-slate-200">{fmt(quote.customizations_price)}/mese</span>
               </div>
             )}
-            {quote.discount_percent > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-emerald-400">Sconto ({quote.discount_percent}%)</span>
-                <span className="text-emerald-400">-{fmt(quote.discount_amount)}</span>
+            {monthlyPkgs.map((p, i) => (
+              <div key={`m-${i}`} className="flex justify-between text-sm">
+                <span className="text-slate-400">{p.name}{p.quantity > 1 ? ` × ${p.quantity}` : ''}</span>
+                <span className="text-slate-200">{fmt(pkgTotal(p))}/mese</span>
               </div>
+            ))}
+            {quote.discount_percent > 0 && (
+              <>
+                <div className="flex justify-between text-sm border-t border-slate-800 pt-3">
+                  <span className="text-slate-400">Canone mensile di listino</span>
+                  <span className="text-slate-300 line-through decoration-slate-600">{fmt(monthlyList)}/mese</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-emerald-400">Sconto {quote.discount_percent}%{quote.discount_reason ? ` (${quote.discount_reason})` : ''}</span>
+                  <span className="text-emerald-400">-{fmt(quote.discount_amount)}/mese</span>
+                </div>
+              </>
             )}
-            {quote.setup_fee > 0 && (
+            <div className="flex justify-between text-sm border-t border-slate-800 pt-3">
+              <span className="text-slate-200 font-semibold">{quote.discount_percent > 0 ? 'Canone mensile scontato' : 'Canone mensile'}</span>
+              <span className="text-slate-100 font-semibold">{fmt(quote.monthly_total)}/mese</span>
+            </div>
+            {(isYearly || isBiennial) && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Setup iniziale (una tantum)</span>
-                <span className="text-slate-200">{fmt(quote.setup_fee)}</span>
+                <span className="text-slate-400">
+                  {isYearly ? 'Canone annuale (12 mesi, -10% pagamento anticipato)' : 'Canone biennale (24 mesi, -15% pagamento anticipato)'}
+                </span>
+                <span className="text-slate-100 font-semibold">{fmt(recurring)}{periodLabel}</span>
               </div>
             )}
 
+            {/* Una tantum */}
+            {oneTimeTotal > 0 && (
+              <>
+                <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest pt-3">Una tantum · solo al primo pagamento</p>
+                {quote.setup_fee > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Setup iniziale{quote.setup_description ? ` · ${quote.setup_description}` : ''}</span>
+                    <span className="text-slate-200">{fmt(quote.setup_fee)}</span>
+                  </div>
+                )}
+                {oneTimePkgs.map((p, i) => (
+                  <div key={`o-${i}`} className="flex justify-between text-sm">
+                    <span className="text-slate-400">{p.name}{p.quantity > 1 ? ` × ${p.quantity}` : ''}</span>
+                    <span className="text-slate-200">{fmt(pkgTotal(p))}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm border-t border-slate-800 pt-3">
+                  <span className="text-slate-200 font-semibold">Totale una tantum</span>
+                  <span className="text-slate-100 font-semibold">{fmt(oneTimeTotal)}</span>
+                </div>
+              </>
+            )}
+            {notePkgs.map((p, i) => (
+              <div key={`n-${i}`} className="flex justify-between text-sm">
+                <span className="text-slate-400">{p.name}{p.description ? ` · ${p.description}` : ''}</span>
+                <span className="text-slate-500 italic">voce informativa</span>
+              </div>
+            ))}
+
+            {/* Totale */}
             <div className="border-t-2 border-blue-600/30 pt-4 mt-4">
               <div className="flex justify-between items-center">
-                <span className="text-base font-bold text-white uppercase tracking-wide">Totale Mensile</span>
-                <span className="text-2xl font-extrabold text-blue-400">{fmt(quote.monthly_total)}/mese</span>
+                <span className="text-base font-bold text-white uppercase tracking-wide">
+                  {oneTimeTotal > 0 ? 'Totale al primo pagamento' : 'Totale offerta'}
+                </span>
+                <span className="text-2xl font-extrabold text-blue-400">{fmt(firstPayment)}</span>
               </div>
-              {quote.yearly_total && (
-                <div className="flex justify-between text-sm mt-1">
-                  <span className="text-slate-500">Totale Annuale</span>
-                  <span className="text-slate-400">{fmt(quote.yearly_total)}/anno</span>
-                </div>
-              )}
+              <p className="text-xs text-slate-500 mt-1 text-right">
+                {oneTimeTotal > 0
+                  ? `Canone ${fmt(recurring)}${periodLabel} + una tantum ${fmt(oneTimeTotal)} · periodi successivi ${fmt(recurring)}${periodLabel}`
+                  : `Canone ${fmt(recurring)}${periodLabel}`}
+              </p>
+              <p className="text-xs text-slate-400 mt-1 text-right font-medium">Importi {vatLabel}.</p>
             </div>
           </div>
         </div>
@@ -436,8 +561,8 @@ export default function PublicQuotePage() {
             <div className="mt-4 pt-3 border-t border-slate-800">
               <p className="text-[11px] uppercase tracking-wider text-slate-500">Importo da bonificare</p>
               <p className="text-emerald-400 font-bold text-lg">{fmt(bonificoTotal)}</p>
-              {quote.setup_fee > 0 && (
-                <p className="text-xs text-slate-500">{fmt(bonificoRecurring)} + {fmt(quote.setup_fee)} setup una tantum</p>
+              {oneTimeTotal > 0 && (
+                <p className="text-xs text-slate-500">{fmt(bonificoRecurring)} canone + {fmt(oneTimeTotal)} una tantum</p>
               )}
             </div>
           </div>
@@ -481,7 +606,7 @@ export default function PublicQuotePage() {
         {/* Footer */}
         <footer className="text-center pt-8 pb-12 border-t border-slate-800">
           <p className="text-xs text-slate-600">
-            I prezzi sono IVA esclusa. Il servizio è soggetto ai{' '}
+            {vatFooter} Il servizio è soggetto ai{' '}
             <Link href="/terms-of-use" className="text-slate-500 hover:text-slate-400 underline">Termini e Condizioni</Link>.
           </p>
           <p className="text-xs text-slate-600 mt-1">
