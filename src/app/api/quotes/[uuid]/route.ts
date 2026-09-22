@@ -14,8 +14,21 @@ const LEAD_API_URL = (process.env.LEAD_API_URL || "https://lead-api.rescuemanage
 const VPS_API_KEY = process.env.VPS_API_KEY || '';
 
 const PLAN_LABELS: Record<string, string> = {
-  starter: 'Starter', flotta: 'Flotta', enterprise: 'Enterprise', custom: 'Custom'
+  starter: 'Starter', professional: 'Professional', business: 'Business', full: 'Full',
+  flotta: 'Flotta', enterprise: 'Enterprise', custom: 'Personalizzato'
 };
+
+// Pacchetti/servizi extra del preventivo (colonna jsonb lead_quotes.packages)
+interface QuotePackage {
+  key: string;
+  name: string;
+  description?: string;
+  billing: 'one_time' | 'monthly' | 'note';
+  price: number;
+  quantity: number;
+}
+const pkgTotal = (p: QuotePackage) =>
+  p.billing === 'note' ? 0 : (Number(p.price) || 0) * Math.max(1, Number(p.quantity) || 1);
 
 export async function GET(
   request: Request,
@@ -78,6 +91,12 @@ export async function GET(
       monthly_total: quote.monthly_total,
       yearly_total: quote.yearly_total,
       setup_fee: quote.setup_fee,
+      packages: Array.isArray(quote.packages) ? quote.packages : [],
+      one_time_total: quote.one_time_total ?? (quote.setup_fee || 0),
+      prices_include_vat: quote.prices_include_vat !== false,
+      discount_reason: quote.discount_reason,
+      setup_description: quote.setup_description,
+      quote_title: quote.quote_title,
       contract_duration: quote.contract_duration,
       payment_method: quote.payment_method,
       billing_frequency: quote.billing_frequency,
@@ -217,16 +236,32 @@ export async function POST(
         metadata: { quote_id: quote.id, lead_id: quote.lead_id, quote_uuid: params.uuid },
       };
 
+      // Voci una tantum sulla prima fattura: setup + pacchetti una tantum.
+      // (I pacchetti mensili sono già dentro monthly_total/yearly_total.)
+      const oneTimeItems: any[] = [];
       if ((quote.setup_fee || 0) > 0) {
-        subscriptionData.add_invoice_items = [
-          {
-            price_data: {
-              currency: 'eur',
-              product_data: { name: 'Setup iniziale RescueManager' },
-              unit_amount: Math.round(quote.setup_fee * 100),
-            },
+        oneTimeItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: { name: 'Setup iniziale RescueManager' },
+            unit_amount: Math.round(quote.setup_fee * 100),
           },
-        ];
+        });
+      }
+      const packages: QuotePackage[] = Array.isArray(quote.packages) ? quote.packages : [];
+      for (const p of packages) {
+        if (p.billing !== 'one_time' || pkgTotal(p) <= 0) continue;
+        oneTimeItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: { name: p.name, ...(p.description ? { description: p.description } : {}) },
+            unit_amount: Math.round((Number(p.price) || 0) * 100),
+          },
+          quantity: Math.max(1, Number(p.quantity) || 1),
+        });
+      }
+      if (oneTimeItems.length > 0) {
+        subscriptionData.add_invoice_items = oneTimeItems;
       }
 
       const session = await stripe.checkout.sessions.create({
