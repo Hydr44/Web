@@ -5,8 +5,18 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 
-// Google Analytics ID - sostituisci con il tuo
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX";
+// ID di misurazione del tag Google (GA4) di rescuemanager.eu.
+// È un identificativo pubblico (compare comunque nell'HTML della pagina), quindi
+// vive qui e non in una variabile d'ambiente: un solo posto da aggiornare e
+// nessuna divergenza tra ambienti Vercel.
+export const GA_MEASUREMENT_ID = "G-KW3GSHW64Z";
+
+// Il tag Google parte solo sul dominio pubblico: staging, anteprime Vercel e
+// localhost non devono finire nelle statistiche della proprietà GA4.
+const GA_PRODUCTION_HOSTS = ["rescuemanager.eu", "www.rescuemanager.eu"];
+function isGaProductionHost(): boolean {
+  return typeof window !== "undefined" && GA_PRODUCTION_HOSTS.includes(window.location.hostname);
+}
 
 export default function ConditionalScripts() {
   const { preferences, hasConsent } = useCookieConsent();
@@ -19,10 +29,14 @@ export default function ConditionalScripts() {
   // Non renderizzare nulla fino a quando non siamo sicuri del consenso
   if (!mounted || !hasConsent) return null;
 
+  // Consent Mode v2: mappa le categorie del banner cookie sui segnali Google
+  const marketingConsent = preferences.marketing ? "granted" : "denied";
+  const functionalConsent = preferences.functional ? "granted" : "denied";
+
   return (
     <>
-      {/* Google Analytics 4 - solo se analytics è abilitato */}
-      {preferences.analytics && GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" && (
+      {/* Google tag (gtag.js) - solo se analytics è abilitato e siamo sul dominio pubblico */}
+      {preferences.analytics && isGaProductionHost() && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -32,9 +46,32 @@ export default function ConditionalScripts() {
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+
+              // Consent Mode v2 (richiesto da Google per gli utenti SEE):
+              // default tutto negato, poi aggiornato con le scelte del banner.
+              // Questo script parte solo dopo il consenso analytics, quindi
+              // analytics_storage qui è sempre concesso.
+              gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                functionality_storage: 'denied',
+                personalization_storage: 'denied',
+                security_storage: 'granted',
+              });
+              gtag('consent', 'update', {
+                analytics_storage: 'granted',
+                ad_storage: '${marketingConsent}',
+                ad_user_data: '${marketingConsent}',
+                ad_personalization: '${marketingConsent}',
+                functionality_storage: '${functionalConsent}',
+                personalization_storage: '${functionalConsent}',
+              });
+
               gtag('js', new Date());
-              
-              // Configurazione con IP anonimizzato per GDPR
+
+              // GA4 anonimizza già l'IP; cookie SameSite=None;Secure per GDPR
               gtag('config', '${GA_MEASUREMENT_ID}', {
                 anonymize_ip: true,
                 cookie_flags: 'SameSite=None;Secure',

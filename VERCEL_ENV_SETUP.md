@@ -65,7 +65,7 @@ curl -X POST https://rescuemanager.eu/api/admin/create-user \
 - ⚠️ `ADMIN_API_SECRET` - Rimosso per sicurezza (non configurare)
 
 ### Opzionali:
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` - Google Analytics
+- Google Analytics: nessuna variabile, l'ID è una costante in `src/components/ConditionalScripts.tsx`
 - `NEXT_PUBLIC_META_PIXEL_ID` - Meta Pixel
 - `NEXT_PUBLIC_HOTJAR_ID` - Hotjar
 - `NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN` - Chatwoot
