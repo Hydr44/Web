@@ -193,6 +193,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        {/* Google AdSense: meta di verifica della proprietà del sito (nessun impatto privacy) */}
+        <meta name="google-adsense-account" content="ca-pub-1449982839703264" />
+        {/*
+          Google AdSense: lo script deve stare nell'head di ogni pagina perché
+          Google verifichi il sito. Le richieste annunci (e i relativi cookie)
+          restano in pausa finché il visitatore non accetta i cookie marketing:
+          lo sblocco è in ConditionalScripts.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "window.adsbygoogle=window.adsbygoogle||[];window.adsbygoogle.pauseAdRequests=1;",
+          }}
+        />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1449982839703264"
+          crossOrigin="anonymous"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

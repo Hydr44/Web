@@ -26,9 +26,11 @@ Sistema completo di gestione cookie consent conforme a **GDPR** (Reg. UE 2016/67
   - Versione cookie policy
 
 ### 4. **Caricamento Condizionale Script**
-- **Google Analytics 4**: Solo se `analytics = true`
+- **Google Analytics 4** (tag Google `G-930BEG250B`): Solo se `analytics = true`
+  - Consent Mode v2 allineato alle categorie del banner
   - IP anonimizzato automaticamente
   - Cookie SameSite=None;Secure
+- **Google AdSense** (`ca-pub-1449982839703264`): script sempre nell'head (Google lo richiede per la verifica del sito), ma richieste annunci e cookie in pausa finché `marketing = true`; `public/ads.txt` per la verifica editore
 - **Meta Pixel**: Solo se `marketing = true`
 - **Hotjar**: Solo se `analytics = true`
 - **Ricarica automatica** quando l'utente modifica le preferenze
@@ -88,17 +90,18 @@ Oppure manualmente su Supabase Dashboard:
 2. Copia contenuto di `migrations/20260319_cookie_consents.sql`
 3. Esegui
 
-### 2. Configura Google Analytics (Opzionale)
+### 2. Google Analytics (tag Google, GA4)
 
-**Ottieni GA4 Measurement ID:**
-1. Vai su https://analytics.google.com
-2. Crea proprietà GA4
-3. Copia Measurement ID (formato: `G-XXXXXXXXXX`)
+L'ID di misurazione (`G-930BEG250B`) è la costante `GA_MEASUREMENT_ID` in
+`src/components/ConditionalScripts.tsx`: è un valore pubblico (finisce nell'HTML),
+quindi non passa da variabili d'ambiente. Per cambiare proprietà GA4 si aggiorna
+solo quella costante.
 
-**Aggiungi a `.env.local`:**
-```env
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-```
+Lo script `gtag.js` viene caricato **solo dopo il consenso analytics** e imposta
+**Consent Mode v2** (richiesto da Google per gli utenti SEE): default tutto
+negato, poi `consent update` con le scelte del banner
+(`analytics` → `analytics_storage`, `marketing` → `ad_storage`/`ad_user_data`/
+`ad_personalization`, `functional` → `functionality_storage`/`personalization_storage`).
 
 ### 3. Configura Altri Servizi (Opzionale)
 
