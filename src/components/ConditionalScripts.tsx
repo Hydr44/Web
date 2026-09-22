@@ -82,6 +82,17 @@ export default function ConditionalScripts() {
         </>
       )}
 
+      {/* Google AdSense - sblocca le richieste annunci solo se marketing è abilitato
+          (lo script è già nell'head del layout, in pausa) */}
+      {preferences.marketing && (
+        <Script id="adsense-unpause" strategy="afterInteractive">
+          {`
+            window.adsbygoogle = window.adsbygoogle || [];
+            window.adsbygoogle.pauseAdRequests = 0;
+          `}
+        </Script>
+      )}
+
       {/* Meta Pixel - solo se marketing è abilitato */}
       {preferences.marketing && process.env.NEXT_PUBLIC_META_PIXEL_ID && (
         <Script id="meta-pixel" strategy="afterInteractive">

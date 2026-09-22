@@ -69,20 +69,20 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // script-src: Chatwoot self-hosted + GA + Hotjar + Meta Pixel + Leaflet CDN (/track mappa cliente)
-              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live https://help.rescuemanager.eu https://*.google-analytics.com https://static.hotjar.com https://script.hotjar.com https://connect.facebook.net https://unpkg.com",
+              // script-src: Chatwoot self-hosted + GA + AdSense + Hotjar + Meta Pixel + Leaflet CDN (/track mappa cliente)
+              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.googletagmanager.com https://vercel.live https://help.rescuemanager.eu https://*.google-analytics.com https://pagead2.googlesyndication.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://static.hotjar.com https://script.hotjar.com https://connect.facebook.net https://unpkg.com",
               // style-src: + Leaflet CSS da unpkg (pagina /track)
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://help.rescuemanager.eu https://unpkg.com",
               // img-src: + tile mappa (CartoDB Positron + OpenStreetMap) e immagini Leaflet (pagina /track)
-              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com https://help.rescuemanager.eu https://*.google-analytics.com https://*.hotjar.com https://www.facebook.com https://*.facebook.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://unpkg.com",
+              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://res.cloudinary.com https://www.googletagmanager.com https://help.rescuemanager.eu https://*.google-analytics.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google https://*.hotjar.com https://www.facebook.com https://*.facebook.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://unpkg.com",
               "font-src 'self' data: https://fonts.gstatic.com https://help.rescuemanager.eu https://*.hotjar.com",
-              // connect-src: GA regional + Hotjar API + Meta Pixel beacon + help widget WS
+              // connect-src: GA regional + AdSense + Hotjar API + Meta Pixel beacon + help widget WS
               // Wildcard *.supabase.co per supportare sia main (ienzdgrqalltvkdkuamp)
               // sia branch staging (rqwdimgwtewrsintvwoe) sia futuri preview branch
               // senza dover ridepiegate al cambio branch.
-              "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://help.rescuemanager.eu wss://help.rescuemanager.eu https://*.hotjar.com wss://*.hotjar.com https://connect.facebook.net https://www.facebook.com https://router.project-osrm.org",
-              // frame-src: Hotjar surveys/recordings + Meta Pixel iframes
-              "frame-src 'self' https://vercel.live https://help.rescuemanager.eu https://*.hotjar.com https://www.facebook.com",
+              "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://*.supabase.co wss://*.supabase.co https://help.rescuemanager.eu wss://help.rescuemanager.eu https://*.hotjar.com wss://*.hotjar.com https://connect.facebook.net https://www.facebook.com https://router.project-osrm.org",
+              // frame-src: AdSense (annunci + verifica traffico) + Hotjar surveys/recordings + Meta Pixel iframes
+              "frame-src 'self' https://vercel.live https://help.rescuemanager.eu https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://*.hotjar.com https://www.facebook.com",
               "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'none'",

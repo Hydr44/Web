@@ -30,6 +30,7 @@ Sistema completo di gestione cookie consent conforme a **GDPR** (Reg. UE 2016/67
   - Consent Mode v2 allineato alle categorie del banner
   - IP anonimizzato automaticamente
   - Cookie SameSite=None;Secure
+- **Google AdSense** (`ca-pub-1449982839703264`): script sempre nell'head (Google lo richiede per la verifica del sito), ma richieste annunci e cookie in pausa finché `marketing = true`; `public/ads.txt` per la verifica editore
 - **Meta Pixel**: Solo se `marketing = true`
 - **Hotjar**: Solo se `analytics = true`
 - **Ricarica automatica** quando l'utente modifica le preferenze
