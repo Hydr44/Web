@@ -9,7 +9,7 @@ import { useCookieConsent } from "@/hooks/useCookieConsent";
 // È un identificativo pubblico (compare comunque nell'HTML della pagina), quindi
 // vive qui e non in una variabile d'ambiente: un solo posto da aggiornare e
 // nessuna divergenza tra ambienti Vercel.
-export const GA_MEASUREMENT_ID = "G-KW3GSHW64Z";
+export const GA_MEASUREMENT_ID = "G-930BEG250B";
 
 // Il tag Google parte solo sul dominio pubblico: staging, anteprime Vercel e
 // localhost non devono finire nelle statistiche della proprietà GA4.

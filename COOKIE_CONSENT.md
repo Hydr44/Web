@@ -26,7 +26,7 @@ Sistema completo di gestione cookie consent conforme a **GDPR** (Reg. UE 2016/67
   - Versione cookie policy
 
 ### 4. **Caricamento Condizionale Script**
-- **Google Analytics 4** (tag Google `G-KW3GSHW64Z`): Solo se `analytics = true`
+- **Google Analytics 4** (tag Google `G-930BEG250B`): Solo se `analytics = true`
   - Consent Mode v2 allineato alle categorie del banner
   - IP anonimizzato automaticamente
   - Cookie SameSite=None;Secure
@@ -91,7 +91,7 @@ Oppure manualmente su Supabase Dashboard:
 
 ### 2. Google Analytics (tag Google, GA4)
 
-L'ID di misurazione (`G-KW3GSHW64Z`) è la costante `GA_MEASUREMENT_ID` in
+L'ID di misurazione (`G-930BEG250B`) è la costante `GA_MEASUREMENT_ID` in
 `src/components/ConditionalScripts.tsx`: è un valore pubblico (finisce nell'HTML),
 quindi non passa da variabili d'ambiente. Per cambiare proprietà GA4 si aggiorna
 solo quella costante.
