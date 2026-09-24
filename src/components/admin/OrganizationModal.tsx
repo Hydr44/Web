@@ -227,7 +227,9 @@ export default function OrganizationModal({ isOpen, onClose, organization, mode,
                     value={formData.vat}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="IT12345678901"
+                    placeholder="12345678901"
+                    inputMode="numeric"
+                    maxLength={11}
                   />
                 </div>
 

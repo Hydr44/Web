@@ -278,9 +278,17 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">P.IVA *</label>
-                  <input value={data.vat_number} onChange={e => set('vat_number', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="IT12345678901" />
+                  {/* Il prefisso del paese si mostra e non si digita: la
+                      validazione vuole undici cifre, ma il segnaposto diceva di
+                      scrivere "IT" davanti e chi lo faceva si vedeva rifiutare
+                      una partita IVA giusta. */}
+                  <div className="flex items-center border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500">
+                    <span className="pl-4 pr-1 text-sm text-gray-500 select-none">IT</span>
+                    <input value={data.vat_number} inputMode="numeric" maxLength={11}
+                      onChange={e => set('vat_number', e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '').replace(/^IT/, '').slice(0, 11))}
+                      className="w-full py-3 pr-4 bg-transparent text-gray-900 focus:outline-none text-sm"
+                      placeholder="12345678901" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">Codice Fiscale</label>
