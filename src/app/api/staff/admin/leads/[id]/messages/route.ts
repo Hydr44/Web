@@ -78,11 +78,14 @@ export async function POST(
     if (direction === 'outgoing' && lead.email && RESEND_KEY) {
       try {
         const escapeHtml = (s: string) => s.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const titolo = subject ? escapeHtml(subject) : 'Messaggio da RescueManager';
         const emailHtml = brandedHtml(
-          `Ciao ${escapeHtml(lead.name)},\n${escapeHtml(body)}`,
+          escapeHtml(body),
           {
-            subtitle: 'Messaggio dal team RescueManager',
-            footerNote: `— ${sent_by_name || 'Il team RescueManager'}`,
+            title: titolo,
+            sub: lead.name ? `Per ${escapeHtml(lead.name)}` : undefined,
+            note: `Scritto da ${escapeHtml(sent_by_name || 'il team RescueManager')}. Puoi rispondere a questa email.`,
+            reason: 'Ricevi questa email perché hai chiesto informazioni su RescueManager.',
           }
         );
 
@@ -92,7 +95,7 @@ export async function POST(
           body: JSON.stringify({
             from: 'RescueManager <noreply@rescuemanager.eu>',
             to: lead.email,
-            subject: subject || `Messaggio da RescueManager`,
+            subject: subject || 'Messaggio da RescueManager',
             html: emailHtml,
             reply_to: 'info@rescuemanager.eu',
           }),

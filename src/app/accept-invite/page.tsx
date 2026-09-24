@@ -176,7 +176,7 @@ function AcceptInviteContent() {
       <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
-            <img src="/assets/logos/logo-principale-a-colori.svg" alt="RescueManager" width={200} height={67} className="h-auto inline-block" />
+            <img src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" alt="RescueManager" width={200} height={67} className="h-auto inline-block" />
           </div>
 
           <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Invito</p>

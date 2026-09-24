@@ -81,16 +81,24 @@ export async function POST(request: NextRequest) {
 
     let notified: { sent: number; failed: number; total: number } | null = null;
     if (notify_clients && created) {
-      const subject = `Manutenzione programmata${title ? `: ${title}` : ''}`;
-      const body =
-        `Gentile {{nome}},\n` +
-        `ti informiamo di una manutenzione programmata del servizio${title ? ` — ${title}` : ''}.\n` +
-        `${message}\n` +
-        `\n` +
-        `Quando: dal ${fmt(starts_at)} al ${fmt(ends_at)}.\n` +
-        `Durante questo intervallo l'applicazione (web, desktop e mobile) non sarà accessibile. Ci scusiamo per il disagio.`;
+      const quando = `Dal ${fmt(starts_at)} al ${fmt(ends_at)}`;
+      const subject = title ? `Manutenzione programmata, ${title}` : 'Manutenzione programmata';
+      const body = `${message}\nDurante la manutenzione l'applicazione non è accessibile, né dal sito né dal desktop né dal telefono.`;
       const exclude = Array.isArray(b.exclude_emails) ? b.exclude_emails : [];
-      notified = await sendToAllClients(subject, body, { subtitle: 'Manutenzione programmata' }, exclude);
+      notified = await sendToAllClients(
+        subject,
+        body,
+        {
+          title: title ? `Manutenzione programmata, ${title}` : 'Manutenzione programmata',
+          sub: quando,
+          rows: [
+            ['Quando', quando],
+            ['Cosa si ferma', 'Sito, applicazione desktop e app sul telefono'],
+          ],
+          reason: 'Ricevi questa email perché hai un account RescueManager.',
+        },
+        exclude,
+      );
       await supabaseAdmin
         .from('maintenance_windows')
         .update({ notified_at: new Date().toISOString() })

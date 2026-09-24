@@ -334,7 +334,7 @@ function DesktopOAuthContent() {
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 text-center">
             <img 
-              src="/assets/logos/logo-principale-a-colori.svg" 
+              src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" 
               alt="RescueManager"
               className="h-auto w-48 mx-auto"
             />

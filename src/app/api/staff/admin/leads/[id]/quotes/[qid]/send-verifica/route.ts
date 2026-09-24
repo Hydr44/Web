@@ -61,12 +61,22 @@ export async function POST(
 
   await sendCustomerEmail(
     lead.email,
-    'Completa la verifica dati per attivare RescueManager',
-    `Ciao {{nome}},\n\n` +
-    `Abbiamo registrato il tuo pagamento. Per completare l'attivazione carica la visura e conferma i dati della tua azienda da qui:\n${link}\n\n` +
-    `Riceverai l'esito della verifica entro 24 ore. Fino a quel momento l'app resta in attesa di attivazione.\n\n` +
-    `Grazie,\nIl team RescueManager`,
-    { nome: lead.name, azienda: lead.company },
+    'Completa la verifica dei dati per attivare RescueManager',
+    'Abbiamo registrato il tuo pagamento. Per completare l\'attivazione carica la visura camerale e conferma i dati della tua azienda.',
+    {
+      nome: lead.name,
+      azienda: lead.company,
+      title: 'Manca solo la verifica dei dati',
+      sub: [lead.company, lead.name].filter(Boolean).join(', ') || undefined,
+      rows: [
+        ['Pagamento', 'Registrato'],
+        ['Cosa serve', 'Visura camerale e conferma dei dati'],
+        ['Esito', 'Entro 24 ore dall\'invio'],
+      ],
+      cta: { href: link, label: 'Completa la verifica' },
+      note: 'Fino alla verifica l\'app resta in attesa di attivazione.',
+      reason: 'Ricevi questa email perché stai attivando RescueManager per la tua azienda.',
+    },
   );
 
   try {

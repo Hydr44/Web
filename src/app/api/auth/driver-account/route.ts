@@ -46,8 +46,37 @@ export const dynamic = 'force-dynamic';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rescuemanager.eu';
 
+/** Azienda dell'autista: l'email parte per conto loro, quindi nome e indirizzo di risposta. */
+async function orgIdentity(orgId: string): Promise<{ name: string | null; email: string | null }> {
+  let name: string | null = null;
+  let email: string | null = null;
+  try {
+    const { data } = await supabaseAdmin
+      .from('org_settings')
+      .select('value')
+      .eq('org_id', orgId)
+      .eq('key', 'company')
+      .maybeSingle();
+    const company = (data?.value || {}) as { company_name?: string; name?: string; email?: string };
+    name = company.company_name || company.name || null;
+    email = company.email || null;
+  } catch { /* best-effort */ }
+  if (!name) {
+    try {
+      const { data: org } = await supabaseAdmin.from('orgs').select('name').eq('id', orgId).maybeSingle();
+      name = (org?.name as string) || null;
+    } catch { /* best-effort */ }
+  }
+  return { name, email };
+}
+
 /** Crea l'account autista e invia un'email per impostare la password (come il Team). */
-async function sendDriverInvite(email: string, name: string | null): Promise<void> {
+async function sendDriverInvite(
+  email: string,
+  name: string | null,
+  org: { name: string | null; email: string | null },
+): Promise<void> {
+  const orgName = org.name;
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: 'recovery',
     email,
@@ -55,11 +84,23 @@ async function sendDriverInvite(email: string, name: string | null): Promise<voi
   });
   const link = data?.properties?.action_link;
   if (error || !link) return; // best-effort
+  const azienda = orgName || 'la tua azienda';
   await sendCustomerEmail(
     email,
-    'Accesso all\'app RescueManager — imposta la password',
-    `Ciao {{nome}},\n\nLa tua azienda ti ha abilitato all'app RescueManager per autisti.\n\nImposta la tua password dal pulsante qui sotto, poi accedi all'app con la tua email e la password che hai scelto.`,
-    { nome: name || undefined, subtitle: 'Accesso autista', cta: { href: link, label: 'Imposta la password' } },
+    orgName ? `Accesso all'app per autisti da ${orgName}` : 'Accesso all\'app per autisti',
+    `${azienda} ti ha abilitato all'app RescueManager per autisti.\nImposta la tua password dal pulsante qui sotto, poi accedi all'app con la tua email e la password che hai scelto.`,
+    {
+      sender: orgName || undefined,
+      replyTo: org.email || undefined,
+      nome: name || undefined,
+      title: 'Il tuo accesso all\'app per autisti è pronto',
+      sub: [name, orgName].filter(Boolean).join(', ') || undefined,
+      cta: { href: link, label: 'Imposta la password' },
+      note: 'Se non ti aspettavi questa email, ignorala: senza password nessuno entra.',
+      reason: orgName
+        ? `Ricevi questa email perché ${orgName} ti ha abilitato all'app per autisti.`
+        : 'Ricevi questa email perché la tua azienda ti ha abilitato all\'app per autisti.',
+    },
   );
 }
 
@@ -279,7 +320,8 @@ export async function POST(request: NextRequest) {
 
   // Modalità invito: manda l'email per far impostare la password all'autista.
   if (mode === 'invite') {
-    await sendDriverInvite(email, String(body.name || '').trim() || null);
+    const org = await orgIdentity(drv.org_id);
+    await sendDriverInvite(email, String(body.name || '').trim() || null, org);
   }
 
   return NextResponse.json(

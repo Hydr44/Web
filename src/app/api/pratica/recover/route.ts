@@ -66,9 +66,17 @@ export async function POST(request: NextRequest) {
     if (!insErr) {
       await sendCustomerEmail(
         email,
-        'Il tuo codice per lo stato pratica — RescueManager',
-        `Ciao {{nome}},\n\nUsa questo codice per accedere allo stato della tua pratica. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
-        { nome: match.name || undefined, subtitle: 'Stato pratica', code },
+        'Codice per vedere lo stato della pratica',
+        'Inserisci questo codice nella pagina di accesso per vedere lo stato della tua pratica.',
+        {
+          nome: match.name || undefined,
+          title: 'Codice di accesso',
+          sub: match.name ? `Richiesto da ${match.name}` : undefined,
+          code,
+          codeNote: 'Vale per 10 minuti, per un solo accesso',
+          note: 'Se non hai chiesto tu questo codice, non serve fare niente: senza il codice nessuno entra.',
+          reason: 'Ricevi questa email perché qualcuno ha chiesto di vedere lo stato della pratica con il tuo indirizzo.',
+        },
       );
     }
   }

@@ -13,32 +13,32 @@ const DEFAULT_TEMPLATES = [
   {
     name: 'Promo Nuovo Cliente',
     category: 'promo',
-    subject: 'Prova RescueManager gratis per 7 giorni!',
-    body: 'Gentile {{nome}},\n\nle offriamo 7 giorni di prova gratuita di RescueManager, la piattaforma n.1 per autodemolizioni.\n\nCon RescueManager puo:\n- Gestire veicoli, ricambi e magazzino\n- Inviare fatture elettroniche via SDI\n- Compilare registri RENTRI in automatico\n- Gestire la custodia veicoli con mappa interattiva\n\nAttivi subito la prova gratuita!\n\nTeam RescueManager',
+    subject: 'Prova gratuita di RescueManager per 7 giorni',
+    body: 'Gentile {{nome}},\n\nle offriamo 7 giorni di prova gratuita di RescueManager, il gestionale per autodemolizioni, soccorso stradale e trasporti.\n\nCon RescueManager puo gestire veicoli, ricambi e magazzino, inviare le fatture elettroniche, compilare il registro RENTRI e tenere la custodia dei veicoli sulla mappa.\n\nSe le interessa, risponda a questa email e attiviamo la prova.\n\nTeam RescueManager',
   },
   {
     name: 'Promo Sconto Annuale',
     category: 'promo',
-    subject: 'Sconto 20% sul piano annuale RescueManager',
-    body: 'Gentile {{nome}},\n\nper un tempo limitato, le offriamo il 20% di sconto sul piano annuale RescueManager.\n\nPiano Enterprise a soli 119.99 EUR/mese (invece di 149.99 EUR).\n\nApprofitti subito dell\'offerta!\n\nTeam RescueManager',
+    subject: 'Sconto del 20% sul piano annuale RescueManager',
+    body: 'Gentile {{nome}},\n\nper un periodo limitato le offriamo il 20% di sconto sul piano annuale RescueManager.\n\nIl piano Enterprise passa da 149,99 euro al mese a 119,99 euro al mese.\n\nSe vuole approfittarne, risponda a questa email.\n\nTeam RescueManager',
   },
   {
     name: 'Follow-up Demo',
     category: 'follow_up',
-    subject: 'Come e andata la demo di RescueManager?',
-    body: 'Gentile {{nome}},\n\nla contatto per sapere se ha avuto modo di valutare la demo di RescueManager.\n\nSiamo a disposizione per:\n- Rispondere a qualsiasi domanda\n- Organizzare una sessione personalizzata\n- Attivare un periodo di prova esteso\n\nNon esiti a contattarci!\n\nTeam RescueManager',
+    subject: 'Com\'e andata la demo di RescueManager',
+    body: 'Gentile {{nome}},\n\nle scrivo per sapere se ha avuto modo di valutare la demo di RescueManager.\n\nSiamo a disposizione per rispondere alle sue domande, rivedere insieme i suoi casi o allungare il periodo di prova.\n\nMi faccia sapere.\n\nTeam RescueManager',
   },
   {
     name: 'Conferma Preventivo',
     category: 'transactional',
-    subject: 'Il suo preventivo RescueManager per {{azienda}}',
-    body: 'Gentile {{nome}},\n\nin allegato trova il preventivo richiesto per {{azienda}}.\n\nIl documento e valido 30 giorni dalla data di emissione. Per accettarlo le basta seguire il link contenuto nel PDF.\n\nResto a disposizione per chiarimenti.\n\nTeam RescueManager',
+    subject: 'Preventivo RescueManager per {{azienda}}',
+    body: 'Gentile {{nome}},\n\nin allegato trova il preventivo per {{azienda}}.\n\nIl documento vale 30 giorni dalla data di emissione. Per accettarlo puo seguire il collegamento contenuto nel PDF.\n\nResto a disposizione per chiarimenti.\n\nTeam RescueManager',
   },
   {
     name: 'Recupero Lead Freddo',
     category: 'reactivation',
-    subject: 'Ci siamo persi qualcosa, {{nome}}?',
-    body: 'Gentile {{nome}},\n\nci eravamo sentiti tempo fa riguardo RescueManager. Volevo solo verificare se la sua situazione e cambiata e se possiamo esserle utili.\n\nSe nel frattempo ha trovato altre soluzioni o non e piu interessato, le basta rispondere a questa mail con "no grazie" e non la disturberemo piu.\n\nUn cordiale saluto,\nTeam RescueManager',
+    subject: 'Ci siamo persi qualcosa, {{nome}}',
+    body: 'Gentile {{nome}},\n\nci eravamo sentiti tempo fa per RescueManager. Volevo verificare se la sua situazione e cambiata e se possiamo esserle utili.\n\nSe nel frattempo ha trovato altre soluzioni o non e piu interessato, risponda pure a questa email con "no grazie" e non la disturbiamo piu.\n\nUn cordiale saluto,\nTeam RescueManager',
   },
 ];
 

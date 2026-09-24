@@ -89,11 +89,13 @@ export async function unsubscribeFromAudience(email: string): Promise<void> {
 /** Email di conferma iscrizione — usa il template brand canonico (@/lib/email-template). */
 export function confirmEmailHtml(confirmUrl: string): string {
   return brandedHtml(
-    'Grazie per esserti iscritto alla newsletter di RescueManager.\nConferma il tuo indirizzo per ricevere novità su funzionalità e aggiornamenti normativi (RENTRI, SDI, RVFU).',
+    'Conferma il tuo indirizzo per ricevere le novità di RescueManager e gli aggiornamenti normativi su RENTRI, fatturazione elettronica e registro VFU.',
     {
-      subtitle: 'Newsletter',
+      title: 'Conferma il tuo indirizzo',
+      sub: 'Newsletter RescueManager',
       cta: { href: confirmUrl, label: 'Conferma iscrizione' },
-      footerNote: 'Se non ti sei iscritto tu, ignora questa email: senza conferma non riceverai nulla.',
+      note: 'Se non ti sei iscritto tu, ignora questa email: senza conferma non ricevi niente.',
+      reason: 'Ricevi questa email perché questo indirizzo è stato iscritto alla newsletter di RescueManager.',
     },
   );
 }

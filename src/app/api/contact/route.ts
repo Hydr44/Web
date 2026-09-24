@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { findDuplicateLead } from "@/lib/lead-dedup";
-import { brandedHtml, EMAIL_FONT } from "@/lib/email-template";
+import { brandedHtml } from "@/lib/email-template";
 import {
   checkRateLimit, 
   getRateLimitIdentifier, 
@@ -195,52 +195,70 @@ export async function POST(request: NextRequest) {
     const RESEND_KEY = process.env.RESEND_API_KEY;
     if (RESEND_KEY) {
       const isDemo = type === 'demo';
-      const staffSubject = isDemo
-        ? `[Demo] Nuova richiesta da ${sanitizedName} — ${sanitizedCompany || 'privato'}`
-        : `[Contatto] Messaggio da ${sanitizedName}`;
-      const clientSubject = 'RescueManager';
+      const cosa = isDemo ? 'Richiesta di demo' : 'Richiesta di contatto';
+      const daChi = sanitizedCompany ? `${sanitizedName}, ${sanitizedCompany}` : sanitizedName;
+      const staffSubject = `${cosa} da ${daChi}`;
+      const clientSubject = isDemo
+        ? 'Abbiamo ricevuto la tua richiesta di demo'
+        : 'Abbiamo ricevuto il tuo messaggio';
 
-      const staffInfoRows: Array<{ label: string; value: string }> = [
-        { label: 'Nome', value: sanitizedName },
-        { label: 'Email', value: `<a href="mailto:${sanitizedEmail}">${sanitizedEmail}</a>` },
+      const ricevutoIl = new Date().toLocaleString('it-IT');
+
+      const staffRows: Array<[string, string]> = [
+        ['Nome', sanitizedName],
+        ['Email', `<a href="mailto:${sanitizedEmail}" style="color:#005dfa;text-decoration:none;">${sanitizedEmail}</a>`],
       ];
-      if (phone) staffInfoRows.push({ label: 'Telefono', value: `<a href="tel:${phone}">${phone}</a>` });
-      if (sanitizedCompany) staffInfoRows.push({ label: 'Azienda', value: sanitizedCompany });
-      if (sanitizedMessage) staffInfoRows.push({ label: 'Messaggio', value: sanitizedMessage.replace(/\n/g, '<br>') });
+      if (phone) staffRows.push(['Telefono', `<a href="tel:${phone}" style="color:#005dfa;text-decoration:none;">${phone}</a>`]);
+      if (sanitizedCompany) staffRows.push(['Azienda', sanitizedCompany]);
+      staffRows.push(['Arrivata da', source || 'sito']);
+      if (sanitizedMessage) staffRows.push(['Messaggio', sanitizedMessage.replace(/\n/g, '<br>')]);
 
       const staffHtml = brandedHtml(
-        `Nuova ${isDemo ? 'richiesta di demo' : 'richiesta di contatto'}`,
+        `${cosa} arrivata dal sito il ${ricevutoIl}.`,
         {
-          subtitle: isDemo ? 'Nuova Richiesta Demo' : 'Nuovo Messaggio di Contatto',
-          infoRows: staffInfoRows,
-          footerNote: `Lead ID: ${lead.id}<br>Ricevuto: ${new Date().toLocaleString('it-IT')}`,
+          title: cosa,
+          sub: daChi,
+          rows: staffRows,
+          note: `Riferimento della scheda contatto: ${lead.id}`,
+          reason: 'Ricevi questa email perché arriva dai moduli di contatto di rescuemanager.eu.',
         }
       );
 
-      const confirmExtraHtml = `<ul style="margin:16px 0;padding-left:24px;font-family:${EMAIL_FONT};font-size:15px;color:#475569;line-height:1.65;">
-  <li>Rispondere a tutte le tue domande</li>
-  <li>Discutere le tue esigenze specifiche</li>
-  <li>Organizzare una dimostrazione personalizzata${isDemo ? '' : ' (se interessato)'}</li>
-</ul>`;
+      const clientRows: Array<[string, string]> = [
+        ['Richiesta', isDemo ? 'Demo di RescueManager' : 'Contatto'],
+        ['Nome', sanitizedName],
+      ];
+      if (sanitizedCompany) clientRows.push(['Azienda', sanitizedCompany]);
+      if (sanitizedMessage) clientRows.push(['Il tuo messaggio', sanitizedMessage.replace(/\n/g, '<br>')]);
 
       const confirmHtml = brandedHtml(
-        `Ciao ${sanitizedName},
-Grazie per averci contattato! Apprezziamo molto il tuo interesse in RescueManager.
-Abbiamo ricevuto la tua richiesta e il nostro team ti contatterà entro 24 ore per:`,
+        [
+          isDemo
+            ? 'Abbiamo ricevuto la tua richiesta di demo e ti ricontattiamo entro un giorno lavorativo per fissare data e ora.'
+            : 'Abbiamo ricevuto il tuo messaggio e ti rispondiamo entro un giorno lavorativo.',
+          'Se nel frattempo vuoi aggiungere qualcosa, rispondi a questa email.',
+        ].join('\n'),
         {
-          subtitle: 'Grazie per averci contattato',
-          extraHtml: confirmExtraHtml,
-          cta: { href: 'https://rescuemanager.eu', label: 'Scopri RescueManager' },
-          footerNote: 'Nel frattempo, se hai domande urgenti, contattaci a info@rescuemanager.eu o chiama +39 392 172 3028.<br><br>A presto, il team RescueManager.',
+          title: isDemo ? 'Richiesta di demo ricevuta' : 'Messaggio ricevuto',
+          sub: `${sanitizedName}, ${ricevutoIl}`,
+          rows: clientRows,
+          note: 'Per qualcosa di urgente puoi chiamare il numero 392 172 3028.',
+          reason: 'Ricevi questa email perché hai scritto a RescueManager dal sito.',
+          preheader: 'Ti rispondiamo entro un giorno lavorativo.',
         }
       );
 
-      const sendEmail = async (to: string, subject: string, html: string) => {
+      // replyTo: chi riceve deve poter rispondere davvero (il mittente è noreply).
+      const sendEmail = async (to: string, subject: string, html: string, replyTo?: string) => {
         try {
+          const payload: Record<string, unknown> = {
+            from: 'RescueManager <noreply@rescuemanager.eu>', to, subject, html,
+          };
+          if (replyTo) payload.reply_to = replyTo;
           const r = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ from: 'RescueManager <noreply@rescuemanager.eu>', to, subject, html }),
+            body: JSON.stringify(payload),
           });
           if (!r.ok) {
             const txt = await r.text();
@@ -252,8 +270,8 @@ Abbiamo ricevuto la tua richiesta e il nostro team ti contatterà entro 24 ore p
       };
 
       await Promise.allSettled([
-        sendEmail('info@rescuemanager.eu', staffSubject, staffHtml),
-        sendEmail(sanitizedEmail, clientSubject, confirmHtml),
+        sendEmail('info@rescuemanager.eu', staffSubject, staffHtml, sanitizedEmail),
+        sendEmail(sanitizedEmail, clientSubject, confirmHtml, 'info@rescuemanager.eu'),
       ]);
     }
 

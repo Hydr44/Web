@@ -118,13 +118,20 @@ export async function POST(
   if (leadObj.email) {
     await sendCustomerEmail(
       leadObj.email,
-      'Pratica inviata in verifica — RescueManager',
-      `Ciao {{nome}},\n\n` +
-      `Abbiamo ricevuto la tua visura camerale e i dati della tua azienda.\n\n` +
-      `La tua pratica è ora IN VERIFICA: riceverai l'esito entro 24 ore.\n\n` +
-      `Puoi controllare lo stato della pratica in qualsiasi momento dal link che hai ricevuto.\n\n` +
-      `Grazie,\nIl team RescueManager`,
-      { nome: leadObj.name, azienda: leadObj.company },
+      'Pratica inviata in verifica',
+      'Abbiamo ricevuto la visura camerale e i dati della tua azienda. Adesso li controlliamo.',
+      {
+        nome: leadObj.name,
+        azienda: leadObj.company,
+        title: 'Pratica inviata in verifica',
+        sub: [leadObj.company, leadObj.name].filter(Boolean).join(', ') || undefined,
+        rows: [
+          ['Stato', 'In verifica'],
+          ['Esito', 'Entro 24 ore'],
+          ['Intanto', 'Puoi controllare lo stato della pratica dal link che hai ricevuto'],
+        ],
+        reason: 'Ricevi questa email perché stai attivando RescueManager per la tua azienda.',
+      },
     );
   }
 

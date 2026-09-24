@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     const confirmUrl = `${origin}/api/newsletter/confirm?token=${encodeURIComponent(confirmToken)}`;
-    await sendEmail(email, 'Conferma la tua iscrizione · RescueManager', confirmEmailHtml(confirmUrl));
+    await sendEmail(email, 'Conferma la tua iscrizione alla newsletter', confirmEmailHtml(confirmUrl));
 
     return NextResponse.json({ success: true, message: 'Ti abbiamo inviato un\'email di conferma.' });
   } catch (e) {

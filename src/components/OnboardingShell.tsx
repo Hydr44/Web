@@ -54,7 +54,7 @@ export function OnboardingShell({
             <div className="lg:hidden mb-8 text-center">
               <Link href="/" className="inline-flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/assets/logos/logo-principale-a-colori.svg" alt="RescueManager" width={200} height={67} className="h-auto" />
+                <img src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" alt="RescueManager" width={200} height={67} className="h-auto" />
               </Link>
             </div>
             {children}

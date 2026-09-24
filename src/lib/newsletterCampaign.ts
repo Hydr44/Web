@@ -6,7 +6,7 @@
  * - createBroadcast / sendBroadcast: API Resend Broadcasts verso l'Audience.
  */
 
-import { brandedHtml, BRAND_BLUE } from '@/lib/email-template';
+import { brandedHtml, BRAND, EMAIL_FONT, INK, INK_2, LINE } from '@/lib/email-template';
 
 const RESEND_API = 'https://api.resend.com';
 const FROM = process.env.NEWSLETTER_FROM || 'RescueManager <noreply@rescuemanager.eu>';
@@ -28,7 +28,7 @@ function esc(s: string): string {
 /** Costruisce una bozza (title/subject/html) da uno o più eventi normativi. */
 export function templateFromEvents(events: RegEvent[]): { title: string; subject: string; html: string } {
   const groups = Array.from(new Set(events.map((e) => e.group_label).filter(Boolean))) as string[];
-  const subject = groups.length === 1 ? `Aggiornamento normativo: ${groups[0]}` : 'Aggiornamenti normativi';
+  const subject = groups.length === 1 ? `Aggiornamento normativo ${groups[0]}` : 'Aggiornamenti normativi';
   const title = subject;
 
   // BOZZA EDITORIALE per il CLIENTE (non i dettagli tecnici del monitor).
@@ -36,28 +36,34 @@ export function templateFromEvents(events: RegEvent[]): { title: string; subject
   // partenza in linguaggio cliente + la fonte ufficiale. Il team RIVEDE e
   // riscrive "Cosa cambia per te" prima dell'invio (i riferimenti tecnici
   // restano a lato nell'editor admin, non nell'email).
+  // Una novità per blocco: titolo della novità, cosa cambia, fonte. Solo tabelle e stili in linea.
   const sections = events
     .map((e) => {
       const cosaCambia = e.summary
         ? esc(e.summary)
         : '[Spiega in 2-3 righe, in parole semplici, cosa cambia per il cliente e cosa deve fare.]';
-      return `
-      <div style="margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid #e2e8f0;">
-        ${e.group_label ? `<span style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${BRAND_BLUE};margin-bottom:6px;">${esc(e.group_label)}</span>` : ''}
-        <h2 style="margin:0 0 8px;font-size:17px;color:#0f172a;">${esc(e.label || 'Aggiornamento normativo')}</h2>
-        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Cosa cambia per te</p>
-        <p style="margin:0 0 12px;font-size:15px;color:#475569;line-height:1.65;">${cosaCambia}</p>
-        ${e.url ? `<a href="${esc(e.url)}" style="display:inline-block;font-size:13px;font-weight:600;color:${BRAND_BLUE};text-decoration:none;">Fonte ufficiale →</a>` : ''}
-      </div>`;
+      const occhiello = e.group_label
+        ? `<p style="margin:0 0 4px;font-family:${EMAIL_FONT};font-size:13px;color:${INK_2};">${esc(e.group_label)}</p>`
+        : '';
+      const fonte = e.url
+        ? `<p style="margin:0;font-family:${EMAIL_FONT};font-size:13px;"><a href="${esc(e.url)}" style="color:${BRAND};text-decoration:none;">Leggi il documento ufficiale</a></p>`
+        : '';
+      return `<table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 20px;border-top:1px solid ${LINE};"><tr><td style="padding:16px 0 0;">
+${occhiello}
+<h2 style="margin:0 0 8px;font-family:${EMAIL_FONT};font-size:17px;font-weight:600;line-height:1.3;color:${INK};">${esc(e.label || 'Aggiornamento normativo')}</h2>
+<p style="margin:0 0 10px;font-family:${EMAIL_FONT};font-size:15px;line-height:1.6;color:${INK};">${cosaCambia}</p>
+${fonte}
+</td></tr></table>`;
     })
     .join('');
 
-  const intro = 'Ti teniamo aggiornato sulle novità normative che riguardano la tua attività.';
+  const intro = 'Ecco le novità normative che riguardano la tua attività.';
   const html = brandedHtml(intro, {
-    subtitle: 'Aggiornamento normativo',
+    title,
+    sub: groups.length ? groups.join(', ') : undefined,
     extraHtml: sections,
-    cta: { href: 'https://rescuemanager.eu', label: 'Scopri come RescueManager ti aiuta' },
-    footerNote: 'Ricevi questa email perché ti sei iscritto agli aggiornamenti RescueManager. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#94a3b8;">Disiscriviti</a>.',
+    cta: { href: 'https://rescuemanager.eu', label: 'Vedi come ti aiuta RescueManager' },
+    reason: 'Ricevi questa email perché sei iscritto agli aggiornamenti RescueManager. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#ffffff;text-decoration:none;">Disiscriviti</a>',
   });
 
   return { title, subject, html };

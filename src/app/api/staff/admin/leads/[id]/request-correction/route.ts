@@ -60,13 +60,21 @@ export async function POST(
   if (lead.email) {
     await sendCustomerEmail(
       lead.email,
-      'Serve una correzione alla tua pratica — RescueManager',
-      `Ciao {{nome}},\n\n` +
-      `Abbiamo esaminato la tua pratica e serve una piccola correzione prima di completare l'attivazione.\n\n` +
-      `Motivo: ${reason}\n\n` +
-      `Riprendi la pratica, aggiorna i dati e reinviala da qui:\n${link}\n\n` +
-      `Grazie,\nIl team RescueManager`,
-      { nome: lead.name, azienda: lead.company },
+      'Serve una correzione alla tua pratica',
+      'Abbiamo controllato la tua pratica e serve una correzione prima di completare l\'attivazione.',
+      {
+        nome: lead.name,
+        azienda: lead.company,
+        title: 'Serve una correzione alla tua pratica',
+        sub: [lead.company, lead.name].filter(Boolean).join(', ') || undefined,
+        notice: { text: `Cosa correggere: ${reason}` },
+        rows: [
+          ['Stato', 'In attesa della correzione'],
+          ['Cosa fare', 'Riprendi la pratica, aggiorna i dati e reinviala'],
+        ],
+        cta: { href: link, label: 'Riprendi la pratica' },
+        reason: 'Ricevi questa email perché stai attivando RescueManager per la tua azienda.',
+      },
     );
   }
 

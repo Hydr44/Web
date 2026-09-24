@@ -24,7 +24,31 @@ type InvoiceRow = {
   sdi_status: string | null;
 };
 
-type CompanyData = { name?: string };
+// org_settings.key='company' (JSONB). `company_name` è il campo autoritativo;
+// `name` è il vecchio nome del campo, tenuto come ripiego.
+type CompanyData = {
+  company_name?: string;
+  name?: string;
+  email?: string;
+  pec?: string;
+  iban?: string;
+};
+
+/** Nome dell'azienda che fattura (il mittente per conto del quale scriviamo). */
+function companyName(company: CompanyData): string {
+  return company.company_name || company.name || 'RescueManager';
+}
+
+/** Email dell'azienda, per far arrivare a loro le risposte del cliente. */
+function companyReplyTo(company: CompanyData): string | null {
+  return company.email || null;
+}
+
+/** Mittente mostrato: "Azienda via RescueManager" (il dominio resta il nostro). */
+function fromHeader(company: CompanyData): string {
+  const nome = companyName(company).replaceAll('"', '').trim();
+  return `"${nome} via RescueManager" <noreply@rescuemanager.eu>`;
+}
 
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -52,21 +76,35 @@ async function authorizeOrgMember(orgId: string) {
   return { ok: true as const, user };
 }
 
+/** Importo in euro, formato italiano (es. "181,78 euro"). */
+function formatEuro(n: number): string {
+  return `${new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)} euro`;
+}
+
+/** Data in forma estesa italiana; se non è una data valida la lascia com'è. */
+function formatDate(value: string | null): string {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 function buildEmailContent(invoice: InvoiceRow, companyData: CompanyData) {
-  const subject = `Fattura ${invoice.number || invoice.id.substring(0, 8)} - ${companyData.name || 'RescueManager'}`;
-  const textBody = `
-Gentile Cliente,
-
-In allegato trova la fattura n. ${invoice.number || 'N/A'} del ${invoice.date || 'N/A'}.
-
-Dettagli:
-- Importo: €${Number(invoice.total || 0).toFixed(2)}
-- Cliente: ${invoice.customer_name || 'N/A'}
-
-Cordiali saluti,
-${companyData.name || 'RescueManager'}
-  `.trim();
-  return { subject, textBody };
+  const numero = invoice.number || invoice.id.substring(0, 8);
+  const mittente = companyName(companyData);
+  const subject = `Fattura ${numero} da ${mittente}`;
+  const dataStr = formatDate(invoice.date);
+  const textBody = [
+    `Fattura ${numero}`,
+    invoice.customer_name ? `Intestata a ${invoice.customer_name}` : '',
+    dataStr ? `Data ${dataStr}` : '',
+    `Totale ${formatEuro(Number(invoice.total || 0))}`,
+    '',
+    'La fattura è allegata a questa email in PDF.',
+    '',
+    mittente,
+  ].filter(Boolean).join('\n');
+  return { subject, textBody, numero, mittente, dataStr };
 }
 
 async function sendViaResend(args: {
@@ -77,6 +115,7 @@ async function sendViaResend(args: {
   html: string;
   pdfUrl: string | null;
   filename: string;
+  replyTo?: string | null;
 }) {
   const resendBody: Record<string, unknown> = {
     from: args.from,
@@ -84,6 +123,8 @@ async function sendViaResend(args: {
     subject: args.subject,
     html: args.html,
   };
+  // Le risposte vanno all'azienda che fattura, non a noi.
+  if (args.replyTo) resendBody.reply_to = args.replyTo;
   if (args.pdfUrl) {
     resendBody.attachments = [{ filename: args.filename, path: args.pdfUrl }];
   }
@@ -111,34 +152,39 @@ async function dispatchEmail(
   if (!apiKey) return 'queued';
 
   const filename = `fattura_${invoice.number || invoice.id}.pdf`;
-  const fromName = companyData.name || 'RescueManager';
+  const { numero, mittente: fromName, dataStr } = buildEmailContent(invoice, companyData);
+
+  const rows: Array<[string, string]> = [];
+  if (invoice.customer_name) rows.push(['Intestata a', invoice.customer_name]);
+  if (dataStr) rows.push(['Data', dataStr]);
+  rows.push(['Numero', numero]);
+  if (companyData.iban) {
+    rows.push(['IBAN', companyData.iban], ['Causale', `Fattura ${numero}`]);
+  }
 
   const html = brandedHtml(
-    [
-      'Gentile Cliente,',
-      `In allegato trova la fattura n. ${invoice.number || 'N/A'} del ${invoice.date || 'N/A'}.`,
-      '',
-      `Cordiali saluti,`,
-      fromName,
-    ].join('\n'),
+    'La fattura è allegata a questa email in PDF. La fattura elettronica è già stata inviata al Sistema di interscambio.',
     {
-      subtitle: 'Fattura',
-      infoRows: [
-        { label: 'Importo', value: `€${Number(invoice.total || 0).toFixed(2)}` },
-        { label: 'Cliente', value: invoice.customer_name || 'N/A' },
-      ],
+      sender: fromName,
+      title: `Fattura ${numero}`,
+      sub: [invoice.customer_name, dataStr].filter(Boolean).join(', '),
+      amount: { label: 'Totale', value: formatEuro(Number(invoice.total || 0)) },
+      rows,
+      reason: `Ricevi questa email perché sei cliente di ${fromName}, che usa RescueManager per le fatture.`,
     }
   );
 
   try {
     const result = await sendViaResend({
       apiKey,
-      from: `${fromName} <noreply@rescuemanager.eu>`,
+      // Il nome mostrato dice per conto di chi scriviamo; il dominio resta il nostro.
+      from: fromHeader(companyData),
       to: customerEmail,
       subject,
       html,
       pdfUrl: invoice.pdf_url,
       filename,
+      replyTo: companyReplyTo(companyData),
     });
 
     if (result.ok) {

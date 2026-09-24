@@ -166,18 +166,17 @@ async function sendPolicyUpdateEmails(
     try { effective = new Date(effectiveDate).toLocaleDateString('it-IT'); } catch { effective = effectiveDate; }
   }
 
-  const subject = `Aggiornamento delle condizioni di servizio (v${version})`;
+  const subject = `Aggiornamento delle condizioni di servizio, versione ${version}`;
   const body =
-    `Gentile {{nome}},\n` +
-    `abbiamo aggiornato i nostri documenti legali — Informativa Privacy, Cookie Policy, Termini di Servizio e Accordo sul Trattamento dei Dati (DPA)${effective ? `, in vigore dal ${effective}` : ''}.\n` +
-    `\n` +
-    `Al prossimo accesso alla dashboard ti chiederemo di confermare la presa visione e l'accettazione della nuova versione.\n` +
-    `\n` +
-    `Puoi consultare i documenti aggiornati:\n` +
-    `Informativa Privacy — https://rescuemanager.eu/privacy-policy\n` +
-    `Cookie Policy — https://rescuemanager.eu/cookie-policy\n` +
-    `Termini di Servizio — https://rescuemanager.eu/terms-of-use\n` +
-    `Trattamento Dati (DPA) — https://rescuemanager.eu/dpa`;
+    'Abbiamo aggiornato i documenti che regolano il servizio.\n' +
+    'Al prossimo accesso ti chiediamo di confermare che li hai letti e accettati.';
+  const linkStyle = 'color:#005dfa;text-decoration:none;';
+  const documenti: Array<[string, string]> = [
+    ['Informativa privacy', `<a href="https://rescuemanager.eu/privacy-policy" style="${linkStyle}">rescuemanager.eu/privacy-policy</a>`],
+    ['Uso dei cookie', `<a href="https://rescuemanager.eu/cookie-policy" style="${linkStyle}">rescuemanager.eu/cookie-policy</a>`],
+    ['Termini di servizio', `<a href="https://rescuemanager.eu/terms-of-use" style="${linkStyle}">rescuemanager.eu/terms-of-use</a>`],
+    ['Trattamento dei dati', `<a href="https://rescuemanager.eu/dpa" style="${linkStyle}">rescuemanager.eu/dpa</a>`],
+  ];
 
   let sent = 0;
   let failed = 0;
@@ -188,9 +187,11 @@ async function sendPolicyUpdateEmails(
       slice.map((r) =>
         sendCustomerEmail(r.email, subject, body, {
           nome: r.nome,
-          subtitle: 'Aggiornamento legale',
-          cta: { href: 'https://rescuemanager.eu/dashboard', label: 'Vai alla dashboard' },
-          footerNote: 'Ricevi questa email perché hai un account RescueManager.',
+          title: 'Abbiamo aggiornato le condizioni di servizio',
+          sub: effective ? `Versione ${version}, in vigore dal ${effective}` : `Versione ${version}`,
+          rows: documenti,
+          cta: { href: 'https://rescuemanager.eu/dashboard', label: 'Apri RescueManager' },
+          reason: 'Ricevi questa email perché hai un account RescueManager.',
         }).catch(() => ({ ok: false as const })),
       ),
     );

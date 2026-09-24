@@ -89,7 +89,7 @@ export const metadata: Metadata = {
       "Gestionale per soccorso stradale, trasporti e autodemolitori. Dispatch interventi su mappa, gestione autisti e mezzi, fatturazione elettronica, Registro RENTRI, Registro VFU, custodia veicoli e ricambi.",
     images: [
       {
-        url: "/assets/logos/logo-principale-a-colori.svg",
+        url: "/assets/logos/logo-principale-a-colori-su-chiaro.svg",
         width: 1200,
         height: 630,
         alt: "RescueManager",
@@ -102,7 +102,7 @@ export const metadata: Metadata = {
     title: "RescueManager — Gestionale per soccorso stradale, trasporti e autodemolitori",
     description:
       "Software gestionale: soccorso stradale, trasporti, autodemolitori. Dispatch su mappa, Registro RENTRI, registro VFU, fatturazione elettronica.",
-    images: ["/assets/logos/logo-principale-a-colori.svg"],
+    images: ["/assets/logos/logo-principale-a-colori-su-chiaro.svg"],
   },
 };
 

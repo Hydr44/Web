@@ -206,38 +206,69 @@ export async function isTrustedDevice(staffId: string, token: string | undefined
 }
 
 // ── Email transazionali (Resend, brandizzate) ───────────────────────────────
+const REASON_STAFF = 'Ricevi questa email perché hai un accesso staff a RescueManager.';
+
 async function sendOtpEmail(email: string, code: string, purpose: OtpPurpose): Promise<boolean> {
-  const map: Record<OtpPurpose, { subject: string; intro: string }> = {
-    login: { subject: 'Codice di accesso — RescueManager Staff', intro: 'Ecco il codice per completare l\'accesso al pannello staff.' },
-    password_reset: { subject: 'Codice reset password — RescueManager Staff', intro: 'Ecco il codice per reimpostare la tua password staff.' },
-    email_verify: { subject: 'Verifica email — RescueManager Staff', intro: 'Ecco il codice per verificare la tua email.' },
+  const map: Record<OtpPurpose, { subject: string; title: string; intro: string }> = {
+    login: {
+      subject: 'Codice di accesso al pannello staff',
+      title: 'Codice di accesso',
+      intro: 'Inserisci questo codice nella pagina di accesso al pannello staff.',
+    },
+    password_reset: {
+      subject: 'Codice per reimpostare la password staff',
+      title: 'Codice per reimpostare la password',
+      intro: 'Inserisci questo codice per scegliere una nuova password staff.',
+    },
+    email_verify: {
+      subject: 'Codice per verificare la tua email',
+      title: 'Codice di verifica',
+      intro: 'Inserisci questo codice per verificare il tuo indirizzo email.',
+    },
   };
-  const { subject, intro } = map[purpose];
-  const html = brandedHtml(
-    `${intro}\nInseriscilo entro 10 minuti. Se non hai richiesto tu questo codice, ignora questa email.`,
-    { subtitle: 'RescueManager Staff', code, footerNote: 'Non condividere questo codice con nessuno.' },
-  );
+  const { subject, title, intro } = map[purpose];
+  const html = brandedHtml(intro, {
+    title,
+    code,
+    codeNote: 'Vale per 10 minuti, per un solo accesso',
+    note: 'Non passare questo codice a nessuno. Se non sei stato tu, non serve fare niente: senza il codice nessuno entra.',
+    reason: REASON_STAFF,
+  });
   return sendEmail(email, subject, html);
 }
 
 /** Notifica di sicurezza dopo un cambio password (alert reset non autorizzati). */
 export async function sendPasswordChangedEmail(email: string): Promise<boolean> {
   const html = brandedHtml(
-    `La password del tuo account staff RescueManager è appena stata modificata.\nSe sei stato tu, nessuna azione è necessaria.\nSe NON riconosci questa operazione, contatta subito un amministratore: il tuo account potrebbe essere compromesso.`,
-    { subtitle: 'Password modificata', footerNote: 'Email automatica di sicurezza.' },
+    'La password del tuo accesso staff è appena stata cambiata.\nSe sei stato tu, non devi fare niente.',
+    {
+      title: 'Password cambiata',
+      sub: maskEmail(email),
+      notice: {
+        text: 'Se non sei stato tu, avvisa subito un amministratore: qualcun altro potrebbe essere entrato nel tuo account.',
+        level: 'danger',
+      },
+      reason: REASON_STAFF,
+    },
   );
-  return sendEmail(email, 'La tua password staff è stata modificata', html);
+  return sendEmail(email, 'La tua password staff è stata cambiata', html);
 }
 
 export async function sendInviteEmail(email: string, rawToken: string, role: string): Promise<boolean> {
   const link = `${SITE}/staff/invito?token=${encodeURIComponent(rawToken)}`;
   const html = brandedHtml(
-    `Sei stato invitato ad accedere al pannello staff di RescueManager con il ruolo "${role}".\nClicca il pulsante qui sotto per verificare la tua email e impostare la tua password.`,
+    'Verifica il tuo indirizzo e scegli una password: dopo potrai entrare nel pannello staff.',
     {
-      subtitle: 'Invito staff',
+      title: 'Sei stato invitato nel pannello staff',
+      sub: `${maskEmail(email)}, ruolo ${role}`,
+      rows: [
+        ['Indirizzo', maskEmail(email)],
+        ['Ruolo', role],
+      ],
       cta: { href: link, label: 'Attiva il tuo accesso' },
-      footerNote: `Il link scade tra 48 ore. Se non ti aspettavi questo invito, ignora l'email. (${maskEmail(email)})`,
+      note: 'Il collegamento vale per 48 ore. Se non ti aspettavi questo invito, ignora questa email.',
+      reason: 'Ricevi questa email perché un amministratore ti ha creato un accesso staff.',
     },
   );
-  return sendEmail(email, 'Invito staff — RescueManager', html);
+  return sendEmail(email, 'Invito al pannello staff di RescueManager', html);
 }

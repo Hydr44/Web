@@ -66,9 +66,17 @@ export async function POST(request: NextRequest, { params }: { params: { uuid: s
   // Rollback della riga così l'utente può rinviare subito (senza incappare nel throttle).
   const sent = await sendCustomerEmail(
     lead.email,
-    'Il tuo codice di verifica — RescueManager',
-    `Ciao {{nome}},\n\nUsa questo codice per continuare la configurazione della tua azienda. Scade tra 10 minuti.\n\nSe non hai richiesto tu questo codice, ignora questa email.`,
-    { nome: lead.name, subtitle: 'Verifica email', code },
+    'Codice di verifica per la tua pratica',
+    'Inserisci questo codice nella pagina della pratica per continuare la configurazione della tua azienda.',
+    {
+      nome: lead.name,
+      title: 'Codice di verifica',
+      sub: lead.name ? `Richiesto da ${lead.name}` : undefined,
+      code,
+      codeNote: 'Vale per 10 minuti, per un solo accesso',
+      note: 'Se non hai chiesto tu questo codice, non serve fare niente: senza il codice nessuno entra.',
+      reason: 'Ricevi questa email perché qualcuno ha chiesto di accedere alla pratica con il tuo indirizzo.',
+    },
   );
   if (!sent.ok) {
     await supabaseAdmin.from('email_otp').delete().eq('id', inserted.id);

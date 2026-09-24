@@ -234,7 +234,7 @@ export default function OnboardingPage() {
         <div className="lg:hidden mb-8">
           <Link href="/" className="inline-flex items-center">
             <img 
-              src="/assets/logos/logo-principale-a-colori.svg" 
+              src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" 
               alt="RescueManager"
               width={160}
               height={53}

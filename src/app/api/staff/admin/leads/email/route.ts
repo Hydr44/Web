@@ -34,14 +34,24 @@ async function sendViaEdgeFunction(to: string, subject: string, html: string, te
   }
 }
 
-// Costruisce HTML email da corpo testo + variabili lead
-function buildEmailHtml(bodyText: string, lead: { name?: string; email?: string; company?: string }): { html: string; text: string } {
+// Costruisce HTML email da corpo testo + variabili lead.
+// L'oggetto scritto dallo staff diventa anche il titolo dell'email, così si apre
+// dicendo di cosa si tratta invece di partire dal saluto.
+function buildEmailHtml(
+  bodyText: string,
+  title: string,
+  lead: { name?: string; email?: string; company?: string },
+): { html: string; text: string } {
   let text = bodyText;
   text = text.replace(/\{\{nome\}\}/gi, lead.name || 'Cliente');
   text = text.replace(/\{\{azienda\}\}/gi, lead.company || '');
   text = text.replace(/\{\{email\}\}/gi, lead.email || '');
 
-  const html = brandedHtml(text);
+  const html = brandedHtml(text, {
+    title,
+    sub: [lead.name, lead.company].filter(Boolean).join(', ') || undefined,
+    reason: 'Ricevi questa email perché hai chiesto informazioni su RescueManager.',
+  });
 
   return { html, text };
 }
@@ -104,7 +114,7 @@ export async function POST(request: Request) {
         .replace(/\{\{azienda\}\}/gi, lead.company || '')
         .replace(/\{\{email\}\}/gi, lead.email || '');
 
-      const { html, text } = buildEmailHtml(emailBody, lead);
+      const { html, text } = buildEmailHtml(emailBody, subjectParsed, lead);
 
       // Invio reale via Supabase Edge Function (Resend)
       const result = await sendViaEdgeFunction(lead.email, subjectParsed, html, text);

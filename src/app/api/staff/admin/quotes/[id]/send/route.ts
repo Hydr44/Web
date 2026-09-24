@@ -1,86 +1,69 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { corsHeaders } from '@/lib/cors';
-import { brandedHtml, BRAND_BLUE, BRAND_DARK, EMAIL_FONT } from '@/lib/email-template';
+import { brandedHtml } from '@/lib/email-template';
 
 const SUPABASE_FUNCTIONS_URL = process.env.NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL || 'https://ienzdgrqalltvkdkuamp.functions.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-function formatCurrency(n: number): string {
-  return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(n);
+/** Importo in euro, formato italiano (es. "1.788,00 euro"). */
+function formatEuro(n: number): string {
+  return `${new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n) || 0)} euro`;
+}
+
+/** Oggetto dell'email: il fatto prima del nome. */
+function quoteSubject(quote: any): string {
+  return `Preventivo RescueManager per ${quote.subject || 'i tuoi servizi'}`;
 }
 
 function buildQuoteEmailHtml(quote: any): { html: string; text: string } {
-  const itemsRows = (quote.items || []).map((item: any) =>
-    `<tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;">${item.description || '—'}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;text-align:center;">${item.quantity}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;text-align:right;">${formatCurrency(item.unit_price)}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;text-align:right;font-weight:600;">${formatCurrency(item.quantity * item.unit_price)}</td>
-    </tr>`
-  ).join('');
-
   const validUntilStr = quote.valid_until
-    ? new Date(quote.valid_until).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })
+    ? new Date(quote.valid_until).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
 
-  // Tabella voci di preventivo (HTML già brandizzato, passato come extraHtml).
-  const itemsTable = `
-  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;margin:8px 0 24px;">
-    <thead>
-      <tr style="background:#f8fafc;">
-        <th style="padding:10px 12px;text-align:left;color:#64748b;font-family:${EMAIL_FONT};font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #e2e8f0;">Descrizione</th>
-        <th style="padding:10px 12px;text-align:center;color:#64748b;font-family:${EMAIL_FONT};font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #e2e8f0;">Qtà</th>
-        <th style="padding:10px 12px;text-align:right;color:#64748b;font-family:${EMAIL_FONT};font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #e2e8f0;">Prezzo</th>
-        <th style="padding:10px 12px;text-align:right;color:#64748b;font-family:${EMAIL_FONT};font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #e2e8f0;">Totale</th>
-      </tr>
-    </thead>
-    <tbody>${itemsRows}</tbody>
-  </table>`;
+  // Una voce per riga: descrizione a sinistra, quantità e importo a destra.
+  const rows: Array<[string, string]> = (quote.items || []).map((item: any) => {
+    const qty = Number(item.quantity) || 1;
+    const unit = Number(item.unit_price) || 0;
+    const value = qty > 1
+      ? `${qty} × ${formatEuro(unit)}, totale ${formatEuro(qty * unit)}`
+      : formatEuro(unit);
+    return [String(item.description || 'Voce'), value] as [string, string];
+  });
+  rows.push(
+    ['Imponibile', formatEuro(quote.subtotal)],
+    ['IVA', `${quote.vat_rate}%, ${formatEuro(quote.vat_amount)}`],
+  );
+  if (validUntilStr) rows.push(['Valido fino al', validUntilStr]);
 
-  // Riepilogo totali (HTML già brandizzato, passato come extraHtml).
-  const totalsTable = `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-    <tr>
-      <td style="padding:4px 12px;color:#64748b;font-family:${EMAIL_FONT};font-size:14px;">Subtotale</td>
-      <td style="padding:4px 12px;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;text-align:right;">${formatCurrency(quote.subtotal)}</td>
-    </tr>
-    <tr>
-      <td style="padding:4px 12px;color:#64748b;font-family:${EMAIL_FONT};font-size:14px;">IVA (${quote.vat_rate}%)</td>
-      <td style="padding:4px 12px;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;text-align:right;">${formatCurrency(quote.vat_amount)}</td>
-    </tr>
-    <tr>
-      <td style="padding:8px 12px;color:#0f172a;font-family:${EMAIL_FONT};font-size:18px;font-weight:700;border-top:2px solid #e2e8f0;">Totale</td>
-      <td style="padding:8px 12px;color:${BRAND_BLUE};font-family:${EMAIL_FONT};font-size:18px;font-weight:700;text-align:right;border-top:2px solid #e2e8f0;">${formatCurrency(quote.total)}</td>
-    </tr>
-  </table>`;
+  const bodyLines = ['Ecco il preventivo per i servizi di cui abbiamo parlato.'];
+  if (quote.notes) bodyLines.push(String(quote.notes).replaceAll('\n', '<br>'));
 
-  const notesBlock = quote.notes
-    ? `
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-left:4px solid ${BRAND_BLUE};margin:0 0 24px;"><tr><td style="padding:12px 16px;">
-    <p style="margin:0 0 4px;color:#64748b;font-family:${EMAIL_FONT};font-size:11px;text-transform:uppercase;letter-spacing:1px;">Note</p>
-    <p style="margin:0;color:#0f172a;font-family:${EMAIL_FONT};font-size:14px;line-height:1.5;">${quote.notes.replace(/\n/g, '<br>')}</p>
-  </td></tr></table>` : '';
+  const sub = [quote.client_company || quote.client_name, validUntilStr ? `valido fino al ${validUntilStr}` : '']
+    .filter(Boolean)
+    .join(', ');
 
-  const validUntilBlock = validUntilStr
-    ? `
-  <p style="margin:0 0 8px;color:#94a3b8;font-family:${EMAIL_FONT};font-size:13px;">Preventivo valido fino al <strong style="color:${BRAND_DARK};">${validUntilStr}</strong></p>` : '';
-
-  const bodyText = [
-    `Gentile <strong>${quote.client_name}</strong>,`,
-    'Di seguito il preventivo richiesto per i nostri servizi. Siamo lieti di fornirle la nostra migliore offerta.',
-  ].join('\n');
-
-  const html = brandedHtml(bodyText, {
-    subtitle: 'Preventivo',
-    infoRows: [{ label: 'Oggetto', value: quote.subject }],
-    extraHtml: `${itemsTable}${totalsTable}${notesBlock}${validUntilBlock}
-  <p style="margin:24px 0 0;color:#475569;font-family:${EMAIL_FONT};font-size:15px;line-height:1.65;">Per accettare il preventivo o per qualsiasi domanda, non esiti a contattarci rispondendo a questa email o visitando il nostro sito.</p>`,
+  const html = brandedHtml(bodyLines.join('\n'), {
+    title: `Preventivo per ${quote.subject || 'i tuoi servizi'}`,
+    sub,
+    amount: { label: 'Totale, IVA inclusa', value: formatEuro(quote.total) },
+    rows,
+    note: 'Per accettare il preventivo o per cambiare qualcosa scrivi a info@rescuemanager.eu.',
+    reason: 'Ricevi questa email perché hai chiesto un preventivo a RescueManager.',
   });
 
-  const text = `Preventivo - ${quote.subject}\n\nGentile ${quote.client_name},\n\nTotale: ${formatCurrency(quote.total)} (IVA ${quote.vat_rate}% inclusa)\n\n${quote.notes || ''}\n\nRescueManager - rescuemanager.eu`;
+  const textLines = [
+    `Preventivo per ${quote.subject || 'i tuoi servizi'}`,
+    quote.client_name ? `Per ${quote.client_name}` : '',
+    validUntilStr ? `Valido fino al ${validUntilStr}` : '',
+    `Totale, IVA inclusa ${formatEuro(quote.total)}`,
+    '',
+    quote.notes || '',
+    '',
+    'Per accettare il preventivo o per cambiare qualcosa scrivi a info@rescuemanager.eu.',
+  ].filter((l) => l !== undefined && l !== null);
 
-  return { html, text };
+  return { html, text: textLines.join('\n') };
 }
 
 export async function POST(
@@ -122,7 +105,7 @@ export async function POST(
         body: JSON.stringify({
           type: 'custom',
           to: quote.client_email,
-          subject: `Preventivo: ${quote.subject}`,
+          subject: quoteSubject(quote),
           data: { html, text },
         }),
       });

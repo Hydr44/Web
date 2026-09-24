@@ -94,7 +94,7 @@ export default function LoginPage() {
           <div className="lg:hidden mb-8 text-center">
             <Link href="/" className="inline-flex items-center justify-center">
               <img 
-                src="/assets/logos/logo-principale-a-colori.svg" 
+                src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" 
                 alt="RescueManager"
                 width={200}
                 height={67}
