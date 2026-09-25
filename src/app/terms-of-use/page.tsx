@@ -1,5 +1,16 @@
 // src/app/terms-of-use/page.tsx
 
+import type { Metadata } from "next";
+
+// Titolo e descrizione propri: senza, la pagina eredita quelli della home
+// e Google la legge come un doppione di un'altra pagina del sito.
+export const metadata: Metadata = {
+  alternates: { canonical: "/terms-of-use" },
+  title: "Condizioni d'uso",
+  description:
+    "Le condizioni del servizio RescueManager: uso del gestionale, abbonamenti e rinnovi, obblighi delle parti, limitazioni di responsabilità e recesso.",
+};
+
 export default function TermsOfUsePage() {
   return (
     <div className="min-h-screen bg-white">

@@ -423,6 +423,14 @@ export default function SiteHeader() {
                       <div className="text-sm font-semibold text-gray-900">Fatturazione Elettronica</div>
                       <div className="text-xs text-gray-500 mt-0.5">Fatture e autofatture con notifiche di esito, prima nota</div>
                     </Link>
+                    <Link href="/moduli/ricambi" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Ricambi</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Magazzino ricambi usati, scaffali, etichette e vendita</div>
+                    </Link>
+                    <Link href="/moduli/contabilita" onClick={closeMenus} className={DROPDOWN_LINK}>
+                      <div className="text-sm font-semibold text-gray-900">Contabilità</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Prima nota, piano dei conti, scadenzario e riepilogo IVA</div>
+                    </Link>
                   </div>
                 </div>
               </div>

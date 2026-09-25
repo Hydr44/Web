@@ -1,11 +1,14 @@
 import { permanentRedirect } from "next/navigation";
 
-// Il download vive nel portale (con sidebar e gate auth): /dashboard/download.
-// /download resta come scorciatoia per i link interni (sidebar portale,
-// /accessi, not-found, demo) e per chi ha il vecchio indirizzo.
-// Redirect PERMANENTE (308): Google sostituisce la vecchia URL indicizzata
-// con la destinazione, che porta X-Robots-Tag noindex, e la toglie dall'indice.
-// Un 307 temporaneo la lasciava in indice col titolo vecchio.
+// Il download vero vive nel portale (con la barra laterale e il controllo di
+// accesso): /dashboard/download. Ma quella pagina e' fuori dall'indice, e
+// mandarci /download significava far sparire da Google un indirizzo che la
+// gente cerca e che era gia' indicizzato.
+//
+// /download manda quindi su /accessi, la pagina pubblica "Accessi e download":
+// spiega da dove si scarica il programma e l'app, resta indicizzabile e
+// raccoglie il valore del vecchio indirizzo. Chi e' collegato arriva al
+// portale da li' in un clic.
 export default function Page() {
-  permanentRedirect("/dashboard/download");
+  permanentRedirect("/accessi");
 }

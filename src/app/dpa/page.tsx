@@ -1,5 +1,16 @@
 // src/app/dpa/page.tsx
 
+import type { Metadata } from "next";
+
+// Titolo e descrizione propri: senza, la pagina eredita quelli della home
+// e Google la legge come un doppione di un'altra pagina del sito.
+export const metadata: Metadata = {
+  alternates: { canonical: "/dpa" },
+  title: "Accordo sul trattamento dei dati",
+  description:
+    "L'accordo fra titolare e responsabile del trattamento (DPA) ai sensi dell'art. 28 GDPR: istruzioni, sub-responsabili, misure di sicurezza e assistenza in caso di violazione.",
+};
+
 export default function DpaPage() {
   return (
     <div className="min-h-screen bg-white">

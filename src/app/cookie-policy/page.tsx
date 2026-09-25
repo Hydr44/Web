@@ -1,5 +1,16 @@
 // src/app/cookie-policy/page.tsx
 
+import type { Metadata } from "next";
+
+// Titolo e descrizione propri: senza, la pagina eredita quelli della home
+// e Google la legge come un doppione di un'altra pagina del sito.
+export const metadata: Metadata = {
+  alternates: { canonical: "/cookie-policy" },
+  title: "Cookie policy",
+  description:
+    "Quali cookie usa rescuemanager.eu, a cosa servono, quanto durano e come cambiare il consenso in qualsiasi momento.",
+};
+
 export default function CookiePolicyPage() {
   return (
     <div className="min-h-screen bg-white">

@@ -93,6 +93,8 @@ export default function SiteFooter() {
               <li><Link href="/moduli/rvfu" className="text-slate-400 hover:text-white transition-colors">Registro veicoli fuori uso (RVFU)</Link></li>
               <li><Link href="/moduli/rentri" className="text-slate-400 hover:text-white transition-colors">Registro RENTRI e formulari</Link></li>
               <li><Link href="/moduli/sdi" className="text-slate-400 hover:text-white transition-colors">Fatturazione Elettronica</Link></li>
+              <li><Link href="/moduli/ricambi" className="text-slate-400 hover:text-white transition-colors">Ricambi usati e magazzino</Link></li>
+              <li><Link href="/moduli/contabilita" className="text-slate-400 hover:text-white transition-colors">Contabilità e prima nota</Link></li>
             </ul>
           </div>
 

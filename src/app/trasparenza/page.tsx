@@ -1,5 +1,16 @@
 // src/app/trasparenza/page.tsx
 
+import type { Metadata } from "next";
+
+// Titolo e descrizione propri: senza, la pagina eredita quelli della home
+// e Google la legge come un doppione di un'altra pagina del sito.
+export const metadata: Metadata = {
+  alternates: { canonical: "/trasparenza" },
+  title: "Trasparenza e portabilità dei dati",
+  description:
+    "Portabilità dei dati, cambio di fornitore e infrastruttura ICT ai sensi del Regolamento (UE) 2023/2854 (Data Act), artt. 23-31: cosa puoi esportare, in che formato e in quanto tempo.",
+};
+
 export default function TrasparenzaPage() {
   return (
     <div className="min-h-screen bg-white">

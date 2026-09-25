@@ -1,5 +1,16 @@
 // src/app/privacy-policy/page.tsx
 
+import type { Metadata } from "next";
+
+// Titolo e descrizione propri: senza, la pagina eredita quelli della home
+// e Google la legge come un doppione di un'altra pagina del sito.
+export const metadata: Metadata = {
+  alternates: { canonical: "/privacy-policy" },
+  title: "Informativa privacy",
+  description:
+    "Come RescueManager tratta i dati personali di clienti e utenti: finalità, basi giuridiche, tempi di conservazione, responsabili del trattamento e diritti dell'interessato.",
+};
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-white">

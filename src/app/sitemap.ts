@@ -44,5 +44,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         page("/cookie-policy", 0.4, "yearly"),
         page("/terms-of-use", 0.4, "yearly"),
         page("/dpa", 0.4, "yearly"),
+        page("/trasparenza", 0.4, "yearly"),
     ];
 }
