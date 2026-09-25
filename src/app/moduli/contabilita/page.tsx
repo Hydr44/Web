@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Clock, Coins, FileText, Receipt, Scale, Trending
 
 export const metadata: Metadata = {
   title: "Contabilità",
-  description: "Prima nota, partita doppia e piano dei conti, integrati con la fatturazione elettronica e la liquidazione IVA.",
+  description: "Prima nota, partita doppia e piano dei conti, collegati alla fatturazione elettronica, con il riepilogo IVA del periodo e i registri per il commercialista.",
   alternates: { canonical: "/moduli/contabilita" },
 };
 
@@ -23,7 +23,7 @@ export default function ContabilitaPage() {
             Contabilità<span className="text-blue-500">.</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl">
-            Prima nota, partita doppia, piano dei conti. Report finanziari integrati con fatturazione SDI e IVA liquidazione automatica.
+            Prima nota, partita doppia, piano dei conti. Le fatture diventano movimenti da sole, e a fine trimestre il riepilogo IVA e i registri sono pronti per il commercialista.
           </p>
         </div>
       </section>

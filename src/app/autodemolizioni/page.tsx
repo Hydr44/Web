@@ -101,7 +101,7 @@ export default function AutodemolizioniPage() {
         {
           title: "Registro RENTRI e formulari senza ricopiare",
           text:
-            "Il registro di carico e scarico va tenuto ogni giorno, e un errore su un codice rifiuto, una quantità o una data lo paghi al primo controllo. Il movimento guidato ti chiede solo quello che serve e controlla i dati prima della vidimazione; il formulario digitale accompagna ogni uscita; la trasmissione al RENTRI parte dal programma. A fine aprile, i dati per il MUD sono già nel registro.",
+            "Il registro di carico e scarico va tenuto ogni giorno, e un errore su un codice rifiuto, una quantità o una data lo paghi al primo controllo. Il movimento guidato ti chiede solo quello che serve e controlla i dati prima della vidimazione; il formulario digitale accompagna ogni uscita; la trasmissione al RENTRI parte dal programma. A fine aprile i movimenti dell’anno sono già tutti registrati, sommati per codice.",
           bullets: [
             "Movimento guidato con controllo dei dati prima della vidimazione",
             "Formulario (FIR) digitale per ogni uscita di rifiuti",

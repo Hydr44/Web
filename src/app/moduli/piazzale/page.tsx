@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Camera, Car, Clock, ListChecks, MapPin, Truck } 
 
 export const metadata: Metadata = {
   title: "Custodia veicoli e depositeria",
-  description: "Custodia veicoli per soccorso stradale e autodemolizioni: posizioni nel piazzale, conto giorni, depositeria e verbale di riconsegna con firma via link.",
+  description: "Custodia veicoli per soccorso stradale e autodemolizioni: posizioni nel piazzale, conto dei giorni e dell’importo, depositeria, foto e condizioni all’ingresso e alla riconsegna.",
   alternates: { canonical: "/moduli/piazzale" },
 };
 
@@ -59,11 +59,11 @@ export default function PiazzalePage() {
             <div className="space-y-3">
               <div className="p-4 bg-gray-50 border-l-4 border-red-400">
                 <p className="text-sm font-semibold text-gray-900">Senza il gestionale</p>
-                <p className="text-sm text-gray-600 mt-1">Fogli di carta, memoria e giri fisici per trovare i veicoli. Giorni di custodia contati a mano, riconsegne senza un verbale, spazio occupato da auto che andavano già spostate.</p>
+                <p className="text-sm text-gray-600 mt-1">Fogli di carta, memoria e giri fisici per trovare i veicoli. Giorni di custodia contati a mano, riconsegne senza una traccia di com’era il veicolo, spazio occupato da auto che andavano già spostate.</p>
               </div>
               <div className="p-4 bg-gray-50 border-l-4 border-blue-500">
                 <p className="text-sm font-semibold text-gray-900">Con il gestionale</p>
-                <p className="text-sm text-gray-600 mt-1">Lista digitale aggiornata, posizione per settore, conto giorni automatico, storico movimenti e verbale di riconsegna firmato via link. Nessun veicolo perso, nessuna riconsegna senza traccia.</p>
+                <p className="text-sm text-gray-600 mt-1">Lista digitale aggiornata, posizione per settore, conto dei giorni automatico, storico dei movimenti e foto delle condizioni all’ingresso e alla riconsegna. Nessun veicolo perso, nessuna riconsegna senza traccia.</p>
               </div>
             </div>
           </div>
@@ -121,11 +121,11 @@ export default function PiazzalePage() {
             </div>
             <div className="p-5 bg-gray-50">
               <p className="font-bold text-gray-900 mb-2">Depositeria</p>
-              <p className="text-sm text-gray-600 leading-relaxed">Veicoli affidati in custodia in attesa del ritiro. Registri l’ingresso con i documenti, il conto giorni parte subito e alla riconsegna hai il verbale firmato. Tutto lo storico resta nella scheda del veicolo, pronto se serve ricostruire cosa è successo.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Veicoli affidati in custodia in attesa del ritiro. Registri l’ingresso con i documenti e le foto, il conto dei giorni parte subito e alla riconsegna registri lo stato in cui il veicolo è stato riconsegnato. Tutto lo storico resta nella scheda, pronto se serve ricostruire cosa è successo.</p>
             </div>
             <div className="p-5 bg-gray-50">
               <p className="font-bold text-gray-900 mb-2">Soccorso stradale</p>
-              <p className="text-sm text-gray-600 leading-relaxed">Veicoli recuperati dopo un incidente o un guasto, in attesa del ritiro da parte del proprietario o dell’assicurazione. Sai chi deve ritirare cosa e da quanti giorni è fermo; alla consegna il verbale di riconsegna con firma via link chiude la pratica.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Veicoli recuperati dopo un incidente o un guasto, in attesa del ritiro da parte del proprietario o dell’assicurazione. Sai chi deve ritirare cosa e da quanti giorni è fermo; alla consegna registri chi ha ritirato, quando e in che condizioni, e la pratica si chiude.</p>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function PiazzalePage() {
             </div>
             <div className="p-6 bg-gray-50 border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Storico completo per ogni veicolo</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni spostamento, cambio di stato e operazione viene registrato con data, ora e operatore. Il verbale di riconsegna firmato chiude lo storico. Se nasce una contestazione su quando è entrato un veicolo, in che condizioni era o chi lo ha ritirato, hai una ricostruzione precisa e verificabile, utile anche in caso di controlli.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni spostamento, cambio di stato e operazione viene registrato con data, ora e operatore, insieme alle foto. Se nasce una contestazione su quando è entrato un veicolo, in che condizioni era o chi lo ha ritirato, hai una ricostruzione precisa e verificabile, utile anche in caso di controlli.</p>
             </div>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function PiazzalePage() {
       <section className="py-16 bg-blue-600">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-extrabold text-white mb-4">La custodia veicoli sempre sotto controllo.</h2>
-          <p className="text-blue-50 mb-8">Posizioni, conto giorni, verbale di riconsegna. Demo gratuita di 30 minuti.</p>
+          <p className="text-blue-50 mb-8">Posizioni, conto dei giorni, foto e condizioni. Demo gratuita di 30 minuti.</p>
           <Link href="/contatti" className="inline-flex items-center gap-2 px-8 py-4 bg-[#0f172a] text-white font-bold hover:bg-slate-800 transition-colors">
             RICHIEDI DEMO <ArrowRight className="h-4 w-4" />
           </Link>

@@ -146,8 +146,8 @@ export default function RENTRIPage() {
               <p className="text-sm text-gray-600 leading-relaxed">Creare un formulario cartaceo, compilarlo correttamente, farlo firmare e archiviare una copia richiedeva mezz’ora o più. Con i FIR digitali il formulario si crea in pochi minuti con i dati già precompilati, si vidima e si trasmette con un click. La copia è subito nel gestionale.</p>
             </div>
             <div className="p-6 bg-gray-50 border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-2">Al momento del MUD, i dati sono già nel registro</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Chi prepara il MUD a mano sa quanto è lungo: raccogliere i dati dai registri, fare somme, verificare i codici. Con il registro nel gestionale i movimenti dell’anno sono già registrati e filtrabili: quello che serve per la dichiarazione lo trovi in un unico posto.</p>
+              <h3 className="font-bold text-gray-900 mb-2">A fine anno i dati sono già tutti registrati</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La parte lunga della dichiarazione annuale è raccogliere i dati: rimettere insieme i movimenti, fare le somme per codice, controllare le unità di misura. Con il registro nel gestionale i movimenti dell’anno sono già tutti dentro, e il riepilogo per codice EER li somma per te: quello che serve a chi compila la dichiarazione lo trovi in un posto solo.</p>
             </div>
             <div className="p-6 bg-gray-50 border border-gray-200">
               <h3 className="font-bold text-gray-900 mb-2">Pronto per i controlli dell’ARPA</h3>

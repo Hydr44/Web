@@ -117,7 +117,7 @@ export default function SoccorsoStradalePage() {
         {
           title: "Custodia con il conto dei giorni",
           text:
-            "Un veicolo è in deposito da dodici giorni e il proprietario si presenta per ritirarlo: vuole sapere quanto deve e dove firmare. La custodia tiene la posizione nel piazzale e il conto dei giorni; alla riconsegna generi il verbale, il cliente firma via link dal suo telefono e il documento resta archiviato con foto e firma. Se serve, stampi il DDT (documento di trasporto) e la fattura parte verso l’Agenzia delle Entrate.",
+            "Un veicolo è in deposito da dodici giorni e il proprietario si presenta per ritirarlo: vuole sapere quanto deve. La custodia tiene la posizione nel piazzale e il conto dei giorni, con l’importo già calcolato; alla riconsegna registri chi ha ritirato, quando e in che condizioni era il veicolo, con le foto. Se serve, stampi il DDT (documento di trasporto) e la fattura parte verso l’Agenzia delle Entrate.",
           bullets: [
             "Posizione di ogni veicolo nel piazzale",
             "Conto dei giorni dall’ingresso alla riconsegna",
@@ -176,7 +176,7 @@ export default function SoccorsoStradalePage() {
           short: "Mappa degli interventi attivi in ufficio, navigatore passo-passo nell’app dell’autista.",
         },
         {
-          ente: "Firma via link",
+          ente: "Foto e condizioni",
           title: "Verbali di riconsegna",
           short: "Il cliente firma dal suo telefono, il verbale resta archiviato con il veicolo.",
         },
@@ -206,7 +206,7 @@ export default function SoccorsoStradalePage() {
         },
         {
           q: "Faccio anche deposito e custodia.",
-          a: "La custodia è compresa: ogni veicolo ha la sua posizione nel piazzale, il conto dei giorni parte dall’ingresso e alla riconsegna generi il verbale con la firma via link. Vale per i veicoli dei tuoi soccorsi e per la depositeria.",
+          a: "La custodia è compresa: ogni veicolo ha la sua posizione nel piazzale, il conto dei giorni parte dall’ingresso e alla riconsegna resta registrato chi ha ritirato e in che condizioni, con le foto. Vale per i veicoli dei tuoi soccorsi e per la depositeria.",
         },
         {
           q: "Cosa devo installare?",

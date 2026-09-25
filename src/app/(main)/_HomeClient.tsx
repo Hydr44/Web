@@ -71,7 +71,7 @@ export default function HomeClient() {
             href: "/autodemolizioni",
             eyebrow: "Autodemolitori",
             title: "RVFU, RENTRI, ricambi.",
-            desc: "Prendi in carico il veicolo, segui le fasi di lavorazione e trasmetti la radiazione al Registro Unico Telematico dei veicoli fuori uso (RVFU). Registro RENTRI con formulari digitali, demolizioni a UNRAE, ricambi usati a scaffale: i dati per il MUD sono già nel registro.",
+            desc: "Prendi in carico il veicolo, segui le fasi di lavorazione e trasmetti la radiazione al Registro Unico Telematico dei veicoli fuori uso (RVFU). Registro RENTRI con formulari digitali, demolizioni a UNRAE, ricambi usati a scaffale: a fine anno i movimenti sono già tutti registrati e sommati per codice.",
             chips: ["Radiazione", "Formulari", "Registro", "Ricambi", "UNRAE"],
             cta: "Gestionale per autodemolizioni",
             card: "bg-white border border-gray-200",
