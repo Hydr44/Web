@@ -73,44 +73,40 @@ export async function GET(request: NextRequest) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="0;url=${escapedUrl}">
-  <title>Reindirizzamento OAuth...</title>
+  <title>Accesso a RescueManager</title>
   <style>
+    /* Stessi colori e stesse regole dell'applicazione: fondo blu notte, un solo
+       blu, angoli a zero. Questa pagina non passa da React, quindi lo stile e'
+       scritto qui: quando cambiano i token vanno riportati anche qui. */
+    :root {
+      --canvas: #0a1119; --layer: #141c27; --border: #243044;
+      --text: #e2e8f0; --text-secondary: #94a3b8;
+      --brand: #005dfa; --brand-text: #54a2ff;
+    }
+    * { box-sizing: border-box; border-radius: 0 !important; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #141c27;
-      color: #e2e8f0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; margin: 0; padding: 20px;
+      background: var(--canvas); color: var(--text);
+      font-size: 14px; line-height: 1.5;
     }
     .container {
-      text-align: center;
-      padding: 40px;
-      background: #1a2536;
-      border-radius: 16px;
-      border: 1px solid #243044;
-      max-width: 400px;
-      width: 100%;
+      padding: 28px 32px; background: var(--layer); border: 1px solid var(--border);
+      max-width: 420px; width: 100%;
     }
-    .spinner {
-      border: 3px solid #243044;
-      border-radius: 50%;
-      border-top: 3px solid #3b82f6;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
+    h2 { font-size: 18px; font-weight: 600; letter-spacing: -.01em; margin: 0 0 8px; }
+    p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+    .barra { height: 2px; background: var(--border); margin: 18px 0 14px; overflow: hidden; }
+    .barra span { display: block; height: 100%; width: 40%; background: var(--brand); animation: scorri 1.1s ease-in-out infinite; }
+    @keyframes scorri {
+      0% { margin-left: -40%; }
+      100% { margin-left: 100%; }
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @media (prefers-reduced-motion: reduce) {
+      .barra span { animation: none; width: 100%; margin-left: 0; }
     }
-    a {
-      color: white;
-      text-decoration: underline;
-    }
+    a { color: var(--brand-text); text-decoration: underline; text-underline-offset: 3px; }
   </style>
   <script>
     (function() {
@@ -124,7 +120,7 @@ export async function GET(request: NextRequest) {
       }, 50);
       setTimeout(function() {
         if (window.location.href.indexOf('/auth/oauth/desktop') !== -1) {
-          document.body.innerHTML = '<div class="container"><h2>Reindirizzamento manuale necessario</h2><p><a href="' + ${JSON.stringify(finalUrl)} + '">Clicca qui per continuare</a></p></div>';
+          document.body.innerHTML = '<div class="container"><h2>Apri tu il collegamento</h2><p>Il passaggio automatico non e\\'andato a buon fine. <a href="' + ${JSON.stringify(finalUrl)} + '">Continua verso RescueManager</a></p></div>';
         }
       }, 200);
     })();
@@ -132,9 +128,9 @@ export async function GET(request: NextRequest) {
 </head>
 <body>
   <div class="container">
-    <h2>Reindirizzamento in corso...</h2>
-    <div class="spinner"></div>
-    <p>Se non vieni reindirizzato automaticamente, <a href="${escapedUrl}">clicca qui</a>.</p>
+    <h2>Ti stiamo portando a RescueManager</h2>
+    <div class="barra"><span></span></div>
+    <p>Se la pagina non cambia da sola, <a href="${escapedUrl}">continua da qui</a>.</p>
   </div>
 </body>
 </html>`;
