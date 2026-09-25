@@ -1,12 +1,18 @@
-// Wizard onboarding cliente (F5). Pubblico (token = public_uuid del preventivo).
-// Layout split (metà scuro / metà bianco) come /login: brand a sinistra, form a
-// destra su bianco. Verifica email (OTP) → carica visura → analisi AI → conferma
-// dati → invia in verifica. Ripresa nativa dallo stato persistito (pratica-status).
+// Configurazione dell'azienda (pubblica: il token e' il public_uuid del
+// preventivo). Verifica dell'email con il codice, caricamento della visura,
+// lettura automatica, controllo dei dati e invio in verifica. La pagina riparte
+// da sola dal punto in cui era rimasta, leggendo lo stato della pratica.
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { OnboardingShell } from '@/components/OnboardingShell';
+import {
+  OnboardingShell,
+  Tappe,
+  CasellePin,
+  COME_LINK,
+  IconaFreccia,
+} from '@/components/OnboardingShell';
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 
 // Acronimi forma giuridica (menù a tendina: niente diciture lunghe).
@@ -20,7 +26,7 @@ const FIELDS: { key: string; label: string; span?: boolean; type?: FieldType; op
   { key: 'pec', label: 'PEC', span: true },
   { key: 'forma_giuridica', label: 'Forma giuridica', type: 'select' },
   { key: 'codice_ateco', label: 'Codice ATECO', optional: true },
-  { key: 'indirizzo', label: 'Indirizzo (via e numero)', span: true },
+  { key: 'indirizzo', label: 'Indirizzo', span: true },
   { key: 'citta', label: 'Città' },
   { key: 'provincia', label: 'Provincia' },
   { key: 'cap', label: 'CAP' },
@@ -41,53 +47,44 @@ const ATTRS: Record<string, { inputMode?: 'numeric' | 'text'; type?: string }> =
 
 type Phase = 'loading' | 'confirming' | 'pagamento' | 'otp' | 'upload' | 'analyzing' | 'review' | 'submitting' | 'done' | 'elsewhere';
 
-// classi light, identiche allo stile dei campi/bottoni del login (squadrati).
-const fieldCls = 'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400';
-const primaryBtn = 'w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors';
-
-function Stepper({ active }: { active: 1 | 2 | 3 }) {
-  const steps = ['Carica visura', 'Verifica dati', 'Invia'];
+// Riquadro con il titolo e la barretta blu a sinistra.
+function Sezione({ titolo, children }: { titolo: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 mb-6 text-[11px]">
-      {steps.map((t, i) => {
-        const step = (i + 1) as 1 | 2 | 3;
-        const on = step <= active;
-        return (
-          <div key={t} className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-semibold ${on ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}`}>{step}</span>
-            <span className={on ? 'text-gray-800' : 'text-gray-400'}>{t}</span>
-            {i < steps.length - 1 && <span className="w-5 h-px bg-gray-200" />}
-          </div>
-        );
-      })}
+    <section style={{ border: '1px solid var(--border)', marginTop: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px' }}>
+        <span style={{ width: 3, height: 13, background: 'var(--brand)' }} aria-hidden="true" />
+        <h2 style={{ fontSize: 14 }}>{titolo}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+// Riga del riquadro: etichetta a destra, campo a fianco. Quando lo schermo e'
+// stretto le due caselle della stessa riga vanno a capo da sole.
+function Campo({ etichetta, intero, children }: { etichetta: string; intero?: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        flex: intero ? '1 1 100%' : '1 1 320px',
+        minWidth: 0,
+        padding: '8px 14px',
+        borderTop: '1px solid var(--border)',
+      }}
+    >
+      <span style={{ flex: '0 0 116px', textAlign: 'right', color: 'var(--text-secondary)', fontSize: 12.5 }}>
+        {etichetta}
+      </span>
+      <div style={{ flex: '1 1 auto', minWidth: 0 }}>{children}</div>
     </div>
   );
 }
 
-function CheckCircle() {
-  return (
-    <div className="w-12 h-12 rounded-full bg-emerald-50 mx-auto flex items-center justify-center mb-3">
-      <svg className="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-    </div>
-  );
-}
-
-function ProgressBar({ value }: { value: number }) {
-  return (
-    <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
-      <div className="h-full bg-blue-600 rounded-full transition-[width] duration-300 ease-out" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
-    </div>
-  );
-}
-
-function Header({ eyebrow, title, company }: { eyebrow: string; title: string; company?: string | null }) {
-  return (
-    <div className="mb-6">
-      <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">{eyebrow}</p>
-      <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a]">{title}</h1>
-      {company && <p className="text-sm text-gray-500 mt-1">{company}</p>}
-    </div>
-  );
+function Righe({ children }: { children: React.ReactNode }) {
+  return <div style={{ display: 'flex', flexWrap: 'wrap' }}>{children}</div>;
 }
 
 export default function ConfiguraPage() {
@@ -95,6 +92,7 @@ export default function ConfiguraPage() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>('loading');
   const [company, setCompany] = useState<string | null>(null);
+  const [quoteNumber, setQuoteNumber] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [pdfB64, setPdfB64] = useState<string>('');
   const [fileName, setFileName] = useState('');
@@ -119,6 +117,7 @@ export default function ConfiguraPage() {
       if (!aliveRef.current) return;
       if (!d.ok) { setError(d.error || 'Pratica non trovata.'); setPhase('elsewhere'); return; }
       setCompany(d.company);
+      setQuoteNumber(d.quote_number || null);
       if (d.step === 'pagamento') {
         const justPaid = typeof window !== 'undefined' && window.location.search.includes('paid=1');
         if (justPaid && retry < 8) {
@@ -146,7 +145,7 @@ export default function ConfiguraPage() {
     return () => { aliveRef.current = false; if (pollRef.current) clearTimeout(pollRef.current); };
   }, [loadStatus]);
 
-  // Barra di avanzamento "finta" durante l'analisi AI (richiede qualche secondo).
+  // Barra di avanzamento "finta" durante la lettura della visura (richiede qualche secondo).
   useEffect(() => {
     if (phase !== 'analyzing') { setProgress(0); return; }
     setProgress(10);
@@ -220,7 +219,7 @@ export default function ConfiguraPage() {
       setMismatch(!!d.piva_mismatch);
       if (d.not_a_visura) setNotice('Questo documento non sembra una visura camerale: controlla i dati a mano.');
       else if (d.low_confidence) setNotice('Non siamo riusciti a leggere tutto: controlla e completa i dati.');
-      else setNotice('Abbiamo letto i tuoi dati dalla visura. Controlla che siano corretti.');
+      else setNotice('Abbiamo compilato i dati qui sotto: controlla che siano giusti.');
       setPhase('review');
     } catch {
       setError('Errore di rete.'); setPhase('upload');
@@ -242,146 +241,257 @@ export default function ConfiguraPage() {
     }
   };
 
+  const mostraModulo = phase === 'otp' || phase === 'upload' || phase === 'analyzing' || phase === 'review' || phase === 'submitting';
+  const leggendo = phase === 'analyzing';
+
   return (
-    <OnboardingShell>
-      <div key={phase} className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
-      {phase === 'loading' && <p className="text-sm text-gray-500">Caricamento…</p>}
+    <OnboardingShell riferimento={quoteNumber ? `Pratica ${quoteNumber}` : 'Configurazione'} larghezza={760}>
+      <div className="rm-card">
+        {phase === 'loading' && <p className="rm-muted">Caricamento in corso.</p>}
 
-      {phase === 'elsewhere' && (
-        <>
-          <Header eyebrow="Onboarding" title="Pratica non disponibile" />
-          <p className="text-sm text-red-600">{error || 'Questa pratica non è disponibile.'}</p>
-        </>
-      )}
-
-      {phase === 'confirming' && (
-        <>
-          <Header eyebrow="Pagamento" title="Pagamento completato" company={company} />
-          <div className="flex items-center gap-3 text-gray-600">
-            <div className="animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full shrink-0" />
-            <p className="text-sm">Stiamo confermando il pagamento, un istante…</p>
-          </div>
-        </>
-      )}
-
-      {phase === 'pagamento' && (
-        <>
-          <Header eyebrow="Onboarding" title="Completa il pagamento" company={company} />
-          <p className="text-sm text-amber-600">Se hai appena pagato, attendi qualche minuto e aggiorna la pagina. Altrimenti completa prima il pagamento del preventivo.</p>
-        </>
-      )}
-
-      {phase === 'done' && (
-        <div className="text-center py-2">
-          <CheckCircle />
-          <h1 className="text-2xl font-extrabold text-[#0f172a]">Pratica inviata</h1>
-          <p className="text-sm text-gray-500 mt-1">Riceverai l&apos;esito della verifica <b className="text-gray-700">entro 24 ore</b>.</p>
-          <button onClick={() => router.replace(`/pratica/${uuid}`)} className={`${primaryBtn} mt-5`}>Vai allo stato della pratica</button>
-        </div>
-      )}
-
-      {phase === 'otp' && (
-        <>
-          <Header eyebrow="Verifica email" title="Verifica la tua email" company={company} />
-          <p className="text-sm text-gray-500 -mt-4 mb-5">
-            Abbiamo inviato un codice a 6 cifre a <b className="text-gray-700">{emailMasked || 'la tua email'}</b>. Inseriscilo per continuare.
-          </p>
-          <input
-            value={otpCode}
-            onChange={e => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
-            onKeyDown={e => { if (e.key === 'Enter') verifyOtp(); }}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="••••••"
-            className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
-          />
-          {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
-          <button onClick={verifyOtp} disabled={otpCode.length !== 6 || otpBusy === 'verify'} className={`${primaryBtn} mt-4`}>
-            {otpBusy === 'verify' ? 'Verifica…' : 'Verifica e continua'}
-          </button>
-          <button onClick={sendOtp} disabled={otpBusy === 'send'} className="mt-3 w-full text-sm text-gray-500 hover:text-gray-800 disabled:opacity-50">
-            {otpBusy === 'send' ? 'Invio in corso…' : 'Non hai ricevuto il codice? Reinvia'}
-          </button>
-        </>
-      )}
-
-      {(phase === 'upload' || phase === 'analyzing' || phase === 'review' || phase === 'submitting') && (
-        <>
-          <Header eyebrow="Configurazione" title="Configura la tua azienda" company={company} />
-          <Stepper active={phase === 'review' || phase === 'submitting' ? 2 : 1} />
-          {error && <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
-
-          {(phase === 'upload' || phase === 'analyzing') && (
-            <div>
-              <p className="text-sm text-gray-600 mb-3">Carica la <b className="text-gray-900">visura camerale</b> (PDF). La leggiamo automaticamente per precompilare i tuoi dati.</p>
-              <label className={`block border-2 border-dashed p-6 text-center transition-colors ${phase === 'analyzing' ? 'border-gray-200 cursor-default' : 'border-gray-300 hover:border-blue-500 cursor-pointer'}`}>
-                <input type="file" accept="application/pdf" className="hidden" onChange={e => onFile(e.target.files?.[0] || null)} disabled={phase === 'analyzing'} />
-                <span className="text-sm text-gray-500">{fileName || 'Trascina o seleziona il PDF della visura'}</span>
-              </label>
-
-              {phase === 'analyzing' ? (
-                <div className="mt-5">
-                  <ProgressBar value={progress} />
-                  <p className="text-sm text-gray-500 mt-2 text-center">Stiamo leggendo la visura… ci vuole qualche secondo.</p>
-                </div>
-              ) : (
-                <button onClick={analyze} disabled={!pdfB64} className={`${primaryBtn} mt-4`}>Analizza la visura</button>
-              )}
+        {phase === 'elsewhere' && (
+          <>
+            <h1>Pratica non disponibile</h1>
+            <div className="rm-note rm-note--errore" role="alert" style={{ marginTop: 14 }}>
+              {error || 'Questa pratica non è disponibile.'}
             </div>
-          )}
+          </>
+        )}
 
-          {(phase === 'review' || phase === 'submitting') && (
-            <div>
-              {notice && <p className="text-sm text-gray-600 mb-3">{notice}</p>}
-              {mismatch && <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 text-xs text-amber-700">La P.IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?</div>}
-              <div className="grid grid-cols-2 gap-3">
-                {FIELDS.map(f => (
-                  <div key={f.key} className={f.span ? 'col-span-2' : ''}>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1">
-                      {f.label}{f.optional && <span className="text-gray-400 normal-case tracking-normal"> (facoltativo)</span>}
-                    </label>
-                    {f.type === 'select' ? (
-                      <select value={values[f.key] || ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} className={fieldCls}>
-                        <option value="">— seleziona —</option>
-                        {FORME_GIURIDICHE.map(o => <option key={o} value={o}>{o}</option>)}
-                      </select>
-                    ) : f.key === 'indirizzo' ? (
-                      <AddressAutocomplete
-                        value={values.indirizzo || ''}
-                        onChange={v => setValues(s => ({ ...s, indirizzo: v }))}
-                        onPick={p => setValues(s => ({
-                          ...s,
-                          indirizzo: p.indirizzo || s.indirizzo,
-                          citta: p.citta || s.citta,
-                          provincia: p.provincia || s.provincia,
-                          cap: p.cap || s.cap,
-                        }))}
-                        className={fieldCls}
+        {phase === 'confirming' && (
+          <>
+            <h1>Pagamento ricevuto</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14 }}>
+              <span className="rm-spin" aria-hidden="true" />
+              <p className="rm-muted">Stiamo confermando il pagamento. Resta su questa pagina.</p>
+            </div>
+          </>
+        )}
+
+        {phase === 'pagamento' && (
+          <>
+            <h1>Manca il pagamento</h1>
+            <p className="rm-muted" style={{ marginTop: 4 }}>{company}</p>
+            <div className="rm-note" style={{ marginTop: 16 }}>
+              Se hai appena pagato, aspetta qualche minuto e ricarica la pagina. Altrimenti completa prima il
+              pagamento del preventivo.
+            </div>
+          </>
+        )}
+
+        {phase === 'done' && (
+          <>
+            <h1>Pratica inviata</h1>
+            <p className="rm-muted" style={{ marginTop: 4 }}>{company}</p>
+            <div style={{ marginTop: 18 }}><Tappe corrente={2} /></div>
+            <p style={{ marginTop: 18 }}>Ricevi l&apos;esito entro 24 ore, via email. Non devi fare niente.</p>
+            <div style={{ marginTop: 20 }}>
+              <button onClick={() => router.replace(`/pratica/${uuid}`)} className="rm-btn rm-btn--primary">
+                Vai allo stato della pratica <IconaFreccia />
+              </button>
+            </div>
+          </>
+        )}
+
+        {mostraModulo && (
+          <>
+            <h1>Configurazione</h1>
+            <p className="rm-muted" style={{ marginTop: 4 }}>
+              {[company, 'passo 2 di 4'].filter(Boolean).join(', ')}. Pagamento ricevuto.
+            </p>
+
+            <div style={{ marginTop: 18 }}><Tappe corrente={1} /></div>
+
+            {error && (
+              <div className="rm-note rm-note--errore" role="alert" style={{ marginTop: 18 }}>{error}</div>
+            )}
+
+            {phase === 'otp' && (
+              <Sezione titolo="Conferma">
+                <Righe>
+                  <Campo etichetta="Codice ricevuto via email" intero>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                      <CasellePin
+                        valore={otpCode}
+                        onChange={(v) => { setOtpCode(v); setOtpError(''); }}
+                        onInvio={verifyOtp}
                       />
+                      <span className="rm-muted">
+                        mandato a {emailMasked || 'la tua email'}{' '}
+                        <button type="button" style={COME_LINK} onClick={sendOtp} disabled={otpBusy === 'send'}>
+                          {otpBusy === 'send' ? 'Invio in corso' : 'Reinvia'}
+                        </button>
+                      </span>
+                    </div>
+                  </Campo>
+                </Righe>
+              </Sezione>
+            )}
+
+            {phase === 'otp' && (
+              <>
+                {otpError && (
+                  <div className="rm-note rm-note--errore" role="alert" style={{ marginTop: 16 }}>{otpError}</div>
+                )}
+                <div style={{ marginTop: 20 }}>
+                  <button
+                    onClick={verifyOtp}
+                    disabled={otpCode.length !== 6 || otpBusy === 'verify'}
+                    className="rm-btn rm-btn--primary"
+                  >
+                    {otpBusy === 'verify' ? 'Verifica in corso' : 'Verifica e continua'} <IconaFreccia />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {(phase === 'upload' || phase === 'analyzing' || phase === 'review' || phase === 'submitting') && (
+              <Sezione titolo="Visura camerale">
+                <Righe>
+                  <Campo etichetta="File" intero>
+                    {/* A dati letti la visura non si sostituisce al volo: si torna
+                        indietro con "Cambia visura", cosi' i campi si rileggono. */}
+                    {phase === 'review' || phase === 'submitting' ? (
+                      <span>{fileName || 'visura caricata'}</span>
                     ) : (
+                    <label
+                      onDragOver={(e) => { e.preventDefault(); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (leggendo) return;
+                        onFile(e.dataTransfer.files?.[0] || null);
+                      }}
+                      style={{
+                        display: 'block',
+                        border: '1px dashed var(--border-strong)',
+                        padding: '22px 14px',
+                        textAlign: 'center',
+                        color: 'var(--text-secondary)',
+                        fontSize: 13,
+                        cursor: leggendo ? 'default' : 'pointer',
+                      }}
+                    >
                       <input
-                        value={values[f.key] || ''}
-                        onChange={e => setValues(v => ({ ...v, [f.key]: (FMT[f.key] || ((x: string) => x))(e.target.value) }))}
-                        inputMode={ATTRS[f.key]?.inputMode}
-                        type={ATTRS[f.key]?.type}
-                        className={fieldCls}
+                        type="file"
+                        accept="application/pdf"
+                        style={{ display: 'none' }}
+                        onChange={e => onFile(e.target.files?.[0] || null)}
+                        disabled={leggendo}
                       />
+                      Trascina qui il PDF della visura, oppure{' '}
+                      <span style={{ color: 'var(--brand-text)', textDecoration: 'underline', textUnderlineOffset: 3 }}>scegli il file</span>. Fino a 10 MB.
+                    </label>
                     )}
+                  </Campo>
+                </Righe>
+
+                {(fileName || notice) && (
+                  <p
+                    className="rm-muted"
+                    style={{ borderTop: '1px solid var(--border)', padding: '10px 14px', textAlign: 'center' }}
+                  >
+                    {fileName ? `Letta ${fileName}. ` : ''}{notice}
+                  </p>
+                )}
+
+                {leggendo && (
+                  <div style={{ borderTop: '1px solid var(--border)', padding: '12px 14px' }}>
+                    <div className="rm-barra"><span style={{ width: `${progress}%` }} /></div>
+                    <p className="rm-muted" style={{ marginTop: 8 }}>
+                      Stiamo leggendo la visura. Ci vuole qualche secondo.
+                    </p>
                   </div>
-                ))}
-              </div>
-              <p className="text-[11px] text-gray-400 mt-3">Controlla i dati: se qualcosa non è corretto, modificalo prima di inviare.</p>
-              <div className="flex gap-2 mt-4">
-                <button onClick={() => setPhase('upload')} className="px-4 py-3 border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors">Ricarica visura</button>
-                <button onClick={submit} disabled={phase === 'submitting'}
-                  className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold disabled:opacity-50 transition-colors">
-                  {phase === 'submitting' ? 'Invio…' : 'I dati sono corretti — invia in verifica'}
+                )}
+              </Sezione>
+            )}
+
+            {(phase === 'upload' || phase === 'analyzing') && (
+              <div style={{ marginTop: 20 }}>
+                <button onClick={analyze} disabled={!pdfB64 || leggendo} className="rm-btn rm-btn--primary">
+                  {leggendo ? 'Lettura in corso' : 'Leggi la visura'} <IconaFreccia />
                 </button>
               </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+
+            {(phase === 'review' || phase === 'submitting') && (
+              <>
+                <Sezione titolo="Verifica dati">
+                  <Righe>
+                    {FIELDS.map(f => (
+                      <Campo
+                        key={f.key}
+                        intero={f.span}
+                        etichetta={f.optional ? `${f.label} (facoltativo)` : f.label}
+                      >
+                        {f.type === 'select' ? (
+                          <select
+                            className="rm-input"
+                            aria-label={f.label}
+                            value={values[f.key] || ''}
+                            onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))}
+                          >
+                            <option value="">— seleziona —</option>
+                            {FORME_GIURIDICHE.map(o => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        ) : f.key === 'indirizzo' ? (
+                          <AddressAutocomplete
+                            value={values.indirizzo || ''}
+                            onChange={v => setValues(s => ({ ...s, indirizzo: v }))}
+                            onPick={p => setValues(s => ({
+                              ...s,
+                              indirizzo: p.indirizzo || s.indirizzo,
+                              citta: p.citta || s.citta,
+                              provincia: p.provincia || s.provincia,
+                              cap: p.cap || s.cap,
+                            }))}
+                            className="rm-input"
+                          />
+                        ) : (
+                          <input
+                            className="rm-input"
+                            aria-label={f.label}
+                            value={values[f.key] || ''}
+                            onChange={e => setValues(v => ({ ...v, [f.key]: (FMT[f.key] || ((x: string) => x))(e.target.value) }))}
+                            inputMode={ATTRS[f.key]?.inputMode}
+                            type={ATTRS[f.key]?.type}
+                          />
+                        )}
+                      </Campo>
+                    ))}
+                  </Righe>
+
+                  {mismatch && (
+                    <p
+                      className="rm-note rm-note--errore"
+                      role="alert"
+                      style={{ borderTop: '1px solid var(--border)', textAlign: 'center', color: 'var(--danger)' }}
+                    >
+                      La partita IVA della visura è diversa da quella del preventivo. Hai caricato il documento giusto?
+                    </p>
+                  )}
+                </Sezione>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    flexWrap: 'wrap',
+                    marginTop: 20,
+                  }}
+                >
+                  <button onClick={() => setPhase('upload')} className="rm-btn rm-btn--secondary">
+                    Cambia visura
+                  </button>
+                  <button onClick={submit} disabled={phase === 'submitting'} className="rm-btn rm-btn--primary">
+                    {phase === 'submitting' ? 'Invio in corso' : 'I dati sono giusti, invia'} <IconaFreccia />
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </OnboardingShell>
   );

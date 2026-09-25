@@ -5,12 +5,67 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
+import { Contenuto, Dato, DueColonne, Riga, Testata } from "../_ui/cornice";
 
 type SecurityState = {
   securityScore: number;
   twoFactorEnabled: boolean;
   emailVerified: boolean;
   lastSignIn: string | null;
+  passwordChanged: string | null;
+};
+
+type Postazione = { id: string; nome: string; quando: string; corrente: boolean };
+type Evento = { id: string; quando: string; cosa: string };
+
+/** Il livello di protezione scritto a parole, come vuole il disegno. */
+function livello(score: number): { parola: string; nota: string } {
+  if (score >= 100) return { parola: "Ottimo", nota: "tutte le protezioni disponibili sono attive" };
+  if (score >= 60) return { parola: "Buono", nota: "manca la verifica in due passaggi" };
+  return { parola: "Da sistemare", nota: "conferma l'email per recuperare l'accesso" };
+}
+
+function nomePostazione(ua: string | null): string {
+  if (!ua) return "Postazione sconosciuta";
+  const l = ua.toLowerCase();
+  let programma = "Browser";
+  if (l.includes("electron") || l.includes("rescuemanager")) programma = "App desktop";
+  else if (l.includes("firefox")) programma = "Firefox";
+  else if (l.includes("edg/")) programma = "Edge";
+  else if (l.includes("chrome") && !l.includes("edg")) programma = "Chrome";
+  else if (l.includes("safari")) programma = "Safari";
+  let sistema = "";
+  if (l.includes("mac os")) sistema = "macOS";
+  else if (l.includes("windows")) sistema = "Windows";
+  else if (/iphone|ipad/.test(l)) sistema = "iPhone";
+  else if (l.includes("android")) sistema = "Android";
+  else if (l.includes("linux")) sistema = "Linux";
+  return sistema ? `${programma}, ${sistema}` : programma;
+}
+
+function quando(iso: string): string {
+  const d = new Date(iso);
+  const oggi = new Date();
+  const ieri = new Date(oggi);
+  ieri.setDate(oggi.getDate() - 1);
+  const ora = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === oggi.toDateString()) return `Oggi ${ora}`;
+  if (d.toDateString() === ieri.toDateString()) return `Ieri ${ora}`;
+  return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+}
+
+const EVENTI: Record<string, string> = {
+  "login.success": "Accesso riuscito",
+  "login.failure": "Accesso non riuscito",
+  logout: "Disconnessione",
+  "password.changed": "Password cambiata",
+  "mfa.enabled": "Verifica in due passaggi attivata",
+  "mfa.disabled": "Verifica in due passaggi disattivata",
+  "session.revoked": "Postazione scollegata",
+  "session.revoked_all_other": "Scollegate le altre postazioni",
+  "privacy.export": "Copia dei dati richiesta",
+  "privacy.delete": "Cancellazione richiesta",
+  "profile.updated": "Profilo aggiornato",
 };
 
 export default function SecurityPage() {
@@ -21,7 +76,10 @@ export default function SecurityPage() {
     twoFactorEnabled: false,
     emailVerified: false,
     lastSignIn: null,
+    passwordChanged: null,
   });
+  const [postazioni, setPostazioni] = useState<Postazione[]>([]);
+  const [eventi, setEventi] = useState<Evento[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -55,7 +113,39 @@ export default function SecurityPage() {
           twoFactorEnabled: twoFA,
           emailVerified,
           lastSignIn: user.last_sign_in_at ?? null,
+          passwordChanged: user.updated_at ?? null,
         });
+
+        // Postazioni collegate e ultimi eventi: gli stessi dati delle pagine
+        // di dettaglio, qui in forma breve.
+        try {
+          const r = await fetch("/api/auth/sessions/list");
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok && Array.isArray(j.sessions)) {
+            setPostazioni(
+              j.sessions.slice(0, 4).map((s: { id: string; user_agent: string | null; updated_at: string; is_current: boolean }) => ({
+                id: s.id,
+                nome: nomePostazione(s.user_agent),
+                quando: s.is_current ? "adesso, questa" : quando(s.updated_at),
+                corrente: s.is_current,
+              })),
+            );
+          }
+        } catch { /* opzionale */ }
+
+        try {
+          const r = await fetch("/api/user/audit-logs?limit=3");
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok && Array.isArray(j.logs)) {
+            setEventi(
+              j.logs.slice(0, 3).map((l: { id: string; action: string; created_at: string }) => ({
+                id: l.id,
+                quando: quando(l.created_at),
+                cosa: EVENTI[l.action] || l.action.replace(/[._]/g, " "),
+              })),
+            );
+          }
+        } catch { /* opzionale */ }
       } catch {
         /* no-op */
       } finally {
@@ -65,155 +155,129 @@ export default function SecurityPage() {
     load();
   }, []);
 
-  const fmtDate = (iso: string | null) => {
-    if (!iso) return null;
-    try {
-      return new Date(iso).toLocaleString("it-IT", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return null;
-    }
-  };
-
-  // Azioni residue calcolate sui segnali reali (checklist dinamica, non fissa).
-  const todo: { label: string; desc: string; href: string }[] = [];
-  if (TWO_FACTOR_ENABLED && !sec.twoFactorEnabled)
-    todo.push({
-      label: "Abilita la verifica in due passaggi",
-      desc: "Aggiunge un secondo controllo all'accesso.",
-      href: "/dashboard/security/2fa",
-    });
-  if (!sec.emailVerified)
-    todo.push({
-      label: "Conferma l'indirizzo email",
-      desc: "Serve per il recupero dell'accesso.",
-      href: "/dashboard/profile",
-    });
-
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Sicurezza</h1>
-        </div>
-        <div className="rm-card">
+        <Testata titolo="Sicurezza" sotto="Accessi, password, verifiche" />
+        <Contenuto>
           <p className="rm-muted">Controllo delle protezioni in corso.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
 
-  const lastSignIn = fmtDate(sec.lastSignIn);
+  const liv = livello(sec.securityScore);
+  const accesso = sec.lastSignIn ? new Date(sec.lastSignIn) : null;
+  const oggi = accesso?.toDateString() === new Date().toDateString();
+  let notaAccesso = "non disponibile";
+  if (accesso) {
+    notaAccesso = oggi ? "oggi" : accesso.toLocaleDateString("it-IT", { day: "numeric", month: "long" });
+  }
 
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Sicurezza</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Protezioni attive sull&apos;utenza e registro degli accessi.
-          </p>
-        </div>
-      </div>
+      <Testata titolo="Sicurezza" sotto="Accessi, password, verifiche" />
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Livello di protezione</h3>
-          <span className="rm-muted">Credenziali, email, verifica in due passaggi</span>
+      <Contenuto>
+        <div className="rm-griglia" style={{ marginBottom: 16 }}>
+          <Dato etichetta="Livello di protezione" valore={liv.parola} nota={liv.nota} />
+          <Dato
+            etichetta="Postazioni collegate"
+            valore={postazioni.length ? String(postazioni.length) : "—"}
+            nota={postazioni.length ? postazioni.map((p) => p.nome).join(", ") : "nessuna sessione registrata"}
+          />
+          <Dato
+            etichetta="Ultimo accesso"
+            valore={accesso ? accesso.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "—"}
+            nota={notaAccesso}
+          />
         </div>
-        <p className="rm-dato">{sec.securityScore}%</p>
-        <p className="rm-muted">
-          {sec.securityScore >= 80
-            ? "Protezioni complete."
-            : sec.securityScore >= 60
-            ? "Manca la verifica in due passaggi."
-            : "Restano passaggi da completare, elencati sotto."}
-        </p>
 
-        <div className="rm-righe" style={{ marginTop: 16 }}>
-          <div className="rm-riga">
-            <span>Email confermata</span>
-            <span className={sec.emailVerified ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
-              {sec.emailVerified ? "Sì" : "No"}
-            </span>
-          </div>
-          {TWO_FACTOR_ENABLED && (
-            <div className="rm-riga">
-              <span>Verifica in due passaggi</span>
-              <span className={sec.twoFactorEnabled ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
-                {sec.twoFactorEnabled ? "Attiva" : "Non attiva"}
-              </span>
-            </div>
-          )}
-          <div className="rm-riga">
-            <span>Ultimo accesso</span>
-            <span>{lastSignIn || "Non disponibile"}</span>
-          </div>
-        </div>
-      </div>
+        <DueColonne
+          principale={
+            <>
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Password</h2>
+                  <span className="rm-muted">
+                    {sec.passwordChanged
+                      ? `cambiata il ${new Date(sec.passwordChanged).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}`
+                      : "data non disponibile"}
+                  </span>
+                </div>
+                <p className="rm-muted">Serve la password attuale. Le postazioni restano collegate.</p>
+                <div style={{ marginTop: 14 }}>
+                  <Link href="/dashboard/security/password" className="rm-btn rm-btn--tertiary">
+                    <span>Cambia la password</span>
+                  </Link>
+                </div>
+              </section>
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Gestione</h3>
-        </div>
-        <div className="rm-righe">
-          <div className="rm-riga">
-            <span>Password</span>
-            <span>
-              <Link href="/dashboard/security/password">Cambia la password</Link>
-            </span>
-          </div>
-          {TWO_FACTOR_ENABLED && (
-            <div className="rm-riga">
-              <span>Verifica in due passaggi</span>
-              <span>
-                <Link href="/dashboard/security/2fa">
-                  {sec.twoFactorEnabled ? "Gestisci la verifica" : "Attiva la verifica"}
-                </Link>
-              </span>
-            </div>
-          )}
-          <div className="rm-riga">
-            <span>Postazioni collegate</span>
-            <span>
-              <Link href="/dashboard/security/sessions">Vedi le sessioni attive</Link>
-            </span>
-          </div>
-          <div className="rm-riga">
-            <span>Registro eventi</span>
-            <span>
-              <Link href="/dashboard/security/audit">Accessi, password, verifiche</Link>
-            </span>
-          </div>
-        </div>
-      </div>
+              {TWO_FACTOR_ENABLED && (
+                <section className="rm-card">
+                  <div className="rm-cardhead">
+                    <h2 style={{ fontSize: 14 }}>Verifica in due passaggi</h2>
+                    <span className={sec.twoFactorEnabled ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
+                      {sec.twoFactorEnabled ? "attiva" : "non attiva"}
+                    </span>
+                  </div>
+                  <p className="rm-muted">
+                    Un codice dall&apos;app di autenticazione a ogni accesso nuovo. Consigliata a
+                    chi fattura.
+                  </p>
+                  <div style={{ marginTop: 14 }}>
+                    <Link href="/dashboard/security/2fa" className="rm-btn rm-btn--primary">
+                      <span>{sec.twoFactorEnabled ? "Gestisci" : "Attiva"}</span>
+                    </Link>
+                  </div>
+                </section>
+              )}
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Passaggi consigliati</h3>
-        </div>
-        {todo.length === 0 ? (
-          <p className="rm-muted">
-            Tutte le protezioni disponibili risultano attive.
-          </p>
-        ) : (
-          <div className="rm-righe">
-            {todo.map((t) => (
-              <div key={t.href} className="rm-riga">
-                <span>{t.desc}</span>
-                <span>
-                  <Link href={t.href}>{t.label}</Link>
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              {!sec.emailVerified && (
+                <div className="rm-note rm-note--info">
+                  L&apos;indirizzo email non risulta confermato: serve per recuperare
+                  l&apos;accesso.
+                </div>
+              )}
+            </>
+          }
+          laterale={
+            <>
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Postazioni collegate</h2>
+                  <Link href="/dashboard/security/sessions">Gestisci</Link>
+                </div>
+                {postazioni.length === 0 ? (
+                  <p className="rm-muted">Nessuna sessione registrata.</p>
+                ) : (
+                  <div className="rm-righe">
+                    {postazioni.map((p) => (
+                      <Riga key={p.id} etichetta={p.nome} valore={p.quando} />
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Registro eventi</h2>
+                  <Link href="/dashboard/security/audit">Tutto</Link>
+                </div>
+                {eventi.length === 0 ? (
+                  <p className="rm-muted">Nessun evento registrato.</p>
+                ) : (
+                  <div className="rm-righe">
+                    {eventi.map((e) => (
+                      <Riga key={e.id} etichetta={e.quando} valore={e.cosa} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          }
+        />
+      </Contenuto>
     </>
   );
 }

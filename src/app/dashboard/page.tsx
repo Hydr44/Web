@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Download as IconaScarica, MonitorSmartphone } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { planProfileName, planMonthlyEur, complianceModuleLabels } from "@/lib/plans";
+import { Consumo, Contenuto, DueColonne, Riga, Testata } from "./_ui/cornice";
 
 /**
- * Panoramica dell'area cliente.
+ * Panoramica dell'area personale.
  *
- * Qui si guarda l'abbonamento, il consumo del piano, le fatture emesse e i
- * dati dell'azienda: il lavoro di ogni giorno sta nell'applicazione desktop.
- * Le classi (rm-card, rm-riga, rm-tab, rm-note) vengono da `prodotto.css`.
+ * Qui si guarda l'abbonamento, il consumo del mese, l'azienda, le protezioni e
+ * le ultime fatture del servizio: il lavoro di ogni giorno sta
+ * nell'applicazione sulla postazione. Le classi (rm-card, rm-riga, rm-barra)
+ * vengono da `prodotto.css`.
  */
 
 interface DashInvoice {
@@ -25,23 +28,26 @@ interface DashInvoice {
 
 /** Stato dell'abbonamento scritto a parole, come nel desktop. */
 function statoAbbonamento(status: string, isTrial: boolean): { testo: string; classe: string } {
-  if (isTrial) return { testo: "In prova", classe: "rm-stato rm-stato--corso" };
+  if (isTrial) return { testo: "in prova", classe: "rm-stato rm-stato--corso" };
   switch (status) {
     case "active":
-      return { testo: "Attivo", classe: "rm-stato rm-stato--ok" };
+      return { testo: "attivo", classe: "rm-stato rm-stato--ok" };
     case "past_due":
-      return { testo: "Pagamento in ritardo", classe: "rm-stato rm-stato--male" };
+      return { testo: "pagamento in ritardo", classe: "rm-stato rm-stato--male" };
     case "canceled":
     case "cancelled":
-      return { testo: "Disdetto", classe: "rm-stato rm-stato--fermo" };
+      return { testo: "disdetto", classe: "rm-stato rm-stato--fermo" };
     default:
       return { testo: status || "—", classe: "rm-stato rm-stato--fermo" };
   }
 }
 
+const MESE_GIORNO: Intl.DateTimeFormatOptions = { day: "numeric", month: "long" };
+
 export default function DashboardPanoramica() {
   usePageTitle("Panoramica");
   const [currentOrg, setCurrentOrg] = useState<string>("RescueManager");
+  const [userName, setUserName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [hasOrganization, setHasOrganization] = useState<boolean>(true);
   const [subscription, setSubscription] = useState({
@@ -63,6 +69,12 @@ export default function DashboardPanoramica() {
   const [latestDesktopVersion, setLatestDesktopVersion] = useState<string | null>(null);
   const [limits, setLimits] = useState<Record<string, number | boolean | string | null> | null>(null);
   const [usage, setUsage] = useState<Record<string, number>>({});
+  const [membri, setMembri] = useState<number | null>(null);
+  const [protezioni, setProtezioni] = useState<{
+    emailConfermata: boolean;
+    duePassaggi: boolean;
+    postazioni: number | null;
+  }>({ emailConfermata: false, duePassaggi: false, postazioni: null });
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -76,11 +88,18 @@ export default function DashboardPanoramica() {
           return;
         }
 
+        setProtezioni((p) => ({
+          ...p,
+          emailConfermata: !!(user.email_confirmed_at || user.confirmed_at),
+        }));
+
         const { data: profile } = await supabase
           .from("profiles")
-          .select("current_org")
+          .select("current_org, full_name")
           .eq("id", user.id)
           .maybeSingle();
+
+        if (profile?.full_name) setUserName(profile.full_name as string);
 
         if (!profile?.current_org) {
           setHasOrganization(false);
@@ -116,9 +135,9 @@ export default function DashboardPanoramica() {
           setSubscription({
             status: sub.status || "active",
             planProfile: planProfileName(sub.plan, modKeys),
-            includes: includes.length ? `Gestionale + ${includes.join(", ")}` : "Gestionale completo",
+            includes: includes.length ? `Gestionale, ${includes.join(", ")}` : "Gestionale completo",
             renewalDate: sub.current_period_end
-              ? new Date(sub.current_period_end).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
+              ? new Date(sub.current_period_end).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
               : null,
             priceEur: planMonthlyEur(sub.plan, sub.is_custom, sub.custom_price),
             isTrial: sub.status === "trial",
@@ -142,6 +161,14 @@ export default function DashboardPanoramica() {
           bankName: c.bank_name || "",
         });
 
+        // Quante persone usano l'organizzazione (il disegno lo chiede accanto
+        // ai dati dell'azienda e alle postazioni del piano).
+        const { count } = await supabase
+          .from("org_members")
+          .select("user_id", { count: "exact", head: true })
+          .eq("org_id", profile.current_org);
+        if (typeof count === "number") setMembri(count);
+
         // Ultime fatture fiscali RM emesse al cliente (via route service-role).
         try {
           const r = await fetch("/api/dashboard/invoices");
@@ -155,6 +182,20 @@ export default function DashboardPanoramica() {
           const j = await r.json().catch(() => ({}));
           if (r.ok && j.ok && j.limits) setLimits(j.limits);
           if (r.ok && j.ok && j.usage && typeof j.usage === "object") setUsage(j.usage);
+        } catch { /* opzionale */ }
+
+        // Protezioni: verifica in due passaggi e postazioni collegate.
+        try {
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          const attiva = !!factors?.totp?.some((f) => f.status === "verified");
+          setProtezioni((p) => ({ ...p, duePassaggi: attiva }));
+        } catch { /* opzionale */ }
+        try {
+          const r = await fetch("/api/auth/sessions/list");
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok && Array.isArray(j.sessions)) {
+            setProtezioni((p) => ({ ...p, postazioni: j.sessions.length }));
+          }
         } catch { /* opzionale */ }
 
         // Ultima versione desktop.
@@ -179,27 +220,31 @@ export default function DashboardPanoramica() {
   }, []);
 
   if (loading) {
-    return <p className="rm-muted">Caricamento dei dati in corso</p>;
+    return (
+      <Contenuto>
+        <p className="rm-muted">Caricamento dei dati in corso</p>
+      </Contenuto>
+    );
   }
 
   if (!hasOrganization) {
     return (
-      <div style={{ maxWidth: 560 }}>
-        <div className="rm-area__intesta">
-          <h1>Nessuna organizzazione</h1>
-        </div>
-        <section className="rm-card">
-          <p>
-            Prima di usare il portale serve creare l&apos;organizzazione: e&apos; l&apos;azienda
-            a cui vengono intestati abbonamento, fatture e utenti.
-          </p>
-          <div style={{ marginTop: 16 }}>
-            <Link href="/onboarding" className="rm-btn rm-btn--primary">
-              Crea l&apos;organizzazione
-            </Link>
-          </div>
-        </section>
-      </div>
+      <>
+        <Testata titolo="Nessuna organizzazione" />
+        <Contenuto>
+          <section className="rm-card" style={{ maxWidth: 560 }}>
+            <p>
+              Prima di usare l&apos;area personale serve creare l&apos;organizzazione: e&apos;
+              l&apos;azienda a cui vengono intestati abbonamento, fatture e utenti.
+            </p>
+            <div style={{ marginTop: 16 }}>
+              <Link href="/onboarding" className="rm-btn rm-btn--primary">
+                Crea l&apos;organizzazione
+              </Link>
+            </div>
+          </section>
+        </Contenuto>
+      </>
     );
   }
 
@@ -215,7 +260,8 @@ export default function DashboardPanoramica() {
     ? [
         {
           key: "storage",
-          label: "Archivio",
+          label: "Archivio documenti",
+          nota: "Fotografie e formulari",
           used: numVal(usage.storage_bytes),
           limit: numVal(limits.storage_gb) * 1024 ** 3, // limite in byte
           fmtUsed: (n: number) => fmtBytes(n),
@@ -225,28 +271,31 @@ export default function DashboardPanoramica() {
         {
           key: "autocompile",
           label: "Compilazione automatica",
+          nota: "Visure targa e registro imprese",
           used: numVal(usage.autocompile),
           limit: numVal(limits.autocompile_month),
           fmtUsed: (n: number) => `${n}`,
-          fmtLimit: (n: number) => `${n} al mese`,
+          fmtLimit: (n: number) => `${n}`,
           show: true,
         },
         {
           key: "sms",
-          label: "SMS",
+          label: "SMS ai clienti",
+          nota: "Il limite si rinnova il primo del mese",
           used: numVal(usage.sms),
           limit: numVal(limits.sms_month),
           fmtUsed: (n: number) => `${n}`,
-          fmtLimit: (n: number) => `${n} al mese`,
+          fmtLimit: (n: number) => `${n}`,
           show: true,
         },
         {
           key: "ai_eur",
           label: "Consulente IA",
+          nota: "Preventivi e risposte RENTRI",
           used: numVal(usage.ai_eur),
           limit: numVal(limits.ai_budget_eur),
-          fmtUsed: (n: number) => `€ ${n}`,
-          fmtLimit: (n: number) => `€ ${n} al mese`,
+          fmtUsed: (n: number) => `${n} euro`,
+          fmtLimit: (n: number) => `${n} euro`,
           show: !!limits.ai_included,
         },
       ].filter((r) => r.show)
@@ -268,227 +317,208 @@ export default function DashboardPanoramica() {
     : [];
 
   const stato = statoAbbonamento(subscription.status, subscription.isTrial);
+  const postazioniPiano = limits && limits.seats != null ? Number(limits.seats) : null;
+  const inizioMese = new Date();
+  inizioMese.setDate(1);
 
   return (
-    <div>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Panoramica</h1>
-          <p className="rm-muted" style={{ marginTop: 4 }}>{currentOrg}</p>
-        </div>
-      </div>
+    <>
+      <Testata
+        titolo="Panoramica"
+        sotto={userName ? `${currentOrg}, account di ${userName}` : currentOrg}
+      />
 
-      {/* Avviso di consumo: nessun blocco, solo un avvertimento scritto. */}
-      {usageAlerts.length > 0 && (
-        <div className={`rm-note ${anyOver ? "rm-note--errore" : "rm-note--info"}`} style={{ marginBottom: 16 }}>
-          {anyOver
-            ? "Hai raggiunto alcuni limiti del piano: "
-            : "Ti stai avvicinando ad alcuni limiti del piano: "}
-          {usageAlerts.map((a) => `${a.label} al ${Math.round(a.pct)} per cento`).join(", ")}.
-          {" "}Il servizio continua a funzionare senza interruzioni.{" "}
-          <Link href="/dashboard/billing">Valuta un pacchetto o un piano superiore</Link>.
-        </div>
-      )}
+      <Contenuto>
+        {/* Avviso di consumo: nessun blocco, solo un avvertimento scritto. */}
+        {usageAlerts.length > 0 && (
+          <div className={`rm-note ${anyOver ? "rm-note--errore" : "rm-note--info"}`} style={{ marginBottom: 16 }}>
+            {anyOver
+              ? "Hai raggiunto alcuni limiti del piano: "
+              : "Ti stai avvicinando ad alcuni limiti del piano: "}
+            {usageAlerts.map((a) => `${a.label} al ${Math.round(a.pct)} per cento`).join(", ")}.
+            {" "}Il servizio continua a funzionare senza interruzioni.{" "}
+            <Link href="/dashboard/billing">Valuta un pacchetto o un piano superiore</Link>.
+          </div>
+        )}
 
-      {/* Abbonamento */}
-      <section className="rm-card">
-        <div className="rm-cardhead">
-          <h2>{subscription.planProfile}</h2>
-          <Link href="/dashboard/billing">Gestisci l&apos;abbonamento</Link>
-        </div>
-        <div className="rm-righe">
-          <div className="rm-riga">
-            <span>Stato</span>
-            <span className={stato.classe}>{stato.testo}</span>
-          </div>
-          <div className="rm-riga">
-            <span>Importo</span>
-            <span>
-              {subscription.priceEur != null ? `€ ${subscription.priceEur.toFixed(0)} al mese` : "—"}
-            </span>
-          </div>
-          <div className="rm-riga">
-            <span>Prossimo rinnovo</span>
-            <span>{subscription.renewalDate || "—"}</span>
-          </div>
-          <div className="rm-riga">
-            <span>Cosa comprende</span>
-            <span>{subscription.includes}</span>
-          </div>
-        </div>
-      </section>
+        <DueColonne
+          principale={
+            <>
+              {/* Abbonamento */}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 13, fontWeight: 600 }}>Abbonamento</h2>
+                  <Link href="/dashboard/billing">Gestisci</Link>
+                </div>
+                <p style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                  <span className="rm-dato" style={{ margin: 0 }}>{subscription.planProfile}</span>
+                  <span className={stato.classe}>{stato.testo}</span>
+                </p>
+                <div className="rm-righe" style={{ marginTop: 14 }}>
+                  <Riga
+                    etichetta="Importo"
+                    valore={subscription.priceEur != null ? `${subscription.priceEur.toFixed(0)} euro al mese` : "—"}
+                  />
+                  <Riga etichetta="Prossimo rinnovo" valore={subscription.renewalDate || "—"} />
+                  <Riga etichetta="Moduli" valore={subscription.includes} />
+                  <Riga
+                    etichetta="Postazioni"
+                    valore={
+                      membri == null
+                        ? "—"
+                        : postazioniPiano != null
+                          ? `${membri} di ${postazioniPiano} in uso`
+                          : `${membri} in uso`
+                    }
+                  />
+                </div>
+              </section>
 
-      {/* Consumi e limiti del piano */}
-      {limits && (
-        <section className="rm-card">
-          <div className="rm-cardhead">
-            <h2>Consumi del piano</h2>
-            <span className="rm-muted">si azzerano ogni mese</span>
-          </div>
-          {meteredRows.length > 0 && (
-            <div className="rm-righe">
-              {meteredRows.map((row) => {
-                const hasLimit = row.limit > 0;
-                const pct = hasLimit ? Math.round((row.used / row.limit) * 100) : 0;
-                return (
-                  <div key={row.key} className="rm-riga">
-                    <span>{row.label}</span>
-                    <span>
-                      {hasLimit
-                        ? `${row.fmtUsed(row.used)} su ${row.fmtLimit(row.limit)}`
-                        : row.fmtUsed(row.used)}
-                      {hasLimit && (
-                        <span className={pct >= 100 ? "rm-stato rm-stato--male" : "rm-muted"}>
-                          {` · ${pct} per cento`}
-                        </span>
-                      )}
+              {/* Consumi del mese */}
+              {meteredRows.length > 0 && (
+                <section className="rm-card">
+                  <div className="rm-cardhead">
+                    <h2 style={{ fontSize: 13, fontWeight: 600 }}>Consumi del mese</h2>
+                    <span className="rm-muted">
+                      dal {inizioMese.toLocaleDateString("it-IT", MESE_GIORNO)}
                     </span>
                   </div>
-                );
-              })}
-            </div>
-          )}
-          {includedTiles.length > 0 && (
-            <>
-              <div className="rm-sep" />
-              <div className="rm-eyebrow" style={{ marginBottom: 8 }}>Compreso nel piano</div>
-              <div className="rm-righe">
-                {includedTiles.map((m) => (
-                  <div key={m.label} className="rm-riga">
-                    <span>{m.label}</span>
-                    <span>{m.value}</span>
+                  <div style={{ borderTop: "1px solid var(--border)" }}>
+                    {meteredRows.map((row) => {
+                      const hasLimit = row.limit > 0;
+                      const pct = hasLimit ? (row.used / row.limit) * 100 : null;
+                      return (
+                        <Consumo
+                          key={row.key}
+                          etichetta={row.label}
+                          valore={
+                            hasLimit
+                              ? `${row.fmtUsed(row.used)} di ${row.fmtLimit(row.limit)}`
+                              : row.fmtUsed(row.used)
+                          }
+                          percentuale={pct}
+                          nota={row.nota}
+                        />
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+
+                  {includedTiles.length > 0 && (
+                    <>
+                      <div className="rm-eyebrow" style={{ margin: "16px 0 6px" }}>Compreso nel piano</div>
+                      <div className="rm-righe">
+                        {includedTiles.map((m) => (
+                          <Riga key={m.label} etichetta={m.label} valore={m.value} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </section>
+              )}
             </>
-          )}
-        </section>
-      )}
+          }
+          laterale={
+            <>
+              {/* Organizzazione */}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 13, fontWeight: 600 }}>Organizzazione</h2>
+                  <Link href="/dashboard/org">Apri</Link>
+                </div>
+                <div className="rm-righe">
+                  <Riga etichetta="Ragione sociale" valore={currentOrg} />
+                  <Riga etichetta="Partita IVA" valore={orgInfo.vat ? `IT ${orgInfo.vat}` : "—"} mono />
+                  <Riga
+                    etichetta="Sede"
+                    valore={
+                      orgInfo.city
+                        ? `${orgInfo.city}${orgInfo.province ? ` (${orgInfo.province})` : ""}`
+                        : "—"
+                    }
+                  />
+                  <Riga
+                    etichetta="Utenti"
+                    valore={membri == null ? "—" : membri === 1 ? "1 collegato" : `${membri} collegati`}
+                  />
+                </div>
+              </section>
 
-      {/* Ultime fatture */}
-      <section className="rm-card">
-        <div className="rm-cardhead">
-          <h2>Ultime fatture</h2>
-          <Link href="/dashboard/invoices">Tutte le fatture</Link>
-        </div>
-        {invoices.length === 0 ? (
-          <p className="rm-muted">Nessuna fattura emessa finora.</p>
-        ) : (
-          <div className="rm-scroll">
-            <table className="rm-tab">
-              <thead>
-                <tr>
-                  <th>Numero</th>
-                  <th>Data</th>
-                  <th>Importo</th>
-                  <th>Stato</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((inv) => {
-                  const paid = inv.payment_status === "paid";
-                  return (
-                    <tr key={inv.id}>
-                      <td className="rm-mono">{inv.number || inv.id}</td>
-                      <td>
-                        {inv.date
-                          ? new Date(inv.date).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" })
-                          : "—"}
-                      </td>
-                      <td>
-                        {new Intl.NumberFormat("it-IT", { style: "currency", currency: inv.currency || "EUR" }).format(inv.total || 0)}
-                      </td>
-                      <td className={paid ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--corso"}>
-                        {paid ? "Pagata" : "Da pagare"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+              {/* Applicazione sulla postazione */}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 13, fontWeight: 600 }}>App desktop</h2>
+                  <span className="rm-muted">Windows e macOS</span>
+                </div>
+                <p>
+                  {latestDesktopVersion
+                    ? `Versione ${latestDesktopVersion} disponibile`
+                    : "Versione disponibile su richiesta"}
+                </p>
+                <p className="rm-muted" style={{ marginTop: 4 }}>
+                  Se l&apos;applicazione e&apos; gia&apos; installata si aggiorna da sola al prossimo avvio.
+                </p>
+                <div className="flex flex-wrap gap-1" style={{ marginTop: 14 }}>
+                  <Link href="/dashboard/download" className="rm-btn rm-btn--primary" style={{ gap: 14 }}>
+                    <span>Scarica</span>
+                    <IconaScarica size={15} />
+                  </Link>
+                  <Link href="/dashboard/security/sessions" className="rm-btn rm-btn--tertiary" style={{ gap: 14 }}>
+                    <span>Postazioni</span>
+                    <MonitorSmartphone size={15} />
+                  </Link>
+                </div>
+              </section>
 
-      {/* Azienda */}
-      <section className="rm-card">
-        <div className="rm-cardhead">
-          <h2>{currentOrg}</h2>
-          <Link href="/dashboard/org">Dati dell&apos;azienda</Link>
-        </div>
-        {orgInfo.vat || orgInfo.city || orgInfo.ibanLast4 ? (
-          <div className="rm-righe">
-            {orgInfo.vat && (
-              <div className="rm-riga">
-                <span>Partita IVA</span>
-                <span className="rm-mono">{orgInfo.vat}</span>
-              </div>
-            )}
-            {orgInfo.city && (
-              <div className="rm-riga">
-                <span>Sede</span>
-                <span>{orgInfo.city}{orgInfo.province ? ` (${orgInfo.province})` : ""}</span>
-              </div>
-            )}
-            {orgInfo.ibanLast4 && (
-              <div className="rm-riga">
-                <span>Conto corrente</span>
-                <span>
-                  <span className="rm-mono">{`****${orgInfo.ibanLast4}`}</span>
-                  {orgInfo.bankName ? ` · ${orgInfo.bankName}` : ""}
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p className="rm-muted">
-            Soccorso, trasporti e mezzi si gestiscono nell&apos;applicazione desktop. Da qui
-            si seguono abbonamento, fatture, assistenza e scaricamento delle app.
-          </p>
-        )}
-      </section>
+              {/* Protezioni */}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 13, fontWeight: 600 }}>Sicurezza</h2>
+                  <Link href="/dashboard/security">Apri</Link>
+                </div>
+                <div className="rm-righe">
+                  <Riga
+                    etichetta="Email"
+                    valore={protezioni.emailConfermata ? "confermata" : "da confermare"}
+                  />
+                  <Riga
+                    etichetta="Verifica in due passaggi"
+                    valore={protezioni.duePassaggi ? "attiva" : "non attiva"}
+                  />
+                  <Riga
+                    etichetta="Postazioni collegate"
+                    valore={protezioni.postazioni == null ? "—" : String(protezioni.postazioni)}
+                  />
+                </div>
+              </section>
 
-      {/* Applicazione desktop */}
-      {latestDesktopVersion && (
-        <section className="rm-card">
-          <div className="rm-cardhead">
-            <h2>Applicazione desktop</h2>
-            <Link href="/dashboard/download">Scarica le app</Link>
-          </div>
-          <div className="rm-righe">
-            <div className="rm-riga">
-              <span>Ultima versione</span>
-              <span className="rm-mono">{latestDesktopVersion}</span>
-            </div>
-            <div className="rm-riga">
-              <span>Aggiornamento</span>
-              <span>Se l&apos;applicazione e&apos; gia&apos; installata si aggiorna da sola al prossimo avvio.</span>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Dove si trovano le altre cose */}
-      <section className="rm-card">
-        <div className="rm-cardhead">
-          <h2>Gestione dell&apos;account</h2>
-        </div>
-        <div className="rm-righe">
-          {[
-            { href: "/dashboard/invoices", title: "Fatture", desc: "Scarica le fatture in PDF e XML" },
-            { href: "/dashboard/billing", title: "Abbonamento", desc: "Piano, moduli e pagamenti" },
-            { href: "/dashboard/support", title: "Supporto", desc: "Richiedi assistenza tecnica" },
-            { href: "/dashboard/org", title: "Organizzazione", desc: "Dati aziendali e utenti" },
-            { href: "/dashboard/security", title: "Sicurezza", desc: "Password, verifica in due passaggi e sessioni" },
-            { href: "/dashboard/settings/notifications", title: "Notifiche", desc: "Preferenze per email e avvisi" },
-          ].map((a) => (
-            <div key={a.href} className="rm-riga">
-              <span><Link href={a.href}>{a.title}</Link></span>
-              <span className="rm-muted">{a.desc}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+              {/* Ultime fatture del servizio */}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 13, fontWeight: 600 }}>Ultime fatture del servizio</h2>
+                  <Link href="/dashboard/invoices">Tutte</Link>
+                </div>
+                {invoices.length === 0 ? (
+                  <p className="rm-muted">Nessuna fattura emessa finora.</p>
+                ) : (
+                  <div className="rm-righe">
+                    {invoices.map((inv) => (
+                      <Riga
+                        key={inv.id}
+                        etichetta={
+                          inv.date
+                            ? new Date(inv.date).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
+                            : inv.number || inv.id
+                        }
+                        valore={`${new Intl.NumberFormat("it-IT", { style: "currency", currency: inv.currency || "EUR" }).format(inv.total || 0)}, ${inv.payment_status === "paid" ? "pagata" : "da pagare"}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          }
+        />
+      </Contenuto>
+    </>
   );
 }

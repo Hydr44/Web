@@ -1,12 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { isValidPIVA, isValidPIVAorCF } from "@/lib/it-fiscal";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, PiedeModulo, Sezione, TestataAzione } from "../../_ui/cornice";
+
+/** Riga del modulo: etichetta a sinistra, campo a destra. */
+function Campo({
+  campo,
+  etichetta,
+  obbligatorio,
+  children,
+}: Readonly<{ campo: string; etichetta: string; obbligatorio?: boolean; children: ReactNode }>) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(120px, 170px) minmax(0, 1fr)",
+        alignItems: "center",
+        gap: 12,
+        padding: "8px 16px",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <label className="rm-label" htmlFor={campo} style={{ textAlign: "right" }}>
+        {etichetta}
+        {obbligatorio && <span aria-hidden> *</span>}
+      </label>
+      <div style={{ minWidth: 0 }}>{children}</div>
+    </div>
+  );
+}
 
 export default function EditOrgPage() {
+  usePageTitle("Modifica l'organizzazione");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -173,12 +204,10 @@ export default function EditOrgPage() {
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Modifica organizzazione</h1>
-        </div>
-        <div className="rm-card">
+        <TestataAzione indietro="/dashboard/org" occhiello="Organizzazione" titolo="Modifica i dati" />
+        <Contenuto>
           <p className="rm-muted">Caricamento dei dati dell&apos;organizzazione.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
@@ -186,19 +215,19 @@ export default function EditOrgPage() {
   if (success) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Modifica organizzazione</h1>
-        </div>
-        <div className="rm-card">
-          <h3>Dati aggiornati</h3>
-          <p className="rm-muted" style={{ marginTop: 8 }}>
-            Le modifiche sono state registrate. Ritorno alla scheda
-            dell&apos;organizzazione in corso.
-          </p>
-          <p style={{ marginTop: 14 }}>
-            <Link href="/dashboard/org">Vai subito alla scheda</Link>
-          </p>
-        </div>
+        <TestataAzione indietro="/dashboard/org" occhiello="Organizzazione" titolo="Modifica i dati" />
+        <Contenuto>
+          <div className="rm-card">
+            <h2 style={{ fontSize: 14 }}>Dati aggiornati</h2>
+            <p className="rm-muted" style={{ marginTop: 8 }}>
+              Le modifiche sono state registrate. Ritorno alla scheda
+              dell&apos;organizzazione in corso.
+            </p>
+            <p style={{ marginTop: 14 }}>
+              <Link href="/dashboard/org">Vai subito alla scheda</Link>
+            </p>
+          </div>
+        </Contenuto>
       </>
     );
   }
@@ -206,219 +235,172 @@ export default function EditOrgPage() {
   if (!orgData) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Modifica organizzazione</h1>
-        </div>
-        <div className="rm-note rm-note--errore">
-          Non è stato possibile caricare i dati dell&apos;organizzazione.
-        </div>
-        <div className="rm-card">
-          <Link href="/dashboard/org" className="rm-btn rm-btn--secondary">
-            <span>Torna alla scheda</span>
-          </Link>
-        </div>
+        <TestataAzione indietro="/dashboard/org" occhiello="Organizzazione" titolo="Modifica i dati" />
+        <Contenuto>
+          <div className="rm-note rm-note--errore">
+            Non è stato possibile caricare i dati dell&apos;organizzazione.
+          </div>
+        </Contenuto>
       </>
     );
   }
 
+  const azioni = (
+    <>
+      <Link href="/dashboard/org" className="rm-btn rm-btn--secondary">
+        <span>Annulla</span>
+      </Link>
+      <button type="submit" form="modulo-org" disabled={saving} className="rm-btn rm-btn--primary">
+        <span>{saving ? "Salvataggio in corso" : "Salva"}</span>
+      </button>
+    </>
+  );
+
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Modifica organizzazione</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            I dati compaiono su documenti, fatture e trasmissioni.
-          </p>
-        </div>
-        <Link href="/dashboard/org" className="rm-btn rm-btn--ghost">
-          <span>Torna alla scheda</span>
-        </Link>
-      </div>
+      <TestataAzione
+        indietro="/dashboard/org"
+        occhiello="Organizzazione"
+        titolo="Modifica i dati"
+        sotto="Compaiono su documenti, fatture e trasmissioni"
+        azioni={azioni}
+      />
 
-      <form onSubmit={handleSubmit}>
-        <div className="rm-card">
-          <div className="rm-cardhead">
-            <h3>Denominazione</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rm-field">
-              <label htmlFor="name" className="rm-label">
-                Ragione sociale (obbligatorio)
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="rm-input"
-                required
-                disabled={saving}
-              />
-            </div>
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
 
-            <div className="rm-field">
-              <label htmlFor="description" className="rm-label">
-                Attività svolta
-              </label>
-              <input
-                type="text"
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="rm-input"
-                disabled={saving}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="rm-card">
-          <div className="rm-cardhead">
-            <h3>Sede e contatti</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rm-field">
-              <label htmlFor="address" className="rm-label">
-                Indirizzo della sede
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="rm-input"
-                disabled={saving}
-              />
-            </div>
-
-            <div className="rm-field">
-              <label htmlFor="phone" className="rm-label">
-                Telefono
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="rm-input"
-                disabled={saving}
-              />
-            </div>
-
-            <div className="rm-field">
-              <label htmlFor="email" className="rm-label">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="rm-input"
-                disabled={saving}
-              />
-            </div>
-
-            <div className="rm-field">
-              <label htmlFor="website" className="rm-label">
-                Sito internet
-              </label>
-              <input
-                type="url"
-                id="website"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                className="rm-input"
-                disabled={saving}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="rm-card">
-          <div className="rm-cardhead">
-            <h3>Identificativo fiscale</h3>
-          </div>
-          <p className="rm-muted" style={{ marginBottom: 14 }}>
-            Ne basta uno dei due: partita IVA oppure codice fiscale.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rm-field">
-              <label htmlFor="vat" className="rm-label">
-                Partita IVA
-              </label>
-              <div className="rm-prefix">
-                <span>IT</span>
+        <form id="modulo-org" onSubmit={handleSubmit}>
+          <Sezione titolo="Denominazione">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              <Campo campo="name" etichetta="Ragione sociale" obbligatorio>
                 <input
                   type="text"
-                  id="vat"
-                  name="vat"
-                  value={formData.vat}
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="rm-input"
+                  required
+                  disabled={saving}
+                />
+              </Campo>
+              <Campo campo="description" etichetta="Attivita' svolta">
+                <input
+                  type="text"
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="rm-input"
+                  disabled={saving}
+                />
+              </Campo>
+            </div>
+          </Sezione>
+
+          <Sezione titolo="Sede e contatti">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              <Campo campo="address" etichetta="Indirizzo della sede">
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="rm-input"
+                  disabled={saving}
+                />
+              </Campo>
+              <Campo campo="phone" etichetta="Telefono">
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="rm-input"
+                  disabled={saving}
+                />
+              </Campo>
+              <Campo campo="email" etichetta="Email">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="rm-input"
+                  disabled={saving}
+                />
+              </Campo>
+              <Campo campo="website" etichetta="Sito internet">
+                <input
+                  type="url"
+                  id="website"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleChange}
+                  className="rm-input"
+                  disabled={saving}
+                />
+              </Campo>
+            </div>
+          </Sezione>
+
+          <Sezione titolo="Identificativo fiscale">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              <Campo campo="vat" etichetta="Partita IVA">
+                <div className="rm-prefix">
+                  <span>IT</span>
+                  <input
+                    type="text"
+                    id="vat"
+                    name="vat"
+                    value={formData.vat}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        vat: e.target.value.replace(/\D/g, "").slice(0, 11),
+                      }))
+                    }
+                    className="rm-input rm-mono"
+                    disabled={saving}
+                    inputMode="numeric"
+                    pattern="\d{11}"
+                    maxLength={11}
+                    placeholder="12345678901"
+                    title="Partita IVA italiana, undici cifre"
+                  />
+                </div>
+              </Campo>
+              <Campo campo="tax_code" etichetta="Codice fiscale">
+                <input
+                  type="text"
+                  id="tax_code"
+                  name="tax_code"
+                  value={formData.tax_code}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      vat: e.target.value.replace(/\D/g, "").slice(0, 11),
+                      tax_code: e.target.value.toUpperCase().replace(/\s/g, ""),
                     }))
                   }
-                  className="rm-input rm-mono"
+                  className="rm-input rm-mono uppercase"
                   disabled={saving}
-                  inputMode="numeric"
-                  pattern="\d{11}"
-                  maxLength={11}
-                  placeholder="12345678901"
-                  title="Partita IVA italiana, undici cifre"
+                  maxLength={16}
+                  placeholder="RSSMRA80A01H501U"
+                  title="Codice fiscale della persona fisica (sedici caratteri) o dell'azienda (undici cifre)"
                 />
-              </div>
+              </Campo>
             </div>
+            <p className="rm-muted" style={{ padding: "10px 16px", textAlign: "center" }}>
+              Ne basta uno dei due: partita IVA oppure codice fiscale.
+            </p>
+          </Sezione>
+        </form>
 
-            <div className="rm-field">
-              <label htmlFor="tax_code" className="rm-label">
-                Codice fiscale
-              </label>
-              <input
-                type="text"
-                id="tax_code"
-                name="tax_code"
-                value={formData.tax_code}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    tax_code: e.target.value.toUpperCase().replace(/\s/g, ""),
-                  }))
-                }
-                className="rm-input rm-mono uppercase"
-                disabled={saving}
-                maxLength={16}
-                placeholder="RSSMRA80A01H501U"
-                title="Codice fiscale della persona fisica (sedici caratteri) o dell'azienda (undici cifre)"
-              />
-            </div>
-          </div>
-        </div>
-
-        {error && <div className="rm-note rm-note--errore">{error}</div>}
-
-        <div className="rm-card">
-          <div className="flex flex-wrap gap-1">
-            <button
-              type="submit"
-              disabled={saving}
-              className="rm-btn rm-btn--primary"
-            >
-              <span>{saving ? "Salvataggio in corso" : "Salva le modifiche"}</span>
-            </button>
-            <Link href="/dashboard/org" className="rm-btn rm-btn--secondary">
-              <span>Annulla</span>
-            </Link>
-          </div>
-        </div>
-      </form>
+        <PiedeModulo note="* obbligatori" azioni={azioni} />
+      </Contenuto>
     </>
   );
 }

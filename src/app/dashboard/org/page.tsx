@@ -2,18 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, DueColonne, Riga, Testata } from "../_ui/cornice";
 
-/** Riga etichetta e valore. Il valore mancante si scrive con un trattino. */
-function Riga({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
-  return (
-    <div className="rm-riga">
-      <span>{label}</span>
-      <span className={mono ? "rm-mono" : undefined}>{value || "—"}</span>
-    </div>
-  );
-}
+/**
+ * Scheda dell'azienda: i dati che finiscono su documenti, fatture e
+ * trasmissioni. Si leggono qui e si cambiano in "Modifica i dati".
+ */
 
 /** Partita IVA: in archivio stanno le undici cifre, a schermo si legge con IT davanti. */
 function partitaIva(value?: string | null) {
@@ -75,12 +72,10 @@ export default function OrgPage() {
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Organizzazione</h1>
-        </div>
-        <div className="rm-card">
+        <Testata titolo="Organizzazione" />
+        <Contenuto>
           <p className="rm-muted">Caricamento dei dati dell&apos;organizzazione.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
@@ -95,94 +90,85 @@ export default function OrgPage() {
     return parts.join(", ") || "—";
   };
 
-  const codice = orgData
-    ? orgData.number
-      ? `ORG${String(orgData.number).padStart(4, "0")}`
-      : `ORG${String(orgData.id).slice(0, 3).toUpperCase()}`
-    : null;
+  if (!orgData) {
+    return (
+      <>
+        <Testata titolo="Organizzazione" />
+        <Contenuto>
+          <div className="rm-card">
+            <h2 style={{ fontSize: 14 }}>Nessuna organizzazione</h2>
+            <p className="rm-muted" style={{ marginTop: 8 }}>
+              L&apos;utenza non risulta collegata a nessuna organizzazione.
+            </p>
+          </div>
+        </Contenuto>
+      </>
+    );
+  }
+
+  const denominazione = orgSettings?.company_name || orgData.name || "Azienda senza nome";
 
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Organizzazione</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Dati aziendali, fiscali e bancari usati su documenti e trasmissioni.
-          </p>
-        </div>
-        {orgData && (
-          <Link href="/dashboard/org/edit" className="rm-btn rm-btn--secondary">
+      <Testata
+        titolo="Organizzazione"
+        sotto={denominazione}
+        azioni={
+          <Link href="/dashboard/org/edit" className="rm-btn rm-btn--primary" style={{ gap: 14 }}>
             <span>Modifica i dati</span>
+            <Pencil size={15} />
           </Link>
-        )}
-      </div>
+        }
+      />
 
-      {orgData ? (
-        <>
-          <div className="rm-card">
-            <div className="rm-cardhead">
-              <h2>{orgSettings?.company_name || orgData.name || "Azienda senza nome"}</h2>
-              {codice && <span className="rm-mono rm-muted">{codice}</span>}
-            </div>
-            <p className="rm-muted">
-              Attiva dal{" "}
-              {new Date(orgData.created_at).toLocaleDateString("it-IT", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-          </div>
+      <Contenuto>
+        <DueColonne
+          principale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>Dati aziendali</h2>
+              </div>
+              <div className="rm-righe">
+                <Riga etichetta="Denominazione" valore={denominazione} />
+                <Riga etichetta="Partita IVA" valore={partitaIva(orgSettings?.vat || orgData.vat) || "—"} mono />
+                <Riga etichetta="Codice fiscale" valore={orgSettings?.tax_code || orgData.tax_code || "—"} mono />
+                <Riga etichetta="Forma giuridica" valore={orgSettings?.forma_giuridica || "—"} />
+                <Riga etichetta="Codice ATECO" valore={orgSettings?.codice_ateco || "—"} mono />
+                <Riga
+                  etichetta="Codice destinatario SDI"
+                  valore={orgSettings?.codice_destinatario || "—"}
+                  mono
+                />
+              </div>
+            </section>
+          }
+          laterale={
+            <>
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Sede e contatti</h2>
+                </div>
+                <div className="rm-righe">
+                  <Riga etichetta="Sede legale" valore={formatAddress(orgSettings?.address) } />
+                  <Riga etichetta="Telefono" valore={orgSettings?.phone || orgData.phone || "—"} />
+                  <Riga etichetta="Email" valore={orgSettings?.email || orgData.email || "—"} />
+                  <Riga etichetta="PEC" valore={orgSettings?.pec || "—"} />
+                </div>
+              </section>
 
-          <div className="rm-card">
-            <div className="rm-cardhead">
-              <h3>Dati aziendali</h3>
-            </div>
-            <div className="rm-righe">
-              <Riga label="Denominazione" value={orgSettings?.company_name || orgData.name} />
-              <Riga label="Partita IVA" value={partitaIva(orgSettings?.vat)} mono />
-              <Riga label="Codice fiscale" value={orgSettings?.tax_code} mono />
-              <Riga label="Regime fiscale" value={orgSettings?.regime_fiscale} />
-              <Riga label="Prefisso fattura" value={orgSettings?.invoice_prefix} />
-            </div>
-          </div>
-
-          <div className="rm-card">
-            <div className="rm-cardhead">
-              <h3>Sede e contatti</h3>
-            </div>
-            <div className="rm-righe">
-              <Riga label="Sede legale" value={formatAddress(orgSettings?.address)} />
-              <Riga label="Telefono" value={orgSettings?.phone} />
-              <Riga label="Email" value={orgSettings?.email} />
-              <Riga label="PEC" value={orgSettings?.pec} />
-              <Riga label="Sito internet" value={orgSettings?.website} />
-            </div>
-          </div>
-
-          <div className="rm-card">
-            <div className="rm-cardhead">
-              <h3>Dati bancari</h3>
-            </div>
-            <div className="rm-righe">
-              <Riga label="IBAN" value={orgSettings?.iban} mono />
-              <Riga label="Banca d'appoggio" value={orgSettings?.bank_name} />
-              <Riga label="BIC / SWIFT" value={orgSettings?.bic} mono />
-              <Riga
-                label="Intestatario del conto"
-                value={orgSettings?.bank_holder || orgSettings?.company_name}
-              />
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="rm-card">
-          <h3>Nessuna organizzazione</h3>
-          <p className="rm-muted" style={{ marginTop: 8 }}>
-            L&apos;utenza non risulta collegata a nessuna organizzazione.
-          </p>
-        </div>
-      )}
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Dati bancari</h2>
+                </div>
+                <div className="rm-righe">
+                  <Riga etichetta="IBAN" valore={orgSettings?.iban || "—"} mono />
+                  <Riga etichetta="Banca" valore={orgSettings?.bank_name || "—"} />
+                </div>
+              </section>
+            </>
+          }
+        />
+      </Contenuto>
     </>
   );
 }

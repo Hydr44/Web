@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
+import { Download, RefreshCw } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, TD, TH, Testata } from "../../_ui/cornice";
 
 /**
- * Audit log per-utente — eventi sensibili (login, password, 2FA, sessioni,
- * privacy). Sostituisce la versione mock; dati da `user_audit_logs` (RLS
- * limita la SELECT all'utente in sessione via /api/user/audit-logs).
+ * Registro eventi dell'utenza — accessi, password, verifiche, inviti.
+ *
+ * I dati arrivano da `user_audit_logs` (la RLS limita la lettura all'utente in
+ * sessione, via /api/user/audit-logs). Il disegno vuole una tabella sola, con
+ * l'esito scritto e il rosso riservato ai tentativi non riusciti.
  */
 
 interface AuditRow {
@@ -20,51 +23,85 @@ interface AuditRow {
   created_at: string;
 }
 
-// Mappa action → descrizione leggibile dal cliente
-const ACTION_META: Record<string, string> = {
-  "login.success": "Accesso effettuato",
-  "login.failure": "Tentativo di accesso non riuscito",
-  "logout": "Disconnessione",
-  "password.changed": "Password aggiornata",
-  "password.verify_fail": "Password attuale non riconosciuta",
-  "mfa.enabled": "Verifica in due passaggi attivata",
-  "mfa.disabled": "Verifica in due passaggi disattivata",
-  "mfa.verify_success": "Verifica in due passaggi superata",
-  "mfa.verify_failure": "Verifica in due passaggi non superata",
-  "backup_codes.regen": "Codici di riserva rigenerati",
-  "session.revoked": "Sessione chiusa",
-  "session.revoked_all_other": "Chiuse tutte le altre sessioni",
-  "privacy.export": "Richiesta copia dei dati",
-  "privacy.delete": "Richiesta cancellazione dell'utenza",
+/** Nome breve dell'evento, come lo chiama il cliente. */
+const EVENTO: Record<string, string> = {
+  "login.success": "Accesso",
+  "login.failure": "Accesso",
+  logout: "Disconnessione",
+  "password.changed": "Password cambiata",
+  "password.verify_fail": "Password non riconosciuta",
+  "mfa.enabled": "Verifica attivata",
+  "mfa.disabled": "Verifica disattivata",
+  "mfa.verify_success": "Verifica superata",
+  "mfa.verify_failure": "Verifica non superata",
+  "backup_codes.regen": "Codici di riserva",
+  "session.revoked": "Postazione scollegata",
+  "session.revoked_all_other": "Altre postazioni scollegate",
+  "privacy.export": "Copia dei dati",
+  "privacy.delete": "Cancellazione richiesta",
   "profile.updated": "Profilo aggiornato",
+  "invite.sent": "Invito",
 };
 
-function actionLabel(action: string) {
-  // fallback leggibile
-  return ACTION_META[action] || action.replace(/[._]/g, " ");
+function nomeEvento(action: string) {
+  return EVENTO[action] || action.replace(/[._]/g, " ");
 }
 
-function relTime(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return "Adesso";
-  if (min < 60) return `${min} min fa`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `${h}h fa`;
-  const d = Math.floor(h / 24);
-  if (d < 30) return `${d}g fa`;
-  return new Date(iso).toLocaleDateString("it-IT");
+/** Da dove arriva l'accesso: programma e sistema, in chiaro. */
+function daDove(ua: string | null): string {
+  if (!ua) return "";
+  const l = ua.toLowerCase();
+  let programma = "Browser";
+  if (l.includes("electron") || l.includes("rescuemanager")) programma = "App desktop";
+  else if (l.includes("firefox")) programma = "Firefox";
+  else if (l.includes("edg/")) programma = "Edge";
+  else if (l.includes("chrome") && !l.includes("edg")) programma = "Chrome";
+  else if (l.includes("safari")) programma = "Safari";
+  let sistema = "";
+  if (l.includes("mac os")) sistema = "macOS";
+  else if (l.includes("windows")) sistema = "Windows";
+  else if (/iphone|ipad/.test(l)) sistema = "iPhone";
+  else if (l.includes("android")) sistema = "Android";
+  else if (l.includes("linux")) sistema = "Linux";
+  return sistema ? `${programma}, ${sistema}` : programma;
+}
+
+/** I dettagli utili del singolo evento, senza gergo tecnico. */
+function dettagli(l: AuditRow): string {
+  const m = l.metadata || {};
+  const pezzi: string[] = [];
+  const email = m.email || m.invited_email || m.target_email;
+  if (typeof email === "string") pezzi.push(email);
+  const ruolo = m.role || m.ruolo;
+  if (typeof ruolo === "string") pezzi.push(ruolo);
+  const motivo = m.reason || m.motivo;
+  if (typeof motivo === "string") pezzi.push(motivo);
+  const provenienza = daDove(l.user_agent);
+  if (provenienza) pezzi.push(provenienza);
+  return pezzi.join(", ") || "—";
+}
+
+function quando(iso: string): string {
+  const d = new Date(iso);
+  const oggi = new Date();
+  const ieri = new Date(oggi);
+  ieri.setDate(oggi.getDate() - 1);
+  const ora = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === oggi.toDateString()) return `Oggi ${ora}`;
+  if (d.toDateString() === ieri.toDateString()) return `Ieri ${ora}`;
+  return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
 }
 
 export default function AuditPage() {
-  usePageTitle("Audit log");
+  usePageTitle("Registro eventi");
   const [loading, setLoading] = useState(true);
+  const [working, setWorking] = useState(false);
   const [logs, setLogs] = useState<AuditRow[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<"all" | "success" | "failure">("all");
 
   const refresh = useCallback(async () => {
     setError(null);
+    setWorking(true);
     try {
       const r = await fetch("/api/user/audit-logs?limit=100");
       const j = await r.json().catch(() => ({}));
@@ -77,6 +114,8 @@ export default function AuditPage() {
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Errore di rete");
       setLogs([]);
+    } finally {
+      setWorking(false);
     }
   }, []);
 
@@ -87,17 +126,12 @@ export default function AuditPage() {
     })();
   }, [refresh]);
 
-  const filtered = useMemo(() => {
-    if (filterStatus === "all") return logs;
-    return logs.filter((l) => l.status === filterStatus);
-  }, [logs, filterStatus]);
-
   const handleExport = () => {
-    if (!filtered.length) return;
+    if (!logs.length) return;
     const header = "Data,Azione,Stato,IP,User-Agent,Metadata\n";
     const csv =
       header +
-      filtered
+      logs
         .map((l) => {
           const meta = l.metadata ? JSON.stringify(l.metadata) : "";
           const cells = [
@@ -115,141 +149,106 @@ export default function AuditPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `registro-eventi-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
+  const azioni = (
+    <>
+      <button
+        type="button"
+        onClick={refresh}
+        disabled={working}
+        className="rm-btn rm-btn--tertiary"
+        style={{ gap: 14 }}
+      >
+        <span>{working ? "Aggiornamento" : "Aggiorna"}</span>
+        <RefreshCw size={15} />
+      </button>
+      <button
+        type="button"
+        onClick={handleExport}
+        disabled={!logs.length}
+        className="rm-btn rm-btn--tertiary"
+        style={{ gap: 14 }}
+      >
+        <span>Scarica</span>
+        <Download size={15} />
+      </button>
+    </>
+  );
+
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Registro eventi</h1>
-        </div>
-        <div className="rm-card">
+        <Testata titolo="Registro eventi" sotto="Accessi, cambi di password, inviti, ultimi 90 giorni" />
+        <Contenuto>
           <p className="rm-muted">Lettura del registro in corso.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
 
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <p className="rm-eyebrow">Sicurezza</p>
-          <h1 style={{ marginTop: 8 }}>Registro eventi</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Accessi, cambi password, verifiche e sessioni di questa utenza.
-          </p>
-        </div>
-        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
-          <span>Torna a Sicurezza</span>
-        </Link>
-      </div>
+      <Testata
+        titolo="Registro eventi"
+        sotto="Accessi, cambi di password, inviti, ultimi 90 giorni"
+        azioni={azioni}
+      />
 
-      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <div className="flex flex-wrap gap-1">
-            {(["all", "success", "failure"] as const).map((k) => (
-              <button
-                key={k}
-                onClick={() => setFilterStatus(k)}
-                className={
-                  filterStatus === k
-                    ? "rm-btn rm-btn--primary"
-                    : "rm-btn rm-btn--secondary"
-                }
-                aria-pressed={filterStatus === k}
-              >
-                <span>
-                  {k === "all" ? "Tutti" : k === "success" ? "Riusciti" : "Non riusciti"}
-                </span>
-              </button>
-            ))}
+        {logs.length === 0 ? (
+          <div className="rm-card">
+            <p className="rm-muted">
+              Nessun evento registrato. Gli eventi compaiono dopo un accesso, un
+              cambio password o una modifica alle protezioni.
+            </p>
           </div>
-          <div className="flex flex-wrap gap-1">
-            <button onClick={refresh} className="rm-btn rm-btn--secondary">
-              <span>Aggiorna</span>
-            </button>
-            <button
-              onClick={handleExport}
-              disabled={!filtered.length}
-              className="rm-btn rm-btn--tertiary"
-            >
-              <span>Scarica il registro</span>
-            </button>
-          </div>
-        </div>
-
-        {filtered.length === 0 ? (
-          <p className="rm-muted">
-            {logs.length === 0
-              ? "Nessun evento registrato. Gli eventi compaiono dopo un accesso, un cambio password o una modifica alle protezioni."
-              : "Nessun evento per il filtro scelto."}
-          </p>
         ) : (
-          <div className="rm-scroll">
-            <table className="rm-tab">
-              <thead>
-                <tr>
-                  <th>Evento</th>
-                  <th>Esito</th>
-                  <th>Quando</th>
-                  <th>Indirizzo di rete</th>
-                  <th>Dettagli</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((l) => {
-                  const failed = l.status === "failure";
-                  return (
-                    <tr key={l.id}>
-                      <td>{actionLabel(l.action)}</td>
-                      <td>
-                        <span
-                          className={
-                            failed ? "rm-stato rm-stato--male" : "rm-stato rm-stato--ok"
-                          }
-                        >
-                          {failed ? "Non riuscito" : "Riuscito"}
-                        </span>
-                      </td>
-                      <td>{relTime(l.created_at)}</td>
-                      <td className="rm-mono">{l.ip || "—"}</td>
-                      <td>
-                        {l.metadata && Object.keys(l.metadata).length > 0 ? (
-                          <details>
-                            <summary style={{ cursor: "pointer" }}>Apri</summary>
-                            <pre
-                              className="rm-mono"
-                              style={{
-                                marginTop: 8,
-                                padding: 8,
-                                background: "var(--layer-2)",
-                                overflowX: "auto",
-                                fontSize: 12,
-                              }}
-                            >
-                              {JSON.stringify(l.metadata, null, 2)}
-                            </pre>
-                          </details>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="rm-scroll">
+              <table className="rm-tab">
+                <thead>
+                  <tr>
+                    <th style={TH}>Quando</th>
+                    <th style={TH}>Evento</th>
+                    <th style={TH}>Dettagli</th>
+                    <th style={TH}>Indirizzo di rete</th>
+                    <th style={TH}>Esito</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logs.map((l) => {
+                    const fallito = l.status === "failure";
+                    return (
+                      <tr key={l.id}>
+                        <td style={TD}>{quando(l.created_at)}</td>
+                        <td style={TD}>{nomeEvento(l.action)}</td>
+                        <td style={TD}>{dettagli(l)}</td>
+                        <td style={TD} className="rm-mono">{l.ip || "—"}</td>
+                        <td style={TD}>
+                          <span className={fallito ? "rm-stato rm-stato--male" : "rm-stato rm-stato--fermo"}>
+                            {fallito ? "Fallito" : "Riuscito"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="rm-muted" style={{ marginTop: 12 }}>
+              Un tentativo fallito da un indirizzo nuovo compare in rosso.
+            </p>
+          </>
         )}
-      </div>
+      </Contenuto>
     </>
   );
 }

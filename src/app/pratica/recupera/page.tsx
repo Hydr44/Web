@@ -1,14 +1,10 @@
-// Recupero stato pratica via OTP (F5). Il cliente senza account inserisce l'email →
-// riceve un codice → lo inserisce → viene portato allo stato della sua pratica.
-// Layout split come /login.
+// Recupero dello stato della pratica: il cliente che ha perso il link scrive
+// l'email del preventivo, riceve un codice a sei cifre e arriva alla sua pagina.
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { OnboardingShell } from '@/components/OnboardingShell';
-
-const inputCls = 'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400';
-const btnCls = 'mt-4 w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold disabled:opacity-50 transition-colors';
+import { OnboardingShell, CasellePin, COME_LINK, IconaFreccia } from '@/components/OnboardingShell';
 
 export default function RecuperaPraticaPage() {
   const router = useRouter();
@@ -18,6 +14,8 @@ export default function RecuperaPraticaPage() {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  // Ora dell'invio: serve a dire da quando valgono i dieci minuti.
+  const [inviatoAlle, setInviatoAlle] = useState('');
 
   const sendCode = async () => {
     setError('');
@@ -31,6 +29,7 @@ export default function RecuperaPraticaPage() {
       const d = await r.json();
       if (!d.ok && d.error) { setError(d.error); return; }
       setEmailMasked(d.email_masked || '');
+      setInviatoAlle(new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }));
       setStep('otp');
     } catch {
       setError('Errore di rete. Riprova.');
@@ -58,52 +57,66 @@ export default function RecuperaPraticaPage() {
     }
   };
 
-  return (
-    <OnboardingShell panelTitle="Ritrova la tua pratica" panelSubtitle="Inserisci l’email del preventivo: ti inviamo un codice e accedi allo stato.">
-      <div key={step} className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
-        <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Stato pratica</p>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a]">Controlla lo stato</h1>
+  // Se l'email cambia dopo l'invio, il codice ricevuto non vale piu': si torna
+  // al primo passo invece di far fallire la verifica.
+  const cambiaEmail = (v: string) => {
+    setEmail(v);
+    setError('');
+    if (step === 'otp') { setStep('email'); setCode(''); }
+  };
 
-        {step === 'email' ? (
-          <>
-            <p className="text-sm text-gray-500 mt-1 mb-6">Inserisci l&apos;email usata per il preventivo: ti inviamo un codice di verifica.</p>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => { setEmail(e.target.value); setError(''); }}
-              onKeyDown={e => { if (e.key === 'Enter') sendCode(); }}
-              placeholder="nome@azienda.it"
-              className={inputCls}
-            />
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <button onClick={sendCode} disabled={busy === 'send'} className={btnCls}>
-              {busy === 'send' ? 'Invio…' : 'Invia il codice'}
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="text-sm text-gray-500 mt-1 mb-6">
-              Se esiste una pratica con <b className="text-gray-700">{emailMasked || 'questa email'}</b>, ti abbiamo inviato un codice a 6 cifre. Inseriscilo qui.
+  return (
+    <OnboardingShell riferimento="Stato pratica">
+      <div className="rm-card">
+        <h1>Controlla lo stato della tua pratica</h1>
+        <p className="rm-muted" style={{ marginTop: 4 }}>
+          Scrivi l&apos;email usata per il preventivo: ti mandiamo un codice a sei cifre.
+        </p>
+
+        <div className="rm-field" style={{ marginTop: 20 }}>
+          <label className="rm-label" htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            className="rm-input"
+            value={email}
+            onChange={(e) => cambiaEmail(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && step === 'email') sendCode(); }}
+            placeholder="nome@azienda.it"
+            autoComplete="email"
+          />
+        </div>
+
+        {step === 'otp' && (
+          <div className="rm-field" style={{ marginTop: 18 }}>
+            <span className="rm-label">Codice ricevuto</span>
+            <CasellePin valore={code} onChange={(v) => { setCode(v); setError(''); }} onInvio={verifyCode} />
+            <p className="rm-muted">
+              Mandato alle {inviatoAlle}{emailMasked ? ` a ${emailMasked}` : ''}. Vale per 10 minuti.{' '}
+              <button type="button" style={COME_LINK} onClick={sendCode} disabled={busy === 'send'}>
+                {busy === 'send' ? 'Invio in corso' : 'Reinvia'}
+              </button>
             </p>
-            <input
-              value={code}
-              onChange={e => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError(''); }}
-              onKeyDown={e => { if (e.key === 'Enter') verifyCode(); }}
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              placeholder="••••••"
-              className="w-full text-center tracking-[0.5em] text-2xl font-semibold py-3 bg-white border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
-            />
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <button onClick={verifyCode} disabled={code.length !== 6 || busy === 'verify'} className={btnCls}>
-              {busy === 'verify' ? 'Verifica…' : 'Accedi allo stato pratica'}
-            </button>
-            <button onClick={sendCode} disabled={busy === 'send'} className="mt-3 w-full text-sm text-gray-500 hover:text-gray-800 disabled:opacity-50">
-              {busy === 'send' ? 'Invio…' : 'Non hai ricevuto il codice? Reinvia'}
-            </button>
-          </>
+          </div>
         )}
+
+        {error && <div className="rm-note rm-note--errore" role="alert" style={{ marginTop: 16 }}>{error}</div>}
+
+        <div style={{ marginTop: 20 }}>
+          {step === 'email' ? (
+            <button onClick={sendCode} disabled={busy === 'send'} className="rm-btn rm-btn--primary">
+              {busy === 'send' ? 'Invio in corso' : 'Invia il codice'} <IconaFreccia />
+            </button>
+          ) : (
+            <button
+              onClick={verifyCode}
+              disabled={code.length !== 6 || busy === 'verify'}
+              className="rm-btn rm-btn--primary"
+            >
+              {busy === 'verify' ? 'Verifica in corso' : 'Controlla lo stato'} <IconaFreccia />
+            </button>
+          )}
+        </div>
       </div>
     </OnboardingShell>
   );

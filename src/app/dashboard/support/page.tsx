@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, Dato, PiedeModulo, Sezione, TD, TH, Testata } from "../_ui/cornice";
 
 /**
- * Pagina supporto — stile dashboard professionale.
+ * Assistenza: l'elenco delle richieste e i recapiti.
  *
- * Sostituisce la versione precedente con CTA blu accesi / icone grandi /
- * gradients. Mantiene tutte le funzionalità: lista ticket, creazione,
- * live chat, contatti, realtime sui propri ticket.
+ * Il disegno vuole i tre recapiti in alto, poi la tabella delle richieste con
+ * lo stato scritto. La conversazione con l'operatore sta dentro la richiesta.
  */
 
 type TicketListItem = {
@@ -28,7 +29,7 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   open:        { label: "Aperta",         cls: "rm-stato rm-stato--corso" },
   pending:     { label: "In attesa",      cls: "rm-stato rm-stato--corso" },
   in_progress: { label: "In lavorazione", cls: "rm-stato rm-stato--corso" },
-  resolved:    { label: "Risolta",        cls: "rm-stato rm-stato--ok" },
+  resolved:    { label: "Risolta",        cls: "rm-stato rm-stato--fermo" },
   closed:      { label: "Chiusa",         cls: "rm-stato rm-stato--fermo" },
 };
 
@@ -38,26 +39,23 @@ const CATEGORY_LABELS: Record<string, string> = {
   funzionalita: "Richiesta funzionalità",
   fatturazione: "Fatturazione",
   altro: "Altro",
-  chat: "Chat dal vivo",
+  chat: "Conversazione",
 };
 
 const FORM_CATEGORIES = ["domanda", "bug", "funzionalita", "fatturazione", "altro"];
 
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleString("it-IT", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const APERTE = ["open", "pending", "in_progress"];
 
-function StatusBadge({ status }: { status: string }) {
-  const s = STATUS_LABELS[status] || STATUS_LABELS.open;
-  return <span className={s.cls}>{s.label}</span>;
+function quando(iso: string): string {
+  const d = new Date(iso);
+  const oggi = new Date();
+  const ora = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === oggi.toDateString()) return `oggi alle ${ora}`;
+  return d.toLocaleDateString("it-IT", { day: "numeric", month: "long" });
 }
 
 export default function SupportPage() {
-  usePageTitle("Supporto");
+  usePageTitle("Assistenza");
   const router = useRouter();
   const [view, setView] = useState<"list" | "new">("list");
   const [tickets, setTickets] = useState<TicketListItem[]>([]);
@@ -155,217 +153,217 @@ export default function SupportPage() {
     }
   };
 
+  const aperte = tickets.filter((t) => APERTE.includes(t.status)).length;
+
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Assistenza</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Apri una richiesta o avvia una conversazione: rispondiamo qui e per
-            email.
-          </p>
-        </div>
-        {view === "list" && (
-          <button
-            onClick={() => { setView("new"); setError(null); }}
-            className="rm-btn rm-btn--primary"
-          >
-            <span>Nuova richiesta</span>
-          </button>
-        )}
-      </div>
-
-      {error && <div className="rm-note rm-note--errore">{error}</div>}
-
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <div>
-            <h3>Conversazione con un operatore</h3>
-            <p className="rm-muted" style={{ marginTop: 4 }}>
-              Dal lunedì al venerdì, dalle 9 alle 18. Fuori orario la richiesta
-              resta aperta e riceve risposta entro un giorno lavorativo.
-            </p>
-          </div>
-          <button
-            onClick={startLiveChat}
-            disabled={startingChat}
-            className="rm-btn rm-btn--secondary"
-          >
-            <span>{startingChat ? "Avvio in corso" : "Avvia la conversazione"}</span>
-          </button>
-        </div>
-        <div className="rm-righe">
-          <div className="rm-riga">
-            <span>Email</span>
-            <span>
-              <a href="mailto:supporto@rescuemanager.eu">supporto@rescuemanager.eu</a>
-            </span>
-          </div>
-          <div className="rm-riga">
-            <span>Telefono</span>
-            <span>
-              <a href="tel:+393921723028">+39 392 172 3028</a>
-            </span>
-          </div>
-          <div className="rm-riga">
-            <span>WhatsApp</span>
-            <span>
-              <a href="https://wa.me/393921723028" target="_blank" rel="noopener noreferrer">
-                Scrivi su WhatsApp
-              </a>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {view === "list" && (
-        <div className="rm-card">
-          <div className="rm-cardhead">
-            <h3>
-              Le tue richieste{tickets.length > 0 ? ` (${tickets.length})` : ""}
-            </h3>
-            <button onClick={loadTickets} className="rm-btn rm-btn--secondary">
-              <span>{loading ? "Aggiornamento in corso" : "Aggiorna"}</span>
-            </button>
-          </div>
-
-          {loading ? (
-            <p className="rm-muted">Lettura delle richieste.</p>
-          ) : tickets.length === 0 ? (
+      <Testata
+        titolo="Assistenza"
+        coda={tickets.length > 0 ? tickets.length : undefined}
+        sotto="Le tue richieste, con la conversazione con un operatore"
+        azioni={
+          view === "list" ? (
             <>
-              <p className="rm-muted">Nessuna richiesta aperta.</p>
-              <p style={{ marginTop: 16 }}>
-                <button onClick={() => setView("new")} className="rm-btn rm-btn--primary">
-                  <span>Apri la prima richiesta</span>
-                </button>
-              </p>
-            </>
-          ) : (
-            <div className="rm-scroll">
-              <table className="rm-tab">
-                <thead>
-                  <tr>
-                    <th>Oggetto</th>
-                    <th>Tipo</th>
-                    <th>Stato</th>
-                    <th>Ultimo aggiornamento</th>
-                    <th>Riferimento</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tickets.map((t) => (
-                    <tr key={t.id}>
-                      <td>
-                        <a
-                          href={`/dashboard/support/${t.id}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            router.push(`/dashboard/support/${t.id}`);
-                          }}
-                        >
-                          {t.subject}
-                        </a>
-                        {t.customer_unread && (
-                          <>
-                            <br />
-                            <span className="rm-stato rm-stato--corso">Nuova risposta</span>
-                          </>
-                        )}
-                      </td>
-                      <td>{CATEGORY_LABELS[t.category] || t.category}</td>
-                      <td>
-                        <StatusBadge status={t.status} />
-                      </td>
-                      <td>{fmt(t.last_message_at)}</td>
-                      <td className="rm-mono">{t.id.slice(0, 8)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {view === "new" && (
-        <form onSubmit={submitNew}>
-          <div className="rm-card">
-            <div className="rm-cardhead">
-              <h3>Nuova richiesta</h3>
               <button
                 type="button"
-                onClick={() => { setView("list"); setError(null); }}
-                className="rm-btn rm-btn--ghost"
+                onClick={startLiveChat}
+                disabled={startingChat}
+                className="rm-btn rm-btn--tertiary"
               >
-                <span>Torna all&apos;elenco</span>
+                <span>{startingChat ? "Avvio in corso" : "Parla con un operatore"}</span>
               </button>
+              <button
+                type="button"
+                onClick={() => { setView("new"); setError(null); }}
+                className="rm-btn rm-btn--primary"
+                style={{ gap: 14 }}
+              >
+                <span>Nuova richiesta</span>
+                <Plus size={15} />
+              </button>
+            </>
+          ) : undefined
+        }
+      />
+
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
+
+        {view === "list" && (
+          <>
+            <div className="rm-griglia" style={{ marginBottom: 16 }}>
+              <Dato
+                etichetta="Email"
+                valore={
+                  <a href="mailto:supporto@rescuemanager.eu" style={{ fontSize: 18, overflowWrap: "anywhere" }}>
+                    supporto@rescuemanager.eu
+                  </a>
+                }
+                nota="rispondiamo in giornata"
+              />
+              <Dato
+                etichetta="Telefono"
+                valore={<a href="tel:+393921723028">392 172 3028</a>}
+                nota="lunedi a venerdi, 9 alle 18"
+              />
+              <Dato
+                etichetta="WhatsApp"
+                valore={
+                  <a href="https://wa.me/393921723028" target="_blank" rel="noopener noreferrer">
+                    392 172 3028
+                  </a>
+                }
+                nota="per le urgenze in strada"
+              />
             </div>
 
-            <div className="flex flex-col gap-4" style={{ maxWidth: 620 }}>
-              <div className="rm-field">
-                <label htmlFor="ticket-category" className="rm-label">
-                  Tipo di richiesta
-                </label>
-                <select
-                  id="ticket-category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="rm-input"
-                >
-                  {FORM_CATEGORIES.map((v) => (
-                    <option key={v} value={v}>{CATEGORY_LABELS[v]}</option>
-                  ))}
-                </select>
+            {loading ? (
+              <div className="rm-card">
+                <p className="rm-muted">Lettura delle richieste.</p>
               </div>
+            ) : tickets.length === 0 ? (
+              <div className="rm-card">
+                <p className="rm-muted">Nessuna richiesta aperta.</p>
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={() => setView("new")}
+                    className="rm-btn rm-btn--primary"
+                  >
+                    <span>Apri la prima richiesta</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="rm-scroll">
+                  <table className="rm-tab">
+                    <thead>
+                      <tr>
+                        <th style={TH}>Riferimento</th>
+                        <th style={TH}>Oggetto</th>
+                        <th style={TH}>Ultimo aggiornamento</th>
+                        <th style={TH}>Stato</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tickets.map((t) => {
+                        const s = STATUS_LABELS[t.status] || STATUS_LABELS.open;
+                        return (
+                          <tr key={t.id}>
+                            <td style={TD} className="rm-mono">{t.id.slice(0, 8)}</td>
+                            <td style={TD}>
+                              <a
+                                href={`/dashboard/support/${t.id}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  router.push(`/dashboard/support/${t.id}`);
+                                }}
+                              >
+                                {t.subject}
+                              </a>
+                              <br />
+                              <span className="rm-muted">
+                                {CATEGORY_LABELS[t.category] || t.category}
+                              </span>
+                            </td>
+                            <td style={TD}>{quando(t.last_message_at)}</td>
+                            <td style={TD}>
+                              {t.customer_unread ? (
+                                <span className="rm-stato rm-stato--ok">Risposta da leggere</span>
+                              ) : (
+                                <span className={s.cls}>{s.label}</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="rm-muted" style={{ marginTop: 12 }}>
+                  {tickets.length === 1 ? "1 richiesta" : `${tickets.length} richieste`}
+                  {aperte > 0 && (aperte === 1 ? ", 1 aperta" : `, ${aperte} aperte`)}
+                </p>
+              </>
+            )}
+          </>
+        )}
 
-              <div className="rm-field">
-                <label htmlFor="ticket-subject" className="rm-label">
-                  Oggetto
-                </label>
-                <input
-                  id="ticket-subject"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Riassumi la richiesta in poche parole"
-                  maxLength={200}
-                  className="rm-input"
-                  required
-                />
-              </div>
+        {view === "new" && (
+          <form onSubmit={submitNew}>
+            <Sezione titolo="Nuova richiesta">
+              <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14, maxWidth: 640 }}>
+                <div className="rm-field">
+                  <label htmlFor="ticket-category" className="rm-label">
+                    Tipo di richiesta
+                  </label>
+                  <select
+                    id="ticket-category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="rm-input"
+                  >
+                    {FORM_CATEGORIES.map((v) => (
+                      <option key={v} value={v}>{CATEGORY_LABELS[v]}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="rm-field">
-                <label htmlFor="ticket-message" className="rm-label">
-                  Messaggio
-                </label>
-                <textarea
-                  id="ticket-message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={6}
-                  maxLength={5000}
-                  placeholder="Descrivi la richiesta. Indica il cliente o il documento coinvolto."
-                  className="rm-input"
-                  required
-                />
-                <p className="rm-muted">Almeno dieci caratteri.</p>
-              </div>
+                <div className="rm-field">
+                  <label htmlFor="ticket-subject" className="rm-label">
+                    Oggetto
+                  </label>
+                  <input
+                    id="ticket-subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Riassumi la richiesta in poche parole"
+                    maxLength={200}
+                    className="rm-input"
+                    required
+                  />
+                </div>
 
-              <div className="flex flex-wrap gap-1">
-                <button type="submit" disabled={submitting} className="rm-btn rm-btn--primary">
-                  <span>{submitting ? "Invio in corso" : "Invia la richiesta"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setView("list"); setError(null); }}
-                  className="rm-btn rm-btn--secondary"
-                >
-                  <span>Annulla</span>
-                </button>
+                <div className="rm-field">
+                  <label htmlFor="ticket-message" className="rm-label">
+                    Messaggio
+                  </label>
+                  <textarea
+                    id="ticket-message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={6}
+                    maxLength={5000}
+                    placeholder="Descrivi la richiesta. Indica il cliente o il documento coinvolto."
+                    className="rm-input"
+                    required
+                  />
+                  <p className="rm-muted">Almeno dieci caratteri.</p>
+                </div>
               </div>
-            </div>
-          </div>
-        </form>
-      )}
+            </Sezione>
+
+            <PiedeModulo
+              note="Rispondiamo qui e per email."
+              azioni={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => { setView("list"); setError(null); }}
+                    className="rm-btn rm-btn--secondary"
+                  >
+                    <span>Annulla</span>
+                  </button>
+                  <button type="submit" disabled={submitting} className="rm-btn rm-btn--primary">
+                    <span>{submitting ? "Invio in corso" : "Invia la richiesta"}</span>
+                  </button>
+                </>
+              }
+            />
+          </form>
+        )}
+      </Contenuto>
     </>
   );
 }

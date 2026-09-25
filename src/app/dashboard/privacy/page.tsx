@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { Download } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, DueColonne, Riga, Testata } from "../_ui/cornice";
+import { useConferma } from "../_ui/conferma";
 
 type Profile = {
   full_name?: string | null;
@@ -12,11 +15,20 @@ type Profile = {
   created_at?: string | null;
 };
 
+const DOCUMENTI = [
+  { href: "/privacy-policy", title: "Informativa" },
+  { href: "/cookie-policy", title: "Cookie" },
+  { href: "/terms-of-use", title: "Termini" },
+  { href: "/dpa", title: "DPA" },
+];
+
 export default function PrivacyPage() {
   usePageTitle("Privacy");
+  const { chiedi, dialogo } = useConferma();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<Profile | null>(null);
+  const [orgName, setOrgName] = useState<string>("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [actionWorking, setActionWorking] = useState<string | null>(null);
@@ -35,7 +47,17 @@ export default function PrivacyPage() {
           .select("full_name, current_org, created_at")
           .eq("id", user.id)
           .single();
-        if (profile) setUserData(profile as Profile);
+        if (profile) {
+          setUserData(profile as Profile);
+          if (profile.current_org) {
+            const { data: org } = await supabase
+              .from("orgs")
+              .select("name")
+              .eq("id", profile.current_org)
+              .maybeSingle();
+            if (org?.name) setOrgName(org.name as string);
+          }
+        }
       } catch {
         /* no-op */
       } finally {
@@ -77,7 +99,14 @@ export default function PrivacyPage() {
   // perché il team verifica gli obblighi di conservazione (es. fiscali: le
   // fatture vanno conservate per legge) prima di procedere.
   const requestDeletion = async () => {
-    if (!confirm("Inviare la richiesta di cancellazione dell'utenza e dei dati collegati?")) return;
+    const ok = await chiedi({
+      titolo: "Chiedere la cancellazione",
+      testo: "Chiediamo di cancellare la tua utenza e i dati collegati. La richiesta viene presa in carico e non si annulla da qui.",
+      conferma: "Chiedi la cancellazione",
+      annulla: "Lascia stare",
+      pericolo: true,
+    });
+    if (!ok) return;
     setActionError(null);
     setActionSuccess(null);
     setActionWorking("delete");
@@ -107,125 +136,111 @@ export default function PrivacyPage() {
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Privacy e dati</h1>
-        </div>
-        <div className="rm-card">
+        <Testata titolo="Privacy e dati" sotto="Cosa conserviamo e cosa puoi chiedere" />
+        <Contenuto>
           <p className="rm-muted">Caricamento in corso.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
 
-  const legalDocs = [
-    { href: "/privacy-policy", title: "Informativa sulla privacy", sub: "Come trattiamo i dati" },
-    { href: "/cookie-policy", title: "Informativa sui cookie", sub: "Cookie e strumenti simili" },
-    { href: "/terms-of-use", title: "Condizioni del servizio", sub: "Regole d'uso del servizio" },
-    { href: "/dpa", title: "Accordo sul trattamento dei dati", sub: "Nomina a responsabile del trattamento" },
-  ];
+  let organizzazione = "Nessuna";
+  if (orgName) organizzazione = orgName;
+  else if (userData?.current_org) organizzazione = "Collegata";
 
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <p className="rm-eyebrow">Privacy</p>
-          <h1 style={{ marginTop: 8 }}>Privacy e dati</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Documenti, dati collegati all&apos;utenza e richieste previste dalla
-            normativa.
-          </p>
-        </div>
-      </div>
+      <Testata titolo="Privacy e dati" sotto="Cosa conserviamo e cosa puoi chiedere" />
 
-      {actionError && <div className="rm-note rm-note--errore">{actionError}</div>}
-      {actionSuccess && <div className="rm-note rm-note--info">{actionSuccess}</div>}
+      <Contenuto>
+        {actionError && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{actionError}</div>}
+        {actionSuccess && <div className="rm-note rm-note--info" style={{ marginBottom: 16 }}>{actionSuccess}</div>}
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Dati collegati all&apos;utenza</h3>
-        </div>
-        <div className="rm-righe">
-          <div className="rm-riga">
-            <span>Intestatario</span>
-            <span>{userData?.full_name || "Nome non indicato"}</span>
-          </div>
-          <div className="rm-riga">
-            <span>Organizzazione</span>
-            <span>{userData?.current_org ? "Collegata" : "Nessuna"}</span>
-          </div>
-          <div className="rm-riga">
-            <span>Utenza attiva dal</span>
-            <span>
-              {userData?.created_at
-                ? new Date(userData.created_at).toLocaleDateString("it-IT")
-                : "—"}
-            </span>
-          </div>
-        </div>
-      </div>
+        <DueColonne
+          principale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>Dati collegati all&apos;utenza</h2>
+              </div>
+              <div className="rm-righe">
+                <Riga etichetta="Intestatario" valore={userData?.full_name || "Nome non indicato"} />
+                <Riga etichetta="Organizzazione" valore={organizzazione} />
+                <Riga
+                  etichetta="Utenza attiva dal"
+                  valore={
+                    userData?.created_at
+                      ? new Date(userData.created_at).toLocaleDateString("it-IT", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "—"
+                  }
+                />
+                <Riga
+                  etichetta="Documenti"
+                  valore={DOCUMENTI.map((d, i) => (
+                    <span key={d.href}>
+                      {i > 0 && ", "}
+                      <Link href={d.href}>{d.title}</Link>
+                    </span>
+                  ))}
+                />
+              </div>
+            </section>
+          }
+          laterale={
+            <>
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Copia dei dati</h2>
+                </div>
+                <p className="rm-muted">
+                  Ricevi un archivio con i dati personali legati a questa utenza. I dati di
+                  lavoro dell&apos;azienda si esportano dal programma sulla postazione.
+                </p>
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={downloadExport}
+                    disabled={actionWorking !== null}
+                    className="rm-btn rm-btn--tertiary"
+                    style={{ gap: 14 }}
+                  >
+                    <span>
+                      {actionWorking === "export" ? "Preparazione in corso" : "Richiedi la copia"}
+                    </span>
+                    <Download size={15} />
+                  </button>
+                </div>
+              </section>
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Copia dei dati</h3>
-        </div>
-        <p className="rm-muted">
-          Scarica una copia dei dati personali legati a questa utenza. I dati di
-          lavoro dell&apos;azienda si esportano dal programma sulla postazione.
-        </p>
-        <p style={{ marginTop: 16 }}>
-          <button
-            onClick={downloadExport}
-            disabled={actionWorking !== null}
-            className="rm-btn rm-btn--primary"
-          >
-            <span>
-              {actionWorking === "export" ? "Preparazione in corso" : "Scarica la copia"}
-            </span>
-          </button>
-        </p>
-      </div>
-
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Cancellazione dell&apos;utenza</h3>
-        </div>
-        <p className="rm-muted">
-          La richiesta viene presa in carico dall&apos;assistenza, che verifica
-          prima gli obblighi di conservazione, per esempio quelli fiscali sui
-          documenti, e poi procede.
-        </p>
-        <p style={{ marginTop: 16 }}>
-          <button
-            onClick={requestDeletion}
-            disabled={actionWorking !== null}
-            className="rm-btn rm-btn--danger"
-          >
-            <span>
-              {actionWorking === "delete" ? "Invio in corso" : "Richiedi la cancellazione"}
-            </span>
-          </button>
-        </p>
-      </div>
-
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Documenti</h3>
-        </div>
-        <div className="rm-righe">
-          {legalDocs.map((d) => (
-            <div key={d.href} className="rm-riga">
-              <span>{d.sub}</span>
-              <span>
-                <Link href={d.href}>{d.title}</Link>
-              </span>
-            </div>
-          ))}
-        </div>
-        <p className="rm-muted" style={{ marginTop: 14 }}>
-          Le preferenze sui cookie si cambiano dal riquadro mostrato
-          all&apos;ingresso nel sito.
-        </p>
-      </div>
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 style={{ fontSize: 14 }}>Cancellazione dell&apos;utenza</h2>
+                </div>
+                <p className="rm-muted">
+                  Cancella la tua utenza. L&apos;organizzazione resta agli altri titolari; i
+                  documenti fiscali restano per dieci anni come prevede la legge.
+                </p>
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={requestDeletion}
+                    disabled={actionWorking !== null}
+                    className="rm-btn rm-btn--danger"
+                  >
+                    <span>
+                      {actionWorking === "delete" ? "Invio in corso" : "Chiedi la cancellazione"}
+                    </span>
+                  </button>
+                </div>
+              </section>
+            </>
+          }
+        />
+      </Contenuto>
+      {dialogo}
     </>
   );
 }

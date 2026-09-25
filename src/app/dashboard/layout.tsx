@@ -1,10 +1,24 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
+import {
+  Bell,
+  Building2,
+  CreditCard,
+  Download,
+  Eye,
+  FileText,
+  Gauge,
+  HelpCircle,
+  Lock,
+  LogOut,
+  Settings,
+  User,
+  Wallet,
+} from "lucide-react";
 import PageTransition from "@/components/dashboard/PageTransition";
 import DemoLanding from "@/components/dashboard/DemoLanding";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -13,24 +27,22 @@ import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
 import MaintenanceGate from "@/components/dashboard/MaintenanceGate";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
 import { useUserRole } from "@/lib/useUserRole";
+import { Conferma } from "./_ui/conferma";
 
 /**
- * Cornice dell'area cliente.
+ * Cornice dell'area personale.
  *
- * E' la stessa cosa dell'applicazione desktop vista dal browser: barra
- * laterale blu a sinistra, contenuto sul fondo scuro. Le classi stanno in
- * `prodotto.css` (rm-area, rm-card, rm-riga...), qui si mette solo il
- * layout che manca.
+ * Segue il disegno del titolare: barra laterale blu con il marchio in alto,
+ * le voci in due gruppi e il nome di chi e' collegato in fondo; barra in alto
+ * con "Area personale", l'indirizzo del sito e l'uscita. Le classi stanno in
+ * `prodotto.css` (rm-area, rm-card, rm-riga...), qui si mette solo il layout
+ * che manca.
  */
-
-// La barra di marketing non compare piu' sulle pagine del prodotto (vedi
-// SiteHeader), quindi non c'e' niente da compensare in alto.
-// Vecchio commento: la barra del sito e' fissa in alto ed e' alta 112px
-// comincia sotto di lei.
 
 type Voce = {
   label: string;
   href: string;
+  icona: typeof Gauge;
   /** Solo il titolare vede la voce (fatturazione). */
   soloTitolare?: boolean;
   /** Attiva solo con corrispondenza esatta del percorso. */
@@ -40,33 +52,49 @@ type Voce = {
 type Gruppo = { titolo?: string; voci: Voce[] };
 
 const MENU: Gruppo[] = [
-  { voci: [{ label: "Panoramica", href: "/dashboard", esatta: true }] },
+  { voci: [{ label: "Panoramica", href: "/dashboard", icona: Gauge, esatta: true }] },
   {
     titolo: "Account",
     voci: [
-      { label: "Profilo", href: "/dashboard/profile" },
-      { label: "Sicurezza", href: "/dashboard/security" },
-      { label: "Privacy", href: "/dashboard/privacy" },
-      { label: "Notifiche", href: "/dashboard/settings/notifications" },
+      { label: "Profilo", href: "/dashboard/profile", icona: User },
+      { label: "Sicurezza", href: "/dashboard/security", icona: Lock },
+      { label: "Privacy", href: "/dashboard/privacy", icona: Eye },
+      { label: "Notifiche", href: "/dashboard/settings/notifications", icona: Bell },
+      { label: "Organizzazione", href: "/dashboard/org", icona: Building2 },
     ],
   },
   {
-    titolo: "Azienda",
+    titolo: "Fatturazione",
     voci: [
-      { label: "Organizzazione", href: "/dashboard/org" },
-      { label: "Abbonamento", href: "/dashboard/billing", soloTitolare: true },
-      { label: "Metodi di pagamento", href: "/dashboard/payment-methods", soloTitolare: true },
-      { label: "Fatture", href: "/dashboard/invoices", soloTitolare: true },
-    ],
-  },
-  {
-    titolo: "Assistenza",
-    voci: [
-      { label: "Scarica le app", href: "/dashboard/download" },
-      { label: "Supporto", href: "/dashboard/support" },
+      { label: "Abbonamento", href: "/dashboard/billing", icona: CreditCard, soloTitolare: true },
+      { label: "Metodi di pagamento", href: "/dashboard/payment-methods", icona: Wallet, soloTitolare: true },
+      { label: "Fatture", href: "/dashboard/invoices", icona: FileText, soloTitolare: true },
+      { label: "Download app", href: "/dashboard/download", icona: Download },
+      { label: "Supporto", href: "/dashboard/support", icona: HelpCircle },
     ],
   },
 ];
+
+/** "Emmanuel Scozzarini" diventa "Emmanuel S."; senza nome resta l'email. */
+function nomeBreve(nome: string, email: string): string {
+  const pulito = nome.trim();
+  if (!pulito) return email;
+  const parti = pulito.split(/\s+/);
+  if (parti.length === 1) return parti[0];
+  return `${parti[0]} ${parti[parti.length - 1].charAt(0).toUpperCase()}.`;
+}
+
+/** Le due lettere del riquadro: iniziali del nome, altrimenti dell'email. */
+function iniziali(nome: string, email: string): string {
+  const pulito = nome.trim();
+  if (pulito) {
+    const parti = pulito.split(/\s+/);
+    const a = parti[0]?.charAt(0) || "";
+    const b = parti.length > 1 ? parti[parti.length - 1].charAt(0) : "";
+    return (a + b).toUpperCase() || "?";
+  }
+  return (email.slice(0, 2) || "?").toUpperCase();
+}
 
 export default function DashboardLayout({
   children,
@@ -74,6 +102,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
   // Quando is_demo=true sostituiamo la dashboard normale con una landing
@@ -82,6 +111,7 @@ export default function DashboardLayout({
   const [isDemo, setIsDemo] = useState(false);
   const [demoQuoteUuid, setDemoQuoteUuid] = useState<string | null>(null);
   const [demoExpiresAt, setDemoExpiresAt] = useState<string | null>(null);
+  const [chiedeUscita, setChiedeUscita] = useState(false);
   const [uscendo, setUscendo] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -105,9 +135,10 @@ export default function DashboardLayout({
         let userOrgId: string | null = null;
         const { data: profile } = await supabase
           .from('profiles')
-          .select('current_org')
+          .select('current_org, full_name')
           .eq('id', user.id)
           .maybeSingle();
+        if (profile?.full_name) setUserName(profile.full_name as string);
         if (profile?.current_org) {
           userOrgId = profile.current_org as string;
         } else {
@@ -258,6 +289,8 @@ export default function DashboardLayout({
     return () => subscription.unsubscribe();
   }, [router, pathname]);
 
+  // L'uscita vera: invariata. Cambia solo il momento in cui parte, cioe' dopo
+  // la conferma. Finche' e' in corso la finestra resta aperta e spenta.
   const esci = async () => {
     if (uscendo) return;
     setUscendo(true);
@@ -271,13 +304,15 @@ export default function DashboardLayout({
     }
   };
 
+  const resta = useCallback(() => setChiedeUscita(false), []);
+
   if (loading) {
     return (
       <div className="rm-prod">
         <div className="rm-area">
           <div className="rm-area__nav" />
           <div className="rm-area__corpo">
-            <p className="rm-muted">Apertura dell&apos;area cliente in corso</p>
+            <p className="rm-muted">Apertura dell&apos;area personale in corso</p>
           </div>
         </div>
       </div>
@@ -300,23 +335,41 @@ export default function DashboardLayout({
   }
 
   const percorso = pathname || "";
+  const nome = nomeBreve(userName, userEmail);
+  const sigla = iniziali(userName, userEmail);
+
+  /** Riquadro con le due lettere: in alto pieno, nella barra solo bordato. */
+  const quadratino = (pieno: boolean) => ({
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 26,
+    height: 26,
+    flex: "0 0 auto",
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: ".04em",
+    background: pieno ? "var(--brand)" : "rgba(255,255,255,.14)",
+    color: "#fff",
+  });
 
   return (
     <div className="rm-prod">
       <div className="rm-area">
-        <nav className="rm-area__nav" aria-label="Aree dell'area cliente">
+        <nav className="rm-area__nav" aria-label="Sezioni dell'area personale">
           <div className="rm-area__testa">
-            <div style={{ fontWeight: 600, color: "#fff" }} title={orgName || userEmail}>
-              {orgName || userEmail}
-            </div>
-            {orgName && (
-              <div
-                style={{ fontSize: 12.5, color: "var(--sidebar-muted)", overflowWrap: "anywhere" }}
-                title={userEmail}
-              >
-                {userEmail}
-              </div>
-            )}
+            <Link
+              href="/dashboard"
+              aria-label="RescueManager, torna alla panoramica"
+              style={{ display: "inline-block", padding: 0 }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/logos/logo-principale-bianco.svg"
+                alt="RescueManager"
+                style={{ height: 24, width: "auto", display: "block" }}
+              />
+            </Link>
           </div>
 
           {/* Titoli e voci sono figli diretti della barra: cosi' su schermo
@@ -329,9 +382,16 @@ export default function DashboardLayout({
                 {gruppo.titolo && <div className="rm-area__gruppo">{gruppo.titolo}</div>}
                 {voci.map((v) => {
                   const attiva = v.esatta ? percorso === v.href : percorso.startsWith(v.href);
+                  const Icona = v.icona;
                   return (
-                    <Link key={v.href} href={v.href} aria-current={attiva ? "page" : undefined}>
-                      {v.label}
+                    <Link
+                      key={v.href}
+                      href={v.href}
+                      aria-current={attiva ? "page" : undefined}
+                      style={{ display: "flex", alignItems: "center", gap: 12 }}
+                    >
+                      <Icona size={15} style={{ flex: "0 0 auto", opacity: attiva ? 1 : 0.75 }} />
+                      <span>{v.label}</span>
                     </Link>
                   );
                 })}
@@ -339,44 +399,115 @@ export default function DashboardLayout({
             );
           })}
 
-          {/* Spinge l'uscita in fondo alla barra. */}
+          {/* Spinge il nome di chi e' collegato in fondo alla barra. */}
           <div style={{ flex: 1 }} />
 
-          <div className="rm-area__piede">
-            {/* Non c'e' una classe per l'azione dentro la barra laterale:
-                pulsante di testo, colori presi dalle variabili del foglio. */}
-            <button
-              type="button"
-              onClick={esci}
-              disabled={uscendo}
+          <div
+            className="rm-area__piede"
+            style={{ display: "flex", alignItems: "center", gap: 10 }}
+          >
+            <span aria-hidden style={quadratino(false)}>
+              {sigla}
+            </span>
+            <span
+              style={{ flex: 1, minWidth: 0, fontSize: 13, color: "#fff", overflowWrap: "anywhere" }}
+              title={userEmail}
+            >
+              {nome}
+            </span>
+            <Link
+              href="/dashboard/profile"
+              aria-label="Impostazioni dell'utenza"
               style={{
-                background: "transparent",
-                border: 0,
+                display: "inline-flex",
                 padding: 0,
-                font: "inherit",
-                fontSize: 13.5,
-                textAlign: "left",
-                color: uscendo ? "var(--sidebar-muted)" : "var(--sidebar-text)",
-                cursor: uscendo ? "default" : "pointer",
+                color: "var(--sidebar-muted)",
+                textDecoration: "none",
+                background: "transparent",
               }}
             >
-              {uscendo ? "Disconnessione in corso" : "Esci dall'account"}
-            </button>
+              <Settings size={16} />
+            </Link>
           </div>
         </nav>
 
-        <div className="rm-area__corpo">
-          <MaintenanceGate />
-          <LegalConsentModal />
-          <AnnouncementBanner />
-          {/* Lo stile del percorso di navigazione sta nel suo componente:
-              qui serve solo lo spazio prima del titolo di pagina. */}
-          <div style={{ marginBottom: 12 }}>
-            <Breadcrumbs />
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          {/* Barra in alto: a sinistra dove si e', a destra le scorciatoie. */}
+          <header
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+              background: "var(--layer)",
+              borderBottom: "1px solid var(--border)",
+              padding: "12px 24px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
+              <span style={{ fontWeight: 600 }}>Area personale</span>
+              <span className="rm-muted">rescuemanager.eu</span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <Link
+                href="/dashboard/settings/notifications"
+                aria-label="Notifiche"
+                style={{ display: "inline-flex", color: "var(--text-secondary)", textDecoration: "none" }}
+              >
+                <Bell size={17} />
+              </Link>
+              <Link
+                href="/dashboard/support"
+                aria-label="Assistenza"
+                style={{ display: "inline-flex", color: "var(--text-secondary)", textDecoration: "none" }}
+              >
+                <HelpCircle size={17} />
+              </Link>
+              <Link
+                href="/dashboard/profile"
+                aria-label={`Profilo di ${nome}`}
+                title={userEmail}
+                style={{ ...quadratino(true), textDecoration: "none" }}
+              >
+                {sigla}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setChiedeUscita(true)}
+                className="rm-btn rm-btn--tertiary"
+                style={{ height: 32, gap: 10, padding: "0 12px" }}
+              >
+                <span>Esci</span>
+                <LogOut size={15} />
+              </button>
+            </div>
+          </header>
+
+          {/* Il contenuto gestisce da solo i propri margini: le pagine di
+              secondo livello hanno una fascia scura a tutta larghezza. */}
+          <div className="rm-area__corpo" style={{ padding: 0 }}>
+            <div style={{ padding: "0 24px" }}>
+              <MaintenanceGate />
+              <LegalConsentModal />
+              <AnnouncementBanner />
+            </div>
+            <PageTransition>{children}</PageTransition>
           </div>
-          <PageTransition>{children}</PageTransition>
         </div>
       </div>
+
+      <Conferma
+        aperta={chiedeUscita}
+        titolo="Uscire dall&rsquo;area personale"
+        testo="Si torna alla pagina di accesso. Il lavoro non salvato va perso."
+        conferma={uscendo ? "Disconnessione in corso" : "Disconnetti"}
+        annulla="Resta"
+        occupato={uscendo}
+        onAnnulla={resta}
+        onConferma={esci}
+      />
     </div>
   );
 }

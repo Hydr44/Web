@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, DueColonne, Testata } from "../_ui/cornice";
 
 /**
- * Scaricamento delle applicazioni dentro l'area cliente.
+ * Scaricamento delle applicazioni dentro l'area personale.
  *
  * Stessa sorgente della pagina pubblica /download (`/api/app-release/latest`),
- * ma disegnata come l'applicazione desktop: righe, niente riquadri colorati.
+ * disegnata come vuole il titolare: una riga per file, il pulsante a destra.
  * L'accesso e' gia' controllato dal layout di /dashboard, quindi qui non si
  * rifa' il controllo della sessione.
  */
@@ -65,6 +67,40 @@ const NOME_ARCH: Record<Arch, string> = {
   arm64: "Apple Silicon",
   x64: "Intel",
 };
+
+/** Riga del disegno: nome e dettaglio a sinistra, azione a destra. */
+function RigaApp({
+  nome,
+  dettaglio,
+  consigliata,
+  azione,
+}: Readonly<{ nome: string; dettaglio: ReactNode; consigliata?: boolean; azione: ReactNode }>) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 16,
+        padding: "12px 0",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 13.5 }}>
+          {nome}
+          {consigliata && (
+            <span className="rm-stato rm-stato--corso" style={{ marginLeft: 8 }}>
+              consigliata
+            </span>
+          )}
+        </div>
+        <div className="rm-muted">{dettaglio}</div>
+      </div>
+      <div style={{ flex: "0 0 auto" }}>{azione}</div>
+    </div>
+  );
+}
 
 export default function DashboardDownloadPage() {
   usePageTitle("Scarica le app");
@@ -136,124 +172,124 @@ export default function DashboardDownloadPage() {
       }));
   }, [byArch, consigliata]);
 
+  const versioneComputer = righe[0]?.rel.version;
+  const dataComputer = righe[0]?.rel.releaseDate
+    ? new Date(righe[0].rel.releaseDate).toLocaleDateString("it-IT", { day: "numeric", month: "long" })
+    : null;
+
+  if (loading) {
+    return (
+      <>
+        <Testata titolo="Scarica le app" sotto="L'app per il computer e quella per gli autisti" />
+        <Contenuto>
+          <p className="rm-muted">Lettura delle versioni disponibili in corso</p>
+        </Contenuto>
+      </>
+    );
+  }
+
   return (
-    <div>
-      <div className="rm-area__intesta">
-        <div>
-          <h1>Scarica le app</h1>
-          <p className="rm-muted" style={{ marginTop: 4 }}>
-            L&apos;applicazione per il computer e l&apos;app per gli autisti. Una volta installate,
-            gli aggiornamenti arrivano da soli.
-          </p>
-        </div>
-      </div>
+    <>
+      <Testata titolo="Scarica le app" sotto="L'app per il computer e quella per gli autisti" />
 
-      {loading ? (
-        <p className="rm-muted">Lettura delle versioni disponibili in corso</p>
-      ) : (
-        <>
-          {consigliata && (
-            <div className="rm-note rm-note--info" style={{ marginBottom: 16 }}>
-              Questo computer risulta {NOME_PIATTAFORMA[consigliata.piattaforma]}
-              {consigliata.piattaforma === "mac" ? ` con processore ${NOME_ARCH[consigliata.arch]}` : ""}:
-              la riga indicata come consigliata e&apos; quella da scaricare.
-            </div>
-          )}
-
-          <section className="rm-card">
-            <div className="rm-cardhead">
-              <h2>Applicazione per il computer</h2>
-            </div>
-            {righe.length === 0 ? (
-              <p className="rm-muted">Nessuna versione disponibile al momento.</p>
-            ) : (
-              <div className="rm-scroll">
-                <table className="rm-tab">
-                  <thead>
-                    <tr>
-                      <th>Sistema</th>
-                      <th>Processore</th>
-                      <th>Versione</th>
-                      <th>Dimensione</th>
-                      <th>File</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {righe.map((r) => (
-                      <tr key={r.chiave}>
-                        <td>
-                          {r.sistema}
-                          {r.consigliata && (
-                            <span className="rm-stato rm-stato--corso" style={{ marginLeft: 8 }}>
-                              consigliata
-                            </span>
-                          )}
-                        </td>
-                        <td>{r.processore}</td>
-                        <td className="rm-mono">{r.rel.version || "—"}</td>
-                        <td>{fmtSize(r.rel.size) || "—"}</td>
-                        <td><a href={r.rel.url}>Scarica</a></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            <div className="rm-note" style={{ marginTop: 16 }}>
-              Mac con processore Apple Silicon (M1, M2, M3) scaricano la versione Apple Silicon;
-              i Mac del 2019 e precedenti scaricano la versione Intel. Nel dubbio: menu Apple,
-              Informazioni su questo Mac, voce Chip o Processore.
-            </div>
-          </section>
-
-          <section className="rm-card">
-            <div className="rm-cardhead">
-              <h2>App per gli autisti</h2>
-              <span className="rm-muted">trasporti assegnati, navigazione, foto e firma</span>
-            </div>
-            <div className="rm-righe">
-              <div className="rm-riga">
-                <span>
-                  Android
-                  {telefono === "android" && (
-                    <span className="rm-stato rm-stato--corso" style={{ marginLeft: 8 }}>consigliata</span>
-                  )}
-                </span>
-                <span>
-                  {android?.url ? (
-                    <>
-                      <a href={android.url}>Scarica il file di installazione</a>
-                      {android.version ? <span className="rm-muted">{` · versione ${android.version}`}</span> : null}
-                      {android.size ? <span className="rm-muted">{` · ${fmtSize(android.size)}`}</span> : null}
-                      <span className="rm-muted" style={{ display: "block", marginTop: 4 }}>
-                        Al primo avvio Android chiede di autorizzare l&apos;installazione da questa
-                        origine: confermare per procedere.
-                      </span>
-                    </>
-                  ) : (
-                    <span className="rm-stato rm-stato--fermo">Non ancora disponibile</span>
-                  )}
+      <Contenuto>
+        <DueColonne
+          principale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>Applicazione per il computer</h2>
+                <span className="rm-muted">
+                  {versioneComputer
+                    ? `versione ${versioneComputer}${dataComputer ? `, ${dataComputer}` : ""}`
+                    : "nessuna versione pubblicata"}
                 </span>
               </div>
-              <div className="rm-riga">
-                <span>
-                  iPhone e iPad
-                  {telefono === "ios" && (
-                    <span className="rm-stato rm-stato--corso" style={{ marginLeft: 8 }}>consigliata</span>
-                  )}
-                </span>
-                <span>
-                  {iosUrl ? (
-                    <a href={iosUrl} target="_blank" rel="noopener noreferrer">Apri la scheda su App Store</a>
-                  ) : (
-                    <span className="rm-stato rm-stato--fermo">Non ancora disponibile</span>
-                  )}
-                </span>
+
+              {righe.length === 0 ? (
+                <p className="rm-muted">Nessuna versione disponibile al momento.</p>
+              ) : (
+                <div style={{ borderTop: "1px solid var(--border)" }}>
+                  {righe.map((r) => (
+                    <RigaApp
+                      key={r.chiave}
+                      nome={r.sistema}
+                      dettaglio={`${r.processore}${r.rel.size ? `, ${fmtSize(r.rel.size)}` : ""}`}
+                      consigliata={r.consigliata}
+                      azione={
+                        <a href={r.rel.url} className="rm-btn rm-btn--tertiary" style={{ gap: 0 }}>
+                          <span>Scarica</span>
+                        </a>
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+
+              <p className="rm-muted" style={{ marginTop: 14 }}>
+                Si aggiorna da sola. Per accedere serve il browser: l&apos;app apre
+                rescuemanager.eu e torna da sola. I Mac con processore Apple Silicon
+                scaricano la versione Apple Silicon, quelli del 2019 e precedenti la
+                versione Intel.
+              </p>
+            </section>
+          }
+          laterale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>App per gli autisti, RescueMobile</h2>
+                {android?.version && <span className="rm-muted">{`versione ${android.version}`}</span>}
               </div>
-            </div>
-          </section>
-        </>
-      )}
-    </div>
+
+              <div style={{ borderTop: "1px solid var(--border)" }}>
+                <RigaApp
+                  nome="iPhone"
+                  dettaglio="App Store"
+                  consigliata={telefono === "ios"}
+                  azione={
+                    iosUrl ? (
+                      <a
+                        href={iosUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rm-btn rm-btn--tertiary"
+                        style={{ gap: 0 }}
+                      >
+                        <span>Apri la scheda</span>
+                      </a>
+                    ) : (
+                      <span className="rm-stato rm-stato--fermo">Non ancora disponibile</span>
+                    )
+                  }
+                />
+                <RigaApp
+                  nome="Android"
+                  dettaglio={
+                    android?.url
+                      ? `File di installazione${android.size ? `, ${fmtSize(android.size)}` : ""}`
+                      : "Google Play"
+                  }
+                  consigliata={telefono === "android"}
+                  azione={
+                    android?.url ? (
+                      <a href={android.url} className="rm-btn rm-btn--tertiary" style={{ gap: 0 }}>
+                        <span>Scarica</span>
+                      </a>
+                    ) : (
+                      <span className="rm-stato rm-stato--fermo">Non ancora disponibile</span>
+                    )
+                  }
+                />
+              </div>
+
+              <p className="rm-muted" style={{ marginTop: 14 }}>
+                L&apos;autista la abbina con il codice che trovi in Impostazioni,
+                Tracking GPS. Al primo avvio Android chiede di autorizzare
+                l&apos;installazione da questa origine: confermare per procedere.
+              </p>
+            </section>
+          }
+        />
+      </Contenuto>
+    </>
   );
 }

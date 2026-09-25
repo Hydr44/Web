@@ -1,7 +1,16 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { Send } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, DueColonne, Riga, TestataAzione } from "../../_ui/cornice";
+
+/**
+ * Una richiesta di assistenza: la conversazione a sinistra, la scheda della
+ * richiesta a destra. I messaggi dell'operatore stanno a sinistra, i propri a
+ * destra, come nel disegno.
+ */
 
 type TicketDetail = {
   id: string;
@@ -31,20 +40,32 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   open:        { label: "Aperta",         cls: "rm-stato rm-stato--corso" },
   pending:     { label: "In attesa",      cls: "rm-stato rm-stato--corso" },
   in_progress: { label: "In lavorazione", cls: "rm-stato rm-stato--corso" },
-  resolved:    { label: "Risolta",        cls: "rm-stato rm-stato--ok" },
+  resolved:    { label: "Risolta",        cls: "rm-stato rm-stato--fermo" },
   closed:      { label: "Chiusa",         cls: "rm-stato rm-stato--fermo" },
 };
 
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const CATEGORY_LABELS: Record<string, string> = {
+  domanda: "Domanda generale",
+  bug: "Segnalazione problema",
+  funzionalita: "Richiesta funzionalità",
+  fatturazione: "Fatturazione",
+  altro: "Altro",
+  chat: "Conversazione",
+};
 
-function StatusBadge({ status }: { status: string }) {
-  const s = STATUS_LABELS[status] || STATUS_LABELS.open;
-  return <span className={s.cls}>{s.label}</span>;
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleString("it-IT", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+
+/** "Oggi alle 11:20" quando e' di oggi, altrimenti la data per esteso. */
+function quando(iso: string): string {
+  const d = new Date(iso);
+  const ora = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === new Date().toDateString()) return `Oggi alle ${ora}`;
+  return `${d.toLocaleDateString("it-IT", { day: "numeric", month: "long" })} alle ${ora}`;
 }
 
 export default function TicketDetailPage() {
-  const router = useRouter();
+  usePageTitle("Richiesta di assistenza");
   const params = useParams<{ id: string }>();
   const id = params?.id;
 
@@ -118,8 +139,7 @@ export default function TicketDetailPage() {
     if (f) uploadFile(f);
   };
 
-  const submitReply = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const inviaRisposta = async () => {
     if (!id || (reply.trim().length < 2 && pending.length === 0)) return;
     setReplying(true);
     try {
@@ -139,154 +159,230 @@ export default function TicketDetailPage() {
     }
   };
 
+  const submitReply = (e: React.FormEvent) => {
+    e.preventDefault();
+    void inviaRisposta();
+  };
+
+  const stato = ticket ? STATUS_LABELS[ticket.status] || STATUS_LABELS.open : null;
+  const servizio = ticket ? CATEGORY_LABELS[ticket.category] || ticket.category : "";
+  const operatore = [...messages].reverse().find((m) => m.sender_type === "staff")?.sender_name || null;
+  const allegati = messages.flatMap((m) => m.attachments || []);
+  const nonInviabile = replying || (reply.trim().length < 2 && pending.length === 0);
+
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <p className="rm-eyebrow">Assistenza</p>
-          <h1 style={{ marginTop: 8 }}>{ticket?.subject || "Richiesta"}</h1>
-          {ticket && (
-            <p className="rm-muted" style={{ marginTop: 6 }}>
-              Aperta il {fmt(ticket.created_at)} · riferimento{" "}
-              <span className="rm-mono">{ticket.id.slice(0, 8)}</span>
-            </p>
-          )}
-        </div>
-        <button
-          onClick={() => router.push("/dashboard/support")}
-          className="rm-btn rm-btn--ghost"
-        >
-          <span>Torna all&apos;elenco</span>
-        </button>
-      </div>
+      <TestataAzione
+        indietro="/dashboard/support"
+        occhiello={id ? `Assistenza, ${id.slice(0, 8)}` : "Assistenza"}
+        titolo={ticket?.subject || "Richiesta"}
+        sotto={
+          ticket ? (
+            <>
+              {servizio}
+              <span style={{ marginLeft: 16 }}>Aperta il {fmt(ticket.created_at)}</span>
+            </>
+          ) : undefined
+        }
+        azioni={stato ? <span className={stato.cls}>{stato.label}</span> : undefined}
+      />
 
-      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
 
-      {loading ? (
-        <div className="rm-card">
-          <p className="rm-muted">Lettura della richiesta.</p>
-        </div>
-      ) : ticket ? (
-        <>
+        {loading && (
           <div className="rm-card">
-            <div className="rm-cardhead">
-              <h3>Conversazione</h3>
-              <StatusBadge status={ticket.status} />
-            </div>
-
-            <div className="rm-righe">
-              {messages.map(m => {
-                if (m.sender_type === "system") {
-                  return (
-                    <div key={m.id} className="rm-riga">
-                      <span>Servizio</span>
-                      <span className="rm-muted">{m.body}</span>
-                    </div>
-                  );
-                }
-                const isStaff = m.sender_type === "staff";
-                return (
-                  <div key={m.id} className="rm-riga">
-                    <span>
-                      {isStaff ? (m.sender_name || "Assistenza") : "Tu"}
-                      <br />
-                      <span className="rm-muted">{fmt(m.created_at)}</span>
-                    </span>
-                    <span>
-                      <span style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-                        {m.body}
-                      </span>
-                      {m.attachments && m.attachments.length > 0 && (
-                        <span style={{ display: "block", marginTop: 8 }}>
-                          {m.attachments.map(a => (
-                            <a
-                              key={a.key}
-                              href={`/api/support/tickets/${id}/dl?key=${encodeURIComponent(a.key)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ display: "block" }}
-                            >
-                              {a.name} ({fmtSize(a.size)})
-                            </a>
-                          ))}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="rm-muted">Lettura della richiesta.</p>
           </div>
+        )}
 
-          <form onSubmit={submitReply}>
-            <div className="rm-card">
-              <div className="rm-cardhead">
-                <h3>Rispondi</h3>
-              </div>
-
-              {["resolved", "closed"].includes(ticket.status) && (
-                <div className="rm-note" style={{ marginBottom: 14 }}>
-                  La richiesta risulta{" "}
-                  {STATUS_LABELS[ticket.status].label.toLowerCase()}: rispondendo
-                  viene riaperta.
-                </div>
-              )}
-
-              {pending.length > 0 && (
-                <div className="rm-righe" style={{ marginBottom: 14 }}>
-                  {pending.map((a, i) => (
-                    <div key={a.key} className="rm-riga">
-                      <span>Allegato</span>
-                      <span className="flex items-center justify-between gap-3">
-                        <span>{a.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removePending(i)}
-                          className="rm-btn rm-btn--ghost"
-                          style={{ height: 28, padding: "0 8px", gap: 0 }}
+        {!loading && ticket && (
+          <DueColonne
+            principale={
+              <>
+                <section className="rm-card">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                    {messages.map((m) => {
+                      if (m.sender_type === "system") {
+                        return (
+                          <p key={m.id} className="rm-muted" style={{ textAlign: "center" }}>
+                            {m.body}
+                          </p>
+                        );
+                      }
+                      const operatoreScrive = m.sender_type === "staff";
+                      return (
+                        <div
+                          key={m.id}
+                          style={{
+                            display: "flex",
+                            gap: 12,
+                            justifyContent: operatoreScrive ? "flex-start" : "flex-end",
+                          }}
                         >
-                          <span>Togli</span>
-                        </button>
-                      </span>
+                          {operatoreScrive && (
+                            <span
+                              aria-hidden
+                              style={{
+                                flex: "0 0 auto",
+                                width: 22,
+                                height: 22,
+                                marginTop: 2,
+                                background: "var(--brand)",
+                              }}
+                            />
+                          )}
+                          <div style={{ maxWidth: "78%", minWidth: 0 }}>
+                            <div
+                              style={{
+                                padding: operatoreScrive ? 0 : "10px 14px",
+                                background: operatoreScrive ? "transparent" : "var(--layer-2)",
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {m.body}
+                            </div>
+                            {m.attachments && m.attachments.length > 0 && (
+                              <div style={{ marginTop: 8 }}>
+                                {m.attachments.map(a => (
+                                  <a
+                                    key={a.key}
+                                    href={`/api/support/tickets/${id}/dl?key=${encodeURIComponent(a.key)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ display: "block" }}
+                                  >
+                                    {a.name} ({fmtSize(a.size)})
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                            <p
+                              className="rm-muted"
+                              style={{ marginTop: 6, textAlign: operatoreScrive ? "left" : "right" }}
+                            >
+                              {quando(m.created_at)}
+                              {operatoreScrive && `, ${m.sender_name || "Assistenza"} di RescueManager`}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                <form onSubmit={submitReply}>
+                  <section className="rm-card">
+                    {["resolved", "closed"].includes(ticket.status) && (
+                      <div className="rm-note" style={{ marginBottom: 14 }}>
+                        La richiesta risulta {STATUS_LABELS[ticket.status].label.toLowerCase()}:
+                        rispondendo viene riaperta.
+                      </div>
+                    )}
+
+                    {pending.length > 0 && (
+                      <div className="rm-righe" style={{ marginBottom: 14 }}>
+                        {pending.map((a, i) => (
+                          <div key={a.key} className="rm-riga">
+                            <span>Allegato</span>
+                            <span style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                              <span>{a.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => removePending(i)}
+                                className="rm-btn rm-btn--ghost"
+                                style={{ height: 24, padding: "0 8px", gap: 0 }}
+                              >
+                                <span>Togli</span>
+                              </button>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", gap: 1, alignItems: "stretch" }}>
+                      <textarea
+                        id="ticket-reply"
+                        aria-label="Scrivi la risposta"
+                        value={reply}
+                        onChange={e => setReply(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            if (!nonInviabile) void inviaRisposta();
+                          }
+                        }}
+                        rows={3}
+                        placeholder="Scrivi la risposta"
+                        className="rm-input"
+                        style={{ flex: 1, minWidth: 0 }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={nonInviabile}
+                        aria-label="Invia la risposta"
+                        className="rm-btn rm-btn--primary"
+                        style={{ height: "auto", padding: "0 16px", gap: 0 }}
+                      >
+                        <Send size={16} />
+                      </button>
                     </div>
-                  ))}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                        marginTop: 10,
+                      }}
+                    >
+                      <span className="rm-muted">Invio per mandare, Maiusc Invio per andare a capo</span>
+                      <label
+                        className="rm-muted"
+                        style={{ cursor: uploading ? "default" : "pointer", textDecoration: "underline" }}
+                      >
+                        {uploading ? "Caricamento in corso" : "Allega un file: PDF e immagini"}
+                        <input type="file" className="hidden" onChange={onFilePick} disabled={uploading} />
+                      </label>
+                    </div>
+                  </section>
+                </form>
+              </>
+            }
+            laterale={
+              <section className="rm-card">
+                <div className="rm-cardhead">
+                  <h2 className="rm-mono" style={{ fontSize: 18 }}>{ticket.id.slice(0, 8)}</h2>
                 </div>
-              )}
-
-              <div className="rm-field">
-                <label htmlFor="ticket-reply" className="rm-label">
-                  Messaggio
-                </label>
-                <textarea
-                  id="ticket-reply"
-                  value={reply}
-                  onChange={e => setReply(e.target.value)}
-                  rows={4}
-                  placeholder="Scrivi la risposta"
-                  className="rm-input"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-1" style={{ marginTop: 14 }}>
-                <button
-                  type="submit"
-                  disabled={replying || (reply.trim().length < 2 && pending.length === 0)}
-                  className="rm-btn rm-btn--primary"
-                >
-                  <span>{replying ? "Invio in corso" : "Invia la risposta"}</span>
-                </button>
-                <label
-                  className="rm-btn rm-btn--secondary"
-                  style={uploading ? { opacity: 0.6, pointerEvents: "none" } : undefined}
-                >
-                  <span>{uploading ? "Caricamento in corso" : "Allega un file"}</span>
-                  <input type="file" className="hidden" onChange={onFilePick} />
-                </label>
-              </div>
-            </div>
-          </form>
-        </>
-      ) : null}
+                <p>{servizio}</p>
+                <p className="rm-muted" style={{ marginTop: 4 }}>
+                  Aperta il{" "}
+                  {new Date(ticket.created_at).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}
+                </p>
+                <div className="rm-righe" style={{ marginTop: 14 }}>
+                  <Riga
+                    etichetta="Stato"
+                    valore={stato ? <span className={stato.cls}>{stato.label}</span> : "—"}
+                  />
+                  <Riga etichetta="Operatore" valore={operatore || "in assegnazione"} />
+                  <Riga etichetta="Servizio" valore={servizio} />
+                  <Riga
+                    etichetta="Allegati"
+                    valore={
+                      allegati.length === 0
+                        ? "nessuno"
+                        : allegati.map((a) => a.name).join(", ")
+                    }
+                  />
+                </div>
+              </section>
+            }
+          />
+        )}
+      </Contenuto>
     </>
   );
 }

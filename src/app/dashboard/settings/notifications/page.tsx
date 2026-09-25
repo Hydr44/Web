@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { Contenuto, DueColonne, Testata } from "../../_ui/cornice";
 
 /**
- * Preferenze notifiche utente (email + in-app).
+ * Preferenze di avviso dell'utente: email e avvisi dentro il programma.
  *
- * Sostituisce la pagina "coming soon". Persistenza in `user_preferences`
- * via `/api/user/preferences`. AUT/billing/support sono attive di default
- * e non disabilitabili per le notifiche di sicurezza critiche.
+ * Persistenza in `user_preferences` via `/api/user/preferences`. Gli avvisi di
+ * sicurezza restano sempre accesi e non si possono togliere.
  */
 
 interface Prefs {
@@ -36,7 +36,7 @@ const EMAIL_FIELDS: { key: string; label: string; desc: string; locked?: boolean
   },
   {
     key: "product_updates",
-    label: "Novità del programma",
+    label: "Novita' del programma",
     desc: "Nuove funzioni e migliorie.",
   },
   {
@@ -52,6 +52,44 @@ const INAPP_FIELDS: { key: string; label: string; desc: string }[] = [
   { key: "support", label: "Assistenza", desc: "Nuove risposte alle richieste aperte." },
   { key: "system", label: "Servizio", desc: "Manutenzioni e comunicazioni di servizio." },
 ];
+
+/** Riga con la casella di spunta a destra, come le altre righe del portale. */
+function RigaSpunta({
+  campo,
+  etichetta,
+  descrizione,
+  acceso,
+  bloccato,
+  onCambia,
+}: Readonly<{
+  campo: string;
+  etichetta: string;
+  descrizione: string;
+  acceso: boolean;
+  bloccato?: boolean;
+  onCambia: () => void;
+}>) {
+  return (
+    <div className="rm-riga">
+      <span>
+        <label htmlFor={campo} style={{ cursor: bloccato ? "default" : "pointer" }}>
+          {etichetta}
+        </label>
+        <br />
+        <span className="rm-muted">{descrizione}</span>
+      </span>
+      <span style={{ textAlign: "right" }}>
+        <input
+          id={campo}
+          type="checkbox"
+          checked={acceso}
+          disabled={bloccato}
+          onChange={onCambia}
+        />
+      </span>
+    </div>
+  );
+}
 
 export default function NotificationsSettingsPage() {
   usePageTitle("Notifiche");
@@ -128,12 +166,10 @@ export default function NotificationsSettingsPage() {
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Avvisi</h1>
-        </div>
-        <div className="rm-card">
+        <Testata titolo="Notifiche" sotto="Quali email ricevere e quali avvisi mostrare" />
+        <Contenuto>
           <p className="rm-muted">Caricamento delle preferenze.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
@@ -141,95 +177,74 @@ export default function NotificationsSettingsPage() {
   if (!prefs) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Avvisi</h1>
-        </div>
-        <div className="rm-note rm-note--errore">
-          {error || "Non è stato possibile leggere le preferenze."}
-        </div>
+        <Testata titolo="Notifiche" sotto="Quali email ricevere e quali avvisi mostrare" />
+        <Contenuto>
+          <div className="rm-note rm-note--errore">
+            {error || "Non è stato possibile leggere le preferenze."}
+          </div>
+        </Contenuto>
       </>
     );
   }
 
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <p className="rm-eyebrow">Impostazioni</p>
-          <h1 style={{ marginTop: 8 }}>Avvisi</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Quali email ricevere e quali avvisi mostrare dentro il programma.
-            La scelta vale sia sul sito sia sulla postazione.
-          </p>
-        </div>
-        <button onClick={save} disabled={saving} className="rm-btn rm-btn--primary">
-          <span>{saving ? "Salvataggio in corso" : "Salva le preferenze"}</span>
-        </button>
-      </div>
+      <Testata
+        titolo="Notifiche"
+        sotto="Quali email ricevere e quali avvisi mostrare. La scelta vale sul sito e sulla postazione."
+        azioni={
+          <button type="button" onClick={save} disabled={saving} className="rm-btn rm-btn--primary">
+            <span>{saving ? "Salvataggio in corso" : "Salva"}</span>
+          </button>
+        }
+      />
 
-      {error && <div className="rm-note rm-note--errore">{error}</div>}
-      {success && <div className="rm-note rm-note--info">{success}</div>}
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
+        {success && <div className="rm-note rm-note--info" style={{ marginBottom: 16 }}>{success}</div>}
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Email</h3>
-        </div>
-        <div className="rm-righe">
-          {EMAIL_FIELDS.map((f) => {
-            const on = !!prefs.email_notifications[f.key] || f.locked;
-            return (
-              <div key={f.key} className="rm-riga">
-                <span>
-                  <label htmlFor={`email-${f.key}`} style={{ cursor: f.locked ? "default" : "pointer" }}>
-                    {f.label}
-                  </label>
-                </span>
-                <span className="flex items-start gap-3">
-                  <input
-                    id={`email-${f.key}`}
-                    type="checkbox"
-                    checked={on}
-                    disabled={f.locked}
-                    onChange={() => toggleEmail(f.key)}
-                    style={{ accentColor: "var(--brand)", width: 16, height: 16, marginTop: 2 }}
-                  />
-                  <span className="rm-muted">{f.desc}</span>
-                </span>
+        <DueColonne
+          principale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>Email</h2>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Dentro il programma</h3>
-        </div>
-        <div className="rm-righe">
-          {INAPP_FIELDS.map((f) => {
-            const on = !!prefs.inapp_notifications[f.key];
-            return (
-              <div key={f.key} className="rm-riga">
-                <span>
-                  <label htmlFor={`inapp-${f.key}`} style={{ cursor: "pointer" }}>
-                    {f.label}
-                  </label>
-                </span>
-                <span className="flex items-start gap-3">
-                  <input
-                    id={`inapp-${f.key}`}
-                    type="checkbox"
-                    checked={on}
-                    onChange={() => toggleInApp(f.key)}
-                    style={{ accentColor: "var(--brand)", width: 16, height: 16, marginTop: 2 }}
+              <div className="rm-righe">
+                {EMAIL_FIELDS.map((f) => (
+                  <RigaSpunta
+                    key={f.key}
+                    campo={`email-${f.key}`}
+                    etichetta={f.label}
+                    descrizione={f.desc}
+                    acceso={!!prefs.email_notifications[f.key] || !!f.locked}
+                    bloccato={f.locked}
+                    onCambia={() => toggleEmail(f.key)}
                   />
-                  <span className="rm-muted">{f.desc}</span>
-                </span>
+                ))}
               </div>
-            );
-          })}
-        </div>
-      </div>
+            </section>
+          }
+          laterale={
+            <section className="rm-card">
+              <div className="rm-cardhead">
+                <h2 style={{ fontSize: 14 }}>Dentro il programma</h2>
+              </div>
+              <div className="rm-righe">
+                {INAPP_FIELDS.map((f) => (
+                  <RigaSpunta
+                    key={f.key}
+                    campo={`inapp-${f.key}`}
+                    etichetta={f.label}
+                    descrizione={f.desc}
+                    acceso={!!prefs.inapp_notifications[f.key]}
+                    onCambia={() => toggleInApp(f.key)}
+                  />
+                ))}
+              </div>
+            </section>
+          }
+        />
+      </Contenuto>
     </>
   );
 }

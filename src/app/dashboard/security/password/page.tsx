@@ -1,13 +1,40 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Eye, EyeOff } from "lucide-react";
+import { Contenuto, PiedeModulo, Sezione, TestataAzione } from "../../_ui/cornice";
+
+/** Riga del modulo: etichetta a sinistra, campo a destra. */
+function Campo({
+  campo,
+  etichetta,
+  children,
+}: Readonly<{ campo: string; etichetta: string; children: ReactNode }>) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(120px, 190px) minmax(0, 1fr)",
+        alignItems: "center",
+        gap: 12,
+        padding: "8px 16px",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <label className="rm-label" htmlFor={campo} style={{ textAlign: "right" }}>
+        {etichetta} <span aria-hidden>*</span>
+      </label>
+      <div style={{ minWidth: 0, maxWidth: 420 }}>{children}</div>
+    </div>
+  );
+}
 
 export default function PasswordPage() {
-  usePageTitle("Password");
+  usePageTitle("Cambio password");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -37,9 +64,9 @@ export default function PasswordPage() {
         if (user.updated_at) {
           const updatedDate = new Date(user.updated_at);
           const diffDays = Math.floor((Date.now() - updatedDate.getTime()) / (1000 * 60 * 60 * 24));
-          setLastChanged(diffDays === 0 ? "Oggi" : `${diffDays} giorni fa`);
+          setLastChanged(diffDays === 0 ? "oggi" : `${diffDays} giorni fa`);
         } else {
-          setLastChanged("Sconosciuto");
+          setLastChanged(null);
         }
         setLoading(false);
       } catch (error) {
@@ -132,7 +159,7 @@ export default function PasswordPage() {
       const { data: { user: fresh } } = await supabase.auth.getUser();
       if (fresh?.updated_at) {
         const diffDays = Math.floor((Date.now() - new Date(fresh.updated_at).getTime()) / (1000 * 60 * 60 * 24));
-        setLastChanged(diffDays === 0 ? "Oggi" : `${diffDays} giorni fa`);
+        setLastChanged(diffDays === 0 ? "oggi" : `${diffDays} giorni fa`);
       }
     } catch (error) {
       console.error("Error changing password:", error);
@@ -142,52 +169,67 @@ export default function PasswordPage() {
     }
   };
 
-  const getPasswordStrengthText = (strength: number) => {
-    if (strength < 40) return "Debole";
-    if (strength < 70) return "Media";
-    return "Robusta";
+  const robustezza = (strength: number) => {
+    if (strength < 40) return "debole";
+    if (strength < 70) return "media";
+    return "robusta";
   };
 
   if (loading) {
     return (
       <>
-        <div className="rm-area__intesta">
-          <h1>Cambio password</h1>
-        </div>
-        <div className="rm-card">
+        <TestataAzione indietro="/dashboard/security" occhiello="Sicurezza" titolo="Cambio password" />
+        <Contenuto>
           <p className="rm-muted">Caricamento in corso.</p>
-        </div>
+        </Contenuto>
       </>
     );
   }
 
+  const nonSalvabile =
+    saving || passwordStrength < 60 || newPassword !== confirmPassword || !currentPassword;
+
+  const azioni = (
+    <>
+      <Link href="/dashboard/security" className="rm-btn rm-btn--secondary">
+        <span>Annulla</span>
+      </Link>
+      <button type="submit" form="modulo-password" disabled={nonSalvabile} className="rm-btn rm-btn--primary">
+        <span>{saving ? "Aggiornamento in corso" : "Cambia la password"}</span>
+      </button>
+    </>
+  );
+
+  /** Il pulsante che mostra o nasconde: sta dentro la cornice del campo. */
+  const occhio = (visibile: boolean, cambia: () => void) => (
+    <button
+      type="button"
+      onClick={cambia}
+      className="rm-btn rm-btn--ghost"
+      style={{ height: 38, padding: "0 10px", gap: 0 }}
+      aria-label={visibile ? "Nascondi la password" : "Mostra la password"}
+    >
+      {visibile ? <EyeOff size={16} /> : <Eye size={16} />}
+    </button>
+  );
+
   return (
     <>
-      <div className="rm-area__intesta">
-        <div>
-          <p className="rm-eyebrow">Sicurezza</p>
-          <h1 style={{ marginTop: 8 }}>Cambio password</h1>
-          <p className="rm-muted" style={{ marginTop: 6 }}>
-            Ultimo cambio: {lastChanged || "sconosciuto"}.
-          </p>
-        </div>
-        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
-          <span>Torna a Sicurezza</span>
-        </Link>
-      </div>
+      <TestataAzione
+        indietro="/dashboard/security"
+        occhiello="Sicurezza"
+        titolo="Cambio password"
+        sotto={lastChanged ? `Ultimo cambio ${lastChanged}` : "Serve la password attuale"}
+        azioni={azioni}
+      />
 
-      {error && <div className="rm-note rm-note--errore">{error}</div>}
-      {success && <div className="rm-note rm-note--info">{success}</div>}
+      <Contenuto>
+        {error && <div className="rm-note rm-note--errore" style={{ marginBottom: 16 }}>{error}</div>}
+        {success && <div className="rm-note rm-note--info" style={{ marginBottom: 16 }}>{success}</div>}
 
-      <form onSubmit={handleChangePassword}>
-        <div className="rm-card">
-          <div className="rm-cardhead">
-            <h3>Nuova password</h3>
-          </div>
-
-          <div className="flex flex-col gap-4" style={{ maxWidth: 460 }}>
-            <div className="rm-field">
-              <label className="rm-label" htmlFor="pwd-attuale">Password attuale</label>
+        <form id="modulo-password" onSubmit={handleChangePassword}>
+          <Sezione titolo="Nuova password">
+            <Campo campo="pwd-attuale" etichetta="Password attuale">
               <div className="rm-prefix">
                 <input
                   id="pwd-attuale"
@@ -199,20 +241,11 @@ export default function PasswordPage() {
                   autoComplete="current-password"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="rm-btn rm-btn--ghost"
-                  style={{ height: 38, padding: "0 10px", gap: 0 }}
-                  aria-label={showCurrentPassword ? "Nascondi la password" : "Mostra la password"}
-                >
-                  {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                {occhio(showCurrentPassword, () => setShowCurrentPassword(!showCurrentPassword))}
               </div>
-            </div>
+            </Campo>
 
-            <div className="rm-field">
-              <label className="rm-label" htmlFor="pwd-nuova">Nuova password</label>
+            <Campo campo="pwd-nuova" etichetta="Nuova password">
               <div className="rm-prefix">
                 <input
                   id="pwd-nuova"
@@ -224,26 +257,17 @@ export default function PasswordPage() {
                   autoComplete="new-password"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="rm-btn rm-btn--ghost"
-                  style={{ height: 38, padding: "0 10px", gap: 0 }}
-                  aria-label={showNewPassword ? "Nascondi la password" : "Mostra la password"}
-                >
-                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                {occhio(showNewPassword, () => setShowNewPassword(!showNewPassword))}
               </div>
               {newPassword && (
-                <p className="rm-muted">
-                  Robustezza: {getPasswordStrengthText(passwordStrength)}.
-                  {passwordStrength < 60 && " Serve almeno il livello Media per proseguire."}
+                <p className="rm-muted" style={{ marginTop: 6 }}>
+                  Robustezza {robustezza(passwordStrength)}.
+                  {passwordStrength < 60 && " Serve almeno il livello medio per proseguire."}
                 </p>
               )}
-            </div>
+            </Campo>
 
-            <div className="rm-field">
-              <label className="rm-label" htmlFor="pwd-conferma">Conferma la nuova password</label>
+            <Campo campo="pwd-conferma" etichetta="Ripeti la nuova password">
               <div className="rm-prefix">
                 <input
                   id="pwd-conferma"
@@ -255,53 +279,24 @@ export default function PasswordPage() {
                   autoComplete="new-password"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="rm-btn rm-btn--ghost"
-                  style={{ height: 38, padding: "0 10px", gap: 0 }}
-                  aria-label={showConfirmPassword ? "Nascondi la password" : "Mostra la password"}
-                >
-                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                {occhio(showConfirmPassword, () => setShowConfirmPassword(!showConfirmPassword))}
               </div>
               {confirmPassword && newPassword !== confirmPassword && (
-                <p className="rm-stato rm-stato--male">Le password non coincidono</p>
+                <p className="rm-stato rm-stato--male" style={{ marginTop: 6 }}>
+                  Le password non coincidono
+                </p>
               )}
-            </div>
+            </Campo>
 
-            <div>
-              <button
-                type="submit"
-                disabled={saving || passwordStrength < 60 || newPassword !== confirmPassword || !currentPassword}
-                className="rm-btn rm-btn--primary"
-              >
-                <span>{saving ? "Aggiornamento in corso" : "Cambia la password"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
+            <p className="rm-muted" style={{ padding: "10px 16px", textAlign: "center" }}>
+              Almeno dodici caratteri, con maiuscole, minuscole, numeri e simboli. Non
+              riutilizzare password gia&apos; usate altrove. Le postazioni restano collegate.
+            </p>
+          </Sezione>
+        </form>
 
-      <div className="rm-card">
-        <div className="rm-cardhead">
-          <h3>Come sceglierla</h3>
-        </div>
-        <div className="rm-righe">
-          <div className="rm-riga">
-            <span>Lunghezza</span>
-            <span>Almeno dodici caratteri</span>
-          </div>
-          <div className="rm-riga">
-            <span>Composizione</span>
-            <span>Maiuscole, minuscole, numeri e simboli</span>
-          </div>
-          <div className="rm-riga">
-            <span>Riuso</span>
-            <span>Non riutilizzare password già usate altrove</span>
-          </div>
-        </div>
-      </div>
+        <PiedeModulo note="* obbligatori" azioni={azioni} />
+      </Contenuto>
     </>
   );
 }
