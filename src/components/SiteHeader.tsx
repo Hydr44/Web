@@ -457,7 +457,7 @@ export default function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            {pathname === "/login" || pathname === "/register" ? (
+            {pathname === "/login" ? (
              <div className="w-4 sm:w-8" />
             ) : user || isLoggingOut ? (
               <>

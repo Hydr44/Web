@@ -37,7 +37,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         page("/soccorso-stradale", 0.9, "weekly"),
         page("/chi-siamo", 0.8, "monthly"),
         page("/contatti", 0.7, "yearly"),
-        page("/accessi", 0.6, "monthly"),
         ...moduli,
         // Legali
         page("/privacy-policy", 0.4, "yearly"),

@@ -37,6 +37,12 @@ const nextConfig: NextConfig = {
         destination: "https://rescuemanager.eu/:path*",
         permanent: true,
       },
+      // Pagine tolte dal sito. Il rinvio permanente serve a non lasciare
+      // errori 404 su indirizzi che qualcuno ha salvato o che Google conosce:
+      // "Accessi e download" non esiste piu' (il download passa dal login) e
+      // l'account non si crea da soli, si chiede.
+      { source: "/accessi", destination: "/login", permanent: true },
+      { source: "/register", destination: "/contatti", permanent: true },
       // Alias della pagina di settore autodemolizioni (varianti digitate/cercate)
       { source: "/autodemolitori", destination: "/autodemolizioni", permanent: true },
       { source: "/autodemolizione", destination: "/autodemolizioni", permanent: true },

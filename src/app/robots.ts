@@ -8,7 +8,6 @@ export default function robots(): MetadataRoute.Robots {
     const disallow = [
         "/api/",
         "/logout",
-        "/register",
         "/reset",
         "/set-password",
         "/update-password",

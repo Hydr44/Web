@@ -57,8 +57,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Enforcement: registrazione disabilitata globalmente dall'admin.
-    // Riguarda solo le richieste di accesso (la pagina /register), non i
-    // contatti generici. Fail-open in caso di errore lettura settings.
+    // Riguarda solo le richieste di accesso (type 'access_request'), non i
+    // contatti generici. La pagina /register non esiste piu': il controllo
+    // resta per eventuali richieste inviate da fuori. Fail-open in caso di
+    // errore nella lettura delle impostazioni.
     if (type === 'access_request') {
       try {
         const { data: regSetting } = await supabaseAdmin
