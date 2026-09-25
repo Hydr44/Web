@@ -2,10 +2,66 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Check, Eye, EyeOff } from 'lucide-react';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 import Link from 'next/link';
-import Image from 'next/image';
+
+// Pulsante che sembra un link: manca una classe nel foglio di stile.
+const COME_LINK: React.CSSProperties = {
+  background: 'transparent',
+  border: 0,
+  padding: 0,
+  fontFamily: 'inherit',
+  fontSize: 12.5,
+  color: 'var(--brand-text)',
+  textDecoration: 'underline',
+  textUnderlineOffset: 3,
+  cursor: 'pointer',
+};
+
+// Un pulsante che e' un collegamento: serve una regola per `a.rm-btn` nel foglio di stile.
+const COME_PULSANTE: React.CSSProperties = { textDecoration: 'none', color: 'var(--text)' };
+
+// L'intestazione del sito e' fissa in alto e alta 112 px: la cornice parte sotto.
+
+function Lato() {
+  return (
+    <aside className="rm-gate__lato">
+      <Link href="/" className="inline-flex" style={{ textDecoration: 'none' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={160} height={53} />
+      </Link>
+
+      <div>
+        <h2>Ancora un passo</h2>
+        <p style={{ marginTop: 14, maxWidth: '38ch' }}>
+          Scegli la password del tuo account: da qui entri sia dal browser sia dall&apos;applicazione
+          per il computer.
+        </p>
+        <ul>
+          <li>Tutti i moduli del tuo piano, compresi</li>
+          <li>Browser e applicazione per il computer</li>
+          <li>Registri RENTRI e fatture SDI collegati</li>
+          <li>Assistenza dedicata</li>
+        </ul>
+      </div>
+
+      <p style={{ fontSize: 12.5, color: 'var(--sidebar-muted)' }}>
+        © {new Date().getFullYear()} RescueManager · rescuemanager.eu
+      </p>
+    </aside>
+  );
+}
+
+function LogoPiccolo() {
+  return (
+    <div className="lg:hidden">
+      <Link href="/" className="inline-flex" style={{ textDecoration: 'none' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={150} height={50} />
+      </Link>
+    </div>
+  );
+}
 
 export default function SetPasswordPage() {
   const searchParams = useSearchParams();
@@ -75,22 +131,31 @@ export default function SetPasswordPage() {
     if (/[A-Z]/.test(p)) score++;
     if (/[0-9]/.test(p)) score++;
     if (/[^A-Za-z0-9]/.test(p)) score++;
-    if (score <= 1) return { score, label: 'Debole', color: 'bg-red-500' };
-    if (score <= 3) return { score, label: 'Media', color: 'bg-amber-500' };
-    return { score, label: 'Forte', color: 'bg-emerald-500' };
+    if (score <= 1) return { score, label: 'Debole', color: 'var(--text-secondary)' };
+    if (score <= 3) return { score, label: 'Media', color: 'var(--text-secondary)' };
+    return { score, label: 'Forte', color: 'var(--brand)' };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirm) { setErrorMsg('Le password non coincidono.'); return; }
-    if (password.length < 8) { setErrorMsg('La password deve essere di almeno 8 caratteri.'); return; }
+    if (password !== confirm) { setErrorMsg('Le due password non coincidono. Riscrivile uguali.'); return; }
+    if (password.length < 8) { setErrorMsg('La password deve avere almeno 8 caratteri.'); return; }
     setLoading(true);
     setErrorMsg('');
     const { error } = await supabase.auth.updateUser({
       password,
       data: { force_password_change: false },
     });
-    if (error) { setErrorMsg(`Errore: ${error.message}`); setLoading(false); return; }
+    if (error) {
+      console.error('[set-password] updateUser:', error);
+      setErrorMsg(
+        /different|same/i.test(error.message || '')
+          ? 'La nuova password deve essere diversa da quella precedente.'
+          : 'Non è stato possibile salvare la password. Riprova, oppure chiedi un nuovo link.'
+      );
+      setLoading(false);
+      return;
+    }
 
     // Recupera organizzazione + ruolo per mostrarli, e per gli autisti
     // marca l'onboarding completato (coerente con l'app mobile).
@@ -131,52 +196,20 @@ export default function SetPasswordPage() {
 
   const strength = passwordStrength();
 
-  const LeftPanel = () => (
-    <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
-      <Link href="/" className="inline-flex items-center">
-        <img 
-          src="/assets/logos/logo-principale-bianco.svg" 
-          alt="RescueManager"
-          width={160}
-          height={53}
-          className="h-auto"
-        />
-      </Link>
-      <div>
-        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Account Attivato</p>
-        <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
-          Quasi pronto<span className="text-blue-500">.</span>
-        </h2>
-        <p className="text-slate-400 text-base mb-10 max-w-sm">
-          Imposta la tua password per accedere a RescueManager e completare la configurazione della tua organizzazione.
-        </p>
-        <div className="space-y-3">
-          {[
-            'Accesso completo a tutti i moduli inclusi',
-            'Piattaforma web + applicazione desktop',
-            'Integrazione RENTRI & SDI certificata',
-            'Supporto tecnico dedicato',
-          ].map((f) => (
-            <div key={f} className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
-              <span className="text-sm text-slate-300">{f}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
-    </div>
-  );
-
   if (stage === 'verifying') {
     return (
-      <div className="min-h-screen flex">
-        <LeftPanel />
-        <div className="flex-1 bg-white flex items-center justify-center p-8">
-          <div className="text-center">
-            <div className="h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">Verifica del link in corso...</p>
-          </div>
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <LogoPiccolo />
+              <div>
+                <h1>Verifica del link</h1>
+                <p className="rm-muted" style={{ marginTop: 6 }}>Controllo in corso. Attendi qualche secondo.</p>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -184,26 +217,20 @@ export default function SetPasswordPage() {
 
   if (stage === 'error') {
     return (
-      <div className="min-h-screen flex">
-        <LeftPanel />
-        <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
-          <div className="w-full max-w-sm text-center">
-            <div className="lg:hidden mb-8">
-              <Link href="/" className="inline-flex flex-col items-center gap-2">
-                <div className="relative w-12 h-12 overflow-hidden">
-                  <Image src="/logo_512.png" alt="RescueManager" fill className="object-cover" />
-                </div>
-                <span className="text-xl font-extrabold text-[#0f172a]">RESCUE<span className="text-blue-600">MANAGER</span></span>
-              </Link>
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <LogoPiccolo />
+              <div>
+                <h1>Link non valido</h1>
+                <p className="rm-muted" style={{ marginTop: 6 }}>Non possiamo aprire questa pagina.</p>
+              </div>
+              <div className="rm-note rm-note--errore" role="alert">{errorMsg}</div>
+              <Link href="/" className="rm-btn rm-btn--secondary rm-btn--full" style={COME_PULSANTE}>Torna al sito</Link>
             </div>
-            <div className="border-l-4 border-red-500 bg-red-50 px-4 py-4 text-left mb-6">
-              <p className="text-sm font-bold text-red-700 mb-1">Link non valido</p>
-              <p className="text-sm text-red-600">{errorMsg}</p>
-            </div>
-            <Link href="/" className="text-sm text-blue-600 font-bold hover:underline">
-              ← Torna al sito
-            </Link>
-          </div>
+          </main>
         </div>
       </div>
     );
@@ -211,169 +238,153 @@ export default function SetPasswordPage() {
 
   if (stage === 'success') {
     return (
-      <div className="min-h-screen flex">
-        <LeftPanel />
-        <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
-          <div className="w-full max-w-sm text-center">
-            <div className="w-16 h-16 bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center mx-auto mb-6">
-              <Check className="h-8 w-8 text-emerald-600" />
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <LogoPiccolo />
+              <div>
+                <h1>Password impostata</h1>
+                <p className="rm-muted" style={{ marginTop: 6 }}>
+                  {accountInfo?.isDriver
+                    ? "Apri l'applicazione RescueManager sul telefono e accedi con la tua email e la password appena scelta."
+                    : 'Account attivo. Fra qualche istante apriamo la configurazione iniziale.'}
+                </p>
+              </div>
+
+              {accountInfo && (accountInfo.orgName || accountInfo.role) && (
+                <div className="rm-righe">
+                  {accountInfo.orgName && (
+                    <div className="rm-riga"><span>Azienda</span><span>{accountInfo.orgName}</span></div>
+                  )}
+                  {accountInfo.role && (
+                    <div className="rm-riga">
+                      <span>Ruolo</span>
+                      <span style={{ textTransform: 'capitalize' }}>
+                        {accountInfo.role === 'autista' ? 'Autista' : accountInfo.role}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!accountInfo?.isDriver && (
+                <p className="rm-muted">
+                  Se la pagina non si apre da sola,{' '}
+                  <Link href="/onboarding">vai alla configurazione</Link>.
+                </p>
+              )}
             </div>
-            <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Completato</p>
-            <h1 className="text-3xl font-extrabold text-[#0f172a] mb-3">Password impostata!</h1>
-            <p className="text-sm text-gray-500 mb-4">
-              {accountInfo?.isDriver
-                ? 'Ora apri l\'app RescueManager sul telefono e accedi con la tua email e la password che hai appena scelto.'
-                : 'Il tuo account è attivo. Sarai reindirizzato automaticamente alla configurazione iniziale.'}
-            </p>
-            {accountInfo && (accountInfo.orgName || accountInfo.role) && (
-              <div className="mb-6 border border-gray-200 bg-gray-50 px-4 py-3 text-left">
-                {accountInfo.orgName && (
-                  <p className="text-sm text-[#0f172a]">
-                    <span className="text-gray-500">Organizzazione:</span>{' '}
-                    <span className="font-bold">{accountInfo.orgName}</span>
-                  </p>
-                )}
-                {accountInfo.role && (
-                  <p className="text-sm text-[#0f172a] mt-1">
-                    <span className="text-gray-500">Ruolo:</span>{' '}
-                    <span className="font-bold capitalize">
-                      {accountInfo.role === 'autista' ? 'Autista' : accountInfo.role}
-                    </span>
-                  </p>
-                )}
-              </div>
-            )}
-            {!accountInfo?.isDriver && (
-              <div className="h-1 w-full bg-gray-100">
-                <div className="h-1 bg-blue-600 animate-pulse w-3/4" />
-              </div>
-            )}
-            {!accountInfo?.isDriver && (
-              <p className="text-xs text-gray-400 mt-3">
-                Se non vieni reindirizzato,{' '}
-                <Link href="/onboarding" className="text-blue-600 font-bold hover:underline">clicca qui</Link>
-              </p>
-            )}
-          </div>
+          </main>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex">
-      <LeftPanel />
+    <div className="rm-prod">
+      <div className="rm-gate" >
+        <Lato />
 
-      {/* RIGHT — form panel */}
-      <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-sm">
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <Link href="/" className="inline-flex items-center justify-center">
-              <img 
-                src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" 
-                alt="RescueManager"
-                width={200}
-                height={67}
-                className="h-auto"
-              />
-            </Link>
-          </div>
+        <main className="rm-gate__corpo">
+          <div className="rm-gate__modulo">
+            <LogoPiccolo />
 
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Account Attivato</p>
-          <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Imposta la password.</h1>
-          <p className="text-sm text-gray-500 mb-8">Scegli una password sicura per il tuo account RescueManager.</p>
-
-          {errorMsg && (
-            <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {errorMsg}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
-                Nuova password
-              </label>
-              <div className="relative">
+              <h1>Imposta la password</h1>
+              <p className="rm-muted" style={{ marginTop: 6 }}>
+                Scegli la password che userai per entrare in RescueManager.
+              </p>
+            </div>
+
+            {errorMsg && (
+              <div className="rm-note rm-note--errore" role="alert">{errorMsg}</div>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="rm-field">
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="password" className="rm-label">Nuova password</label>
+                  <button
+                    type="button"
+                    style={COME_LINK}
+                    onClick={() => setShowPass(!showPass)}
+                    aria-pressed={showPass}
+                    aria-controls="password"
+                  >
+                    {showPass ? 'Nascondi' : 'Mostra'}
+                  </button>
+                </div>
                 <input
                   id="password"
                   type={showPass ? 'text' : 'password'}
+                  className="rm-input"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  className="w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm pr-10"
-                  placeholder="Minimo 8 caratteri"
+                  placeholder="Almeno 8 caratteri"
                   autoComplete="new-password"
                   disabled={loading}
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                  {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {password && (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div key={i} className={`h-1 flex-1 transition-colors ${i <= strength.score ? strength.color : 'bg-gray-200'}`} />
-                    ))}
+                {password && (
+                  <div className="flex flex-col gap-1" style={{ marginTop: 2 }}>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div
+                          key={i}
+                          style={{
+                            height: 3,
+                            flex: 1,
+                            background: i <= strength.score ? strength.color : 'var(--layer-3)',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="rm-muted">Sicurezza: {strength.label.toLowerCase()}</span>
                   </div>
-                  <p className="text-xs text-gray-500">{strength.label}</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Confirm */}
-            <div>
-              <label htmlFor="confirm" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
-                Conferma password
-              </label>
-              <input
-                id="confirm"
-                type={showPass ? 'text' : 'password'}
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                required
-                className={`w-full px-4 py-3 border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent transition-colors placeholder-gray-400 text-sm ${
-                  confirm && confirm !== password
-                    ? 'border-red-400 focus:ring-red-500'
-                    : 'border-gray-200 focus:ring-blue-500'
-                }`}
-                placeholder="Ripeti la password"
-                autoComplete="new-password"
-                disabled={loading}
-              />
-              {confirm && confirm !== password && (
-                <p className="text-xs text-red-500 mt-1">Le password non coincidono</p>
-              )}
-            </div>
+              <div className="rm-field">
+                <label htmlFor="confirm" className="rm-label">Ripeti la password</label>
+                <input
+                  id="confirm"
+                  type={showPass ? 'text' : 'password'}
+                  className="rm-input"
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  required
+                  aria-invalid={!!confirm && confirm !== password}
+                  aria-describedby={confirm && confirm !== password ? 'confirm-errore' : undefined}
+                  placeholder="La stessa password"
+                  autoComplete="new-password"
+                  disabled={loading}
+                />
+                {confirm && confirm !== password && (
+                  <span id="confirm-errore" className="rm-muted" style={{ color: 'var(--danger)' }}>
+                    Le due password non coincidono.
+                  </span>
+                )}
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading || !password || !confirm}
-              className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>Salvataggio...</span>
-                </div>
-              ) : 'IMPOSTA PASSWORD'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="rm-btn rm-btn--primary rm-btn--full"
+                disabled={loading || !password || !confirm}
+              >
+                {loading ? 'Salvataggio in corso' : 'Imposta la password'}
+              </button>
+            </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-500">
-              Hai bisogno di aiuto?{' '}
-              <a href="mailto:info@rescuemanager.eu" className="text-blue-600 font-bold hover:underline">
-                Contattaci
-              </a>
+            <div className="rm-sep" style={{ margin: 0 }} />
+
+            <p className="rm-muted">
+              Ti serve una mano? <a href="mailto:info@rescuemanager.eu">Scrivici</a>
             </p>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

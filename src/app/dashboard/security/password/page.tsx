@@ -4,17 +4,7 @@ import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { 
-  Key, 
-  ArrowLeft, 
-  Eye, 
-  EyeOff, 
-  CheckCircle, 
-  AlertTriangle, 
-  Shield, 
-  Clock,
-  Save,
-} from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function PasswordPage() {
   usePageTitle("Password");
@@ -35,14 +25,14 @@ export default function PasswordPage() {
     const loadPasswordInfo = async () => {
       try {
         const supabase = supabaseBrowser();
-        
+
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
           console.error("Error getting user:", userError);
           setLoading(false);
           return;
         }
-        
+
         // Usa la data reale di aggiornamento utente
         if (user.updated_at) {
           const updatedDate = new Date(user.updated_at);
@@ -70,7 +60,7 @@ export default function PasswordPage() {
     if (/[a-z]/.test(newPassword)) strength += 20;
     if (/[0-9]/.test(newPassword)) strength += 10;
     if (/[^A-Za-z0-9]/.test(newPassword)) strength += 10;
-    
+
     setPasswordStrength(strength);
   }, [newPassword]);
 
@@ -99,7 +89,7 @@ export default function PasswordPage() {
     }
 
     if (passwordStrength < 60) {
-      setError("La password non è abbastanza forte");
+      setError("La password non è abbastanza robusta");
       setSaving(false);
       return;
     }
@@ -134,7 +124,7 @@ export default function PasswordPage() {
           body: JSON.stringify({ action: "password.changed" }),
         });
       } catch { /* non bloccante */ }
-      setSuccess("Password aggiornata con successo!");
+      setSuccess("Password aggiornata.");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -152,227 +142,166 @@ export default function PasswordPage() {
     }
   };
 
-  const getPasswordStrengthColor = (strength: number) => {
-    if (strength < 40) return "text-red-600";
-    if (strength < 70) return "text-amber-600";
-    return "text-green-600";
-  };
-
   const getPasswordStrengthText = (strength: number) => {
     if (strength < 40) return "Debole";
     if (strength < 70) return "Media";
-    return "Forte";
+    return "Robusta";
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Cambio password</h1>
         </div>
-      </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento in corso.</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header className="flex items-start gap-3">
-        <Link
-          href="/dashboard/security"
-          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-            <Key className="h-3.5 w-3.5" />
-            Gestione password
-          </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Cambia password</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Aggiorna la tua password per mantenere l&apos;account sicuro.
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Sicurezza</p>
+          <h1 style={{ marginTop: 8 }}>Cambio password</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Ultimo cambio: {lastChanged || "sconosciuto"}.
           </p>
         </div>
-      </header>
+        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
+          <span>Torna a Sicurezza</span>
+        </Link>
+      </div>
 
-      {/* Password Info */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Current Password Info */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Informazioni Password</h2>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4  bg-white border border-gray-200">
-              <div>
-                <h3 className="font-medium text-gray-900">Ultimo cambio</h3>
-                <p className="text-sm text-gray-500">Password modificata</p>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Clock className="h-4 w-4" />
-                {lastChanged || "Sconosciuto"}
-              </div>
-            </div>
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      {success && <div className="rm-note rm-note--info">{success}</div>}
 
-            <div className="flex items-center justify-between p-4  bg-emerald-500/10 border border-gray-200">
-              <div>
-                <h3 className="font-medium text-green-900">Sicurezza</h3>
-                <p className="text-sm text-green-600">Password attiva e protetta</p>
-              </div>
-              <CheckCircle className="h-5 w-5 text-green-600" />
-            </div>
-
-            <div className="p-4  bg-blue-50 border border-blue-200">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">Consigli per la sicurezza</span>
-              </div>
-              <ul className="text-sm text-blue-600 space-y-1">
-                <li>• Usa almeno 12 caratteri</li>
-                <li>• Includi lettere maiuscole e minuscole</li>
-                <li>• Aggiungi numeri e simboli</li>
-                <li>• Non riutilizzare password vecchie</li>
-              </ul>
-            </div>
+      <form onSubmit={handleChangePassword}>
+        <div className="rm-card">
+          <div className="rm-cardhead">
+            <h3>Nuova password</h3>
           </div>
-        </div>
 
-        {/* Change Password Form */}
-        <div className="p-6  bg-white border border-gray-200 ">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Cambia Password</h2>
-          
-          {error && (
-            <div className="mb-6 p-4  bg-red-50 border border-red-200 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-              <span className="text-red-800">{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-6 p-4  bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="text-green-800">{success}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleChangePassword} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Password Attuale
-              </label>
-              <div className="relative">
+          <div className="flex flex-col gap-4" style={{ maxWidth: 460 }}>
+            <div className="rm-field">
+              <label className="rm-label" htmlFor="pwd-attuale">Password attuale</label>
+              <div className="rm-prefix">
                 <input
+                  id="pwd-attuale"
                   type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
-                  placeholder="Inserisci la password attuale"
+                  className="rm-input"
+                  placeholder="Password attuale"
                   autoComplete="current-password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="rm-btn rm-btn--ghost"
+                  style={{ height: 38, padding: "0 10px", gap: 0 }}
+                  aria-label={showCurrentPassword ? "Nascondi la password" : "Mostra la password"}
                 >
-                  {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Nuova Password
-              </label>
-              <div className="relative">
+            <div className="rm-field">
+              <label className="rm-label" htmlFor="pwd-nuova">Nuova password</label>
+              <div className="rm-prefix">
                 <input
+                  id="pwd-nuova"
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
-                  placeholder="Inserisci la nuova password"
+                  className="rm-input"
+                  placeholder="Nuova password"
                   autoComplete="new-password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="rm-btn rm-btn--ghost"
+                  style={{ height: 38, padding: "0 10px", gap: 0 }}
+                  aria-label={showNewPassword ? "Nascondi la password" : "Mostra la password"}
                 >
-                  {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              
               {newPassword && (
-                <div className="mt-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Forza password</span>
-                    <span className={`text-sm font-medium ${getPasswordStrengthColor(passwordStrength)}`}>
-                      {getPasswordStrengthText(passwordStrength)}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-50 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        passwordStrength < 40 ? 'bg-red-500' : 
-                        passwordStrength < 70 ? 'bg-amber-500/100' : 'bg-emerald-500/100'
-                      }`}
-                      style={{ width: `${passwordStrength}%` }}
-                    ></div>
-                  </div>
-                </div>
+                <p className="rm-muted">
+                  Robustezza: {getPasswordStrengthText(passwordStrength)}.
+                  {passwordStrength < 60 && " Serve almeno il livello Media per proseguire."}
+                </p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Conferma Nuova Password
-              </label>
-              <div className="relative">
+            <div className="rm-field">
+              <label className="rm-label" htmlFor="pwd-conferma">Conferma la nuova password</label>
+              <div className="rm-prefix">
                 <input
+                  id="pwd-conferma"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-200  focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
-                  placeholder="Conferma la nuova password"
+                  className="rm-input"
+                  placeholder="Ripeti la nuova password"
                   autoComplete="new-password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="rm-btn rm-btn--ghost"
+                  style={{ height: 38, padding: "0 10px", gap: 0 }}
+                  aria-label={showConfirmPassword ? "Nascondi la password" : "Mostra la password"}
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              
               {confirmPassword && newPassword !== confirmPassword && (
-                <p className="mt-2 text-sm text-red-600">Le password non coincidono</p>
+                <p className="rm-stato rm-stato--male">Le password non coincidono</p>
               )}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div>
               <button
                 type="submit"
                 disabled={saving || passwordStrength < 60 || newPassword !== confirmPassword || !currentPassword}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white  hover:bg-gray-800 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rm-btn rm-btn--primary"
               >
-                {saving ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                {saving ? "Aggiornamento..." : "Cambia password"}
+                <span>{saving ? "Aggiornamento in corso" : "Cambia la password"}</span>
               </button>
             </div>
-          </form>
+          </div>
+        </div>
+      </form>
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Come sceglierla</h3>
+        </div>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>Lunghezza</span>
+            <span>Almeno dodici caratteri</span>
+          </div>
+          <div className="rm-riga">
+            <span>Composizione</span>
+            <span>Maiuscole, minuscole, numeri e simboli</span>
+          </div>
+          <div className="rm-riga">
+            <span>Riuso</span>
+            <span>Non riutilizzare password già usate altrove</span>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

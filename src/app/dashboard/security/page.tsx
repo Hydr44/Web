@@ -5,15 +5,6 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
-import {
-  Shield,
-  Key,
-  Smartphone,
-  Monitor,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-} from "lucide-react";
 
 type SecurityState = {
   securityScore: number;
@@ -74,11 +65,6 @@ export default function SecurityPage() {
     load();
   }, []);
 
-  const scoreColor = (s: number) =>
-    s >= 80 ? "text-emerald-600" : s >= 60 ? "text-amber-600" : "text-red-600";
-  const scoreBar = (s: number) =>
-    s >= 80 ? "bg-emerald-500" : s >= 60 ? "bg-amber-500" : "bg-red-500";
-
   const fmtDate = (iso: string | null) => {
     if (!iso) return null;
     try {
@@ -98,221 +84,136 @@ export default function SecurityPage() {
   const todo: { label: string; desc: string; href: string }[] = [];
   if (TWO_FACTOR_ENABLED && !sec.twoFactorEnabled)
     todo.push({
-      label: "Abilita l'autenticazione a due fattori",
-      desc: "Aggiunge un secondo livello di protezione all'accesso.",
+      label: "Abilita la verifica in due passaggi",
+      desc: "Aggiunge un secondo controllo all'accesso.",
       href: "/dashboard/security/2fa",
     });
   if (!sec.emailVerified)
     todo.push({
-      label: "Verifica l'indirizzo email",
-      desc: "Conferma la tua email per proteggere il recupero dell'account.",
+      label: "Conferma l'indirizzo email",
+      desc: "Serve per il recupero dell'accesso.",
       href: "/dashboard/profile",
     });
 
   if (loading) {
     return (
-      <div className="space-y-8">
-        <div>
-          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse mb-2" />
-          <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Sicurezza</h1>
         </div>
-        <div className="p-6 bg-white border border-gray-100 rounded-lg">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-3 items-center">
-              <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
-              <div className="space-y-2">
-                <div className="w-40 h-5 bg-gray-200 rounded animate-pulse" />
-                <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
-              </div>
-            </div>
-            <div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />
-          </div>
-          <div className="w-full h-3 bg-gray-100 rounded-full animate-pulse mb-4" />
-          <div className="w-1/3 h-4 bg-gray-100 rounded animate-pulse" />
+        <div className="rm-card">
+          <p className="rm-muted">Controllo delle protezioni in corso.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="p-6 bg-white border border-gray-100 rounded-lg space-y-4">
-              <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
-                <div className="space-y-2 flex-1">
-                  <div className="w-2/3 h-5 bg-gray-200 rounded animate-pulse" />
-                  <div className="w-full h-3 bg-gray-100 rounded animate-pulse" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </>
     );
   }
 
   const lastSignIn = fmtDate(sec.lastSignIn);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Sicurezza</h1>
-        <p className="text-gray-500">Monitora e gestisci la sicurezza del tuo account.</p>
-      </header>
-
-      {/* Security Score */}
-      <div className="p-5 bg-white border border-gray-200 rounded">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-gray-700" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900">Score sicurezza</h2>
-              <p className="text-xs text-gray-500">Credenziali, email verificata e 2FA</p>
-            </div>
-          </div>
-          <div className={`text-2xl font-semibold tabular-nums ${scoreColor(sec.securityScore)}`}>
-            {sec.securityScore}%
-          </div>
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <h1>Sicurezza</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Protezioni attive sull&apos;utenza e registro degli accessi.
+          </p>
         </div>
+      </div>
 
-        <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
-          <div
-            className={`h-1.5 rounded-full transition-all duration-500 ${scoreBar(sec.securityScore)}`}
-            style={{ width: `${sec.securityScore}%` }}
-          />
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Livello di protezione</h3>
+          <span className="rm-muted">Credenziali, email, verifica in due passaggi</span>
         </div>
-
-        <p className="text-xs text-gray-500">
+        <p className="rm-dato">{sec.securityScore}%</p>
+        <p className="rm-muted">
           {sec.securityScore >= 80
-            ? "Ottimo: il tuo account è ben protetto."
+            ? "Protezioni complete."
             : sec.securityScore >= 60
-            ? "Buono — abilita il 2FA per la protezione massima."
-            : "Attenzione: completa i passaggi consigliati qui sotto."}
+            ? "Manca la verifica in due passaggi."
+            : "Restano passaggi da completare, elencati sotto."}
         </p>
-        {lastSignIn && (
-          <p className="text-xs text-gray-400 mt-2">Ultimo accesso: {lastSignIn}</p>
-        )}
-      </div>
 
-      {/* Quick Actions — tiles uniformi, neutre */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Link
-          href="/dashboard/security/password"
-          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-              <Key className="h-4 w-4 text-gray-700" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900">Password</h3>
-              <p className="text-xs text-gray-500">Cambia la password</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Gestione credenziali</span>
-            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
-          </div>
-        </Link>
-
-        {TWO_FACTOR_ENABLED && (
-        <Link
-          href="/dashboard/security/2fa"
-          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-              <Smartphone className="h-4 w-4 text-gray-700" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900">2FA</h3>
-              <p className="text-xs text-gray-500">Due fattori (TOTP)</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${sec.twoFactorEnabled ? "text-emerald-700" : "text-amber-700"}`}>
-              {sec.twoFactorEnabled ? "Abilitato" : "Non abilitato"}
+        <div className="rm-righe" style={{ marginTop: 16 }}>
+          <div className="rm-riga">
+            <span>Email confermata</span>
+            <span className={sec.emailVerified ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
+              {sec.emailVerified ? "Sì" : "No"}
             </span>
-            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
           </div>
-        </Link>
-        )}
-
-        <Link
-          href="/dashboard/security/sessions"
-          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-              <Monitor className="h-4 w-4 text-gray-700" />
+          {TWO_FACTOR_ENABLED && (
+            <div className="rm-riga">
+              <span>Verifica in due passaggi</span>
+              <span className={sec.twoFactorEnabled ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
+                {sec.twoFactorEnabled ? "Attiva" : "Non attiva"}
+              </span>
             </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900">Sessioni</h3>
-              <p className="text-xs text-gray-500">Dispositivi attivi</p>
-            </div>
+          )}
+          <div className="rm-riga">
+            <span>Ultimo accesso</span>
+            <span>{lastSignIn || "Non disponibile"}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Gestisci dispositivi</span>
-            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
-          </div>
-        </Link>
-
-        <Link
-          href="/dashboard/security/audit"
-          className="p-5 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-gray-700" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900">Audit log</h3>
-              <p className="text-xs text-gray-500">Eventi account</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Login · password · 2FA</span>
-            <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-700 transition-colors" />
-          </div>
-        </Link>
+        </div>
       </div>
 
-      {/* Azioni consigliate — dinamiche sui segnali reali */}
-      <div className="p-6 bg-white border border-gray-200 rounded">
-        <h2 className="text-base font-semibold text-gray-900 mb-1">Migliora la sicurezza</h2>
-        <p className="text-sm text-gray-500 mb-5">
-          {todo.length === 0
-            ? "Hai attivato tutte le protezioni disponibili."
-            : `${todo.length} ${todo.length === 1 ? "azione consigliata" : "azioni consigliate"} per rafforzare l'account.`}
-        </p>
-
-        {todo.length === 0 ? (
-          <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
-            <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
-            <p className="text-sm font-medium text-emerald-800">
-              Account protetto: 2FA attivo ed email verificata.
-            </p>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Gestione</h3>
+        </div>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>Password</span>
+            <span>
+              <Link href="/dashboard/security/password">Cambia la password</Link>
+            </span>
           </div>
+          {TWO_FACTOR_ENABLED && (
+            <div className="rm-riga">
+              <span>Verifica in due passaggi</span>
+              <span>
+                <Link href="/dashboard/security/2fa">
+                  {sec.twoFactorEnabled ? "Gestisci la verifica" : "Attiva la verifica"}
+                </Link>
+              </span>
+            </div>
+          )}
+          <div className="rm-riga">
+            <span>Postazioni collegate</span>
+            <span>
+              <Link href="/dashboard/security/sessions">Vedi le sessioni attive</Link>
+            </span>
+          </div>
+          <div className="rm-riga">
+            <span>Registro eventi</span>
+            <span>
+              <Link href="/dashboard/security/audit">Accessi, password, verifiche</Link>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Passaggi consigliati</h3>
+        </div>
+        {todo.length === 0 ? (
+          <p className="rm-muted">
+            Tutte le protezioni disponibili risultano attive.
+          </p>
         ) : (
-          <div className="space-y-2">
+          <div className="rm-righe">
             {todo.map((t) => (
-              <Link
-                key={t.href}
-                href={t.href}
-                className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{t.label}</p>
-                  <p className="text-xs text-gray-500">{t.desc}</p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-gray-700 transition-colors shrink-0" />
-              </Link>
+              <div key={t.href} className="rm-riga">
+                <span>{t.desc}</span>
+                <span>
+                  <Link href={t.href}>{t.label}</Link>
+                </span>
+              </div>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

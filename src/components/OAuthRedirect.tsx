@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle, ArrowRight, Monitor } from "lucide-react";
+
 
 interface OAuthRedirectProps {
   redirectUrl: string;
@@ -58,46 +58,49 @@ export default function OAuthRedirect({ redirectUrl, onComplete }: OAuthRedirect
   }, [redirectUrl, onComplete]);
 
   return (
-    <div className="bg-white border border-gray-200 p-8 sm:p-12">
-      <div className="text-center space-y-6">
-        {/* Success Icon */}
-        <div className="mx-auto h-16 w-16 bg-blue-600 flex items-center justify-center">
-          <CheckCircle className="h-8 w-8 text-white" />
-        </div>
+    <div className="rm-card">
+      <p className="rm-eyebrow">Autorizzazione concessa</p>
+      <h2 style={{ marginTop: 10 }}>Accesso completato</h2>
+      <p className="rm-muted" style={{ marginTop: 8 }}>
+        Stiamo riportando l&apos;autorizzazione all&apos;applicazione desktop.
+      </p>
 
-        <div>
-          <h3 className="text-2xl font-extrabold text-gray-900 mb-2">
-            Autenticazione completata
-          </h3>
-          <p className="text-base text-gray-600">
-            Reindirizzamento alla desktop app in corso...
-          </p>
-        </div>
-
-        <div className="flex items-center justify-center gap-3 py-4">
-          <Monitor className="h-5 w-5 text-blue-600" />
-          <span className="text-lg font-semibold text-gray-900">
-            {isRedirecting ? "Reindirizzamento..." : `${countdown}s`}
+      <div className="rm-righe" style={{ marginTop: 16 }}>
+        <div className="rm-riga">
+          <span>Stato</span>
+          <span className="rm-stato rm-stato--corso">
+            {isRedirecting
+              ? "Ritorno all'applicazione in corso"
+              : `Ritorno all'applicazione tra ${countdown} secondi`}
           </span>
-          <ArrowRight className="h-5 w-5 text-blue-600" />
-        </div>
-
-        {!isRedirecting && (
-          <div className="w-full bg-gray-100 h-2 overflow-hidden">
-            <div
-              className="bg-blue-600 h-full transition-all duration-100 ease-linear"
-              style={{ width: `${Math.min(progress, 100)}%` }}
-            />
-          </div>
-        )}
-
-        <div className="text-sm text-gray-500 pt-4">
-          Se il reindirizzamento non funziona,{" "}
-          <a href={redirectUrl} className="text-blue-600 font-semibold hover:underline">
-            clicca qui
-          </a>
         </div>
       </div>
+
+      {!isRedirecting && (
+        <div
+          style={{
+            marginTop: 14,
+            height: 2,
+            width: "100%",
+            background: "var(--border)",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            className="transition-all duration-100 ease-linear"
+            style={{
+              width: `${Math.min(progress, 100)}%`,
+              height: "100%",
+              background: "var(--brand)",
+            }}
+          />
+        </div>
+      )}
+
+      <p className="rm-muted" style={{ marginTop: 16 }}>
+        Se l&apos;applicazione non si apre da sola,{" "}
+        <a href={redirectUrl}>riporta l&apos;autorizzazione a mano</a>.
+      </p>
     </div>
   );
 }

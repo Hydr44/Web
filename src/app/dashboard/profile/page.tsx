@@ -2,26 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar,
-  Edit,
-  Save,
-  X,
-  Globe,
-  Clock,
-  Bell,
-  Shield,
-  CheckCircle,
-  AlertTriangle,
-  Database,
-  Lock,
-} from "lucide-react";
 
 export default function ProfilePage() {
   usePageTitle("Profilo");
@@ -55,20 +36,20 @@ export default function ProfilePage() {
     const loadUserData = async () => {
       try {
         const supabase = supabaseBrowser();
-        
+
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
           console.error("Error getting user:", userError);
           setLoading(false);
           return;
         }
-        
+
         const { data: profile } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
           .single();
-        
+
         if (profile) {
           setUserData({
             full_name: profile.full_name || "",
@@ -83,7 +64,7 @@ export default function ProfilePage() {
             created_at: profile.created_at || "",
             last_login: profile.last_login || ""
           });
-          
+
           setFormData({
             full_name: profile.full_name || "",
             phone: profile.phone || "",
@@ -94,7 +75,7 @@ export default function ProfilePage() {
             language: profile.language || "it"
           });
         }
-        
+
       } catch (error) {
         console.error("Error loading user data:", error);
       } finally {
@@ -109,7 +90,7 @@ export default function ProfilePage() {
     try {
       const supabase = supabaseBrowser();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) return;
 
       const { error } = await supabase
@@ -144,263 +125,204 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Profilo</h1>
         </div>
-      </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento dei dati del profilo.</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Profilo</h1>
-            <p className="text-gray-500">Gestisci le tue informazioni personali.</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {editing ? (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-800 transition-colors duration-200"
-                >
-                  <X className="h-4 w-4" />
-                  Annulla
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600   hover:bg-blue-700 transition-colors font-medium"
-                >
-                  <Save className="h-4 w-4" />
-                  Salva
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600   hover:bg-blue-700 transition-colors font-medium"
-              >
-                <Edit className="h-4 w-4" />
-                Modifica
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <h1>Profilo</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Dati della persona che usa questa utenza.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {editing ? (
+            <>
+              <button onClick={handleSave} className="rm-btn rm-btn--primary">
+                <span>Salva</span>
               </button>
-            )}
-          </div>
+              <button onClick={handleCancel} className="rm-btn rm-btn--secondary">
+                <span>Annulla</span>
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setEditing(true)} className="rm-btn rm-btn--secondary">
+              <span>Modifica</span>
+            </button>
+          )}
         </div>
-      </header>
+      </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Profile Card */}
-        <div className="lg:col-span-1">
-          <div className="p-6  bg-white border border-gray-200 ">
-            <div className="text-center">
-              <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100  text-2xl font-bold">
-                  {userData.full_name ? userData.full_name[0].toUpperCase() : userData.email[0].toUpperCase()}
-                </div>
-              </div>
-              
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">
-                {userData.full_name || "Nome non impostato"}
-              </h2>
-              <p className="text-sm text-gray-500 mb-4">{userData.email}</p>
-              
-              {userData.bio && (
-                <p className="text-sm text-gray-600 mb-4">{userData.bio}</p>
-              )}
-              
-              <div className="space-y-2 text-sm text-gray-500">
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>Membro dal {new Date(userData.created_at).toLocaleDateString('it-IT')}</span>
-                </div>
-                {userData.last_login && (
-                  <div className="flex items-center justify-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>Ultimo accesso: {new Date(userData.last_login).toLocaleDateString('it-IT')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h2>{userData.full_name || "Nome non indicato"}</h2>
+          <span className="rm-muted">{userData.email}</span>
         </div>
-
-        {/* Profile Form */}
-        <div className="lg:col-span-2">
-          <div className="p-6  bg-white border border-gray-200 ">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Informazioni Personali</h3>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Nome Completo
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="Il tuo nome completo"
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-white  text-gray-900">
-                    {userData.full_name || "Non impostato"}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Email
-                </label>
-                <div
-                  className="px-4 py-3 bg-gray-100 border border-gray-200 rounded text-gray-700 flex items-center justify-between gap-2 cursor-not-allowed"
-                  title="L'email non può essere modificata dal profilo"
-                  aria-readonly="true"
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Mail className="h-4 w-4 text-gray-400 shrink-0" />
-                    <span className="truncate">{userData.email}</span>
-                  </div>
-                  <Lock className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  L&apos;email è gestita da Supabase Auth. Per cambiarla apri un ticket di supporto.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Telefono
-                </label>
-                {editing ? (
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        // accetta solo cifre, +, -, spazio (max 20 caratteri)
-                        phone: e.target.value.replace(/[^\d+\s-]/g, "").slice(0, 20),
-                      }))
-                    }
-                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="+39 123 456 7890"
-                    pattern="[+0-9][0-9\s\-]{6,19}"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    title="Numero di telefono valido (es. +39 333 1234567)"
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-400" />
-                    {userData.phone || "Non impostato"}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Località
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="Milano, Italia"
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    {userData.location || "Non impostato"}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Sito Web
-                </label>
-                {editing ? (
-                  <input
-                    type="url"
-                    value={formData.website}
-                    onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="https://tuosito.com"
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-gray-400" />
-                    {userData.website ? (
-                      <a href={userData.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        {userData.website}
-                      </a>
-                    ) : (
-                      "Non impostato"
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Fuso Orario
-                </label>
-                {editing ? (
-                  <select
-                    value={formData.timezone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  >
-                    <option value="Europe/Rome">Italia — Europa/Roma (GMT+1)</option>
-                    <option value="Europe/London">Europa/Londra (GMT+0)</option>
-                    <option value="Europe/Paris">Europa/Parigi (GMT+1)</option>
-                    <option value="Europe/Berlin">Europa/Berlino (GMT+1)</option>
-                    <option value="Europe/Madrid">Europa/Madrid (GMT+1)</option>
-                  </select>
-                ) : (
-                  <div className="px-4 py-3 bg-white  text-gray-900 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-400" />
-                    {userData.timezone}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Biografia
-              </label>
-              {editing ? (
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-gray-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Raccontaci qualcosa di te..."
-                />
-              ) : (
-                <div className="px-4 py-3 bg-white  text-gray-900 min-h-[100px]">
-                  {userData.bio || "Nessuna biografia impostata"}
-                </div>
-              )}
-            </div>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>Utenza attiva dal</span>
+            <span>
+              {userData.created_at
+                ? new Date(userData.created_at).toLocaleDateString("it-IT")
+                : "—"}
+            </span>
+          </div>
+          <div className="rm-riga">
+            <span>Ultimo accesso</span>
+            <span>
+              {userData.last_login
+                ? new Date(userData.last_login).toLocaleDateString("it-IT")
+                : "Nessun accesso registrato"}
+            </span>
           </div>
         </div>
       </div>
 
-    </div>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Dati personali</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rm-field">
+            <label className="rm-label">Nome e cognome</label>
+            {editing ? (
+              <input
+                type="text"
+                value={formData.full_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
+                className="rm-input"
+                placeholder="Nome e cognome"
+              />
+            ) : (
+              <p>{userData.full_name || "Non indicato"}</p>
+            )}
+          </div>
+
+          <div className="rm-field">
+            <label className="rm-label">Email</label>
+            <input
+              type="email"
+              className="rm-input"
+              value={userData.email}
+              readOnly
+              disabled
+              title="L'email non si cambia dal profilo"
+            />
+            <p className="rm-muted">
+              L&apos;email è legata alle credenziali di accesso. Per cambiarla
+              apri una richiesta all&apos;assistenza.
+            </p>
+          </div>
+
+          <div className="rm-field">
+            <label className="rm-label">Telefono</label>
+            {editing ? (
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    // accetta solo cifre, +, -, spazio (max 20 caratteri)
+                    phone: e.target.value.replace(/[^\d+\s-]/g, "").slice(0, 20),
+                  }))
+                }
+                className="rm-input"
+                placeholder="+39 333 1234567"
+                pattern="[+0-9][0-9\s\-]{6,19}"
+                inputMode="tel"
+                autoComplete="tel"
+                title="Numero di telefono valido, ad esempio +39 333 1234567"
+              />
+            ) : (
+              <p>{userData.phone || "Non indicato"}</p>
+            )}
+          </div>
+
+          <div className="rm-field">
+            <label className="rm-label">Località</label>
+            {editing ? (
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                className="rm-input"
+                placeholder="Milano"
+              />
+            ) : (
+              <p>{userData.location || "Non indicata"}</p>
+            )}
+          </div>
+
+          <div className="rm-field">
+            <label className="rm-label">Sito internet</label>
+            {editing ? (
+              <input
+                type="url"
+                value={formData.website}
+                onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                className="rm-input"
+                placeholder="https://"
+              />
+            ) : userData.website ? (
+              <p>
+                <a href={userData.website} target="_blank" rel="noopener noreferrer">
+                  {userData.website}
+                </a>
+              </p>
+            ) : (
+              <p>Non indicato</p>
+            )}
+          </div>
+
+          <div className="rm-field">
+            <label className="rm-label">Fuso orario</label>
+            {editing ? (
+              <select
+                value={formData.timezone}
+                onChange={(e) => setFormData(prev => ({ ...prev, timezone: e.target.value }))}
+                className="rm-input"
+              >
+                <option value="Europe/Rome">Italia — Europa/Roma (GMT+1)</option>
+                <option value="Europe/London">Europa/Londra (GMT+0)</option>
+                <option value="Europe/Paris">Europa/Parigi (GMT+1)</option>
+                <option value="Europe/Berlin">Europa/Berlino (GMT+1)</option>
+                <option value="Europe/Madrid">Europa/Madrid (GMT+1)</option>
+              </select>
+            ) : (
+              <p>{userData.timezone}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="rm-sep" />
+
+        <div className="rm-field">
+          <label className="rm-label">Note</label>
+          {editing ? (
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+              rows={4}
+              className="rm-input"
+              placeholder="Ruolo, reparto, riferimenti interni"
+            />
+          ) : (
+            <p>{userData.bio || "Nessuna nota"}</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

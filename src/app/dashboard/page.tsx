@@ -1,25 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  Download,
-  Building2,
-  CreditCard,
-  Shield as ShieldIcon,
-  HeadphonesIcon,
-  Settings,
-  FileText,
-  CheckCircle,
-  Clock,
-  Gauge,
-  AlertTriangle,
-} from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { LoadingPage } from "@/components/ui/LoadingSpinner";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { planProfileName, planMonthlyEur, complianceModuleLabels } from "@/lib/plans";
+
+/**
+ * Panoramica dell'area cliente.
+ *
+ * Qui si guarda l'abbonamento, il consumo del piano, le fatture emesse e i
+ * dati dell'azienda: il lavoro di ogni giorno sta nell'applicazione desktop.
+ * Le classi (rm-card, rm-riga, rm-tab, rm-note) vengono da `prodotto.css`.
+ */
 
 interface DashInvoice {
   id: string;
@@ -28,6 +21,22 @@ interface DashInvoice {
   total: number;
   currency: string;
   payment_status: string | null;
+}
+
+/** Stato dell'abbonamento scritto a parole, come nel desktop. */
+function statoAbbonamento(status: string, isTrial: boolean): { testo: string; classe: string } {
+  if (isTrial) return { testo: "In prova", classe: "rm-stato rm-stato--corso" };
+  switch (status) {
+    case "active":
+      return { testo: "Attivo", classe: "rm-stato rm-stato--ok" };
+    case "past_due":
+      return { testo: "Pagamento in ritardo", classe: "rm-stato rm-stato--male" };
+    case "canceled":
+    case "cancelled":
+      return { testo: "Disdetto", classe: "rm-stato rm-stato--fermo" };
+    default:
+      return { testo: status || "—", classe: "rm-stato rm-stato--fermo" };
+  }
 }
 
 export default function DashboardPanoramica() {
@@ -170,38 +179,32 @@ export default function DashboardPanoramica() {
   }, []);
 
   if (loading) {
-    return <LoadingPage />;
+    return <p className="rm-muted">Caricamento dei dati in corso</p>;
   }
 
   if (!hasOrganization) {
     return (
-      <div className="space-y-8">
-        <div className="text-center py-12">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 mx-auto mb-6">
-            <Building2 className="h-6 w-6" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 mb-3">Benvenuto in RescueManager!</h1>
-          <p className="text-slate-500 mb-8 max-w-lg mx-auto">
-            Per iniziare, crea la tua organizzazione. Ti permetterà di gestire la tua attività.
+      <div style={{ maxWidth: 560 }}>
+        <div className="rm-area__intesta">
+          <h1>Nessuna organizzazione</h1>
+        </div>
+        <section className="rm-card">
+          <p>
+            Prima di usare il portale serve creare l&apos;organizzazione: e&apos; l&apos;azienda
+            a cui vengono intestati abbonamento, fatture e utenti.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/onboarding"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors"
-            >
-              <Building2 className="h-4 w-4" />
-              Inizia l&apos;onboarding
-              <ArrowRight className="h-4 w-4" />
+          <div style={{ marginTop: 16 }}>
+            <Link href="/onboarding" className="rm-btn rm-btn--primary">
+              Crea l&apos;organizzazione
             </Link>
           </div>
-        </div>
+        </section>
       </div>
     );
   }
 
-  // Fase 2 — barre di consumo per le metriche con contatore mensile.
+  // Fase 2 — consumo delle metriche con contatore mensile, scritto a parole.
   const numVal = (v: unknown): number => (typeof v === "number" && isFinite(v) ? v : 0);
-  const barColor = (pct: number) => (pct >= 100 ? "bg-red-500" : pct >= 80 ? "bg-amber-500" : "bg-emerald-500");
   const fmtBytes = (b: number): string => {
     if (!(b > 0)) return "0 MB";
     if (b >= 1024 ** 3) return `${(b / 1024 ** 3).toFixed(1)} GB`;
@@ -225,7 +228,7 @@ export default function DashboardPanoramica() {
           used: numVal(usage.autocompile),
           limit: numVal(limits.autocompile_month),
           fmtUsed: (n: number) => `${n}`,
-          fmtLimit: (n: number) => `${n} /mese`,
+          fmtLimit: (n: number) => `${n} al mese`,
           show: true,
         },
         {
@@ -234,7 +237,7 @@ export default function DashboardPanoramica() {
           used: numVal(usage.sms),
           limit: numVal(limits.sms_month),
           fmtUsed: (n: number) => `${n}`,
-          fmtLimit: (n: number) => `${n} /mese`,
+          fmtLimit: (n: number) => `${n} al mese`,
           show: true,
         },
         {
@@ -243,7 +246,7 @@ export default function DashboardPanoramica() {
           used: numVal(usage.ai_eur),
           limit: numVal(limits.ai_budget_eur),
           fmtUsed: (n: number) => `€ ${n}`,
-          fmtLimit: (n: number) => `€ ${n} /mese`,
+          fmtLimit: (n: number) => `€ ${n} al mese`,
           show: !!limits.ai_included,
         },
       ].filter((r) => r.show)
@@ -258,281 +261,234 @@ export default function DashboardPanoramica() {
   const includedTiles = limits
     ? [
         { label: "Foto in linea", value: limits.photo_months != null ? `${limits.photo_months} mesi` : "—" },
-        { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} /anno` : "—" },
+        { label: "Documenti per posta", value: limits.postal_year != null ? `${limits.postal_year} all'anno` : "—" },
         { label: "Sedi", value: limits.sites != null ? String(limits.sites) : "—" },
         ...(!limits.ai_included ? [{ label: "Consulente IA", value: "Non incluso" }] : []),
       ]
     : [];
 
+  const stato = statoAbbonamento(subscription.status, subscription.isTrial);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Benvenuto in {currentOrg}</p>
+    <div>
+      <div className="rm-area__intesta">
+        <div>
+          <h1>Panoramica</h1>
+          <p className="rm-muted" style={{ marginTop: 4 }}>{currentOrg}</p>
+        </div>
       </div>
 
-      {/* Avviso "superamento morbido": nessun blocco, solo un cortese heads-up. */}
+      {/* Avviso di consumo: nessun blocco, solo un avvertimento scritto. */}
       {usageAlerts.length > 0 && (
-        <div
-          className={`flex items-start gap-3 border p-4 ${
-            anyOver ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
-          }`}
-        >
-          <AlertTriangle
-            className={`h-5 w-5 shrink-0 mt-0.5 ${anyOver ? "text-red-500" : "text-amber-500"}`}
-          />
-          <div className="text-sm">
-            <p className={`font-semibold ${anyOver ? "text-red-800" : "text-amber-800"}`}>
-              {anyOver
-                ? "Hai raggiunto alcuni limiti del piano"
-                : "Ti stai avvicinando ad alcuni limiti del piano"}
-            </p>
-            <p className={`mt-0.5 ${anyOver ? "text-red-700" : "text-amber-700"}`}>
-              {usageAlerts.map((a) => `${a.label} (${Math.round(a.pct)}%)`).join(" · ")}. Il
-              servizio continua a funzionare senza interruzioni.{" "}
-              <Link href="/dashboard/billing" className="font-medium underline">
-                Valuta un pacchetto o un upgrade
-              </Link>
-              .
-            </p>
-          </div>
+        <div className={`rm-note ${anyOver ? "rm-note--errore" : "rm-note--info"}`} style={{ marginBottom: 16 }}>
+          {anyOver
+            ? "Hai raggiunto alcuni limiti del piano: "
+            : "Ti stai avvicinando ad alcuni limiti del piano: "}
+          {usageAlerts.map((a) => `${a.label} al ${Math.round(a.pct)} per cento`).join(", ")}.
+          {" "}Il servizio continua a funzionare senza interruzioni.{" "}
+          <Link href="/dashboard/billing">Valuta un pacchetto o un piano superiore</Link>.
         </div>
       )}
 
-      {/* Abbonamento operativo */}
-      <div className="overflow-hidden border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-slate-50 p-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center border border-blue-100 bg-white text-blue-600 shadow-sm">
-              <CreditCard className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900">{subscription.planProfile}</h2>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 text-xs font-medium border ${
-                    subscription.isTrial
-                      ? "border-amber-200 bg-amber-50 text-amber-700"
-                      : subscription.status === "active"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-slate-50 text-slate-600"
-                  }`}
-                >
-                  {subscription.isTrial ? "In prova" : subscription.status === "active" ? "Attivo" : subscription.status}
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 mt-0.5">{subscription.includes}</p>
-            </div>
-          </div>
-          <Link
-            href="/dashboard/billing"
-            className="inline-flex items-center gap-1.5 border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-          >
-            Gestisci <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      {/* Abbonamento */}
+      <section className="rm-card">
+        <div className="rm-cardhead">
+          <h2>{subscription.planProfile}</h2>
+          <Link href="/dashboard/billing">Gestisci l&apos;abbonamento</Link>
         </div>
-        <div className="grid grid-cols-2 divide-x divide-slate-100 sm:grid-cols-3">
-          <div className="p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Importo</p>
-            <p className="mt-0.5 font-semibold text-slate-900">
-              {subscription.priceEur != null ? `€ ${subscription.priceEur.toFixed(0)}` : "—"}
-              {subscription.priceEur != null && <span className="text-xs font-normal text-slate-400"> /mese</span>}
-            </p>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>Stato</span>
+            <span className={stato.classe}>{stato.testo}</span>
           </div>
-          <div className="p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Prossimo rinnovo</p>
-            <p className="mt-0.5 font-semibold text-slate-900">{subscription.renewalDate || "—"}</p>
+          <div className="rm-riga">
+            <span>Importo</span>
+            <span>
+              {subscription.priceEur != null ? `€ ${subscription.priceEur.toFixed(0)} al mese` : "—"}
+            </span>
           </div>
-          <div className="col-span-2 border-t border-slate-100 p-4 sm:col-span-1 sm:border-t-0">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Stato</p>
-            <p className="mt-0.5 font-semibold text-slate-900">
-              {subscription.isTrial ? "In prova" : subscription.status === "active" ? "Attivo" : subscription.status}
-            </p>
+          <div className="rm-riga">
+            <span>Prossimo rinnovo</span>
+            <span>{subscription.renewalDate || "—"}</span>
+          </div>
+          <div className="rm-riga">
+            <span>Cosa comprende</span>
+            <span>{subscription.includes}</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Utilizzi e limiti del piano */}
+      {/* Consumi e limiti del piano */}
       {limits && (
-        <div className="border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <Gauge className="h-4 w-4 text-slate-400" /> Utilizzi e limiti del piano
-            </h2>
+        <section className="rm-card">
+          <div className="rm-cardhead">
+            <h2>Consumi del piano</h2>
+            <span className="rm-muted">si azzerano ogni mese</span>
           </div>
-          {/* Metriche con contatore mensile: barra di consumo tri-colore. */}
           {meteredRows.length > 0 && (
-            <div className="divide-y divide-slate-100">
+            <div className="rm-righe">
               {meteredRows.map((row) => {
                 const hasLimit = row.limit > 0;
-                const pct = hasLimit ? (row.used / row.limit) * 100 : 0;
-                const width = Math.min(100, pct);
+                const pct = hasLimit ? Math.round((row.used / row.limit) * 100) : 0;
                 return (
-                  <div key={row.key} className="px-5 py-4">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-sm font-medium text-slate-700">{row.label}</p>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {hasLimit
-                          ? `${row.fmtUsed(row.used)} / ${row.fmtLimit(row.limit)}`
-                          : row.fmtUsed(row.used)}
-                      </p>
-                    </div>
-                    {hasLimit && (
-                      <div className="mt-2 h-1.5 w-full bg-slate-100">
-                        <div className={`h-full ${barColor(pct)}`} style={{ width: `${width}%` }} />
-                      </div>
-                    )}
+                  <div key={row.key} className="rm-riga">
+                    <span>{row.label}</span>
+                    <span>
+                      {hasLimit
+                        ? `${row.fmtUsed(row.used)} su ${row.fmtLimit(row.limit)}`
+                        : row.fmtUsed(row.used)}
+                      {hasLimit && (
+                        <span className={pct >= 100 ? "rm-stato rm-stato--male" : "rm-muted"}>
+                          {` · ${pct} per cento`}
+                        </span>
+                      )}
+                    </span>
                   </div>
                 );
               })}
             </div>
           )}
-          {/* Metriche solo-incluse (nessun contatore in Fase 2). */}
-          <div className="grid grid-cols-2 border-t border-slate-100 sm:grid-cols-3 lg:grid-cols-4">
-            {includedTiles.map((m) => (
-              <div key={m.label} className="border-b border-r border-slate-100 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{m.label}</p>
-                <p className="mt-0.5 font-semibold text-slate-900">{m.value}</p>
+          {includedTiles.length > 0 && (
+            <>
+              <div className="rm-sep" />
+              <div className="rm-eyebrow" style={{ marginBottom: 8 }}>Compreso nel piano</div>
+              <div className="rm-righe">
+                {includedTiles.map((m) => (
+                  <div key={m.label} className="rm-riga">
+                    <span>{m.label}</span>
+                    <span>{m.value}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="px-5 py-2.5 text-[11px] text-slate-400">
-            I consumi si azzerano ogni mese. Archivio, foto e sedi mostrano i limiti inclusi nel tuo piano.
-          </div>
-        </div>
+            </>
+          )}
+        </section>
       )}
 
       {/* Ultime fatture */}
-      <div className="border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-            <FileText className="h-4 w-4 text-slate-400" /> Ultime fatture
-          </h2>
-          <Link href="/dashboard/invoices" className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline">
-            Vedi tutte <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      <section className="rm-card">
+        <div className="rm-cardhead">
+          <h2>Ultime fatture</h2>
+          <Link href="/dashboard/invoices">Tutte le fatture</Link>
         </div>
         {invoices.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-slate-400">Nessuna fattura emessa al momento.</div>
+          <p className="rm-muted">Nessuna fattura emessa finora.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
-            {invoices.map((inv) => {
-              const paid = inv.payment_status === "paid";
-              return (
-                <li key={inv.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-mono text-xs text-slate-700">{inv.number || inv.id}</p>
-                    <p className="text-xs text-slate-400">
-                      {inv.date ? new Date(inv.date).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-slate-900">
-                      {new Intl.NumberFormat("it-IT", { style: "currency", currency: inv.currency || "EUR" }).format(inv.total || 0)}
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1 border px-2 py-0.5 text-[11px] font-medium ${
-                        paid ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      {paid ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                      {paid ? "Pagata" : "Da pagare"}
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="rm-scroll">
+            <table className="rm-tab">
+              <thead>
+                <tr>
+                  <th>Numero</th>
+                  <th>Data</th>
+                  <th>Importo</th>
+                  <th>Stato</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((inv) => {
+                  const paid = inv.payment_status === "paid";
+                  return (
+                    <tr key={inv.id}>
+                      <td className="rm-mono">{inv.number || inv.id}</td>
+                      <td>
+                        {inv.date
+                          ? new Date(inv.date).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" })
+                          : "—"}
+                      </td>
+                      <td>
+                        {new Intl.NumberFormat("it-IT", { style: "currency", currency: inv.currency || "EUR" }).format(inv.total || 0)}
+                      </td>
+                      <td className={paid ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--corso"}>
+                        {paid ? "Pagata" : "Da pagare"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </section>
 
-      {/* Info organizzazione */}
-      <div className="border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-slate-200 bg-slate-50 text-slate-500">
-            <Building2 className="h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <h2 className="font-bold text-slate-900 mb-1">{currentOrg}</h2>
-            {orgInfo.vat || orgInfo.city || orgInfo.ibanLast4 ? (
-              <div className="text-xs text-slate-500 mb-3 space-x-3">
-                {orgInfo.vat && <span>P.IVA <span className="font-mono text-slate-700">{orgInfo.vat}</span></span>}
-                {orgInfo.city && (
-                  <span>Sede <span className="text-slate-700">{orgInfo.city}{orgInfo.province ? ` (${orgInfo.province})` : ""}</span></span>
-                )}
-                {orgInfo.ibanLast4 && (
-                  <span>IBAN <span className="font-mono text-slate-700">****{orgInfo.ibanLast4}</span>
-                    {orgInfo.bankName && <span className="text-slate-500"> · {orgInfo.bankName}</span>}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500 mb-3">
-                Le funzionalità operative (soccorso, trasporti, mezzi) sono nell&apos;app desktop. Da qui gestisci abbonamento, fatture, supporto e download.
-              </p>
-            )}
-            <Link href="/dashboard/org" className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline">
-              Dettagli organizzazione <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
+      {/* Azienda */}
+      <section className="rm-card">
+        <div className="rm-cardhead">
+          <h2>{currentOrg}</h2>
+          <Link href="/dashboard/org">Dati dell&apos;azienda</Link>
         </div>
-      </div>
-
-      {/* App Desktop */}
-      {latestDesktopVersion && (
-        <div className="border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-emerald-100 bg-emerald-50 text-emerald-600">
-              <Download className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="font-bold text-slate-900">App desktop</h2>
-                <span className="border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-mono font-medium text-emerald-700">
-                  v{latestDesktopVersion}
+        {orgInfo.vat || orgInfo.city || orgInfo.ibanLast4 ? (
+          <div className="rm-righe">
+            {orgInfo.vat && (
+              <div className="rm-riga">
+                <span>Partita IVA</span>
+                <span className="rm-mono">{orgInfo.vat}</span>
+              </div>
+            )}
+            {orgInfo.city && (
+              <div className="rm-riga">
+                <span>Sede</span>
+                <span>{orgInfo.city}{orgInfo.province ? ` (${orgInfo.province})` : ""}</span>
+              </div>
+            )}
+            {orgInfo.ibanLast4 && (
+              <div className="rm-riga">
+                <span>Conto corrente</span>
+                <span>
+                  <span className="rm-mono">{`****${orgInfo.ibanLast4}`}</span>
+                  {orgInfo.bankName ? ` · ${orgInfo.bankName}` : ""}
                 </span>
               </div>
-              <p className="text-sm text-slate-500 mb-3">
-                Ultima versione per macOS e Windows. Se hai già l&apos;app, l&apos;aggiornamento parte da solo al prossimo avvio.
-              </p>
-              <Link href="/dashboard/download" className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline">
-                Scarica l&apos;app <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+            )}
+          </div>
+        ) : (
+          <p className="rm-muted">
+            Soccorso, trasporti e mezzi si gestiscono nell&apos;applicazione desktop. Da qui
+            si seguono abbonamento, fatture, assistenza e scaricamento delle app.
+          </p>
+        )}
+      </section>
+
+      {/* Applicazione desktop */}
+      {latestDesktopVersion && (
+        <section className="rm-card">
+          <div className="rm-cardhead">
+            <h2>Applicazione desktop</h2>
+            <Link href="/dashboard/download">Scarica le app</Link>
+          </div>
+          <div className="rm-righe">
+            <div className="rm-riga">
+              <span>Ultima versione</span>
+              <span className="rm-mono">{latestDesktopVersion}</span>
+            </div>
+            <div className="rm-riga">
+              <span>Aggiornamento</span>
+              <span>Se l&apos;applicazione e&apos; gia&apos; installata si aggiorna da sola al prossimo avvio.</span>
             </div>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Link rapidi */}
-      <div>
-        <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Gestione Account</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* Dove si trovano le altre cose */}
+      <section className="rm-card">
+        <div className="rm-cardhead">
+          <h2>Gestione dell&apos;account</h2>
+        </div>
+        <div className="rm-righe">
           {[
-            { href: "/dashboard/invoices", icon: FileText, title: "Fatture", desc: "Scarica le tue fatture (PDF/XML)" },
-            { href: "/dashboard/billing", icon: CreditCard, title: "Abbonamento", desc: "Piano, moduli e pagamenti" },
-            { href: "/dashboard/support", icon: HeadphonesIcon, title: "Supporto", desc: "Richiedi assistenza tecnica" },
-            { href: "/dashboard/org", icon: Building2, title: "Organizzazione", desc: "Visualizza e modifica dati aziendali" },
-            { href: "/dashboard/security", icon: ShieldIcon, title: "Sicurezza", desc: "Password, 2FA e sessioni attive" },
-            { href: "/dashboard/settings/notifications", icon: Settings, title: "Notifiche", desc: "Preferenze email e in-app" },
+            { href: "/dashboard/invoices", title: "Fatture", desc: "Scarica le fatture in PDF e XML" },
+            { href: "/dashboard/billing", title: "Abbonamento", desc: "Piano, moduli e pagamenti" },
+            { href: "/dashboard/support", title: "Supporto", desc: "Richiedi assistenza tecnica" },
+            { href: "/dashboard/org", title: "Organizzazione", desc: "Dati aziendali e utenti" },
+            { href: "/dashboard/security", title: "Sicurezza", desc: "Password, verifica in due passaggi e sessioni" },
+            { href: "/dashboard/settings/notifications", title: "Notifiche", desc: "Preferenze per email e avvisi" },
           ].map((a) => (
-            <Link
-              key={a.href}
-              href={a.href}
-              className="group flex items-center border border-slate-200 bg-white p-4 transition-colors hover:bg-slate-50"
-            >
-              <div className="mr-3 flex h-9 w-9 items-center justify-center border border-slate-200 bg-slate-50">
-                <a.icon className="h-4 w-4 text-slate-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-slate-900">{a.title}</p>
-                <p className="text-xs text-slate-400">{a.desc}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-500" />
-            </Link>
+            <div key={a.href} className="rm-riga">
+              <span><Link href={a.href}>{a.title}</Link></span>
+              <span className="rm-muted">{a.desc}</span>
+            </div>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

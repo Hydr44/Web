@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Pagine del prodotto (accesso e area cliente): il design dell'app desktop. */
+@import "./prodotto.css";
 
 /* === Marquee striscia integrazioni === */
 @keyframes rm-marquee {

@@ -5,19 +5,6 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
-import {
-  Smartphone,
-  ArrowLeft,
-  Shield,
-  CheckCircle,
-  AlertTriangle,
-  Copy,
-  Download,
-  Trash2,
-  Eye,
-  EyeOff,
-  RefreshCw,
-} from "lucide-react";
 
 /**
  * Pagina 2FA (TOTP) — integrazione reale Supabase MFA.
@@ -98,12 +85,12 @@ export default function TwoFactorAuthPage() {
         const supabase = supabaseBrowser();
         const { data: { user }, error: userErr } = await supabase.auth.getUser();
         if (userErr || !user) {
-          setError("Devi essere autenticato per gestire il 2FA");
+          setError("Serve un accesso attivo per gestire la verifica in due passaggi");
           return;
         }
         await refreshFactors();
       } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : "Errore caricamento 2FA";
+        const msg = e instanceof Error ? e.message : "Non è stato possibile leggere lo stato della verifica";
         setError(msg);
       } finally {
         setLoading(false);
@@ -134,9 +121,9 @@ export default function TwoFactorAuthPage() {
       if (chalErr || !chal) throw new Error(chalErr?.message || "Errore challenge");
       setChallengeId(chal.id);
 
-      setSuccess("Scansiona il QR code con l'app autenticatore e inserisci il codice.");
+      setSuccess("Inquadra il codice con l'app di autenticazione, poi scrivi il numero che compare.");
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Errore configurazione 2FA";
+      const msg = e instanceof Error ? e.message : "Non è stato possibile avviare la configurazione";
       setError(msg);
     } finally {
       setWorking(false);
@@ -150,11 +137,11 @@ export default function TwoFactorAuthPage() {
     setSuccess(null);
 
     if (!factorId || !challengeId) {
-      setError("Sessione di enrollment scaduta — ricomincia.");
+      setError("La configurazione è scaduta: ricomincia.");
       return;
     }
     if (!/^\d{6}$/.test(verificationCode)) {
-      setError("Inserisci un codice di 6 cifre");
+      setError("Il codice è di sei cifre");
       return;
     }
 
@@ -182,11 +169,11 @@ export default function TwoFactorAuthPage() {
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok || !Array.isArray(j.codes)) {
         // 2FA attivo ma backup codes falliti: lo segnaliamo ma non rolliamo back.
-        setSuccess("2FA abilitato. Generazione codici di backup fallita — riprova in alto.");
+        setSuccess("Verifica in due passaggi attiva. I codici di riserva non sono stati generati: riprova dal riquadro dei codici.");
       } else {
         setBackupCodes(j.codes);
         setShowBackupCodes(true);
-        setSuccess("2FA abilitato! Salva i codici di backup qui sotto — vengono mostrati una sola volta.");
+        setSuccess("Verifica in due passaggi attiva. Conserva i codici di riserva qui sotto: compaiono una volta sola.");
       }
 
       setVerificationCode("");
@@ -202,7 +189,7 @@ export default function TwoFactorAuthPage() {
   // ── Disable: unenroll factor + revoca codici di backup ───────────────────
   const handleDisable2FA = async () => {
     if (!factorId) return;
-    if (!confirm("Disabilitare il 2FA? Verranno revocati anche i codici di backup.")) return;
+    if (!confirm("Disattivare la verifica in due passaggi? Vengono annullati anche i codici di riserva.")) return;
 
     setWorking(true);
     setError(null);
@@ -228,10 +215,10 @@ export default function TwoFactorAuthPage() {
           body: JSON.stringify({ action: "mfa.disabled" }),
         });
       } catch { /* non bloccante */ }
-      setSuccess("2FA disabilitato.");
+      setSuccess("Verifica in due passaggi disattivata.");
       await refreshFactors();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Errore disabilitazione 2FA";
+      const msg = e instanceof Error ? e.message : "Non è stato possibile disattivare la verifica";
       setError(msg);
     } finally {
       setWorking(false);
@@ -240,7 +227,7 @@ export default function TwoFactorAuthPage() {
 
   // ── Regenera backup codes (sostituisce quelli vecchi) ────────────────────
   const handleRegenerateBackupCodes = async () => {
-    if (!confirm("Generare nuovi codici di backup? Quelli vecchi saranno invalidati.")) return;
+    if (!confirm("Generare nuovi codici di riserva? I precedenti non saranno più validi.")) return;
     setWorking(true);
     setError(null);
     setSuccess(null);
@@ -248,7 +235,7 @@ export default function TwoFactorAuthPage() {
       const r = await fetch("/api/auth/mfa/backup-codes/regenerate", { method: "POST" });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok || !Array.isArray(j.codes)) {
-        throw new Error(j.error || "Errore generazione codici");
+        throw new Error(j.error || "Non è stato possibile generare i codici");
       }
       setBackupCodes(j.codes);
       setShowBackupCodes(true);
@@ -259,7 +246,7 @@ export default function TwoFactorAuthPage() {
           body: JSON.stringify({ action: "backup_codes.regen" }),
         });
       } catch { /* non bloccante */ }
-      setSuccess("Nuovi codici di backup generati — salvali ora.");
+      setSuccess("Nuovi codici di riserva generati: conservali adesso.");
       await refreshFactors();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Errore";
@@ -272,11 +259,11 @@ export default function TwoFactorAuthPage() {
   const handleDownloadBackupCodes = () => {
     if (!backupCodes.length) return;
     const txt = [
-      "RescueManager — Codici di backup 2FA",
+      "RescueManager — Codici di riserva per la verifica in due passaggi",
       `Generati: ${new Date().toLocaleString("it-IT")}`,
       "",
       "Ogni codice è MONOUSO. Conservali in un posto sicuro.",
-      "Se li perdi puoi generarne nuovi dalla pagina 2FA (i vecchi vengono invalidati).",
+      "Se li perdi puoi generarne di nuovi dalla pagina Sicurezza: i precedenti non saranno più validi.",
       "",
       ...backupCodes,
       "",
@@ -296,7 +283,7 @@ export default function TwoFactorAuthPage() {
     if (!secret) return;
     try {
       await navigator.clipboard.writeText(secret);
-      setSuccess("Chiave segreta copiata.");
+      setSuccess("Chiave copiata.");
     } catch {
       setError("Impossibile copiare negli appunti.");
     }
@@ -306,183 +293,139 @@ export default function TwoFactorAuthPage() {
   // diretto via URL all'enroll/challenge finché non è pronto su tutte le app.
   if (!TWO_FACTOR_ENABLED) {
     return (
-      <div className="space-y-6">
-        <Link href="/dashboard/security" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700">
-          <ArrowLeft className="h-4 w-4" /> Sicurezza
-        </Link>
-        <div className="max-w-xl border border-gray-200 bg-white rounded p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-gray-700" />
-            </div>
-            <h1 className="text-lg font-semibold text-gray-900">Autenticazione a due fattori</h1>
+      <>
+        <div className="rm-area__intesta">
+          <div>
+            <p className="rm-eyebrow">Sicurezza</p>
+            <h1 style={{ marginTop: 8 }}>Verifica in due passaggi</h1>
           </div>
-          <p className="text-sm text-gray-600">
-            La verifica in due passaggi è <strong>temporaneamente non disponibile</strong>: la stiamo
-            completando su tutte le app (web e desktop) per garantire la stessa sicurezza ovunque.
-            Sarà riattivata a breve.
-          </p>
+          <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
+            <span>Torna a Sicurezza</span>
+          </Link>
         </div>
-      </div>
+        <div className="rm-note rm-note--info">
+          La verifica in due passaggi è temporaneamente non disponibile: la
+          stiamo completando su tutti i programmi, web e postazione, perché
+          funzioni allo stesso modo ovunque.
+        </div>
+      </>
     );
   }
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Verifica in due passaggi</h1>
         </div>
-      </div>
+        <div className="rm-card">
+          <p className="rm-muted">Lettura dello stato in corso.</p>
+        </div>
+      </>
     );
   }
 
   const enrolling = !!factorId && !verified && !!qrCode;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header className="flex items-start gap-3">
-        <Link
-          href="/dashboard/security"
-          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-            <Smartphone className="h-3.5 w-3.5" />
-            Autenticazione a due fattori
-          </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Sicurezza 2FA</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Aggiungi un livello di sicurezza in più al tuo account.
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Sicurezza</p>
+          <h1 style={{ marginTop: 8 }}>Verifica in due passaggi</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Oltre alla password serve un numero che cambia, generato da
+            un&apos;app di autenticazione sul telefono.
           </p>
         </div>
-      </header>
+        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
+          <span>Torna a Sicurezza</span>
+        </Link>
+      </div>
 
-      {/* Stato 2FA */}
-      <div
-        className={`p-6 rounded-lg border ${
-          verified ? "bg-white border-gray-200" : "bg-amber-50/30 border-amber-200"
-        }`}
-      >
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-4">
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                verified ? "bg-green-50" : "bg-amber-50"
-              }`}
-            >
-              {verified ? (
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              ) : (
-                <AlertTriangle className="h-6 w-6 text-amber-600" />
-              )}
-            </div>
-            <div>
-              <h3 className={`text-lg font-semibold ${verified ? "text-green-900" : "text-yellow-900"}`}>
-                {verified ? "2FA Abilitato" : "2FA Non Abilitato"}
-              </h3>
-              <p className={`text-sm ${verified ? "text-green-600" : "text-yellow-700"}`}>
-                {verified
-                  ? "Il tuo account è protetto da TOTP (app autenticatore)."
-                  : "Abilita il 2FA per proteggere il tuo account."}
-              </p>
-            </div>
-          </div>
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      {success && <div className="rm-note rm-note--info">{success}</div>}
 
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Stato</h3>
+          <span className={verified ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--fermo"}>
+            {verified ? "Attiva" : "Non attiva"}
+          </span>
+        </div>
+        <p className="rm-muted">
+          {verified
+            ? "L'accesso richiede la password e il numero generato dall'app."
+            : "L'accesso richiede la sola password."}
+        </p>
+        <div style={{ marginTop: 16 }}>
           {verified ? (
             <button
               onClick={handleDisable2FA}
               disabled={working}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors duration-200 font-medium disabled:opacity-50"
+              className="rm-btn rm-btn--danger"
             >
-              <Trash2 className="h-4 w-4" />
-              Disabilita 2FA
+              <span>Disattiva la verifica</span>
             </button>
           ) : (
             !enrolling && (
               <button
                 onClick={handleEnable2FA}
                 disabled={working}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors duration-200 font-medium disabled:opacity-50"
+                className="rm-btn rm-btn--primary"
               >
-                {working ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                ) : (
-                  <Shield className="h-4 w-4" />
-                )}
-                {working ? "Configurando..." : "Abilita 2FA"}
+                <span>{working ? "Preparazione in corso" : "Attiva la verifica"}</span>
               </button>
             )
           )}
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
-
-      {success && (
-        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <span className="text-green-800">{success}</span>
-        </div>
-      )}
-
-      {/* Setup 2FA — QR + verifica */}
       {enrolling && (
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="p-6 rounded bg-white border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Configurazione 2FA</h2>
-
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">1. Scansiona il QR Code</h3>
-                <div className="inline-block p-4 bg-white border border-gray-200">
+        <>
+          <div className="rm-card">
+            <div className="rm-cardhead">
+              <h3>Primo passo: collega l&apos;app</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="rm-muted" style={{ marginBottom: 12 }}>
+                  Inquadra questo codice con l&apos;app di autenticazione
+                  (Google Authenticator, Authy, 1Password).
+                </p>
+                <div style={{ display: "inline-block", padding: 12, background: "#fff" }}>
                   {/* Supabase ritorna il QR come SVG data URI */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={qrCode} alt="QR Code 2FA" className="w-48 h-48" />
+                  <img src={qrCode} alt="Codice da inquadrare" style={{ width: 192, height: 192 }} />
                 </div>
-                <p className="text-sm text-gray-500 mt-4">
-                  Usa un&apos;app autenticatore (Google Authenticator, Authy, 1Password, …).
-                </p>
               </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">2. Chiave Segreta</h3>
-                <div className="flex items-center gap-2 p-3 bg-white border border-gray-200 rounded">
-                  <code className="flex-1 font-mono text-sm break-all">{secret}</code>
+              <div className="rm-field">
+                <span className="rm-label">
+                  Se non riesci a inquadrarlo, scrivi questa chiave nell&apos;app
+                </span>
+                <div className="rm-prefix">
+                  <input className="rm-input rm-mono" value={secret} readOnly />
                   <button
                     onClick={handleCopySecret}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                    title="Copia chiave segreta"
+                    className="rm-btn rm-btn--ghost"
+                    style={{ height: 38, padding: "0 12px", gap: 0 }}
+                    type="button"
                   >
-                    <Copy className="h-4 w-4" />
+                    <span>Copia</span>
                   </button>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  Inseriscila manualmente se non riesci a scansionare il QR.
-                </p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 rounded bg-white border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Verifica Configurazione</h2>
-
-            <form onSubmit={handleVerifyCode} className="space-y-6">
-              <div>
-                <label htmlFor="totp-code" className="block text-sm font-medium text-gray-600 mb-2">
-                  Codice di Verifica
+          <div className="rm-card">
+            <div className="rm-cardhead">
+              <h3>Secondo passo: conferma</h3>
+            </div>
+            <form onSubmit={handleVerifyCode} style={{ maxWidth: 320 }}>
+              <div className="rm-field">
+                <label htmlFor="totp-code" className="rm-label">
+                  Numero mostrato dall&apos;app (sei cifre)
                 </label>
                 <input
                   id="totp-code"
@@ -491,144 +434,108 @@ export default function TwoFactorAuthPage() {
                   autoComplete="one-time-code"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-200 rounded focus:ring-2 focus:ring-blue-500/20 focus:border-primary transition-colors duration-200"
+                  className="rm-input rm-mono"
                   placeholder="123456"
                   maxLength={6}
                   required
                 />
-                <p className="text-sm text-gray-500 mt-2">
-                  Inserisci il codice a 6 cifre generato dall&apos;app.
-                </p>
               </div>
-
               <button
                 type="submit"
                 disabled={working || verificationCode.length !== 6}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rm-btn rm-btn--primary rm-btn--full"
+                style={{ marginTop: 14 }}
               >
-                {working ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                ) : (
-                  <CheckCircle className="h-4 w-4" />
-                )}
-                {working ? "Verificando..." : "Verifica e Attiva 2FA"}
+                <span>{working ? "Controllo in corso" : "Conferma e attiva"}</span>
               </button>
             </form>
           </div>
-        </div>
+        </>
       )}
 
-      {/* Backup codes — mostrati una sola volta dopo generazione */}
       {backupCodes.length > 0 && (
-        <div className="p-6 rounded bg-white border border-gray-200">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div className="rm-card">
+          <div className="rm-cardhead">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Codici di Backup</h2>
-              <p className="text-sm text-gray-500">
-                Salvali ora — non saranno più mostrati. Ogni codice è monouso.
+              <h3>Codici di riserva</h3>
+              <p className="rm-muted" style={{ marginTop: 4 }}>
+                Conservali adesso: non vengono più mostrati. Ogni codice si usa
+                una volta sola.
               </p>
             </div>
-
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-1">
               <button
                 onClick={() => setShowBackupCodes((v) => !v)}
-                className="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-800 transition-colors duration-200"
+                className="rm-btn rm-btn--secondary"
               >
-                {showBackupCodes ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                {showBackupCodes ? "Nascondi" : "Mostra"}
+                <span>{showBackupCodes ? "Nascondi" : "Mostra"}</span>
               </button>
-              <button
-                onClick={handleDownloadBackupCodes}
-                className="flex items-center gap-2 px-4 py-2 text-primary hover:text-primary/80 transition-colors duration-200"
-              >
-                <Download className="h-4 w-4" />
-                Scarica
+              <button onClick={handleDownloadBackupCodes} className="rm-btn rm-btn--tertiary">
+                <span>Scarica</span>
               </button>
             </div>
           </div>
 
           {showBackupCodes && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="rm-griglia">
               {backupCodes.map((code) => (
-                <div key={code} className="p-3 bg-white border border-gray-200 rounded text-center">
-                  <code className="font-mono text-sm font-medium">{code}</code>
-                </div>
+                <span key={code} className="rm-mono">
+                  {code}
+                </span>
               ))}
             </div>
           )}
 
-          <div className="mt-6 p-4 rounded bg-amber-500/10 border border-amber-500/20">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <span className="text-sm font-medium text-yellow-900">Importante</span>
-            </div>
-            <ul className="text-sm text-yellow-800 space-y-1">
-              <li>• Conservali in un posto sicuro (password manager).</li>
-              <li>• Ogni codice è monouso.</li>
-              <li>• Genera nuovi codici se sospetti che siano stati compromessi.</li>
-            </ul>
+          <div className="rm-note" style={{ marginTop: 16 }}>
+            Conservali dove tieni le password. Se sospetti che qualcuno li abbia
+            visti, generane di nuovi.
           </div>
         </div>
       )}
 
-      {/* 2FA attivo: stato codici + rigenerazione */}
       {verified && backupCodes.length === 0 && (
-        <div className="p-6 rounded bg-white border border-gray-200 flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Codici di Backup</h2>
-            <p className="text-sm text-gray-500">
-              {backupUnused === null
-                ? "Stato non disponibile."
-                : backupUnused > 0
-                  ? `Hai ancora ${backupUnused} codici di backup validi.`
-                  : "Nessun codice di backup valido — generane di nuovi."}
-            </p>
+        <div className="rm-card">
+          <div className="rm-cardhead">
+            <div>
+              <h3>Codici di riserva</h3>
+              <p className="rm-muted" style={{ marginTop: 4 }}>
+                {backupUnused === null
+                  ? "Stato non disponibile."
+                  : backupUnused > 0
+                    ? `Restano ${backupUnused} codici validi.`
+                    : "Nessun codice valido: generane di nuovi."}
+              </p>
+            </div>
+            <button
+              onClick={handleRegenerateBackupCodes}
+              disabled={working}
+              className="rm-btn rm-btn--secondary"
+            >
+              <span>Genera nuovi codici</span>
+            </button>
           </div>
-          <button
-            onClick={handleRegenerateBackupCodes}
-            disabled={working}
-            className="flex items-center gap-2 px-4 py-2 text-primary hover:text-primary/80 transition-colors duration-200 font-medium disabled:opacity-50"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Genera nuovi codici
-          </button>
         </div>
       )}
 
-      {/* Tips */}
-      <div className="p-6 rounded bg-white border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Consigli per la Sicurezza 2FA</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Usa un&apos;app autenticatore dedicata</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Non condividere mai i codici di backup</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Aggiorna regolarmente l&apos;app autenticatore</span>
-            </div>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Come usarla bene</h3>
+        </div>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>App</span>
+            <span>Usa un&apos;app di autenticazione dedicata, tenuta aggiornata</span>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Conserva i codici in un password manager</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Testa regolarmente l&apos;accesso 2FA</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Rigenera i codici dopo ogni utilizzo critico</span>
-            </div>
+          <div className="rm-riga">
+            <span>Codici di riserva</span>
+            <span>Conservali dove tieni le password e non condividerli</span>
+          </div>
+          <div className="rm-riga">
+            <span>Controllo</span>
+            <span>Prova l&apos;accesso ogni tanto, prima di averne bisogno</span>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

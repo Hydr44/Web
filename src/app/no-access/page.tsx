@@ -2,33 +2,33 @@
 
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Shield, AlertCircle, Mail, Phone, LogOut, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 
 const REASONS: Record<string, { title: string; description: string; tone: 'warning' | 'error' }> = {
   web_disabled: {
-    title: 'Accesso web temporaneamente disabilitato',
-    description: 'L\'accesso alla dashboard web è stato disabilitato dall\'amministratore. Puoi continuare a usare l\'applicazione desktop oppure contattarci per riattivarlo.',
+    title: 'Accesso dal browser sospeso',
+    description: 'L\'accesso alla piattaforma web è stato sospeso dall\'amministratore.',
     tone: 'warning',
   },
   desktop_disabled: {
-    title: 'Accesso desktop disabilitato',
-    description: 'L\'accesso all\'app desktop è stato disabilitato. Usa la dashboard web o contattaci.',
+    title: 'Accesso dall\'applicazione sospeso',
+    description: 'L\'accesso dall\'applicazione per il computer è stato sospeso. Entra dal browser, oppure scrivici per riattivarlo.',
     tone: 'warning',
   },
   subscription_expired: {
     title: 'Abbonamento scaduto',
-    description: 'Il tuo abbonamento è scaduto. Per riattivare l\'accesso completa il rinnovo o contattaci.',
+    description: 'L\'abbonamento è scaduto. Per rientrare completa il rinnovo, oppure scrivici e lo sistemiamo insieme.',
     tone: 'error',
   },
   trial_ended: {
-    title: 'Periodo di prova terminato',
-    description: 'Il tuo periodo di prova è terminato. Per continuare a usare RescueManager attiva un abbonamento.',
+    title: 'Periodo di prova finito',
+    description: 'Il periodo di prova è finito. Per continuare a usare RescueManager attiva un abbonamento.',
     tone: 'warning',
   },
   default: {
-    title: 'Accesso non autorizzato',
-    description: 'Non hai i permessi necessari per accedere a questa area. Contattaci per assistenza.',
+    title: 'Accesso non consentito',
+    description: 'Questo account non ha i permessi per entrare in quest\'area. Chiedi all\'amministratore della tua azienda, oppure scrivici.',
     tone: 'error',
   },
 };
@@ -38,8 +38,7 @@ function NoAccessContent() {
   const router = useRouter();
   const reason = params.get('reason') || 'default';
   const info = REASONS[reason] || REASONS.default;
-  const toneClass = info.tone === 'error' ? 'border-red-500/30 bg-red-500/5' : 'border-amber-500/30 bg-amber-500/5';
-  const iconColor = info.tone === 'error' ? 'text-red-400' : 'text-amber-400';
+  const noteClass = info.tone === 'error' ? 'rm-note rm-note--errore' : 'rm-note';
 
   const handleLogout = async () => {
     const supabase = supabaseBrowser();
@@ -48,63 +47,37 @@ function NoAccessContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full">
-        <div className={`bg-slate-900 rounded-xl border ${toneClass} p-8 shadow-2xl`}>
-          <div className="flex justify-center mb-6">
-            <div className={`p-4 rounded-full ${info.tone === 'error' ? 'bg-red-500/10' : 'bg-amber-500/10'}`}>
-              <Shield className={`h-10 w-10 ${iconColor}`} />
-            </div>
-          </div>
+    <div className="rm-prod flex items-center justify-center" style={{ padding: '152px 20px 40px' }}>
+      <div className="w-full flex flex-col gap-4" style={{ maxWidth: 520 }}>
+        <Link href="/" className="inline-flex" style={{ textDecoration: 'none' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={150} height={50} />
+        </Link>
 
-          <h1 className="text-xl font-semibold text-slate-100 text-center mb-2">
-            {info.title}
-          </h1>
-          <p className="text-sm text-slate-400 text-center leading-relaxed mb-6">
-            {info.description}
-          </p>
+        <div className="rm-card flex flex-col gap-4">
+          <h1>{info.title}</h1>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 mb-4 border border-slate-700">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <AlertCircle className="h-3 w-3" /> Contatta il supporto
-            </p>
-            <div className="space-y-2">
-              <a href="mailto:info@rescuemanager.eu"
-                className="flex items-center gap-2 text-sm text-slate-200 hover:text-blue-400">
-                <Mail className="h-4 w-4 text-slate-500" />
-                info@rescuemanager.eu
-              </a>
-              <a href="tel:+39000000000"
-                className="flex items-center gap-2 text-sm text-slate-200 hover:text-blue-400">
-                <Phone className="h-4 w-4 text-slate-500" />
-                +39 ___ ___ ____
-              </a>
-              <a href="https://rescuemanager.eu" target="_blank" rel="noopener"
-                className="flex items-center gap-2 text-sm text-slate-200 hover:text-blue-400">
-                <ExternalLink className="h-4 w-4 text-slate-500" />
-                rescuemanager.eu
-              </a>
-            </div>
+          <div className={noteClass} role="alert">
+            {info.description} Per sbloccare la situazione scrivi a{' '}
+            <a href="mailto:info@rescuemanager.eu">info@rescuemanager.eu</a>, indicando il nome dell&apos;azienda.
           </div>
 
           {reason === 'web_disabled' && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4 text-xs text-blue-300">
-              <strong>Nota</strong>: puoi continuare a lavorare usando l'<strong>app desktop</strong> mentre risolviamo la questione.
+            <div className="rm-note rm-note--info">
+              Nel frattempo l&apos;applicazione per il computer continua a funzionare.
             </div>
           )}
 
-          <button onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-lg text-sm transition-colors">
-            <LogOut className="h-4 w-4" />
-            Esci e torna al login
+          <button onClick={handleLogout} className="rm-btn rm-btn--secondary rm-btn--full">
+            Esci e torna all&apos;accesso
           </button>
         </div>
 
-        <div className="text-center text-[11px] text-slate-600 mt-4 leading-relaxed">
-          <p className="font-medium text-slate-500">RescueManager S.r.l.</p>
-          <p>Via dello Smeraldo 18, 93012 Gela (CL)</p>
-          <p>P.IVA 02176370852 &middot; Capitale sociale &euro; 100,00</p>
-          <p className="mt-1">© {new Date().getFullYear()} &middot; <a href="https://rescuemanager.eu" className="hover:text-slate-400">rescuemanager.eu</a></p>
+        <div className="rm-muted flex flex-col" style={{ gap: 2 }}>
+          <span>RescueManager S.r.l.</span>
+          <span>Via dello Smeraldo 18, 93012 Gela (CL)</span>
+          <span>P.IVA 02176370852 · Capitale sociale € 100,00</span>
+          <span>© {new Date().getFullYear()} · <a href="https://rescuemanager.eu">rescuemanager.eu</a></span>
         </div>
       </div>
     </div>
@@ -113,7 +86,11 @@ function NoAccessContent() {
 
 export default function NoAccessPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="text-slate-500">…</div></div>}>
+    <Suspense fallback={
+      <div className="rm-prod flex items-center justify-center">
+        <p className="rm-muted">Caricamento in corso.</p>
+      </div>
+    }>
       <NoAccessContent />
     </Suspense>
   );

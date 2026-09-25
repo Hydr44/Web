@@ -1,9 +1,9 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import DashboardShell from "@/components/dashboard/Shell";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import PageTransition from "@/components/dashboard/PageTransition";
 import DemoLanding from "@/components/dashboard/DemoLanding";
@@ -12,6 +12,61 @@ import LegalConsentModal from "@/components/dashboard/LegalConsentModal";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
 import MaintenanceGate from "@/components/dashboard/MaintenanceGate";
 import { TWO_FACTOR_ENABLED } from "@/lib/feature-2fa";
+import { useUserRole } from "@/lib/useUserRole";
+
+/**
+ * Cornice dell'area cliente.
+ *
+ * E' la stessa cosa dell'applicazione desktop vista dal browser: barra
+ * laterale blu a sinistra, contenuto sul fondo scuro. Le classi stanno in
+ * `prodotto.css` (rm-area, rm-card, rm-riga...), qui si mette solo il
+ * layout che manca.
+ */
+
+// La barra di marketing non compare piu' sulle pagine del prodotto (vedi
+// SiteHeader), quindi non c'e' niente da compensare in alto.
+// Vecchio commento: la barra del sito e' fissa in alto ed e' alta 112px
+// comincia sotto di lei.
+
+type Voce = {
+  label: string;
+  href: string;
+  /** Solo il titolare vede la voce (fatturazione). */
+  soloTitolare?: boolean;
+  /** Attiva solo con corrispondenza esatta del percorso. */
+  esatta?: boolean;
+};
+
+type Gruppo = { titolo?: string; voci: Voce[] };
+
+const MENU: Gruppo[] = [
+  { voci: [{ label: "Panoramica", href: "/dashboard", esatta: true }] },
+  {
+    titolo: "Account",
+    voci: [
+      { label: "Profilo", href: "/dashboard/profile" },
+      { label: "Sicurezza", href: "/dashboard/security" },
+      { label: "Privacy", href: "/dashboard/privacy" },
+      { label: "Notifiche", href: "/dashboard/settings/notifications" },
+    ],
+  },
+  {
+    titolo: "Azienda",
+    voci: [
+      { label: "Organizzazione", href: "/dashboard/org" },
+      { label: "Abbonamento", href: "/dashboard/billing", soloTitolare: true },
+      { label: "Metodi di pagamento", href: "/dashboard/payment-methods", soloTitolare: true },
+      { label: "Fatture", href: "/dashboard/invoices", soloTitolare: true },
+    ],
+  },
+  {
+    titolo: "Assistenza",
+    voci: [
+      { label: "Scarica le app", href: "/dashboard/download" },
+      { label: "Supporto", href: "/dashboard/support" },
+    ],
+  },
+];
 
 export default function DashboardLayout({
   children,
@@ -27,17 +82,19 @@ export default function DashboardLayout({
   const [isDemo, setIsDemo] = useState(false);
   const [demoQuoteUuid, setDemoQuoteUuid] = useState<string | null>(null);
   const [demoExpiresAt, setDemoExpiresAt] = useState<string | null>(null);
+  const [uscendo, setUscendo] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { isOwner } = useUserRole();
 
   useEffect(() => {
     const supabase = supabaseBrowser();
-    
+
     const checkAuth = async () => {
       try {
         // Prova direttamente getUser (Supabase gestisce automaticamente localStorage e cookie)
         const { data: { user }, error } = await supabase.auth.getUser();
-        
+
         if (error || !user) {
           router.push("/login?redirect=/dashboard");
           return;
@@ -201,53 +258,27 @@ export default function DashboardLayout({
     return () => subscription.unsubscribe();
   }, [router, pathname]);
 
+  const esci = async () => {
+    if (uscendo) return;
+    setUscendo(true);
+    try {
+      const { authManager } = await import("@/lib/auth");
+      await authManager.logout();
+    } catch {
+      globalThis.location.href = "/";
+    } finally {
+      setTimeout(() => setUscendo(false), 1500);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-28">
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
-          {/* Sidebar Skeleton (solo Desktop) */}
-          <div className="lg:sticky lg:top-28 lg:h-[calc(100vh-112px)] p-4 bg-white border-r border-gray-200 hidden lg:flex flex-col">
-            <div className="space-y-3">
-               <div className="w-full h-16 bg-gray-100 rounded animate-pulse mb-6" />
-               {[...Array(7)].map((_, i) => (
-                  <div key={i} className="w-full h-10 bg-gray-100 rounded animate-pulse border border-transparent" />
-               ))}
-            </div>
-            
-            <div className="mt-auto pt-4">
-              <div className="w-full h-10 bg-gray-100 rounded animate-pulse" />
-            </div>
+      <div className="rm-prod">
+        <div className="rm-area">
+          <div className="rm-area__nav" />
+          <div className="rm-area__corpo">
+            <p className="rm-muted">Apertura dell&apos;area cliente in corso</p>
           </div>
-          
-          {/* Main Content Skeleton */}
-          <section className="p-6 lg:p-8 overflow-auto">
-            <div className="max-w-6xl mx-auto space-y-8 mt-2">
-                 {/* Title Skeleton */}
-                 <div className="space-y-2">
-                   <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-                   <div className="w-64 h-4 bg-gray-100 rounded animate-pulse" />
-                 </div>
-                 
-                 {/* Card Skeletons */}
-                 <div className="w-full h-40 bg-white border border-gray-100 p-6 space-y-4 rounded shadow-sm">
-                    <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-                    <div className="w-64 h-8 bg-gray-200 rounded animate-pulse" />
-                    <div className="w-full h-10 bg-gray-50 rounded mt-4 animate-pulse" />
-                 </div>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                   {[...Array(4)].map((_, i) => (
-                     <div key={i} className="h-24 bg-white border border-gray-100 rounded shadow-sm flex items-center p-4">
-                       <div className="w-10 h-10 bg-gray-100 rounded animate-pulse mr-4" />
-                       <div className="space-y-2 flex-1">
-                         <div className="w-1/2 h-4 bg-gray-200 rounded animate-pulse" />
-                         <div className="w-3/4 h-3 bg-gray-100 rounded animate-pulse" />
-                       </div>
-                     </div>
-                   ))}
-                 </div>
-            </div>
-          </section>
         </div>
       </div>
     );
@@ -268,13 +299,84 @@ export default function DashboardLayout({
     );
   }
 
+  const percorso = pathname || "";
+
   return (
-    <DashboardShell userEmail={userEmail} orgName={orgName}>
-      <MaintenanceGate />
-      <LegalConsentModal />
-      <AnnouncementBanner />
-      <Breadcrumbs />
-      <PageTransition>{children}</PageTransition>
-    </DashboardShell>
+    <div className="rm-prod">
+      <div className="rm-area">
+        <nav className="rm-area__nav" aria-label="Aree dell'area cliente">
+          <div className="rm-area__testa">
+            <div style={{ fontWeight: 600, color: "#fff" }} title={orgName || userEmail}>
+              {orgName || userEmail}
+            </div>
+            {orgName && (
+              <div
+                style={{ fontSize: 12.5, color: "var(--sidebar-muted)", overflowWrap: "anywhere" }}
+                title={userEmail}
+              >
+                {userEmail}
+              </div>
+            )}
+          </div>
+
+          {/* Titoli e voci sono figli diretti della barra: cosi' su schermo
+              stretto diventano una riga scorrevole, come vuole il foglio. */}
+          {MENU.map((gruppo, i) => {
+            const voci = gruppo.voci.filter((v) => !v.soloTitolare || isOwner);
+            if (!voci.length) return null;
+            return (
+              <Fragment key={gruppo.titolo || `gruppo-${i}`}>
+                {gruppo.titolo && <div className="rm-area__gruppo">{gruppo.titolo}</div>}
+                {voci.map((v) => {
+                  const attiva = v.esatta ? percorso === v.href : percorso.startsWith(v.href);
+                  return (
+                    <Link key={v.href} href={v.href} aria-current={attiva ? "page" : undefined}>
+                      {v.label}
+                    </Link>
+                  );
+                })}
+              </Fragment>
+            );
+          })}
+
+          {/* Spinge l'uscita in fondo alla barra. */}
+          <div style={{ flex: 1 }} />
+
+          <div className="rm-area__piede">
+            {/* Non c'e' una classe per l'azione dentro la barra laterale:
+                pulsante di testo, colori presi dalle variabili del foglio. */}
+            <button
+              type="button"
+              onClick={esci}
+              disabled={uscendo}
+              style={{
+                background: "transparent",
+                border: 0,
+                padding: 0,
+                font: "inherit",
+                fontSize: 13.5,
+                textAlign: "left",
+                color: uscendo ? "var(--sidebar-muted)" : "var(--sidebar-text)",
+                cursor: uscendo ? "default" : "pointer",
+              }}
+            >
+              {uscendo ? "Disconnessione in corso" : "Esci dall'account"}
+            </button>
+          </div>
+        </nav>
+
+        <div className="rm-area__corpo">
+          <MaintenanceGate />
+          <LegalConsentModal />
+          <AnnouncementBanner />
+          {/* Lo stile del percorso di navigazione sta nel suo componente:
+              qui serve solo lo spazio prima del titolo di pagina. */}
+          <div style={{ marginBottom: 12 }}>
+            <Breadcrumbs />
+          </div>
+          <PageTransition>{children}</PageTransition>
+        </div>
+      </div>
+    </div>
   );
 }

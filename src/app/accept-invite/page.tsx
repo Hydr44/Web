@@ -4,7 +4,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { FiMail, FiUser, FiCheck, FiAlertCircle, FiLoader } from 'react-icons/fi';
+import Link from 'next/link';
 
 const ROLE_LABELS: Record<string, string> = {
   owner: 'Proprietario',
@@ -14,9 +14,34 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: 'Visualizzatore',
 };
 
-const INPUT_CLASS =
-  'w-full px-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm';
-const LABEL_CLASS = 'block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2';
+// L'intestazione del sito e' fissa in alto e alta 112 px: la cornice parte sotto.
+
+function Lato({ orgName }: { orgName?: string | null }) {
+  return (
+    <aside className="rm-gate__lato">
+      <Link href="/" className="inline-flex" style={{ textDecoration: 'none' }}>
+        <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={160} height={53} />
+      </Link>
+
+      <div>
+        <h2>{orgName ? `Entra in ${orgName}` : 'Entra nel team'}</h2>
+        <p style={{ marginTop: 14, maxWidth: '38ch' }}>
+          Completa la registrazione: trovi subito le chiamate, i mezzi e le pratiche della tua azienda.
+        </p>
+        <ul>
+          <li>Soccorso e trasporti con posizione dei mezzi</li>
+          <li>Magazzino ricambi</li>
+          <li>RENTRI, SDI e RVFU collegati</li>
+          <li>App per gli autisti, compresa nel canone</li>
+        </ul>
+      </div>
+
+      <p style={{ fontSize: 12.5, color: 'var(--sidebar-muted)' }}>
+        © {new Date().getFullYear()} RescueManager · rescuemanager.eu
+      </p>
+    </aside>
+  );
+}
 
 function AcceptInviteContent() {
   const router = useRouter();
@@ -37,7 +62,7 @@ function AcceptInviteContent() {
 
   useEffect(() => {
     if (!token) {
-      setError('Link invito non valido (token mancante)');
+      setError('Il link non contiene il codice dell\'invito. Chiedi che ti venga inviato di nuovo.');
       setStep('error');
       setLoading(false);
       return;
@@ -51,7 +76,7 @@ function AcceptInviteContent() {
       setLoading(true);
       const { data, error: rpcError } = await supabase.rpc('verify_team_invite', { p_token: token });
       if (rpcError || !data?.success) {
-        setError(data?.error || 'Invito non trovato o già utilizzato');
+        setError(data?.error || 'Invito non trovato oppure già usato. Chiedi un nuovo invito.');
         setStep('error');
         return;
       }
@@ -59,7 +84,7 @@ function AcceptInviteContent() {
       setStep('register');
     } catch (err: any) {
       console.error('Error loading invite:', err);
-      setError("Errore durante il caricamento dell'invito");
+      setError("Non è stato possibile leggere l'invito. Riprova fra poco.");
       setStep('error');
     } finally {
       setLoading(false);
@@ -68,9 +93,9 @@ function AcceptInviteContent() {
 
   async function handleAccept(e: React.FormEvent) {
     e.preventDefault();
-    if (!fullName.trim()) return setError('Inserisci il tuo nome completo');
-    if (password.length < 8) return setError('La password deve essere di almeno 8 caratteri');
-    if (password !== confirmPassword) return setError('Le password non corrispondono');
+    if (!fullName.trim()) return setError('Inserisci nome e cognome.');
+    if (password.length < 8) return setError('La password deve avere almeno 8 caratteri.');
+    if (password !== confirmPassword) return setError('Le due password non coincidono. Riscrivile uguali.');
 
     try {
       setAccepting(true);
@@ -81,7 +106,7 @@ function AcceptInviteContent() {
         body: JSON.stringify({ token, fullName: fullName.trim(), password }),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json?.error || "Errore durante l'accettazione dell'invito");
+      if (!res.ok) throw new Error(json?.error || "Non è stato possibile accettare l'invito. Riprova fra poco.");
 
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: json.email || invite.email,
@@ -91,33 +116,46 @@ function AcceptInviteContent() {
       setTimeout(() => router.push(signInError ? '/login' : '/dashboard'), 1800);
     } catch (err: any) {
       console.error('Accept invite error:', err);
-      setError(err.message || "Errore durante l'accettazione dell'invito");
+      setError(err.message || "Non è stato possibile accettare l'invito. Riprova fra poco.");
     } finally {
       setAccepting(false);
     }
   }
 
-  // — Stati semplici (no split) —
+  // — Stati semplici —
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="h-9 w-9 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <h1>Apertura dell&apos;invito</h1>
+              <p className="rm-muted">Attendi qualche secondo.</p>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (step === 'error') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-14 h-14 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiAlertCircle className="w-7 h-7 text-red-500" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#0f172a] mb-2">Invito non valido</h1>
-          <p className="text-sm text-gray-500 mb-6">{error}</p>
-          <button onClick={() => router.push('/login')} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
-            Vai al login
-          </button>
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <div>
+                <h1>Invito non valido</h1>
+                <p className="rm-muted" style={{ marginTop: 6 }}>Non possiamo completare la registrazione.</p>
+              </div>
+              <div className="rm-note rm-note--errore" role="alert">{error}</div>
+              <button onClick={() => router.push('/login')} className="rm-btn rm-btn--secondary rm-btn--full">
+                Vai all&apos;accesso
+              </button>
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -125,120 +163,106 @@ function AcceptInviteContent() {
 
   if (step === 'success') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-14 h-14 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiCheck className="w-7 h-7 text-green-500" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#0f172a] mb-2">Benvenuto nel team!</h1>
-          <p className="text-sm text-gray-500">
-            Ti sei unito a <strong className="text-gray-900">{invite?.orgName}</strong>. Reindirizzamento…
-          </p>
+      <div className="rm-prod">
+        <div className="rm-gate" >
+          <Lato orgName={invite?.orgName} />
+          <main className="rm-gate__corpo">
+            <div className="rm-gate__modulo">
+              <div>
+                <h1>Registrazione completata</h1>
+                <p className="rm-muted" style={{ marginTop: 6 }}>
+                  Ora fai parte di <strong>{invite?.orgName}</strong>. Fra qualche istante apriamo l&apos;applicazione.
+                </p>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
   }
 
-  // — Registrazione: split scuro/bianco come il login —
+  // — Registrazione —
   return (
-    <div className="min-h-screen flex">
-      {/* LEFT — brand panel (scuro) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
-        <a href="/" className="inline-flex items-center">
-          <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={160} height={53} className="h-auto" />
-        </a>
-        <div>
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Invito al team</p>
-          <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
-            Unisciti a<br />{invite?.orgName}<span className="text-blue-500">.</span>
-          </h2>
-          <p className="text-slate-400 text-base mb-10 max-w-sm">
-            Completa la registrazione per accedere alla piattaforma del tuo team.
-          </p>
-          <div className="space-y-3">
-            {[
-              'Soccorso & trasporti e tracking GPS',
-              'Magazzino ricambi TecDoc',
-              'RENTRI, SDI e RVFU integrati',
-              'App mobile per autisti inclusa',
-            ].map((f) => (
-              <div key={f} className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
-                <span className="text-sm text-slate-300">{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
-      </div>
+    <div className="rm-prod">
+      <div className="rm-gate" >
+        <Lato orgName={invite?.orgName} />
 
-      {/* RIGHT — form panel (bianco) */}
-      <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8 text-center">
-            <img src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" alt="RescueManager" width={200} height={67} className="h-auto inline-block" />
-          </div>
-
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Invito</p>
-          <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Unisciti al team</h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Sei stato invitato in <strong className="text-gray-900">{invite?.orgName}</strong>.
-          </p>
-
-          {/* Riepilogo invito */}
-          <div className="mb-6 border border-gray-200">
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
-              <FiMail className="h-4 w-4 text-gray-400 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wider text-gray-400">Email</p>
-                <p className="text-sm font-medium text-gray-900 truncate">{invite?.email}</p>
-              </div>
+        <main className="rm-gate__corpo">
+          <div className="rm-gate__modulo">
+            <div className="lg:hidden">
+              <Link href="/" className="inline-flex" style={{ textDecoration: 'none' }}>
+                <img src="/assets/logos/logo-principale-bianco.svg" alt="RescueManager" width={150} height={50} />
+              </Link>
             </div>
-            <div className="flex items-center gap-3 px-4 py-3">
-              <FiUser className="h-4 w-4 text-gray-400 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wider text-gray-400">Ruolo</p>
-                <p className="text-sm font-medium text-gray-900">{ROLE_LABELS[invite?.role] || invite?.role}</p>
-              </div>
-            </div>
-          </div>
 
-          {error && (
-            <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
-          )}
-
-          <form onSubmit={handleAccept} className="space-y-5">
             <div>
-              <label htmlFor="ai-name" className={LABEL_CLASS}>Nome completo</label>
-              <input id="ai-name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className={INPUT_CLASS} placeholder="Mario Rossi" required />
+              <h1>Unisciti al team</h1>
+              <p className="rm-muted" style={{ marginTop: 6 }}>
+                Sei stato invitato in <strong>{invite?.orgName}</strong>. Scegli la password e inizi a lavorare.
+              </p>
             </div>
-            <div>
-              <label htmlFor="ai-pwd" className={LABEL_CLASS}>Password</label>
-              <input id="ai-pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={INPUT_CLASS} placeholder="Minimo 8 caratteri" required minLength={8} />
-            </div>
-            <div>
-              <label htmlFor="ai-pwd2" className={LABEL_CLASS}>Conferma password</label>
-              <input id="ai-pwd2" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={INPUT_CLASS} placeholder="Ripeti la password" required minLength={8} />
-            </div>
-            <button
-              type="submit"
-              disabled={accepting}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
-            >
-              {accepting ? (
-                <><div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" /> Registrazione…</>
-              ) : (
-                'Accetta invito e registrati'
-              )}
-            </button>
-          </form>
 
-          <p className="mt-6 text-xs text-gray-400 text-center">
-            Accettando accetti i{' '}
-            <a href="/terms" className="text-blue-600 hover:underline">Termini</a>{' '}e la{' '}
-            <a href="/privacy" className="text-blue-600 hover:underline">Privacy</a>.
-          </p>
-        </div>
+            <div className="rm-righe">
+              <div className="rm-riga"><span>Email</span><span style={{ overflowWrap: 'anywhere' }}>{invite?.email}</span></div>
+              <div className="rm-riga"><span>Ruolo</span><span>{ROLE_LABELS[invite?.role] || invite?.role}</span></div>
+            </div>
+
+            {error && (
+              <div className="rm-note rm-note--errore" role="alert">{error}</div>
+            )}
+
+            <form onSubmit={handleAccept} className="flex flex-col gap-4">
+              <div className="rm-field">
+                <label htmlFor="ai-name" className="rm-label">Nome e cognome</label>
+                <input
+                  id="ai-name"
+                  type="text"
+                  className="rm-input"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Mario Rossi"
+                  autoComplete="name"
+                  required
+                />
+              </div>
+              <div className="rm-field">
+                <label htmlFor="ai-pwd" className="rm-label">Password</label>
+                <input
+                  id="ai-pwd"
+                  type="password"
+                  className="rm-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Almeno 8 caratteri"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <div className="rm-field">
+                <label htmlFor="ai-pwd2" className="rm-label">Ripeti la password</label>
+                <input
+                  id="ai-pwd2"
+                  type="password"
+                  className="rm-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="La stessa password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <button type="submit" className="rm-btn rm-btn--primary rm-btn--full" disabled={accepting}>
+                {accepting ? 'Registrazione in corso' : 'Accetta l’invito'}
+              </button>
+            </form>
+
+            <p className="rm-muted">
+              Accettando accetti i <Link href="/terms-of-use">termini d&apos;uso</Link> e l&apos;<Link href="/privacy-policy">informativa privacy</Link>.
+            </p>
+          </div>
+        </main>
       </div>
     </div>
   );
@@ -248,8 +272,12 @@ export default function AcceptInvitePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <FiLoader className="w-8 h-8 text-blue-600 animate-spin" />
+        <div className="rm-prod">
+          <div className="rm-gate" >
+            <main className="rm-gate__corpo">
+              <p className="rm-muted">Apertura dell&apos;invito in corso.</p>
+            </main>
+          </div>
         </div>
       }
     >

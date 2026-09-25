@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 import OAuthRedirect from "@/components/OAuthRedirect";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -23,10 +23,21 @@ function generateOAuthCode(): string {
   return `oauth_${b64}`;
 }
 
-// Log immediato quando il modulo viene caricato
+/** Cornice scura condivisa da tutti gli stati della pagina. */
+function Cornice({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rm-prod">
+      <div className="rm-gate">
+        <div className="rm-gate__corpo">
+          <div className="rm-gate__modulo">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DesktopOAuthContent() {
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,14 +57,14 @@ function DesktopOAuthContent() {
 
   // Estrai parametri OAuth
   useEffect(() => {
-    
+
     const encodedParams = params.get('params');
-    
+
     // Fallback: prova a leggere direttamente dall'URL se useSearchParams non funziona
     if (!encodedParams) {
       const urlParams = new URLSearchParams(window.location.search);
       const fallbackParams = urlParams.get('params');
-      
+
       if (fallbackParams) {
         // Usa i parametri dal fallback
         try {
@@ -91,7 +102,7 @@ function DesktopOAuthContent() {
         }
       }
     }
-    
+
     if (encodedParams) {
       try {
         // Usa atob per decodificare base64 nel browser (Buffer non è disponibile)
@@ -153,7 +164,7 @@ function DesktopOAuthContent() {
       try {
         const supabase = supabaseBrowser();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user) return; // Nessuna sessione, mostra il form
 
         setIsLoading(true);
@@ -194,7 +205,7 @@ function DesktopOAuthContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       setError("Inserisci email e password.");
       return;
@@ -214,16 +225,16 @@ function DesktopOAuthContent() {
       const result = await loginWithPassword(email, password);
 
       if (result.success && result.user) {
-        
+
         // Genera OAuth code
         const oauthCode = generateOAuthCode();
-        
+
         // Salva OAuth code nel database
         const supabase = supabaseBrowser();
-        
+
         // Verifica autenticazione
         const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-        
+
         const { data: insertData, error: oauthError } = await supabase
           .from('oauth_codes')
           .insert({
@@ -243,10 +254,10 @@ function DesktopOAuthContent() {
           setError("Errore durante la generazione del codice OAuth.");
           return;
         }
-        
+
 
         setSuccess(true);
-        setError("✅ Accesso completato! Reindirizzamento alla desktop app...");
+        setError("Accesso completato. Reindirizzamento all'applicazione desktop in corso.");
 
         // Prepara URL di redirect
         const redirectUrl = `${oauthInfo.redirect_uri}?code=${oauthCode}&state=${oauthInfo.state}`;
@@ -265,98 +276,100 @@ function DesktopOAuthContent() {
 
   if (!oauthInfo) {
     return (
-      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
-        <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          <h3 className="text-lg font-semibold text-slate-100 mb-2">Caricamento parametri OAuth</h3>
-          <p className="text-sm text-slate-400">Attendere prego...</p>
-          {error && (
-            <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              <p className="font-semibold mb-1">Errore:</p>
-              <p>{error}</p>
-              <a href="/login" className="mt-3 inline-block text-blue-400 hover:underline">
-                Torna al login
-              </a>
-            </div>
-          )}
+      <Cornice>
+        <div className="rm-card">
+          <p className="rm-eyebrow">Accesso dall&apos;applicazione desktop</p>
+          <h2 style={{ marginTop: 10 }}>Lettura della richiesta</h2>
+          <p className="rm-muted" style={{ marginTop: 8 }}>
+            Attendere il controllo dei parametri di autorizzazione.
+          </p>
         </div>
-      </div>
+        {error && (
+          <div className="rm-note rm-note--errore">
+            <p style={{ fontWeight: 600, marginBottom: 4 }}>Richiesta non valida</p>
+            <p>{error}</p>
+            <p style={{ marginTop: 10 }}>
+              <a href="/login">Torna all&apos;accesso</a>
+            </p>
+          </div>
+        )}
+      </Cornice>
     );
   }
 
   // Se abbiamo l'URL di redirect, mostra il componente di redirect
   if (redirectUrl) {
     return (
-      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
-        <div className="max-w-md w-full">
-          <OAuthRedirect redirectUrl={redirectUrl} />
-        </div>
-      </div>
+      <Cornice>
+        <OAuthRedirect redirectUrl={redirectUrl} />
+      </Cornice>
     );
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* LEFT — brand panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12">
-        <div className="inline-flex items-center">
-          <img 
-            src="/assets/logos/logo-principale-bianco.svg" 
+    <div className="rm-prod">
+      <div className="rm-gate">
+        {/* Lato blu: identita' e cosa fa l'applicazione */}
+        <div className="rm-gate__lato">
+          <img
+            src="/assets/logos/logo-principale-bianco.svg"
             alt="RescueManager"
-            className="h-auto w-40"
+            style={{ width: 160, height: "auto" }}
           />
-        </div>
 
-        <div>
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Desktop App</p>
-          <h2 className="text-4xl font-extrabold text-white leading-[1.1] mb-4">
-            Accedi alla<br />tua applicazione<span className="text-blue-500">.</span>
-          </h2>
-          <p className="text-slate-400 text-base mb-10 max-w-sm">
-            Gestisci soccorso & trasporti, ricambi, RENTRI, SDI e RVFU dalla tua applicazione desktop.
+          <div>
+            <p className="rm-eyebrow" style={{ color: "var(--sidebar-muted)" }}>
+              Applicazione desktop
+            </p>
+            <h2 style={{ marginTop: 12 }}>
+              Accedi alla tua
+              <br />
+              applicazione.
+            </h2>
+            <p style={{ marginTop: 14, maxWidth: 380 }}>
+              Soccorso e trasporti, ricambi, RENTRI, SDI e RVFU dalla postazione
+              di lavoro.
+            </p>
+            <ul>
+              <li>Sincronizzazione automatica</li>
+              <li>Accesso ai dati anche senza rete</li>
+              <li>Notifiche sulla postazione</li>
+              <li>Archivi locali per le liste lunghe</li>
+            </ul>
+          </div>
+
+          <p style={{ fontSize: 12 }}>
+            © {new Date().getFullYear()} RescueManager · rescuemanager.eu
           </p>
-          <div className="space-y-3">
-            {["Sincronizzazione automatica","Accesso offline ai dati","Notifiche desktop in tempo reale","Performance ottimizzate"].map((f) => (
-              <div key={f} className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
-                <span className="text-sm text-slate-300">{f}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <p className="text-xs text-slate-600">© {new Date().getFullYear()} RescueManager · rescuemanager.eu</p>
-      </div>
-
-      {/* RIGHT — form panel */}
-      <div className="flex-1 bg-white flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-sm">
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <img 
-              src="/assets/logos/logo-principale-a-colori-su-chiaro.svg" 
-              alt="RescueManager"
-              className="h-auto w-48 mx-auto"
-            />
-          </div>
-
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Accesso Desktop</p>
-          <h1 className="text-3xl font-extrabold text-[#0f172a] mb-1">Bentornato.</h1>
-          <p className="text-sm text-gray-500 mb-8">Inserisci le credenziali del tuo account.</p>
-
-          {error && (
-            <div className="mb-6 border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
+        {/* Lato modulo */}
+        <div className="rm-gate__corpo">
+          <div className="rm-gate__modulo">
+            <div className="lg:hidden">
+              <img
+                src="/assets/logos/logo-principale-bianco.svg"
+                alt="RescueManager"
+                style={{ width: 150, height: "auto" }}
+              />
             </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <p className="rm-eyebrow">Autorizzazione</p>
+              <h1 style={{ marginTop: 10 }}>Accesso dall&apos;applicazione</h1>
+              <p className="rm-muted" style={{ marginTop: 8 }}>
+                L&apos;applicazione desktop ha richiesto di collegarsi al tuo
+                account. Inserisci le credenziali per autorizzarla.
+              </p>
+            </div>
+
+            {error && <div className="rm-note rm-note--errore">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="rm-field">
+                <label htmlFor="email" className="rm-label">
+                  Indirizzo email
+                </label>
                 <input
                   id="email"
                   name="email"
@@ -365,62 +378,55 @@ function DesktopOAuthContent() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm"
-                  placeholder="inserisci@email.com"
+                  className="rm-input"
+                  placeholder="nome@azienda.it"
                   disabled={isLoading}
                 />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder-gray-400 text-sm"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-80 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>Accesso in corso...</span>
+              <div className="rm-field">
+                <label htmlFor="password" className="rm-label">
+                  Password
+                </label>
+                <div className="rm-prefix">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="rm-input"
+                    placeholder="Password"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="rm-btn rm-btn--ghost"
+                    style={{ height: 38, padding: "0 10px", gap: 0 }}
+                    disabled={isLoading}
+                    aria-label={showPassword ? "Nascondi la password" : "Mostra la password"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
-              ) : "ACCEDI"}
-            </button>
-          </form>
+              </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-500">
-              Non hai un account?{" "}
-              <a href="/contatti" className="text-blue-600 font-bold hover:underline">
-                Richiedi Accesso
-              </a>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="rm-btn rm-btn--primary rm-btn--full"
+              >
+                <span>{isLoading ? "Accesso in corso" : "Autorizza e accedi"}</span>
+              </button>
+            </form>
+
+            <div className="rm-sep" />
+
+            <p className="rm-muted">
+              Non hai ancora un account? <a href="/contatti">Richiedi l&apos;attivazione</a>
             </p>
           </div>
         </div>
@@ -432,13 +438,13 @@ function DesktopOAuthContent() {
 export default function DesktopOAuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#141c27] flex items-center justify-center p-6">
-        <div className="w-full max-w-md rounded-2xl bg-[#1a2536] border border-[#243044] p-8 text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          <h3 className="text-lg font-semibold text-slate-100 mb-2">Caricamento</h3>
-          <p className="text-sm text-slate-400">Attendere prego...</p>
+      <Cornice>
+        <div className="rm-card">
+          <p className="rm-eyebrow">Accesso dall&apos;applicazione desktop</p>
+          <h2 style={{ marginTop: 10 }}>Caricamento</h2>
+          <p className="rm-muted" style={{ marginTop: 8 }}>Attendere.</p>
         </div>
-      </div>
+      </Cornice>
     }>
       <DesktopOAuthContent />
     </Suspense>

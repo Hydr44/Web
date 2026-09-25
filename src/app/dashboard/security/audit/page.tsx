@@ -3,17 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import {
-  Shield,
-  ArrowLeft,
-  Clock,
-  Download,
-  Filter,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-} from "lucide-react";
 
 /**
  * Audit log per-utente — eventi sensibili (login, password, 2FA, sessioni,
@@ -31,30 +20,28 @@ interface AuditRow {
   created_at: string;
 }
 
-// Mappa action → etichetta IT + colore
-const ACTION_META: Record<string, { label: string; emoji: string }> = {
-  "login.success":        { label: "Accesso effettuato",       emoji: "🔑" },
-  "login.failure":        { label: "Tentativo accesso fallito", emoji: "⚠️" },
-  "logout":               { label: "Disconnessione",            emoji: "🚪" },
-  "password.changed":     { label: "Password aggiornata",       emoji: "🔒" },
-  "password.verify_fail": { label: "Verifica password fallita", emoji: "❌" },
-  "mfa.enabled":          { label: "2FA abilitato",             emoji: "🛡️" },
-  "mfa.disabled":         { label: "2FA disabilitato",          emoji: "🛡️" },
-  "mfa.verify_success":   { label: "2FA verificato",            emoji: "✅" },
-  "mfa.verify_failure":   { label: "2FA verifica fallita",      emoji: "❌" },
-  "backup_codes.regen":   { label: "Codici di backup rigenerati", emoji: "♻️" },
-  "session.revoked":      { label: "Sessione revocata",         emoji: "🚪" },
-  "session.revoked_all_other": { label: "Tutte le altre sessioni revocate", emoji: "🚪" },
-  "privacy.export":       { label: "Export dati richiesto",     emoji: "📤" },
-  "privacy.delete":       { label: "Eliminazione account richiesta", emoji: "🗑️" },
-  "profile.updated":      { label: "Profilo aggiornato",        emoji: "👤" },
+// Mappa action → descrizione leggibile dal cliente
+const ACTION_META: Record<string, string> = {
+  "login.success": "Accesso effettuato",
+  "login.failure": "Tentativo di accesso non riuscito",
+  "logout": "Disconnessione",
+  "password.changed": "Password aggiornata",
+  "password.verify_fail": "Password attuale non riconosciuta",
+  "mfa.enabled": "Verifica in due passaggi attivata",
+  "mfa.disabled": "Verifica in due passaggi disattivata",
+  "mfa.verify_success": "Verifica in due passaggi superata",
+  "mfa.verify_failure": "Verifica in due passaggi non superata",
+  "backup_codes.regen": "Codici di riserva rigenerati",
+  "session.revoked": "Sessione chiusa",
+  "session.revoked_all_other": "Chiuse tutte le altre sessioni",
+  "privacy.export": "Richiesta copia dei dati",
+  "privacy.delete": "Richiesta cancellazione dell'utenza",
+  "profile.updated": "Profilo aggiornato",
 };
 
 function actionLabel(action: string) {
-  const m = ACTION_META[action];
-  if (m) return m;
   // fallback leggibile
-  return { label: action.replace(/[._]/g, " "), emoji: "•" };
+  return ACTION_META[action] || action.replace(/[._]/g, " ");
 }
 
 function relTime(iso: string) {
@@ -82,7 +69,7 @@ export default function AuditPage() {
       const r = await fetch("/api/user/audit-logs?limit=100");
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {
-        setError(j.error || "Errore caricamento audit log");
+        setError(j.error || "Non è stato possibile leggere il registro");
         setLogs([]);
         return;
       }
@@ -137,137 +124,132 @@ export default function AuditPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-3xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
-        <div className="h-32 bg-white border border-gray-100 rounded-lg animate-pulse" />
-      </div>
+      <>
+        <div className="rm-area__intesta">
+          <h1>Registro eventi</h1>
+        </div>
+        <div className="rm-card">
+          <p className="rm-muted">Lettura del registro in corso.</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <header className="flex items-start gap-3">
-        <Link
-          href="/dashboard/security"
-          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-            <Shield className="h-3.5 w-3.5" />
-            Audit log
-          </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Attività account</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Eventi sensibili sul tuo account (login, password, 2FA, sessioni, privacy).
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Sicurezza</p>
+          <h1 style={{ marginTop: 8 }}>Registro eventi</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Accessi, cambi password, verifiche e sessioni di questa utenza.
           </p>
         </div>
-      </header>
-
-      {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2 text-sm">
-          <Filter className="h-4 w-4 text-gray-400" />
-          {(["all", "success", "failure"] as const).map((k) => (
-            <button
-              key={k}
-              onClick={() => setFilterStatus(k)}
-              className={`px-3 py-1.5 rounded transition-colors ${
-                filterStatus === k
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {k === "all" ? "Tutti" : k === "success" ? "Riusciti" : "Falliti"}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refresh}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Aggiorna
-          </button>
-          <button
-            onClick={handleExport}
-            disabled={!filtered.length}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-primary hover:text-primary/80 transition-colors disabled:opacity-40"
-          >
-            <Download className="h-4 w-4" />
-            Esporta CSV
-          </button>
-        </div>
+        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
+          <span>Torna a Sicurezza</span>
+        </Link>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="p-8 text-center bg-white border border-gray-200 rounded">
-          <Shield className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <div className="flex flex-wrap gap-1">
+            {(["all", "success", "failure"] as const).map((k) => (
+              <button
+                key={k}
+                onClick={() => setFilterStatus(k)}
+                className={
+                  filterStatus === k
+                    ? "rm-btn rm-btn--primary"
+                    : "rm-btn rm-btn--secondary"
+                }
+                aria-pressed={filterStatus === k}
+              >
+                <span>
+                  {k === "all" ? "Tutti" : k === "success" ? "Riusciti" : "Non riusciti"}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <button onClick={refresh} className="rm-btn rm-btn--secondary">
+              <span>Aggiorna</span>
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={!filtered.length}
+              className="rm-btn rm-btn--tertiary"
+            >
+              <span>Scarica il registro</span>
+            </button>
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <p className="rm-muted">
             {logs.length === 0
-              ? "Nessun evento di audit registrato. Gli eventi appariranno qui dopo login, cambio password, modifiche 2FA, ecc."
-              : "Nessun evento per il filtro selezionato."}
+              ? "Nessun evento registrato. Gli eventi compaiono dopo un accesso, un cambio password o una modifica alle protezioni."
+              : "Nessun evento per il filtro scelto."}
           </p>
-        </div>
-      ) : (
-        <div className="bg-white border border-gray-200 rounded overflow-hidden">
-          <ul className="divide-y divide-gray-100">
-            {filtered.map((l) => {
-              const meta = actionLabel(l.action);
-              const failed = l.status === "failure";
-              return (
-                <li key={l.id} className="p-4 flex items-start gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base ${
-                    failed ? "bg-red-50" : "bg-green-50"
-                  }`}>
-                    <span>{meta.emoji}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-gray-900 text-sm">{meta.label}</p>
-                      {failed ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">
-                          <XCircle className="h-3 w-3" /> Fallito
+        ) : (
+          <div className="rm-scroll">
+            <table className="rm-tab">
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Esito</th>
+                  <th>Quando</th>
+                  <th>Indirizzo di rete</th>
+                  <th>Dettagli</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((l) => {
+                  const failed = l.status === "failure";
+                  return (
+                    <tr key={l.id}>
+                      <td>{actionLabel(l.action)}</td>
+                      <td>
+                        <span
+                          className={
+                            failed ? "rm-stato rm-stato--male" : "rm-stato rm-stato--ok"
+                          }
+                        >
+                          {failed ? "Non riuscito" : "Riuscito"}
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
-                          <CheckCircle className="h-3 w-3" /> Successo
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {relTime(l.created_at)}
-                      </span>
-                      {l.ip && (
-                        <span>
-                          IP: <code className="font-mono">{l.ip}</code>
-                        </span>
-                      )}
-                      <code className="font-mono text-gray-400">{l.action}</code>
-                    </div>
-                    {l.metadata && Object.keys(l.metadata).length > 0 && (
-                      <details className="mt-2 text-xs text-gray-500">
-                        <summary className="cursor-pointer hover:text-gray-700">Dettagli</summary>
-                        <pre className="mt-2 p-2 bg-gray-50 rounded overflow-x-auto">{JSON.stringify(l.metadata, null, 2)}</pre>
-                      </details>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </div>
+                      </td>
+                      <td>{relTime(l.created_at)}</td>
+                      <td className="rm-mono">{l.ip || "—"}</td>
+                      <td>
+                        {l.metadata && Object.keys(l.metadata).length > 0 ? (
+                          <details>
+                            <summary style={{ cursor: "pointer" }}>Apri</summary>
+                            <pre
+                              className="rm-mono"
+                              style={{
+                                marginTop: 8,
+                                padding: 8,
+                                background: "var(--layer-2)",
+                                overflowX: "auto",
+                                fontSize: 12,
+                              }}
+                            >
+                              {JSON.stringify(l.metadata, null, 2)}
+                            </pre>
+                          </details>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

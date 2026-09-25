@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Send, Paperclip, X, FileText } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type TicketDetail = {
@@ -29,11 +28,11 @@ const fmtSize = (b: number) =>
   b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  open:        { label: "Aperto",         cls: "bg-blue-100 text-blue-700" },
-  pending:     { label: "In attesa",      cls: "bg-amber-100 text-amber-700" },
-  in_progress: { label: "In lavorazione", cls: "bg-indigo-100 text-indigo-700" },
-  resolved:    { label: "Risolto",        cls: "bg-green-100 text-green-700" },
-  closed:      { label: "Chiuso",         cls: "bg-gray-100 text-gray-600" },
+  open:        { label: "Aperta",         cls: "rm-stato rm-stato--corso" },
+  pending:     { label: "In attesa",      cls: "rm-stato rm-stato--corso" },
+  in_progress: { label: "In lavorazione", cls: "rm-stato rm-stato--corso" },
+  resolved:    { label: "Risolta",        cls: "rm-stato rm-stato--ok" },
+  closed:      { label: "Chiusa",         cls: "rm-stato rm-stato--fermo" },
 };
 
 const fmt = (iso: string) =>
@@ -41,7 +40,7 @@ const fmt = (iso: string) =>
 
 function StatusBadge({ status }: { status: string }) {
   const s = STATUS_LABELS[status] || STATUS_LABELS.open;
-  return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>;
+  return <span className={s.cls}>{s.label}</span>;
 }
 
 export default function TicketDetailPage() {
@@ -64,13 +63,13 @@ export default function TicketDetailPage() {
     setError(null);
     try {
       const res = await fetch(`/api/support/tickets/${id}`);
-      if (res.status === 404) { setError("Ticket non trovato."); return; }
+      if (res.status === 404) { setError("Richiesta non trovata."); return; }
       if (!res.ok) throw new Error();
       const data = await res.json();
       setTicket(data.ticket);
       setMessages(data.messages || []);
     } catch {
-      setError("Impossibile caricare il ticket.");
+      setError("Non è stato possibile leggere la richiesta.");
     } finally {
       setLoading(false);
     }
@@ -102,10 +101,10 @@ export default function TicketDetailPage() {
       fd.append("file", file);
       const res = await fetch(`/api/support/tickets/${id}/attachments`, { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload fallito");
+      if (!res.ok) throw new Error(data.error || "Non è stato possibile allegare il file");
       setPending(p => [...p, data.attachment]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload fallito");
+      setError(err instanceof Error ? err.message : "Non è stato possibile allegare il file");
     } finally {
       setUploading(false);
     }
@@ -134,122 +133,160 @@ export default function TicketDetailPage() {
       setPending([]);
       await load();
     } catch {
-      setError("Errore invio risposta.");
+      setError("Non è stato possibile inviare la risposta.");
     } finally {
       setReplying(false);
     }
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <button
-        onClick={() => router.push("/dashboard/support")}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900"
-      >
-        <ArrowLeft className="h-4 w-4" /> Torna ai ticket
-      </button>
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Assistenza</p>
+          <h1 style={{ marginTop: 8 }}>{ticket?.subject || "Richiesta"}</h1>
+          {ticket && (
+            <p className="rm-muted" style={{ marginTop: 6 }}>
+              Aperta il {fmt(ticket.created_at)} · riferimento{" "}
+              <span className="rm-mono">{ticket.id.slice(0, 8)}</span>
+            </p>
+          )}
+        </div>
+        <button
+          onClick={() => router.push("/dashboard/support")}
+          className="rm-btn rm-btn--ghost"
+        >
+          <span>Torna all&apos;elenco</span>
+        </button>
+      </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg font-medium">{error}</div>
-      )}
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
 
       {loading ? (
-        <div className="p-16 flex justify-center"><Loader2 className="h-7 w-7 animate-spin text-blue-600" /></div>
+        <div className="rm-card">
+          <p className="rm-muted">Lettura della richiesta.</p>
+        </div>
       ) : ticket ? (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="text-xl font-bold text-gray-900">{ticket.subject}</h1>
+        <>
+          <div className="rm-card">
+            <div className="rm-cardhead">
+              <h3>Conversazione</h3>
               <StatusBadge status={ticket.status} />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Aperto il {fmt(ticket.created_at)} · #{ticket.id.slice(0, 8)}
-            </p>
-          </div>
 
-          <div className="p-6 space-y-4 max-h-[480px] overflow-y-auto bg-gray-50">
-            {messages.map(m => {
-              if (m.sender_type === "system") {
-                return (
-                  <div key={m.id} className="flex justify-center">
-                    <div className="max-w-[90%] text-center text-xs text-gray-500 bg-gray-100 border border-gray-200 rounded-lg px-4 py-2">
-                      {m.body}
+            <div className="rm-righe">
+              {messages.map(m => {
+                if (m.sender_type === "system") {
+                  return (
+                    <div key={m.id} className="rm-riga">
+                      <span>Servizio</span>
+                      <span className="rm-muted">{m.body}</span>
                     </div>
+                  );
+                }
+                const isStaff = m.sender_type === "staff";
+                return (
+                  <div key={m.id} className="rm-riga">
+                    <span>
+                      {isStaff ? (m.sender_name || "Assistenza") : "Tu"}
+                      <br />
+                      <span className="rm-muted">{fmt(m.created_at)}</span>
+                    </span>
+                    <span>
+                      <span style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                        {m.body}
+                      </span>
+                      {m.attachments && m.attachments.length > 0 && (
+                        <span style={{ display: "block", marginTop: 8 }}>
+                          {m.attachments.map(a => (
+                            <a
+                              key={a.key}
+                              href={`/api/support/tickets/${id}/dl?key=${encodeURIComponent(a.key)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ display: "block" }}
+                            >
+                              {a.name} ({fmtSize(a.size)})
+                            </a>
+                          ))}
+                        </span>
+                      )}
+                    </span>
                   </div>
                 );
-              }
-              const isStaff = m.sender_type === "staff";
-              return (
-                <div key={m.id} className={`flex ${isStaff ? "justify-start" : "justify-end"}`}>
-                  <div className={`max-w-[80%] rounded-xl px-4 py-3 ${isStaff ? "bg-white border border-gray-200" : "bg-blue-600 text-white"}`}>
-                    <div className={`text-[10px] mb-1 ${isStaff ? "text-gray-400" : "text-blue-100"}`}>
-                      {isStaff ? (m.sender_name || "Supporto") : "Tu"} · {fmt(m.created_at)}
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap break-words">{m.body}</div>
-                    {m.attachments && m.attachments.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {m.attachments.map(a => (
-                          <a
-                            key={a.key}
-                            href={`/api/support/tickets/${id}/dl?key=${encodeURIComponent(a.key)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-1.5 text-xs underline ${isStaff ? "text-blue-600" : "text-blue-100"}`}
-                          >
-                            <FileText className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate">{a.name}</span>
-                            <span className="opacity-60">({fmtSize(a.size)})</span>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+              })}
+            </div>
           </div>
 
-          <form onSubmit={submitReply} className="p-4 border-t border-gray-100">
-            {["resolved", "closed"].includes(ticket.status) && (
-              <p className="text-xs text-gray-500 mb-2">
-                Questo ticket è {STATUS_LABELS[ticket.status].label.toLowerCase()}: rispondendo verrà riaperto.
-              </p>
-            )}
-            {pending.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {pending.map((a, i) => (
-                  <span key={a.key} className="flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-lg">
-                    <FileText className="h-3 w-3" />
-                    <span className="max-w-[160px] truncate">{a.name}</span>
-                    <button type="button" onClick={() => removePending(i)} className="text-gray-400 hover:text-red-600">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
+          <form onSubmit={submitReply}>
+            <div className="rm-card">
+              <div className="rm-cardhead">
+                <h3>Rispondi</h3>
               </div>
-            )}
-            <div className="flex gap-2">
-              <label className={`flex items-center justify-center px-3 py-2.5 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 ${uploading ? "opacity-50 pointer-events-none" : ""}`} title="Allega file">
-                {uploading ? <Loader2 className="h-4 w-4 animate-spin text-gray-500" /> : <Paperclip className="h-4 w-4 text-gray-500" />}
-                <input type="file" className="hidden" onChange={onFilePick} />
-              </label>
-              <input
-                value={reply}
-                onChange={e => setReply(e.target.value)}
-                placeholder="Scrivi una risposta..."
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-              <button
-                type="submit"
-                disabled={replying || (reply.trim().length < 2 && pending.length === 0)}
-                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5 text-sm font-medium"
-              >
-                {replying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Invia
-              </button>
+
+              {["resolved", "closed"].includes(ticket.status) && (
+                <div className="rm-note" style={{ marginBottom: 14 }}>
+                  La richiesta risulta{" "}
+                  {STATUS_LABELS[ticket.status].label.toLowerCase()}: rispondendo
+                  viene riaperta.
+                </div>
+              )}
+
+              {pending.length > 0 && (
+                <div className="rm-righe" style={{ marginBottom: 14 }}>
+                  {pending.map((a, i) => (
+                    <div key={a.key} className="rm-riga">
+                      <span>Allegato</span>
+                      <span className="flex items-center justify-between gap-3">
+                        <span>{a.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removePending(i)}
+                          className="rm-btn rm-btn--ghost"
+                          style={{ height: 28, padding: "0 8px", gap: 0 }}
+                        >
+                          <span>Togli</span>
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="rm-field">
+                <label htmlFor="ticket-reply" className="rm-label">
+                  Messaggio
+                </label>
+                <textarea
+                  id="ticket-reply"
+                  value={reply}
+                  onChange={e => setReply(e.target.value)}
+                  rows={4}
+                  placeholder="Scrivi la risposta"
+                  className="rm-input"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-1" style={{ marginTop: 14 }}>
+                <button
+                  type="submit"
+                  disabled={replying || (reply.trim().length < 2 && pending.length === 0)}
+                  className="rm-btn rm-btn--primary"
+                >
+                  <span>{replying ? "Invio in corso" : "Invia la risposta"}</span>
+                </button>
+                <label
+                  className="rm-btn rm-btn--secondary"
+                  style={uploading ? { opacity: 0.6, pointerEvents: "none" } : undefined}
+                >
+                  <span>{uploading ? "Caricamento in corso" : "Allega un file"}</span>
+                  <input type="file" className="hidden" onChange={onFilePick} />
+                </label>
+              </div>
             </div>
           </form>
-        </div>
+        </>
       ) : null}
-    </div>
+    </>
   );
 }

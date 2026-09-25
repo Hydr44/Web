@@ -1,19 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Bell,
-  Mail,
-  Save,
-  Shield,
-  CreditCard,
-  LifeBuoy,
-  Sparkles,
-  Megaphone,
-  CheckCircle,
-  AlertTriangle,
-} from "lucide-react";
-import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
@@ -30,45 +17,40 @@ interface Prefs {
   locale: string;
 }
 
-const EMAIL_FIELDS: { key: string; label: string; desc: string; icon: any; locked?: boolean }[] = [
+const EMAIL_FIELDS: { key: string; label: string; desc: string; locked?: boolean }[] = [
   {
     key: "security",
     label: "Sicurezza",
-    desc: "Accessi sospetti, cambi password, modifiche 2FA. Sempre attivo.",
-    icon: Shield,
+    desc: "Accessi anomali, cambi password, modifiche alle protezioni. Sempre attiva.",
     locked: true,
   },
   {
     key: "billing",
     label: "Fatturazione",
-    desc: "Promemoria pagamento, fatture, scadenze abbonamento.",
-    icon: CreditCard,
+    desc: "Promemoria di pagamento, fatture, scadenze del canone.",
   },
   {
     key: "support",
-    label: "Supporto",
-    desc: "Risposte ai tuoi ticket e aggiornamenti dal team supporto.",
-    icon: LifeBuoy,
+    label: "Assistenza",
+    desc: "Risposte alle richieste aperte.",
   },
   {
     key: "product_updates",
-    label: "Aggiornamenti prodotto",
-    desc: "Nuove funzionalità e miglioramenti rilevanti.",
-    icon: Sparkles,
+    label: "Novità del programma",
+    desc: "Nuove funzioni e migliorie.",
   },
   {
     key: "marketing",
-    label: "Promozioni e novità",
-    desc: "Comunicazioni commerciali (puoi disiscriverti in qualsiasi momento).",
-    icon: Megaphone,
+    label: "Comunicazioni commerciali",
+    desc: "Offerte e iniziative. Si possono disdire in ogni momento.",
   },
 ];
 
 const INAPP_FIELDS: { key: string; label: string; desc: string }[] = [
-  { key: "security", label: "Sicurezza", desc: "Notifiche in-app per eventi di sicurezza." },
-  { key: "billing", label: "Fatturazione", desc: "Promemoria pagamenti in-app." },
-  { key: "support", label: "Supporto", desc: "Nuove risposte ai tuoi ticket." },
-  { key: "system", label: "Sistema", desc: "Avvisi di sistema, manutenzione, banner." },
+  { key: "security", label: "Sicurezza", desc: "Avvisi sugli eventi di sicurezza." },
+  { key: "billing", label: "Fatturazione", desc: "Promemoria dei pagamenti." },
+  { key: "support", label: "Assistenza", desc: "Nuove risposte alle richieste aperte." },
+  { key: "system", label: "Servizio", desc: "Manutenzioni e comunicazioni di servizio." },
 ];
 
 export default function NotificationsSettingsPage() {
@@ -85,7 +67,7 @@ export default function NotificationsSettingsPage() {
         const r = await fetch("/api/user/preferences");
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.ok) {
-          setError(j.error || "Errore caricamento preferenze");
+          setError(j.error || "Non è stato possibile leggere le preferenze");
         } else {
           setPrefs(j.preferences);
         }
@@ -130,7 +112,7 @@ export default function NotificationsSettingsPage() {
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {
-        setError(j.error || "Errore salvataggio");
+        setError(j.error || "Non è stato possibile salvare");
         return;
       }
       setPrefs(j.preferences);
@@ -144,142 +126,110 @@ export default function NotificationsSettingsPage() {
   };
 
   if (loading) {
-    return <SkeletonPage variant="form" />;
+    return (
+      <>
+        <div className="rm-area__intesta">
+          <h1>Avvisi</h1>
+        </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento delle preferenze.</p>
+        </div>
+      </>
+    );
   }
 
   if (!prefs) {
     return (
-      <div className="p-4 rounded bg-red-50 border border-red-200">
-        {error || "Impossibile caricare le preferenze."}
-      </div>
+      <>
+        <div className="rm-area__intesta">
+          <h1>Avvisi</h1>
+        </div>
+        <div className="rm-note rm-note--errore">
+          {error || "Non è stato possibile leggere le preferenze."}
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <header>
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-          <Bell className="h-3.5 w-3.5" />
-          Notifiche
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Impostazioni</p>
+          <h1 style={{ marginTop: 8 }}>Avvisi</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Quali email ricevere e quali avvisi mostrare dentro il programma.
+            La scelta vale sia sul sito sia sulla postazione.
+          </p>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900">Preferenze notifiche</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Scegli quali email ricevere e quali notifiche mostrare in-app. Le preferenze
-          sono condivise tra dashboard web e app desktop.
-        </p>
-      </header>
+        <button onClick={save} disabled={saving} className="rm-btn rm-btn--primary">
+          <span>{saving ? "Salvataggio in corso" : "Salva le preferenze"}</span>
+        </button>
+      </div>
 
-      {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
-      {success && (
-        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <span className="text-green-800">{success}</span>
-        </div>
-      )}
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      {success && <div className="rm-note rm-note--info">{success}</div>}
 
-      {/* Email */}
-      <section className="p-6 bg-white border border-gray-200 rounded">
-        <div className="flex items-center gap-2 mb-5">
-          <Mail className="h-4 w-4 text-gray-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Email</h2>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Email</h3>
         </div>
-        <ul className="divide-y divide-gray-100">
+        <div className="rm-righe">
           {EMAIL_FIELDS.map((f) => {
-            const Icon = f.icon;
             const on = !!prefs.email_notifications[f.key] || f.locked;
             return (
-              <li key={f.key} className="py-3 flex items-center gap-4">
-                <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                  <Icon className="h-4 w-4 text-gray-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 text-sm">{f.label}</p>
-                    {f.locked && (
-                      <span className="text-[10px] font-semibold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
-                        Sempre attivo
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500">{f.desc}</p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={on}
-                  disabled={f.locked}
-                  onClick={() => toggleEmail(f.key)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                    on ? "bg-gray-900" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      on ? "translate-x-6" : "translate-x-1"
-                    }`}
+              <div key={f.key} className="rm-riga">
+                <span>
+                  <label htmlFor={`email-${f.key}`} style={{ cursor: f.locked ? "default" : "pointer" }}>
+                    {f.label}
+                  </label>
+                </span>
+                <span className="flex items-start gap-3">
+                  <input
+                    id={`email-${f.key}`}
+                    type="checkbox"
+                    checked={on}
+                    disabled={f.locked}
+                    onChange={() => toggleEmail(f.key)}
+                    style={{ accentColor: "var(--brand)", width: 16, height: 16, marginTop: 2 }}
                   />
-                </button>
-              </li>
+                  <span className="rm-muted">{f.desc}</span>
+                </span>
+              </div>
             );
           })}
-        </ul>
-      </section>
-
-      {/* In-app */}
-      <section className="p-6 bg-white border border-gray-200 rounded">
-        <div className="flex items-center gap-2 mb-5">
-          <Bell className="h-4 w-4 text-gray-600" />
-          <h2 className="text-xl font-semibold text-gray-900">In-app</h2>
         </div>
-        <ul className="divide-y divide-gray-100">
+      </div>
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Dentro il programma</h3>
+        </div>
+        <div className="rm-righe">
           {INAPP_FIELDS.map((f) => {
             const on = !!prefs.inapp_notifications[f.key];
             return (
-              <li key={f.key} className="py-3 flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 text-sm">{f.label}</p>
-                  <p className="text-xs text-gray-500">{f.desc}</p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={on}
-                  onClick={() => toggleInApp(f.key)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    on ? "bg-gray-900" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      on ? "translate-x-6" : "translate-x-1"
-                    }`}
+              <div key={f.key} className="rm-riga">
+                <span>
+                  <label htmlFor={`inapp-${f.key}`} style={{ cursor: "pointer" }}>
+                    {f.label}
+                  </label>
+                </span>
+                <span className="flex items-start gap-3">
+                  <input
+                    id={`inapp-${f.key}`}
+                    type="checkbox"
+                    checked={on}
+                    onChange={() => toggleInApp(f.key)}
+                    style={{ accentColor: "var(--brand)", width: 16, height: 16, marginTop: 2 }}
                   />
-                </button>
-              </li>
+                  <span className="rm-muted">{f.desc}</span>
+                </span>
+              </div>
             );
           })}
-        </ul>
-      </section>
-
-      <div className="flex items-center justify-end">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors font-medium disabled:opacity-50"
-        >
-          {saving ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-          {saving ? "Salvataggio…" : "Salva preferenze"}
-        </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

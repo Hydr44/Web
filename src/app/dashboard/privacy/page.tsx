@@ -5,19 +5,6 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import {
-  Database,
-  Shield,
-  Download,
-  Trash2,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  FileText,
-  User,
-  Settings,
-  ArrowRight,
-} from "lucide-react";
 
 type Profile = {
   full_name?: string | null;
@@ -78,7 +65,7 @@ export default function PrivacyPage() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      setActionSuccess("Download dei tuoi dati avviato.");
+      setActionSuccess("Scaricamento della copia dei dati avviato.");
     } catch (e: unknown) {
       setActionError(e instanceof Error ? e.message : "Errore nella generazione dell'export");
     } finally {
@@ -90,7 +77,7 @@ export default function PrivacyPage() {
   // perché il team verifica gli obblighi di conservazione (es. fiscali: le
   // fatture vanno conservate per legge) prima di procedere.
   const requestDeletion = async () => {
-    if (!confirm("Vuoi inviare al nostro team la richiesta di cancellazione dell'account e dei dati associati?")) return;
+    if (!confirm("Inviare la richiesta di cancellazione dell'utenza e dei dati collegati?")) return;
     setActionError(null);
     setActionSuccess(null);
     setActionWorking("delete");
@@ -119,76 +106,56 @@ export default function PrivacyPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-          <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Privacy e dati</h1>
         </div>
-      </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento in corso.</p>
+        </div>
+      </>
     );
   }
 
   const legalDocs = [
-    { href: "/privacy-policy", icon: FileText, title: "Informativa Privacy", sub: "Come trattiamo i tuoi dati" },
-    { href: "/cookie-policy", icon: Settings, title: "Cookie Policy", sub: "Cookie e tecnologie simili" },
-    { href: "/terms-of-use", icon: Shield, title: "Termini di Servizio", sub: "Condizioni d'uso del servizio" },
-    { href: "/dpa", icon: Database, title: "Accordo Trattamento Dati (DPA)", sub: "Art. 28 GDPR — Responsabile" },
+    { href: "/privacy-policy", title: "Informativa sulla privacy", sub: "Come trattiamo i dati" },
+    { href: "/cookie-policy", title: "Informativa sui cookie", sub: "Cookie e strumenti simili" },
+    { href: "/terms-of-use", title: "Condizioni del servizio", sub: "Regole d'uso del servizio" },
+    { href: "/dpa", title: "Accordo sul trattamento dei dati", sub: "Nomina a responsabile del trattamento" },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header>
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-          <Database className="h-3.5 w-3.5" />
-          Centro privacy
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Privacy</p>
+          <h1 style={{ marginTop: 8 }}>Privacy e dati</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Documenti, dati collegati all&apos;utenza e richieste previste dalla
+            normativa.
+          </p>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900">Privacy &amp; dati</h1>
-        <p className="text-sm text-gray-500 mt-1 max-w-2xl">
-          Consulta i documenti, vedi i tuoi dati ed esercita i tuoi diritti GDPR.
-        </p>
-      </header>
+      </div>
 
-      {actionError && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
-          <span className="text-red-800 text-sm">{actionError}</span>
-        </div>
-      )}
-      {actionSuccess && (
-        <div className="p-4 rounded bg-emerald-50 border border-emerald-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
-          <span className="text-emerald-800 text-sm">{actionSuccess}</span>
-        </div>
-      )}
+      {actionError && <div className="rm-note rm-note--errore">{actionError}</div>}
+      {actionSuccess && <div className="rm-note rm-note--info">{actionSuccess}</div>}
 
-      {/* I tuoi dati (reale) */}
-      <div className="p-5 bg-white border border-gray-200 rounded">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center">
-            <User className="h-4 w-4 text-gray-700" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">I tuoi dati</h2>
-            <p className="text-xs text-gray-500">Informazioni associate al tuo account</p>
-          </div>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Dati collegati all&apos;utenza</h3>
         </div>
-        <div className="grid sm:grid-cols-3 gap-4 text-sm">
-          <div className="flex items-center gap-2 text-gray-700">
-            <User className="h-4 w-4 text-gray-400 shrink-0" />
-            <span className="truncate">{userData?.full_name || "Nome non impostato"}</span>
+        <div className="rm-righe">
+          <div className="rm-riga">
+            <span>Intestatario</span>
+            <span>{userData?.full_name || "Nome non indicato"}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-700">
-            <Database className="h-4 w-4 text-gray-400 shrink-0" />
-            <span>Organizzazione: {userData?.current_org ? "presente" : "nessuna"}</span>
+          <div className="rm-riga">
+            <span>Organizzazione</span>
+            <span>{userData?.current_org ? "Collegata" : "Nessuna"}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-700">
-            <Clock className="h-4 w-4 text-gray-400 shrink-0" />
+          <div className="rm-riga">
+            <span>Utenza attiva dal</span>
             <span>
-              Account dal{" "}
               {userData?.created_at
                 ? new Date(userData.created_at).toLocaleDateString("it-IT")
                 : "—"}
@@ -197,88 +164,68 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      {/* Esercita i tuoi diritti */}
-      <div>
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Esercita i tuoi diritti GDPR</h2>
-        <div className="grid lg:grid-cols-2 gap-4">
-          {/* Export */}
-          <div className="p-5 bg-white border border-gray-200 rounded flex flex-col">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 rounded bg-blue-50 flex items-center justify-center">
-                <Download className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900">Esporta i tuoi dati</h3>
-                <p className="text-xs text-gray-500">Portabilità — art. 20 GDPR</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mb-4 flex-1">
-              Scarica subito una copia dei dati personali del tuo account in formato JSON
-              (leggibile e portabile). I dati operativi aziendali si esportano dall'app desktop.
-            </p>
-            <button
-              onClick={downloadExport}
-              disabled={actionWorking !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-60"
-            >
-              <Download className="h-4 w-4" />
-              {actionWorking === "export" ? "Genero…" : "Scarica i miei dati"}
-            </button>
-          </div>
-
-          {/* Delete */}
-          <div className="p-5 bg-white border border-gray-200 rounded flex flex-col">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 rounded bg-red-50 flex items-center justify-center">
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900">Elimina l'account</h3>
-                <p className="text-xs text-gray-500">Diritto all'oblio — art. 17 GDPR</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mb-4 flex-1">
-              Invii una richiesta di cancellazione dell'account e dei dati associati. Il team la
-              verifica (es. obblighi fiscali sui documenti) e procede secondo legge.
-            </p>
-            <button
-              onClick={requestDeletion}
-              disabled={actionWorking !== null}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-700 rounded hover:bg-red-50 transition-colors text-sm font-medium disabled:opacity-60"
-            >
-              <Trash2 className="h-4 w-4" />
-              {actionWorking === "delete" ? "Invio…" : "Richiedi cancellazione"}
-            </button>
-          </div>
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Copia dei dati</h3>
         </div>
-      </div>
-
-      {/* Documenti legali (reali, linkabili) */}
-      <div>
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Documenti legali</h2>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {legalDocs.map((d) => (
-            <Link
-              key={d.href}
-              href={d.href}
-              className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors group"
-            >
-              <div className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                <d.icon className="h-4 w-4 text-gray-700" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-gray-900">{d.title}</div>
-                <div className="text-xs text-gray-500">{d.sub}</div>
-              </div>
-              <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-gray-700 transition-colors shrink-0" />
-            </Link>
-          ))}
-        </div>
-        <p className="text-xs text-gray-400 mt-3 flex items-center gap-1.5">
-          <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-          Le preferenze cookie si gestiscono dal banner mostrato all'accesso al sito.
+        <p className="rm-muted">
+          Scarica una copia dei dati personali legati a questa utenza. I dati di
+          lavoro dell&apos;azienda si esportano dal programma sulla postazione.
+        </p>
+        <p style={{ marginTop: 16 }}>
+          <button
+            onClick={downloadExport}
+            disabled={actionWorking !== null}
+            className="rm-btn rm-btn--primary"
+          >
+            <span>
+              {actionWorking === "export" ? "Preparazione in corso" : "Scarica la copia"}
+            </span>
+          </button>
         </p>
       </div>
-    </div>
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Cancellazione dell&apos;utenza</h3>
+        </div>
+        <p className="rm-muted">
+          La richiesta viene presa in carico dall&apos;assistenza, che verifica
+          prima gli obblighi di conservazione, per esempio quelli fiscali sui
+          documenti, e poi procede.
+        </p>
+        <p style={{ marginTop: 16 }}>
+          <button
+            onClick={requestDeletion}
+            disabled={actionWorking !== null}
+            className="rm-btn rm-btn--danger"
+          >
+            <span>
+              {actionWorking === "delete" ? "Invio in corso" : "Richiedi la cancellazione"}
+            </span>
+          </button>
+        </p>
+      </div>
+
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>Documenti</h3>
+        </div>
+        <div className="rm-righe">
+          {legalDocs.map((d) => (
+            <div key={d.href} className="rm-riga">
+              <span>{d.sub}</span>
+              <span>
+                <Link href={d.href}>{d.title}</Link>
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="rm-muted" style={{ marginTop: 14 }}>
+          Le preferenze sui cookie si cambiano dal riquadro mostrato
+          all&apos;ingresso nel sito.
+        </p>
+      </div>
+    </>
   );
 }

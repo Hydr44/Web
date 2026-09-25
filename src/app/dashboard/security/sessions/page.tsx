@@ -2,16 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Monitor,
-  ArrowLeft,
-  LogOut,
-  AlertTriangle,
-  CheckCircle,
-  Smartphone,
-  RefreshCw,
-} from "lucide-react";
-import { SkeletonPage } from "@/components/dashboard/ui/Skeleton";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
@@ -79,7 +69,7 @@ export default function SessionsPage() {
       const r = await fetch("/api/auth/sessions/list");
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {
-        setError(j.error || "Errore caricamento sessioni");
+        setError(j.error || "Non è stato possibile leggere le sessioni");
         setSessions([]);
         return;
       }
@@ -98,7 +88,7 @@ export default function SessionsPage() {
   }, [refresh]);
 
   const revoke = async (sessionId: string) => {
-    if (!confirm("Revocare questa sessione? L'utente connesso verrà disconnesso.")) return;
+    if (!confirm("Chiudere questa sessione? La postazione collegata verrà disconnessa.")) return;
     setWorking(sessionId);
     setError(null);
     setSuccess(null);
@@ -109,8 +99,8 @@ export default function SessionsPage() {
         body: JSON.stringify({ session_id: sessionId }),
       });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok || !j.ok) throw new Error(j.error || "Errore revoca sessione");
-      setSuccess("Sessione revocata.");
+      if (!r.ok || !j.ok) throw new Error(j.error || "Non è stato possibile chiudere la sessione");
+      setSuccess("Sessione chiusa.");
       // Audit log
       try {
         await fetch("/api/user/audit-logs", {
@@ -121,14 +111,14 @@ export default function SessionsPage() {
       } catch { /* non bloccante */ }
       await refresh();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Errore revoca");
+      setError(e instanceof Error ? e.message : "Non è stato possibile chiudere le sessioni");
     } finally {
       setWorking(null);
     }
   };
 
   const revokeAllOther = async () => {
-    if (!confirm("Revocare tutte le altre sessioni? Solo questo dispositivo resterà connesso.")) return;
+    if (!confirm("Chiudere tutte le altre sessioni? Resterà collegata solo questa postazione.")) return;
     setWorking("all");
     setError(null);
     setSuccess(null);
@@ -139,8 +129,8 @@ export default function SessionsPage() {
         body: JSON.stringify({ all_other: true }),
       });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok || !j.ok) throw new Error(j.error || "Errore revoca");
-      setSuccess("Tutte le altre sessioni sono state revocate.");
+      if (!r.ok || !j.ok) throw new Error(j.error || "Non è stato possibile chiudere le sessioni");
+      setSuccess("Le altre sessioni sono state chiuse.");
       try {
         await fetch("/api/user/audit-logs", {
           method: "POST",
@@ -150,148 +140,147 @@ export default function SessionsPage() {
       } catch { /* non bloccante */ }
       await refresh();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Errore revoca");
+      setError(e instanceof Error ? e.message : "Non è stato possibile chiudere le sessioni");
     } finally {
       setWorking(null);
     }
   };
 
   if (loading) {
-    return <SkeletonPage variant="list" />;
+    return (
+      <>
+        <div className="rm-area__intesta">
+          <h1>Postazioni collegate</h1>
+        </div>
+        <div className="rm-card">
+          <p className="rm-muted">Lettura delle sessioni attive.</p>
+        </div>
+      </>
+    );
   }
 
   const otherCount = sessions.filter((s) => !s.is_current).length;
 
   return (
-    <div className="space-y-8">
-      <header className="flex items-start gap-3">
-        <Link
-          href="/dashboard/security"
-          className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors mt-0.5"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">
-            <Monitor className="h-3.5 w-3.5" />
-            Sessioni attive
-          </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Le tue sessioni</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Dispositivi e browser attualmente autenticati. Revoca quelli che non riconosci.
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <p className="rm-eyebrow">Sicurezza</p>
+          <h1 style={{ marginTop: 8 }}>Postazioni collegate</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Dispositivi e programmi che risultano collegati a questa utenza.
+            Chiudi la sessione di quelli che non riconosci.
           </p>
         </div>
-      </header>
-
-      {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
-
-      {success && (
-        <div className="p-4 rounded bg-emerald-500/10 border border-gray-200 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <span className="text-green-800">{success}</span>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="text-sm text-gray-500">
-          {sessions.length} sessione{sessions.length === 1 ? "" : "i"} attive
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refresh}
-            disabled={working !== null}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Aggiorna
-          </button>
-          {otherCount > 0 && (
-            <button
-              onClick={revokeAllOther}
-              disabled={working !== null}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors disabled:opacity-50 font-medium"
-            >
-              <LogOut className="h-4 w-4" />
-              {working === "all" ? "Revoca in corso…" : `Revoca tutte le altre (${otherCount})`}
-            </button>
-          )}
-        </div>
+        <Link href="/dashboard/security" className="rm-btn rm-btn--ghost">
+          <span>Torna a Sicurezza</span>
+        </Link>
       </div>
 
-      {sessions.length === 0 ? (
-        <div className="p-8 text-center bg-white border border-gray-200 rounded">
-          <Monitor className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Nessuna sessione trovata.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {sessions.map((s) => {
-            const ua = parseUA(s.user_agent);
-            const isMobile = ua.device === "Mobile" || ua.device === "Tablet";
-            return (
-              <div
-                key={s.id}
-                className={`p-5 bg-white border rounded ${
-                  s.is_current ? "border-blue-300 ring-1 ring-blue-100" : "border-gray-200"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center">
-                      {isMobile ? (
-                        <Smartphone className="h-5 w-5 text-blue-600" />
-                      ) : (
-                        <Monitor className="h-5 w-5 text-blue-600" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-gray-900">
-                          {ua.browser} {ua.os ? `· ${ua.os}` : ""}
-                        </h3>
-                        {s.is_current && (
-                          <span className="text-[11px] font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                            Questa sessione
-                          </span>
-                        )}
-                        {s.aal === "aal2" && (
-                          <span className="text-[11px] font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                            2FA
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-500 mt-0.5">
-                        IP: <code className="font-mono text-xs">{s.ip || "—"}</code>
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Ultima attività: {relTime(s.updated_at)}
-                        {" · "}
-                        Creata: {relTime(s.created_at)}
-                      </p>
-                    </div>
-                  </div>
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
+      {success && <div className="rm-note rm-note--info">{success}</div>}
 
-                  {!s.is_current && (
-                    <button
-                      onClick={() => revoke(s.id)}
-                      disabled={working !== null}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      {working === s.id ? "Revoca…" : "Revoca"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+      <div className="rm-card">
+        <div className="rm-cardhead">
+          <h3>
+            {sessions.length === 1
+              ? "Una sessione attiva"
+              : `${sessions.length} sessioni attive`}
+          </h3>
+          <div className="flex flex-wrap gap-1">
+            <button
+              onClick={refresh}
+              disabled={working !== null}
+              className="rm-btn rm-btn--secondary"
+            >
+              <span>Aggiorna</span>
+            </button>
+            {otherCount > 0 && (
+              <button
+                onClick={revokeAllOther}
+                disabled={working !== null}
+                className="rm-btn rm-btn--danger"
+              >
+                <span>
+                  {working === "all"
+                    ? "Chiusura in corso"
+                    : `Chiudi le altre (${otherCount})`}
+                </span>
+              </button>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        {sessions.length === 0 ? (
+          <p className="rm-muted">Nessuna sessione registrata.</p>
+        ) : (
+          <div className="rm-scroll">
+            <table className="rm-tab">
+              <thead>
+                <tr>
+                  <th>Postazione</th>
+                  <th>Indirizzo di rete</th>
+                  <th>Ultima attività</th>
+                  <th>Stato</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map((s) => {
+                  const ua = parseUA(s.user_agent);
+                  return (
+                    <tr key={s.id}>
+                      <td>
+                        {ua.browser} {ua.os ? `· ${ua.os}` : ""}
+                        <br />
+                        <span className="rm-muted">{ua.device}</span>
+                      </td>
+                      <td className="rm-mono">{s.ip || "—"}</td>
+                      <td>
+                        {relTime(s.updated_at)}
+                        <br />
+                        <span className="rm-muted">
+                          Collegata {relTime(s.created_at)}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={
+                            s.is_current
+                              ? "rm-stato rm-stato--ok"
+                              : "rm-stato rm-stato--fermo"
+                          }
+                        >
+                          {s.is_current ? "Questa postazione" : "Altra postazione"}
+                        </span>
+                        {s.aal === "aal2" && (
+                          <>
+                            <br />
+                            <span className="rm-muted">Verifica in due passaggi</span>
+                          </>
+                        )}
+                      </td>
+                      <td>
+                        {!s.is_current && (
+                          <button
+                            onClick={() => revoke(s.id)}
+                            disabled={working !== null}
+                            className="rm-btn rm-btn--danger"
+                          >
+                            <span>
+                              {working === s.id ? "Chiusura in corso" : "Chiudi la sessione"}
+                            </span>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

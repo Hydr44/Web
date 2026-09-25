@@ -4,19 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { isValidPIVA, isValidPIVAorCF } from "@/lib/it-fiscal";
-import { motion } from "framer-motion";
-import { 
-  Building2, 
-  ArrowLeft, 
-  Save, 
-  CheckCircle,
-  AlertCircle,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
-  FileText
-} from "lucide-react";
 import Link from "next/link";
 
 export default function EditOrgPage() {
@@ -26,7 +13,7 @@ export default function EditOrgPage() {
   const [orgData, setOrgData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -42,7 +29,7 @@ export default function EditOrgPage() {
     const loadOrgData = async () => {
       try {
         const supabase = supabaseBrowser();
-        
+
         // Ottieni l'utente corrente
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
@@ -50,21 +37,21 @@ export default function EditOrgPage() {
           setLoading(false);
           return;
         }
-        
+
         // Carica dati organizzazione dell'utente corrente
         const { data: profile } = await supabase
           .from("profiles")
           .select("current_org")
           .eq("id", user.id)
           .single();
-        
+
         if (profile?.current_org) {
           const { data: org, error: orgError } = await supabase
             .from("orgs")
             .select("*")
             .eq("id", profile.current_org)
             .single();
-          
+
           if (orgError) {
             console.warn("Errore caricamento organizzazione:", orgError);
             setError("Errore nel caricamento dei dati dell'organizzazione");
@@ -77,12 +64,14 @@ export default function EditOrgPage() {
               phone: org.phone || "",
               email: org.email || "",
               website: org.website || "",
-              vat: org.vat || "",
+              // In archivio la partita IVA sta senza prefisso: a schermo
+              // l'IT lo mette la cornice del campo.
+              vat: String(org.vat || "").replace(/\D/g, "").slice(0, 11),
               tax_code: org.tax_code || ""
             });
           }
         }
-        
+
         setLoading(false);
       } catch (error) {
         console.error("Error loading org data:", error);
@@ -107,13 +96,20 @@ export default function EditOrgPage() {
     // Validazione P.IVA / Codice Fiscale lato client (algoritmo AdE/MEF)
     const vat = formData.vat.trim();
     if (vat && !isValidPIVA(vat)) {
-      setError("Partita IVA non valida (11 cifre con checksum AdE)");
+      setError("Partita IVA non valida: servono undici cifre con controllo corretto.");
       setSaving(false);
       return;
     }
     const cf = formData.tax_code.trim();
     if (cf && !isValidPIVAorCF(cf)) {
-      setError("Codice Fiscale non valido (16 char persona fisica o 11 cifre azienda)");
+      setError("Codice fiscale non valido: sedici caratteri per la persona fisica, undici cifre per l'azienda.");
+      setSaving(false);
+      return;
+    }
+    // Identificativo fiscale: partita IVA e codice fiscale sono un requisito
+    // solo, ne basta uno dei due.
+    if (!vat && !cf) {
+      setError("Indicare la partita IVA oppure il codice fiscale.");
       setSaving(false);
       return;
     }
@@ -160,7 +156,7 @@ export default function EditOrgPage() {
       }
 
       setSuccess(true);
-      
+
       // Redirect dopo 2 secondi
       setTimeout(() => {
         router.push("/dashboard/org");
@@ -176,315 +172,253 @@ export default function EditOrgPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div className="w-48 h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 rounded-lg p-6 space-y-4">
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
-           <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mt-4" />
-           <div className="w-full h-10 bg-gray-50 rounded animate-pulse" />
+      <>
+        <div className="rm-area__intesta">
+          <h1>Modifica organizzazione</h1>
         </div>
-      </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento dei dati dell&apos;organizzazione.</p>
+        </div>
+      </>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50/30 flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white  shadow-xl p-8 border border-gray-200 text-center"
-        >
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Organizzazione Aggiornata!</h2>
-          <p className="text-gray-500 mb-8">
-            Le informazioni dell'organizzazione sono state aggiornate con successo. Sarai reindirizzato alla pagina organizzazione a breve.
+      <>
+        <div className="rm-area__intesta">
+          <h1>Modifica organizzazione</h1>
+        </div>
+        <div className="rm-card">
+          <h3>Dati aggiornati</h3>
+          <p className="rm-muted" style={{ marginTop: 8 }}>
+            Le modifiche sono state registrate. Ritorno alla scheda
+            dell&apos;organizzazione in corso.
           </p>
-          <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </motion.div>
-      </div>
+          <p style={{ marginTop: 14 }}>
+            <Link href="/dashboard/org">Vai subito alla scheda</Link>
+          </p>
+        </div>
+      </>
     );
   }
 
   if (!orgData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50/30 flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md bg-white  shadow-xl p-8 border border-gray-200 text-center"
-        >
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Errore</h2>
-          <p className="text-gray-500 mb-8">
-            Non è stato possibile caricare i dati dell'organizzazione.
-          </p>
-          <Link
-            href="/dashboard/org"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-gray-900 font-semibold  hover:shadow-lg shadow-black/20 transition-all duration-200"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Torna all'Organizzazione
+      <>
+        <div className="rm-area__intesta">
+          <h1>Modifica organizzazione</h1>
+        </div>
+        <div className="rm-note rm-note--errore">
+          Non è stato possibile caricare i dati dell&apos;organizzazione.
+        </div>
+        <div className="rm-card">
+          <Link href="/dashboard/org" className="rm-btn rm-btn--secondary">
+            <span>Torna alla scheda</span>
           </Link>
-        </motion.div>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-blue-50/30 py-8 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto"
-      >
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/dashboard/org"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors mb-4"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Torna all'Organizzazione
-          </Link>
-          
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-              <Building2 className="h-6 w-6 text-gray-900" />
+    <>
+      <div className="rm-area__intesta">
+        <div>
+          <h1>Modifica organizzazione</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            I dati compaiono su documenti, fatture e trasmissioni.
+          </p>
+        </div>
+        <Link href="/dashboard/org" className="rm-btn rm-btn--ghost">
+          <span>Torna alla scheda</span>
+        </Link>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="rm-card">
+          <div className="rm-cardhead">
+            <h3>Denominazione</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rm-field">
+              <label htmlFor="name" className="rm-label">
+                Ragione sociale (obbligatorio)
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="rm-input"
+                required
+                disabled={saving}
+              />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Modifica Organizzazione</h1>
-              <p className="text-gray-500">Aggiorna le informazioni della tua azienda</p>
+
+            <div className="rm-field">
+              <label htmlFor="description" className="rm-label">
+                Attività svolta
+              </label>
+              <input
+                type="text"
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="rm-input"
+                disabled={saving}
+              />
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Informazioni Principali */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-                <Building2 className="h-5 w-5 text-gray-900" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Informazioni Principali</h2>
-                <p className="text-sm text-gray-500">Dati aziendali essenziali</p>
-              </div>
+        <div className="rm-card">
+          <div className="rm-cardhead">
+            <h3>Sede e contatti</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rm-field">
+              <label htmlFor="address" className="rm-label">
+                Indirizzo della sede
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="rm-input"
+                disabled={saving}
+              />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-2">
-                  Nome Organizzazione <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  required
-                  disabled={saving}
-                />
-              </div>
+            <div className="rm-field">
+              <label htmlFor="phone" className="rm-label">
+                Telefono
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="rm-input"
+                disabled={saving}
+              />
+            </div>
 
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-600 mb-2">
-                  Descrizione
-                </label>
-                <input
-                  type="text"
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                />
-              </div>
+            <div className="rm-field">
+              <label htmlFor="email" className="rm-label">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="rm-input"
+                disabled={saving}
+              />
+            </div>
+
+            <div className="rm-field">
+              <label htmlFor="website" className="rm-label">
+                Sito internet
+              </label>
+              <input
+                type="url"
+                id="website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                className="rm-input"
+                disabled={saving}
+              />
             </div>
           </div>
+        </div>
 
-          {/* Contatti */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-                <MapPin className="h-5 w-5 text-gray-900" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Contatti</h2>
-                <p className="text-sm text-gray-500">Informazioni di contatto</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-600 mb-2">
-                  Indirizzo
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-600 mb-2">
-                  Telefono
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-600 mb-2">
-                  Sito Web
-                </label>
-                <input
-                  type="url"
-                  id="website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                />
-              </div>
-            </div>
+        <div className="rm-card">
+          <div className="rm-cardhead">
+            <h3>Identificativo fiscale</h3>
           </div>
-
-          {/* Dati Fiscali */}
-          <div className="bg-white  shadow-lg shadow-black/20 p-8 border border-gray-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10  bg-blue-50 text-blue-600 flex items-center justify-center rounded-xl border border-blue-100">
-                <FileText className="h-5 w-5 text-gray-900" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Dati Fiscali</h2>
-                <p className="text-sm text-gray-500">Informazioni fiscali e legali</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="vat" className="block text-sm font-medium text-gray-600 mb-2">
-                  Partita IVA
-                </label>
+          <p className="rm-muted" style={{ marginBottom: 14 }}>
+            Ne basta uno dei due: partita IVA oppure codice fiscale.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rm-field">
+              <label htmlFor="vat" className="rm-label">
+                Partita IVA
+              </label>
+              <div className="rm-prefix">
+                <span>IT</span>
                 <input
                   type="text"
                   id="vat"
                   name="vat"
                   value={formData.vat}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200   focus:ring-blue-500 focus:border-primary"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      vat: e.target.value.replace(/\D/g, "").slice(0, 11),
+                    }))
+                  }
+                  className="rm-input rm-mono"
                   disabled={saving}
                   inputMode="numeric"
                   pattern="\d{11}"
                   maxLength={11}
                   placeholder="12345678901"
-                  title="Partita IVA italiana — 11 cifre"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="tax_code" className="block text-sm font-medium text-gray-600 mb-2">
-                  Codice Fiscale
-                </label>
-                <input
-                  type="text"
-                  id="tax_code"
-                  name="tax_code"
-                  value={formData.tax_code}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      tax_code: e.target.value.toUpperCase().replace(/\s/g, ""),
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-gray-200 uppercase focus:ring-blue-500 focus:border-primary"
-                  disabled={saving}
-                  maxLength={16}
-                  placeholder="RSSMRA80A01H501U  oppure  12345678901"
-                  title="Codice Fiscale persona fisica (16 char) o P.IVA azienda (11 cifre)"
+                  title="Partita IVA italiana, undici cifre"
                 />
               </div>
             </div>
+
+            <div className="rm-field">
+              <label htmlFor="tax_code" className="rm-label">
+                Codice fiscale
+              </label>
+              <input
+                type="text"
+                id="tax_code"
+                name="tax_code"
+                value={formData.tax_code}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    tax_code: e.target.value.toUpperCase().replace(/\s/g, ""),
+                  }))
+                }
+                className="rm-input rm-mono uppercase"
+                disabled={saving}
+                maxLength={16}
+                placeholder="RSSMRA80A01H501U"
+                title="Codice fiscale della persona fisica (sedici caratteri) o dell'azienda (undici cifre)"
+              />
+            </div>
           </div>
+        </div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className=" border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 flex items-center gap-2"
-            >
-              <AlertCircle className="h-4 w-4" />
-              {error}
-            </motion.div>
-          )}
+        {error && <div className="rm-note rm-note--errore">{error}</div>}
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end">
-            <Link
-              href="/dashboard/org"
-              className="px-6 py-3  border border-gray-200 text-gray-600 font-semibold hover:bg-white transition-all duration-200 text-center"
-            >
-              Annulla
-            </Link>
-            
+        <div className="rm-card">
+          <div className="flex flex-wrap gap-1">
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3  bg-blue-600 text-gray-900 font-semibold hover:shadow-lg shadow-black/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="rm-btn rm-btn--primary"
             >
-              {saving ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Salvataggio...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Salva Modifiche
-                </>
-              )}
+              <span>{saving ? "Salvataggio in corso" : "Salva le modifiche"}</span>
             </button>
+            <Link href="/dashboard/org" className="rm-btn rm-btn--secondary">
+              <span>Annulla</span>
+            </Link>
           </div>
-        </form>
-      </motion.div>
-    </div>
+        </div>
+      </form>
+    </>
   );
 }

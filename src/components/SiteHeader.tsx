@@ -38,6 +38,19 @@ const DROPDOWN_TRIGGER =
 const DROPDOWN_LINK =
   "block px-3 py-2 hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-blue-600";
 
+// Le pagine del prodotto (accesso e area cliente) non portano la barra di
+// marketing: sono l'applicazione vista dal browser, e sul desktop quella barra
+// non esiste. Le pagine pubbliche restano come sono.
+const ROTTE_PRODOTTO = [
+  "/dashboard", "/login", "/register", "/reset", "/set-password",
+  "/accept-invite", "/onboarding", "/no-access", "/auth", "/demo-login",
+  "/activate", "/configura", "/pratica", "/assist",
+];
+function eProdotto(pathname: string | null) {
+  const p = pathname || "";
+  return ROTTE_PRODOTTO.some((r) => p === r || p.startsWith(r + "/"));
+}
+
 export default function SiteHeader() {
   const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -281,6 +294,9 @@ export default function SiteHeader() {
   // nessun header del sito (logo/login). Il cliente vede solo la mappa + il
   // nome dell'azienda nella pagina stessa.
   if (pathname?.startsWith("/track") || pathname?.startsWith("/assist")) return null;
+
+  // Dopo tutti gli hook: l'ordine non deve cambiare fra un render e l'altro.
+  if (eProdotto(pathname)) return null;
 
   return (
     <>

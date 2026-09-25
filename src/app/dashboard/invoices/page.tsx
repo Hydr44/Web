@@ -3,16 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import {
-  FileText,
-  Download,
-  FileCode,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  RefreshCw,
-  CreditCard,
-} from "lucide-react";
 
 /**
  * Pagina Fatture del portale cliente — mostra le FATTURE FISCALI emesse da
@@ -45,11 +35,8 @@ function fmtDate(iso: string | null) {
   return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function paymentBadge(status: string | null) {
-  const paid = status === "paid";
-  return paid
-    ? { label: "Pagata", cls: "bg-green-50 text-green-700 border-green-200", Icon: CheckCircle }
-    : { label: "Da pagare", cls: "bg-amber-50 text-amber-800 border-amber-200", Icon: Clock };
+function statoPagamento(status: string | null) {
+  return status === "paid" ? "Pagata" : "Da pagare";
 }
 
 export default function InvoicesPage() {
@@ -64,7 +51,7 @@ export default function InvoicesPage() {
       const r = await fetch("/api/dashboard/invoices");
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) {
-        setError(j.error || "Errore caricamento fatture");
+        setError(j.error || "Non è stato possibile leggere le fatture");
         setInvoices([]);
         return;
       }
@@ -84,108 +71,92 @@ export default function InvoicesPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="w-48 h-8 bg-gray-200 animate-pulse" />
-        <div className="h-64 bg-white border border-gray-100 animate-pulse" />
-      </div>
+      <>
+        <div className="rm-area__intesta">
+          <h1>Fatture</h1>
+        </div>
+        <div className="rm-card">
+          <p className="rm-muted">Caricamento delle fatture.</p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-start justify-between flex-wrap gap-4">
+    <>
+      <div className="rm-area__intesta">
         <div>
-          <h1 className="text-2xl font-semibold">Fatture</h1>
-          <p className="mt-2 text-gray-500">Le fatture emesse da RescueManager verso la tua organizzazione.</p>
+          <h1>Fatture</h1>
+          <p className="rm-muted" style={{ marginTop: 6 }}>
+            Le fatture emesse da RescueManager verso la tua azienda.
+          </p>
         </div>
-        <button
-          onClick={refresh}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Aggiorna
+        <button onClick={refresh} className="rm-btn rm-btn--secondary">
+          <span>Aggiorna</span>
         </button>
-      </header>
+      </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
+      {error && <div className="rm-note rm-note--errore">{error}</div>}
 
-      {invoices.length === 0 ? (
-        <div className="p-8 text-center bg-white border border-gray-200 ">
-          <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Nessuna fattura emessa al momento.</p>
-        </div>
-      ) : (
-        <div className="border overflow-hidden bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500">
-              <tr>
-                <th className="text-left px-4 py-2 font-medium">Numero</th>
-                <th className="text-left px-4 py-2 font-medium">Data</th>
-                <th className="text-right px-4 py-2 font-medium">Totale</th>
-                <th className="text-left px-4 py-2 font-medium">Stato</th>
-                <th className="px-4 py-2 text-right font-medium">Documenti</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {invoices.map((inv) => {
-                const pay = paymentBadge(inv.payment_status);
-                return (
-                  <tr key={inv.id} className="hover:bg-gray-50/60">
-                    <td className="px-4 py-3 font-mono text-xs">{inv.number || inv.id}</td>
-                    <td className="px-4 py-3">{fmtDate(inv.date)}</td>
-                    <td className="px-4 py-3 text-right font-medium">{fmtMoney(inv.total, inv.currency)}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 border ${pay.cls}`}>
-                        <pay.Icon className="h-3 w-3" />
-                        {pay.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="inline-flex items-center gap-3">
+      <div className="rm-card">
+        {invoices.length === 0 ? (
+          <p className="rm-muted">Nessuna fattura emessa al momento.</p>
+        ) : (
+          <div className="rm-scroll">
+            <table className="rm-tab">
+              <thead>
+                <tr>
+                  <th>Numero</th>
+                  <th>Data</th>
+                  <th>Totale</th>
+                  <th>Stato</th>
+                  <th>Documenti</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((inv) => {
+                  const pagata = inv.payment_status === "paid";
+                  return (
+                    <tr key={inv.id}>
+                      <td className="rm-mono">{inv.number || inv.id}</td>
+                      <td>{fmtDate(inv.date)}</td>
+                      <td>{fmtMoney(inv.total, inv.currency)}</td>
+                      <td>
+                        <span className={pagata ? "rm-stato rm-stato--ok" : "rm-stato rm-stato--corso"}>
+                          {statoPagamento(inv.payment_status)}
+                        </span>
+                      </td>
+                      <td>
                         <a
-                          className="inline-flex items-center gap-1 text-primary hover:underline text-xs"
                           href={`/api/dashboard/invoices/${inv.id}/pdf`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <Download className="h-3.5 w-3.5" />
-                          PDF
+                          Stampa
                         </a>
+                        {" · "}
                         <a
-                          className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 text-xs"
                           href={`/api/dashboard/invoices/${inv.id}/xml`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <FileCode className="h-3.5 w-3.5" />
-                          XML
+                          File per il commercialista
                         </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Le ricevute dell'abbonamento (Stripe) restano nella pagina Abbonamento. */}
-      <div className="flex items-center gap-2 text-xs text-gray-400">
-        <CreditCard className="h-3.5 w-3.5" />
-        <span>
-          Cerchi le ricevute dell&apos;abbonamento? Sono nel{" "}
-          <Link href="/dashboard/billing" className="text-blue-600 hover:underline font-medium">
-            Portale Fatturazione
-          </Link>
-          .
-        </span>
-      </div>
-    </div>
+      <p className="rm-muted">
+        Le ricevute del canone stanno nella pagina{" "}
+        <Link href="/dashboard/billing">Abbonamento</Link>.
+      </p>
+    </>
   );
 }
