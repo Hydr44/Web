@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Recycle, FileCheck, RotateCcw, ClipboardList, AlertCircle, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, FileText, Layers, Scale, ShieldCheck, Truck, Warehouse } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -76,31 +76,41 @@ export default function RENTRIPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Registro, formulari e correzioni, senza uscire dal gestionale.</p>
+          <p className="text-gray-500 text-center mb-10">Il registro, i formulari e la giacenza in un posto solo, con i controlli che ti dicono dove qualcosa non torna.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
-              <FileCheck className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Formulari FIR digitali</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Il formulario di identificazione del rifiuto (FIR) serve ogni volta che conferisci rifiuti a un trasportatore o a un impianto di destinazione. Lo crei con un modulo guidato: produttore, rifiuto, trasportatore e destinatario sono già precompilati dall’anagrafica. Vidimazione e trasmissione al RENTRI dal gestionale, con lo stato di ogni formulario sempre visibile e la copia archiviata.</p>
+              <FileText className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Registro di carico e scarico, con il movimento guidato</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni carico e ogni scarico si registra rispondendo a domande scritte in italiano, non compilando un modulo pieno di sigle. Puoi indicare il giorno in cui il movimento è davvero avvenuto, collegare trasportatore e destinatario quando la causale li richiede, e agganciare la pratica di demolizione da cui il rifiuto arriva. Correzioni e annullamenti restano tracciati.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Recycle className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Registro di carico e scarico con movimento guidato</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni movimento si registra con una procedura guidata che chiede solo i dati che servono: codice EER (Elenco europeo dei rifiuti; per esempio 16 01 06 per i veicoli fuori uso), quantità, data e, per lo scarico, l’esito del conferimento. Dalla pratica di demolizione il movimento nasce già collegato al veicolo. Puoi tenere più registri e più siti e trasmetterli al RENTRI.</p>
+              <Truck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Formulari e vidimazione digitale</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Il formulario si compila dai dati che hai già nel registro: produttore, trasportatore, destinatario, codice EER e quantità. Vidimazione digitale, stampa e formato xFIR per chi te lo chiede. Gli esiti del viaggio tornano sul formulario, così sai quali sono chiusi e quali aspettano ancora la quarta copia.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <RotateCcw className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Annullamento, correzione e stampa del movimento</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Se un movimento è sbagliato, lo annulli su RENTRI direttamente dal gestionale e crei la correzione senza ricominciare da capo. Per ogni movimento stampi il modulo del registro nel formato previsto, pronto per un controllo o per il consulente.</p>
+              <Scale className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Giacenza quadrata, e il controllo che dice dove sbaglia</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La giacenza per codice EER si aggiorna a ogni movimento, tenuta separata per unità di misura: chili e pezzi non si sommano mai fra loro. Quando un codice non torna, il controllo non si limita a segnalare l&rsquo;errore: ti indica il movimento che sbilancia il conto e da che data.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <ClipboardList className="h-6 w-6 text-amber-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">MUD: i dati sono già nel registro</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Il Modello Unico di Dichiarazione ambientale (MUD) si presenta ogni anno con i dati dell’anno precedente. Con il registro tenuto nel gestionale, i movimenti di carico e scarico dell’anno sono già registrati e consultabili per codice EER, data e trasportatore: al momento della dichiarazione non devi raccogliere nulla da fonti diverse.</p>
+              <Layers className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Dal veicolo demolito al registro, in tre tappe</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">I rifiuti che escono da una demolizione (olii, batterie, pneumatici, vetri, plastiche) entrano nel registro partendo dalla pratica del veicolo. Non riscrivi né la targa né i codici: scegli cosa hai tolto, indichi le quantità, il movimento è pronto. Alla fine un riepilogo dice quanto hai prodotto nel periodo, codice per codice.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Warehouse className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Isole di bonifica e spedizioni agli impianti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le postazioni di messa in sicurezza hanno il loro registro: cosa entra, cosa esce, quanto c&rsquo;è adesso. Quando spedisci a un impianto di recupero il gestionale scarica nell&rsquo;ordine in cui il materiale è arrivato, così la giacenza resta coerente con quello che c&rsquo;è davvero in piazzale.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ShieldCheck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Trasmissioni, certificati e un consulente sui tuoi dati</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni invio al RENTRI resta elencato con il suo esito, quindi sai sempre cosa è passato e cosa no. I certificati di analisi hanno le loro scadenze, con l&rsquo;avviso prima che scadano. E un consulente risponde alle domande leggendo i tuoi dati reali: autorizzazioni, giacenze, codici. Non scrive nel registro e non trasmette niente: dice cosa fare, poi lo fai tu.</p>
             </div>
           </div>
         </div>

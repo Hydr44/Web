@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Package, Search, Car, MapPin, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Barcode, Layers, Package, Search, ShoppingCart, Store } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -54,41 +54,43 @@ export default function RicambiPage() {
       </section>
 
 
+      {/* FEATURES */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="p-6 border border-gray-200">
-            <Car className="h-6 w-6 text-blue-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Dal veicolo allo scaffale</h3>
-            <p className="text-sm text-gray-600">
-              Il ricambio nasce dalla pratica del veicolo in demolizione: marca, modello, telaio e foto sono già nel gestionale. Lo smonti, lo registri con foto e condizioni, gli assegni una posizione. Di ogni pezzo sai sempre da quale veicolo viene.
-            </p>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
+          <p className="text-gray-500 text-center mb-10">Dal veicolo smontato allo scaffale, e dallo scaffale al cliente che lo compra.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 border border-gray-200">
+              <Layers className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Dal veicolo allo scaffale</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Quando smonti un veicolo apri la distinta di smontaggio: ogni pezzo che togli nasce già collegato alla targa da cui viene, con la sua categoria e il suo stato. Se domani qualcuno chiede da che macchina arriva quel motore, la risposta è nella scheda.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <Search className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Catalogo e compatibilità</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Il catalogo ti dice come si chiama davvero quel pezzo, con che codice e su quali modelli va. Cerchi per codice, per marca o per modello e trovi quello che hai in magazzino.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <Package className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Scaffali, posizioni e mappa del magazzino</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni pezzo ha il suo posto: area, scaffale, ripiano. La mappa mostra il magazzino con il riempimento di ogni zona, così vedi dove c&rsquo;è spazio prima di smontare il prossimo veicolo.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <Barcode className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Etichette con codice a barre</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Stampi l&rsquo;etichetta e la attacchi al pezzo. Con il lettore lo trovi, lo sposti o lo vendi senza cercarlo a mano nel gestionale, e senza sbagliare pezzo.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <Store className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Il mercato fra demolitori</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Pubblichi i tuoi annunci, ricevi le offerte e guardi quello che offrono gli altri. Un pezzo che a te avanza può servire a qualcun altro, e viceversa: senza telefonate e senza gruppi su WhatsApp.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <ShoppingCart className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Ordini e vendite</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Dall&rsquo;ordine alla consegna: righe, prezzi, stato dell&rsquo;ordine e documento di vendita. Quello che esce dal magazzino si scarica da solo e arriva in fattura senza riscriverlo.</p>
+            </div>
           </div>
-
-          <div className="p-6 border border-gray-200">
-            <Search className="h-6 w-6 text-green-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Catalogo ricambi (RicambiPro)</h3>
-            <p className="text-sm text-gray-600">
-              Il catalogo per compatibilità ti dice su quali marche, modelli e anni monta un ricambio. Quando registri un pezzo lo colleghi alla voce di catalogo; quando un cliente chiede un ricambio per la sua auto, cerchi per veicolo e vedi subito cosa hai a magazzino.
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-200">
-            <Package className="h-6 w-6 text-blue-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Scaffali e posizioni</h3>
-            <p className="text-sm text-gray-600">
-              Organizzi il magazzino per scaffali, ripiani e posizioni. Quando serve un pezzo, il gestionale ti dice dove si trova, e le giacenze si aggiornano a ogni carico e a ogni uscita.
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-200">
-            <MapPin className="h-6 w-6 text-gray-600 mb-3" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa del magazzino</h3>
-            <p className="text-sm text-gray-600">
-              La mappa mostra gli scaffali come sono disposti nel capannone, con quanti pezzi ci sono in ogni posizione. Utile per trovare un ricambio al volo e per capire dove c’è ancora spazio.
-            </p>
-          </div>
-        </div>
         </div>
       </section>
 

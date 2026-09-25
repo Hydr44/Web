@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Users, CheckCircle2, Smartphone, Receipt, Truck, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, CalendarDays, MapPin, Phone, Receipt, Truck } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -68,41 +68,41 @@ export default function TrasportiPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Tutto quello che serve per gestire gli interventi dalla chiamata alla chiusura.</p>
+          <p className="text-gray-500 text-center mb-10">Dalla chiamata alla fattura, con l&rsquo;autista sul posto e il cliente che ti segue senza chiamarti.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
-              <Users className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Creazione e assegnazione degli interventi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Crei ogni intervento in pochi secondi: selezioni il cliente o il committente dall’anagrafica (o ne inserisci uno nuovo al volo), inserisci il punto di intervento e la destinazione, aggiungi le note per l’autista e assegni il carro attrezzi e l’autista disponibili. Puoi modificare o riaprire qualsiasi intervento in qualunque momento, e tutto resta nel sistema con data e ora.</p>
+              <Phone className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">L&rsquo;intervento si crea in quattro passi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Chiamata, veicolo, percorso, riepilogo. Scegli il cliente dall&rsquo;anagrafica o lo crei mentre scrivi, indichi dove intervenire e dove portare il mezzo, e il prezzo si calcola dal listino già mentre compili. Per gli interventi che fai sempre uguali ci sono i preset, e il gestionale ti suggerisce l&rsquo;autista in base a chi è libero.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <CheckCircle2 className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati in tempo reale e messaggi al cliente</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento ha uno stato chiaro (Da fare, Assegnato, In corso, Completato) che avanza man mano che l’operazione procede ed è visibile a tutto l’ufficio. Alla creazione e a ogni cambio di stato il cliente riceve in automatico un messaggio WhatsApp con un link per seguire l’intervento: meno chiamate di conferma, in entrata e in uscita.</p>
+              <Bell className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati in tempo reale e il link per il cliente</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni intervento ha uno stato che tutto l&rsquo;ufficio vede aggiornarsi: da assegnare, assegnato, in viaggio, completato. Alla creazione e a ogni cambio il cliente riceve un messaggio WhatsApp con un link per seguire il carro sulla mappa. Le telefonate «a che punto siete?» finiscono da sole.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <MapPin className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Mappa interventi attivi e posizione dei mezzi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">La vista mappa mostra in un colpo d’occhio tutti gli interventi attivi: il punto di intervento, la destinazione e la posizione più recente di ogni mezzo. Clicchi su un intervento per vederne i dettagli o contattare l’autista. Utile soprattutto nelle ore di punta, quando ci sono più interventi contemporanei.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La mappa degli interventi attivi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Tutti gli interventi in corso su una mappa scura come il resto del gestionale, leggibile anche di sera: il punto di intervento, la destinazione e l&rsquo;ultima posizione di ogni mezzo. Nelle ore di punta è il modo più veloce per capire chi mandare dove.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Smartphone className="h-6 w-6 text-gray-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">App autisti con navigatore, foto e firma</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">L’autista riceve la notifica sull’app iOS e Android, apre il navigatore passo-passo verso il punto di intervento, aggiorna lo stato, scatta le foto del veicolo e fa firmare il cliente sul posto. Tutto finisce nella scheda dell’intervento, senza fogli da riportare in ufficio.</p>
+              <Truck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">L&rsquo;app degli autisti, sul loro telefono</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">L&rsquo;autista riceve la notifica, apre il navigatore passo passo, aggiorna lo stato, scatta le foto del veicolo e fa firmare il cliente sul posto. Tutto torna nella scheda dell&rsquo;intervento: niente fogli da riportare in ufficio e niente foto perse nelle chat.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <Receipt className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Convenzioni, tariffari e prezzo automatico</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni committente (assicurazioni, società di assistenza, flotte) definisci la convenzione e il tariffario: il prezzo dell’intervento si calcola in automatico. Per i privati usi il tuo tariffario. A fine mese emetti la fattura massiva per committente e per ogni intervento stampi il DDT (documento di trasporto).</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Tre tariffari: privati, clienti, convenzionati</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">I privati hanno il tuo listino, i clienti abituali il loro, i committenti in convenzione il prezzo concordato. Il gestionale prende il prezzo dalla lista giusta senza che tu debba sceglierla. A fine mese emetti una fattura sola per committente con tutti i suoi interventi, e per ogni intervento stampi il DDT.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Truck className="h-6 w-6 text-gray-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Mezzi, turni e custodia collegati</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">I carri attrezzi hanno le loro scadenze di revisione e assicurazione, gli autisti i loro turni. Se il veicolo recuperato resta in deposito, passa alla custodia veicoli con posizione e conto giorni, senza reinserire nulla.</p>
+              <CalendarDays className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Rendiconto per il committente e calendario</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per ogni committente prepari il prospetto degli interventi del periodo, pronto da mandare insieme alla fattura. E i lavori programmati (trasporti, appuntamenti, scadenze) stanno sul calendario a giorno, settimana o mese, così sai già cosa ti aspetta domani.</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, TrendingUp, FileText, Receipt, PieChart, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Coins, FileText, Receipt, Scale, TrendingUp } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -28,42 +28,43 @@ export default function ContabilitaPage() {
         </div>
       </section>
 
+      {/* FEATURES */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
+          <p className="text-gray-500 text-center mb-10">La prima nota che si riempie da sola dalle fatture, e i conti che tornano.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200">
+              <Coins className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Prima nota e piano dei conti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni entrata e ogni uscita finisce sul suo conto. Il piano dei conti parte già impostato per un&rsquo;attività come la tua e lo adatti come vuoi: aggiungi conti, li disattivi, li rinomini.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
+              <Scale className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Movimenti in partita doppia</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni movimento manuale nasce con le sue due gambe, dare e avere, e i totali si vedono mentre scrivi. Quando qualcosa non quadra te ne accorgi subito, non a fine anno davanti al commercialista.</p>
+            </div>
+            <div className="p-6 border border-gray-200">
               <Receipt className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Prima Nota</h3>
-              <p className="text-sm text-gray-600">
-                Piano dei conti personalizzabile con struttura gerarchica. Conti patrimoniali, economici, costi e ricavi. Codifica standard italiana.
-              </p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Le fatture entrano da sole</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le fatture emesse e quelle ricevute diventano movimenti senza riscriverle. La prima nota resta allineata a quello che hai davvero fatturato e pagato.</p>
             </div>
-
             <div className="p-6 border border-gray-200">
-              <PieChart className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Report Finanziari</h3>
-              <p className="text-sm text-gray-600">
-                Registrazione movimenti contabili con partita doppia automatica. Dare/Avere, causali predefinite e ricerca avanzata per periodo e conto.
-              </p>
+              <TrendingUp className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La sintesi del mese</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Entrate, uscite, risultato e fatture ancora da registrare, con i conti principali e gli ultimi movimenti. In dieci secondi sai come sta andando il mese senza aprire un foglio di calcolo.</p>
             </div>
-
             <div className="p-6 border border-gray-200">
-              <TrendingUp className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Partita Doppia</h3>
-              <p className="text-sm text-gray-600">
-                Bilancio di verifica, conto economico e stato patrimoniale. Report personalizzabili per periodo con export Excel e PDF.
-              </p>
+              <FileText className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Riepilogo IVA e registri</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">IVA a debito sulle vendite, a credito sugli acquisti, saldo del periodo, con i registri esportabili. È il pacchetto che il commercialista ti chiede ogni tre mesi, pronto da mandare.</p>
             </div>
-
             <div className="p-6 border border-gray-200">
-              <FileText className="h-6 w-6 text-gray-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">IVA e Liquidazioni</h3>
-              <p className="text-sm text-gray-600">
-                Registrazione automatica fatture attive e passive da SDI. Collegamento diretto tra fattura elettronica e movimento contabile.
-              </p>
+              <Clock className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Incassi e pagamenti con le loro date</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Quello che deve entrare e quello che deve uscire, con le scadenze. Collegato allo scadenzario delle fatture, così il conto in banca non è mai una sorpresa.</p>
             </div>
           </div>
-
         </div>
       </section>
 

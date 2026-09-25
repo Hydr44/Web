@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Truck, UserCheck, Wrench, Clock, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, BellRing, Clock, ShieldCheck, Smartphone, Truck, Wrench } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -52,31 +52,41 @@ export default function MezziAutistiPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Tutto per gestire flotta e personale senza telefonate e senza sorprese.</p>
+          <p className="text-gray-500 text-center mb-10">Chi è libero, quale mezzo puoi mandare e cosa scade la settimana prossima.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
               <Truck className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Anagrafica completa dei mezzi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni mezzo della flotta hai una scheda con targa, telaio, marca e modello, anno di immatricolazione, foto e documenti allegati. Puoi classificare il tipo di mezzo (carro attrezzi, pianale, furgone) così da assegnare sempre il veicolo giusto all'intervento giusto. Tutte le scadenze — revisione, assicurazione, bollo, tachigrafo — sono tracciate automaticamente e ti avvisano in anticipo.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Anagrafica dei mezzi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Carri attrezzi, autogru, furgoni e vetture di servizio con targa, telaio, allestimento, portata e note. Ogni mezzo ha la sua scheda con lo storico degli interventi che ha fatto e dei costi che ha generato.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <UserCheck className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Gestione autisti e personale</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni autista salvi nome, numero di telefono, email, tipo di patente e abilitazioni specifiche (es. patente C, CQC, abilitazione transpallet). Puoi impostare i turni di disponibilità e vedere chi è in servizio in un determinato momento. Il sistema ti avvisa anche quando una patente o un attestato è in scadenza, evitando che un autista lavori con documenti non validi.</p>
+              <BellRing className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Le scadenze ti avvisano prima</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Revisione, assicurazione, bollo e tachigrafo per i mezzi; patente, CQC e carta tachigrafica per gli autisti. Il gestionale le tiene d&rsquo;occhio e te le mette davanti prima che scadano, non il giorno dopo.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Clock className="h-6 w-6 text-amber-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Scadenze automatiche su tutto</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Il sistema monitora in autonomia tutte le scadenze critiche: revisione del mezzo, scadenza assicurazione, bollo, taratura tachigrafo, validità delle patenti degli autisti. Puoi configurare con quanto anticipo ricevere la notifica — ad esempio 30 giorni prima della revisione. In questo modo nessun mezzo rischia di andare in giro fuori norma e nessuna multa arriva per sorpresa.</p>
+              <Clock className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Chi è libero adesso</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Mezzi e autisti hanno uno stato sempre aggiornato: disponibile, in uso, in manutenzione, fuori servizio, non in linea. Quando arriva la chiamata non devi telefonare a nessuno per sapere chi può partire.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Smartphone className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">L&rsquo;app del telefono per gli autisti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Ogni autista si collega alla sua app con le proprie credenziali e vede solo i moduli che gli hai dato. Da lì riceve gli interventi, apre il navigatore, aggiorna lo stato, scatta le foto e raccoglie la firma del cliente.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
               <Wrench className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Manutenzioni e costi flotta</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Puoi pianificare le manutenzioni periodiche per ogni mezzo — tagliando, cambio gomme, controllo freni — in base ai chilometri percorsi o a una scadenza temporale. Lo storico degli interventi di manutenzione è sempre consultabile, con date e costi registrati. Questo ti permette di capire quali mezzi costano di più da mantenere e quando conviene sostituirli.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Manutenzioni e costi per mezzo</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Registri gli interventi di manutenzione, i ricambi montati e le spese. Alla fine sai quanto ti costa davvero ogni carro, non quanto pensavi che costasse.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ShieldCheck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Chi entra nel gestionale e cosa può fare</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Utenti e ruoli: chi vede le fatture, chi tocca il registro dei rifiuti, chi può solo prendere le chiamate. Ognuno entra con le proprie credenziali e resta traccia di chi ha fatto cosa.</p>
             </div>
           </div>
         </div>

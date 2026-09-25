@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Filter, Car, ClipboardCheck, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, Car, Clock, ListChecks, MapPin, Truck } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -70,31 +70,41 @@ export default function PiazzalePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Tutto per gestire il deposito veicoli in modo ordinato e tracciabile.</p>
+          <p className="text-gray-500 text-center mb-10">Il piazzale sotto controllo: dove sta ogni veicolo, da quanti giorni e quanto ha maturato.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
               <Car className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Registro veicoli in deposito</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni veicolo che entra in custodia viene registrato con targa, marca e modello, cliente di riferimento, data di ingresso, settore assegnato e stato. Puoi aggiungere foto, documenti allegati e note operative. Il registro è sempre aggiornato e accessibile da qualsiasi computer dell’ufficio.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">L&rsquo;ingresso del veicolo</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Targa, proprietario, autorità che ha disposto il fermo, stato del mezzo all&rsquo;arrivo e foto: il veicolo entra in deposito con tutto quello che servirà il giorno che esce. Se arriva da un tuo intervento di soccorso, i dati passano dal trasporto senza riscriverli.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <MapPin className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Posizioni e settori</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Il piazzale è diviso in settori configurabili (A1, B3, zona nord e così via). Quando registri un veicolo, assegni il settore e la posizione specifica. Quando il veicolo viene spostato, aggiorni la posizione in pochi secondi. Così chiunque può trovare qualsiasi auto senza fare il giro del piazzale o chiamare il collega che l’ha parcheggiata.</p>
+              <MapPin className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Posizioni e settori del piazzale</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Dividi il piazzale in zone e settori e assegni la posizione a ogni veicolo. Quando il proprietario si presenta non devi girare fra le file: sai dov&rsquo;è prima di alzarti dalla scrivania.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Filter className="h-6 w-6 text-purple-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati e filtri</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Ogni veicolo ha uno stato che riflette la sua situazione: in attesa, in lavorazione, pronto per il ritiro, demolito, uscito. Puoi filtrare la lista per stato, cliente, data di ingresso, settore o tipo di veicolo. In pochi secondi vedi solo i veicoli che ti servono, per esempio tutti quelli pronti per il ritiro o tutti quelli in un certo settore.</p>
+              <Clock className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Il conto dei giorni e dell&rsquo;importo</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">I giorni di custodia e l&rsquo;importo maturato si aggiornano da soli, secondo la tariffa che hai impostato. Il numero è sempre lì, nella scheda del veicolo: niente conti a mano sul momento, davanti al cliente.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <ClipboardCheck className="h-6 w-6 text-amber-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Conto giorni e verbale di riconsegna</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni veicolo il conto giorni parte dalla data di ingresso: sai sempre da quanto è fermo e quanti giorni di custodia vanno addebitati. Alla riconsegna generi il verbale con i dati del veicolo, di chi ritira e delle condizioni al momento dell’uscita, e lo fai firmare via link dal proprietario o dal delegato. La copia firmata resta nella scheda del veicolo.</p>
+              <Camera className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Foto e condizioni, all&rsquo;ingresso e alla riconsegna</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le foto del veicolo e le sue condizioni restano nella scheda dal primo giorno. Quando il proprietario lo ritira, lo stato alla riconsegna si registra lì accanto: se qualcuno contesta un graffio, la prova ce l&rsquo;hai con la data.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ListChecks className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Stati e ricerca</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">In custodia, in uscita, uscito: i filtri per stato e la ricerca per targa o proprietario ti fanno trovare un veicolo anche fra centinaia. Gli elenchi si esportano quando l&rsquo;autorità te li chiede.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Truck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Attaccato al soccorso e alla demolizione</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Il veicolo recuperato entra in custodia dall&rsquo;intervento, e se finisce in demolizione passa alla pratica RVFU con i suoi dati. Non lo reinserisci mai due volte.</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle2, AlertCircle, Car, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, CreditCard, LayoutGrid, ListChecks, PenLine, Search, ShieldCheck } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -74,31 +74,41 @@ export default function RVFUPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Dalla presa in carico del veicolo alla radiazione, tutto tracciato e guidato.</p>
+          <p className="text-gray-500 text-center mb-10">La pratica di radiazione dalla targa al certificato, senza uscire dal gestionale.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
-              <Car className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Pratica di demolizione in 9 fasi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Il gestionale segue l’intero processo del D.Lgs. 209/2003: presa in carico del veicolo con dati e foto, messa in sicurezza, bonifica ambientale, smontaggio ricambi, smontaggio componenti, pesatura e classificazione, radiazione (entro 30 giorni dalla presa in carico), conferimento al frantumatore e chiusura. Ogni fase resta visibile nella pratica, e la bonifica si può organizzare per isole di bonifica, cioè per postazione di lavoro.</p>
+              <Search className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La pratica parte dalla targa</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Cerchi il veicolo al PRA e i dati arrivano da soli: proprietario, marca, modello, telaio, situazione della targa. Se il veicolo non è radiabile lo scopri subito, non a metà pratica.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <FileText className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Radiazione trasmessa al Registro Unico Telematico</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">La radiazione al PRA è obbligatoria entro 30 giorni dalla presa in carico. Quando arrivi a quella fase, il gestionale prepara la richiesta con i dati già presenti nella pratica e la trasmette al Registro Unico Telematico dei veicoli fuori uso (il collegamento con ACI e Ministero dei Trasporti). L’esito arriva nella pratica e il certificato di radiazione viene archiviato lì.</p>
+              <ListChecks className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Le fasi del registro, una alla volta</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La lavorazione mostra a che punto è la pratica e cosa manca per andare avanti. Ogni fase registra chi l&rsquo;ha fatta e quando, e i documenti restano attaccati alla pratica.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <CheckCircle2 className="h-6 w-6 text-blue-600 mb-3" />
+              <LayoutGrid className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La bacheca delle pratiche aperte</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Tutte le pratiche incolonnate per fase: vedi a colpo d&rsquo;occhio dove si stanno accumulando e quali sono ferme da troppo. Da lì apri la pratica e la sblocchi.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <PenLine className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Deleghe dei concessionari</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le deleghe si creano, si consultano per codice fiscale, si revocano e si stampano. Ognuna ha il suo stato, così sai sempre per quali veicoli sei autorizzato a operare.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <CreditCard className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Pagamenti PagoPA</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Gli avvisi di pagamento legati alle pratiche, con la loro situazione. Quello che va pagato si vede dalla pratica, senza aprire un altro portale e senza cercare il numero dell&rsquo;avviso.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ShieldCheck className="h-6 w-6 text-blue-600 mb-3" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Certificato di rottamazione</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Al completamento della demolizione il gestionale genera il certificato di rottamazione con i dati del veicolo, del proprietario, del numero di pratica e della data di demolizione. Lo stampi o lo invii al proprietario, e una copia resta archiviata nella pratica.</p>
-            </div>
-            <div className="p-6 border border-gray-200 bg-white">
-              <AlertCircle className="h-6 w-6 text-amber-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Pratiche aperte e archivio</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni pratica attiva vedi a che fase è e da quanti giorni il veicolo è in carico, così i 30 giorni per la radiazione non ti sfuggono. L’archivio di tutte le demolizioni è sempre consultabile con filtri per targa, telaio, data o stato: in caso di ispezione hai tutto pronto e verificabile.</p>
+              <p className="text-sm text-gray-600 leading-relaxed">Trasmessa la radiazione, il certificato per il cliente esce dalla pratica già compilato. Il proprietario se ne va con il documento in mano lo stesso giorno.</p>
             </div>
           </div>
         </div>

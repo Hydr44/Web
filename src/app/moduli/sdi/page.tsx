@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, FileText, Send, CheckCircle2, AlertCircle, Download, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Clock, FileText, ListChecks, Receipt, Scale, Send } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -65,34 +65,41 @@ export default function SDIPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
-          <p className="text-gray-500 text-center mb-10">Dalla creazione della fattura all&apos;archiviazione digitale, tutto automatico.</p>
+          <p className="text-gray-500 text-center mb-10">Le fatture nascono dal lavoro che hai già registrato, e arrivano allo SDI senza passaggi a mano.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
+              <Receipt className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La fattura si compila dai lavori già fatti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Scegli gli interventi da fatturare e le righe si riempiono da sole, con il prezzo della convenzione o del listino. Il numero lo mette il gestionale e non si ripete mai, nemmeno se in due fatturate nello stesso momento.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Send className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Invio allo SDI e stati in chiaro</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La fattura parte verso il Sistema di interscambio e ogni notifica torna scritta in italiano: consegnata, scartata con il motivo, accettata. Non devi interpretare codici né aprire il portale dell&rsquo;Agenzia.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
               <FileText className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Creazione fatture con validazione XML</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Compili la fattura con il form del gestionale: scegli il cliente (i dati fiscali sono già presenti), inserisci le righe con descrizione, quantità e importo, selezioni aliquota IVA. Il sistema genera automaticamente l'XML FatturaPA conforme alle specifiche v1.7.1 dell'Agenzia delle Entrate e lo valida prima dell'invio. Se c'è un errore di formato, te lo segnala immediatamente — prima di inviare, non dopo che SDI lo scarta.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Anche le fatture che ricevi</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Le fatture dei fornitori arrivano nel gestionale, si consultano e si registrano in contabilità. Attive e passive nello stesso posto, così l&rsquo;IVA del periodo torna senza rincorrere i documenti.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Send className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Invio via nodo SDI certificato</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">L'invio avviene tramite il nostro nodo SDI certificato, connesso al Sistema di Interscambio via protocollo SFTP con certificati digitali qualificati. La fattura viene firmata digitalmente (formato P7M), cifrata e trasmessa in modo sicuro. Ogni invio ha un ID di trasmissione univoco tracciato nel sistema. Non devi accedere al portale AdE, non devi fare niente manualmente — clicchi "Invia" e il sistema pensa a tutto.</p>
+              <ListChecks className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Fattura di fine mese e invio in blocco</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Per ogni committente una fattura sola con tutti i suoi interventi del mese. E quando ne devi mandare venti, partono insieme invece che una alla volta.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <CheckCircle2 className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Notifiche SDI gestite automaticamente</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Dopo l'invio, SDI risponde con una serie di notifiche: Ricevuta di Consegna (RC, fattura consegnata al destinatario), Notifica di Scarto (NS, errore nella fattura — rarissimo con il sistema che valida prima), Mancata Consegna (MC, destinatario non raggiungibile), Notifica Esito (NE, il cliente accetta o rifiuta). Se il cliente non risponde entro 15 giorni, la fattura si considera automaticamente accettata (Decorrenza Termini). Il gestionale scarica tutte queste notifiche, le associa alla fattura e aggiorna lo stato — senza che tu debba controllare niente.</p>
+              <Clock className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Scadenzario, incassi e solleciti</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Chi deve pagarti e chi devi pagare, con le scadute in evidenza. Registri l&rsquo;incasso e la fattura si chiude; mandi il sollecito senza riscrivere niente.</p>
             </div>
             <div className="p-6 border border-gray-200 bg-white">
-              <Download className="h-6 w-6 text-gray-600 mb-3" />
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-bold text-gray-900">Fatture passive</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 uppercase tracking-wide">Prossimamente: import automatico</span>
-              </div>
-              <p className="text-sm text-gray-600 leading-relaxed">Le fatture che ricevi dai tuoi fornitori transitano anch&apos;esse per SDI. Con un click puoi sincronizzare le fatture ricevute: RescueManager le scarica dal nodo, analizza l&apos;XML ed estrae i dati pronti per la contabilità. L&apos;import completamente automatico in background è in arrivo. Tutte le fatture sono archiviate in modo sicuro e sempre accessibili — la conservazione sostitutiva a norma di legge è in sviluppo.</p>
+              <Scale className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Note di credito e riepilogo IVA</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">La nota di credito resta collegata alla fattura che corregge. Il riepilogo IVA del periodo mette insieme vendite, acquisti e saldo, con i registri da esportare e passare al commercialista.</p>
             </div>
           </div>
         </div>

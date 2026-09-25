@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Users, Phone, TrendingUp, History, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, ListChecks, Receipt, Search, ShieldCheck, Users } from "lucide-react";
 
 
 export const metadata: Metadata = {
@@ -55,31 +55,41 @@ export default function ClientiPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+            {/* FEATURES */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nella scheda cliente</h2>
-          <p className="text-gray-500 text-center mb-10">Tutte le informazioni in un posto solo, accessibili da qualsiasi postazione.</p>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">Cosa trovi nel modulo</h2>
+          <p className="text-gray-500 text-center mb-10">Un&rsquo;anagrafica che si compila da sola e che arriva alla fattura senza buchi.</p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 border border-gray-200 bg-white">
+              <Search className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">La scheda si compila dalla partita IVA</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Scrivi la partita IVA e ragione sociale, indirizzo e dati fiscali arrivano da soli. Il codice fiscale di un privato si calcola dai dati anagrafici, i comuni e le vie si suggeriscono mentre scrivi. Meno battute sulla tastiera e, soprattutto, meno errori di trascrizione.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <FileText className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">I dati per la fattura elettronica, chiesti subito</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Codice destinatario o PEC, regime fiscale, sede legale: il gestionale chiede quello che serve al Sistema di interscambio mentre crei il cliente, non il giorno che provi a fatturare. Se manca qualcosa te lo dice lì, con parole chiare.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <Receipt className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Convenzioni e listino per committente</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">A ogni committente il suo listino: assicurazioni, società di assistenza, flotte, officine. Quando crei l&rsquo;intervento il prezzo arriva da lì, senza cercarlo in un foglio e senza chiamare nessuno per farselo confermare.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ShieldCheck className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Lo stesso cliente non entra due volte</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Prima di salvare, il gestionale controlla partita IVA e codice fiscale: se quel cliente c&rsquo;è già te lo dice e ti porta alla sua scheda. È il modo più semplice per non ritrovarsi la stessa officina scritta in tre modi diversi, con lo storico spezzato in tre.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
+              <ListChecks className="h-6 w-6 text-blue-600 mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Tutto lo storico del cliente in una schermata</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Nella scheda trovi preventivi, interventi, fatture e le attività registrate su quel cliente. Ogni riga si apre sul documento vero. Se un committente contesta un lavoro di tre mesi fa, ci arrivi in due clic.</p>
+            </div>
+            <div className="p-6 border border-gray-200 bg-white">
               <Users className="h-6 w-6 text-blue-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Anagrafica completa</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Nome e cognome o ragione sociale, codice fiscale e Partita IVA, indirizzo completo, telefono, email e PEC. Puoi indicare se è un privato, un'assicurazione o un'azienda, così da applicare tariffe e condizioni diverse. I dati fiscali sono già pronti quando devi emettere una fattura — non devi cercarli ogni volta.</p>
-            </div>
-            <div className="p-6 border border-gray-200 bg-white">
-              <Phone className="h-6 w-6 text-green-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Contatti multipli e referenti</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni cliente puoi salvare più numeri di telefono, più email e più referenti con ruoli diversi. Molto utile per le assicurazioni (hanno un referente sinistri, uno per i preventivi, uno per la fatturazione) o per le aziende con più sedi. Non serve più cercare il contatto giusto in rubrica — è tutto nella scheda.</p>
-            </div>
-            <div className="p-6 border border-gray-200 bg-white">
-              <History className="h-6 w-6 text-purple-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Storico completo degli interventi</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Nella scheda cliente vedi in ordine cronologico tutti i soccorso & trasporti effettuati, i preventivi inviati con il loro stato (accettato, rifiutato, in attesa), le fatture emesse e le note interne. Se un cliente contesta un intervento di sei mesi fa, in 10 secondi hai tutto davanti. Il sistema non dimentica niente e non perde nessun dato.</p>
-            </div>
-            <div className="p-6 border border-gray-200 bg-white">
-              <TrendingUp className="h-6 w-6 text-red-600 mb-3" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Statistiche e valore cliente</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Per ogni cliente vedi il totale degli interventi effettuati, il fatturato generato nel periodo e la frequenza degli ordini. Questo ti permette di capire subito chi sono i clienti più importanti, chi vale la pena fidelizzare e dove conviene investire tempo commerciale. Utile soprattutto per le assicurazioni con cui hai convenzioni.</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Privati e aziende, ognuno con le sue regole</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">Un privato ha codice fiscale, data e luogo di nascita; un&rsquo;azienda ha partita IVA e sede legale. Il gestionale chiede quello che serve al tipo che hai scelto e non ti lascia salvare a metà, perché quei dati poi servono davvero in fattura.</p>
             </div>
           </div>
         </div>
