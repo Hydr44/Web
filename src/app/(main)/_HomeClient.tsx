@@ -391,10 +391,10 @@ export default function HomeClient() {
                         </div>
                         <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
-                                src="/appshots/autisti.png"
-                                alt="Gestione autisti e soccorso & trasporti RescueManager"
-                                width={1024}
-                                height={768}
+                                src="/schermate/soccorso/elenco-interventi.webp"
+                                alt="Elenco degli interventi del giorno con il dettaglio del carro in viaggio"
+                                width={1600}
+                                height={676}
                                 className="w-full h-auto"
                                 quality={90}
                             />
@@ -479,10 +479,10 @@ export default function HomeClient() {
                     <div className="grid lg:grid-cols-2 gap-10 items-center">
                         <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
-                                src="/appshots/fatture elettroniche.png"
-                                alt="Fatture elettroniche RescueManager"
-                                width={1024}
-                                height={768}
+                                src="/schermate/fatture/elenco-fatture.webp"
+                                alt="Elenco delle fatture emesse con lo stato del Sistema di interscambio"
+                                width={1600}
+                                height={714}
                                 className="w-full h-auto"
                                 quality={90}
                             />

@@ -82,12 +82,12 @@ export default function AutodemolizioniPage() {
         {
           title: "Piazzale e lavorazione sotto controllo",
           text:
-            "Ogni veicolo ha la sua posizione nel piazzale dal momento in cui entra. La bonifica si fa per isola, con le postazioni del tuo impianto; i ricambi buoni vanno a magazzino con scaffale e prezzo; chi resta in custodia ha il conto dei giorni e il verbale di riconsegna firmato dal cliente via link.",
+            "Ogni veicolo ha la sua posizione nel piazzale dal momento in cui entra. La bonifica si fa per isola, con le postazioni del tuo impianto; i ricambi buoni vanno a magazzino con scaffale e prezzo; chi resta in custodia ha il conto dei giorni, con le foto e le condizioni registrate alla riconsegna.",
           bullets: [
             "Posizione di ogni veicolo nel piazzale, sempre aggiornata",
             "Bonifica per isola, con le postazioni del tuo impianto",
             "Ricambi usati a magazzino con foto, prezzo, scaffale e mappa",
-            "Custodia con conto dei giorni e verbale di riconsegna firmato via link",
+            "Custodia con conto dei giorni, foto e condizioni alla riconsegna",
           ],
           href: "/moduli/piazzale",
           cta: "Vedi il modulo Custodia veicoli",
@@ -130,10 +130,10 @@ export default function AutodemolizioniPage() {
           href: "/moduli/sdi",
           cta: "Vedi il modulo Fatturazione elettronica",
           image: {
-            src: "/appshots/fatture elettroniche.png",
-            alt: "Fatture elettroniche in RescueManager",
-            width: 1024,
-            height: 648,
+            src: "/schermate/fatture/elenco-fatture.webp",
+            alt: "Elenco delle fatture emesse con lo stato del Sistema di interscambio",
+            width: 1600,
+            height: 714,
           },
         },
       ]}

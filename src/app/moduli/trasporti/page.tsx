@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 const MODULI_COLLEGATI = [
   { href: "/moduli/mezzi-autisti", title: "Mezzi e autisti", desc: "Disponibilità, turni e scadenze di revisione e assicurazione dei carri attrezzi." },
   { href: "/moduli/clienti", title: "Clienti e committenti", desc: "Anagrafica con convenzioni e tariffari: il prezzo dell’intervento si calcola da solo." },
-  { href: "/moduli/piazzale", title: "Custodia veicoli", desc: "Il veicolo recuperato entra in deposito con posizione, conto giorni e verbale di riconsegna." },
+  { href: "/moduli/piazzale", title: "Custodia veicoli", desc: "Il veicolo recuperato entra in deposito con la sua posizione, il conto dei giorni e le foto." },
 ];
 
 export default function TrasportiPage() {

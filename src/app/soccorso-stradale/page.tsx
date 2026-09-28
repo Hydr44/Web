@@ -70,10 +70,10 @@ export default function SoccorsoStradalePage() {
           href: "/moduli/trasporti",
           cta: "Vedi il modulo Soccorso e trasporti",
           image: {
-            src: "/appshots/trasporti.jpg",
-            alt: "Elenco e mappa degli interventi di soccorso in RescueManager",
-            width: 1024,
-            height: 642,
+            src: "/schermate/soccorso/elenco-interventi.webp",
+            alt: "Elenco degli interventi del giorno con il dettaglio del carro in viaggio",
+            width: 1600,
+            height: 676,
           },
         },
         {
@@ -108,10 +108,10 @@ export default function SoccorsoStradalePage() {
           href: "/moduli/clienti",
           cta: "Vedi il modulo Clienti e committenti",
           image: {
-            src: "/appshots/clientinuovo.png",
-            alt: "Anagrafica clienti e committenti in RescueManager",
-            width: 1024,
-            height: 648,
+            src: "/schermate/soccorso/tariffario.webp",
+            alt: "Tariffario del soccorso con i prezzi per privati, clienti e convenzionati",
+            width: 1600,
+            height: 1000,
           },
         },
         {
@@ -121,7 +121,7 @@ export default function SoccorsoStradalePage() {
           bullets: [
             "Posizione di ogni veicolo nel piazzale",
             "Conto dei giorni dall’ingresso alla riconsegna",
-            "Verbale di riconsegna firmato dal cliente via link",
+            "Chi ha ritirato, quando e in che condizioni, con le foto",
             "DDT stampabile e fattura elettronica con le notifiche di esito",
           ],
           href: "/moduli/piazzale",
@@ -177,8 +177,8 @@ export default function SoccorsoStradalePage() {
         },
         {
           ente: "Foto e condizioni",
-          title: "Verbali di riconsegna",
-          short: "Il cliente firma dal suo telefono, il verbale resta archiviato con il veicolo.",
+          title: "Riconsegna documentata",
+          short: "Chi ritira, quando e in che condizioni era il veicolo, con le foto allegate alla scheda.",
         },
       ]}
       pkg={{
