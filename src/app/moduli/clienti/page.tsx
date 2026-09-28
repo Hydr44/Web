@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, FileText, ListChecks, Receipt, Search, ShieldCheck, Users } from "lucide-react";
 
 
@@ -92,6 +93,20 @@ export default function ClientiPage() {
               <p className="text-sm text-gray-600 leading-relaxed">Un privato ha codice fiscale, data e luogo di nascita; un&rsquo;azienda ha partita IVA e sede legale. Il gestionale chiede quello che serve al tipo che hai scelto e non ti lascia salvare a metà, perché quei dati poi servono davvero in fattura.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">La schermata è quella vera del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/clienti/cerca-cliente.webp" alt="Ricerca di un cliente dall&rsquo;anagrafica mentre si crea un intervento" width={1600} height={1400} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">Il cliente si cerca dall&rsquo;anagrafica mentre stai compilando, e se non c&rsquo;è lo crei senza perdere quello che hai scritto.</figcaption>
+          </figure>
         </div>
       </section>
 

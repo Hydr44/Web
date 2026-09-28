@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { AlertCircle, ArrowLeft, ArrowRight, Clock, FileText, ListChecks, Receipt, Scale, Send } from "lucide-react";
 
 
@@ -101,6 +102,34 @@ export default function SDIPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Note di credito e riepilogo IVA</h3>
               <p className="text-sm text-gray-600 leading-relaxed">La nota di credito resta collegata alla fattura che corregge. Il riepilogo IVA del periodo mette insieme vendite, acquisti e saldo, con i registri da esportare e passare al commercialista.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/fatture/elenco-fatture.webp" alt="Elenco delle fatture emesse con gli stati del Sistema di interscambio" width={1600} height={714} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">Le fatture emesse con lo stato dello SDI accanto a ognuna, e il dettaglio a destra.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/fatture/nuova-fattura.webp" alt="Nuova fattura con le righe compilate dai trasporti scelti" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">La nuova fattura, con le righe già prese dai lavori fatti.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/fatture/riepilogo-iva.webp" alt="Riepilogo IVA del periodo con i registri di vendite e acquisti" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il riepilogo IVA del periodo, da passare al commercialista.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { AlertCircle, ArrowLeft, ArrowRight, CreditCard, LayoutGrid, ListChecks, PenLine, Search, ShieldCheck } from "lucide-react";
 
 
@@ -110,6 +111,34 @@ export default function RVFUPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Certificato di rottamazione</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Trasmessa la radiazione, il certificato per il cliente esce dalla pratica già compilato. Il proprietario se ne va con il documento in mano lo stesso giorno.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/rvfu/bacheca-fasi.webp" alt="Bacheca delle pratiche di demolizione incolonnate per fase del registro" width={1600} height={551} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">Le pratiche aperte incolonnate per fase: si vede subito dove si accumulano e quali sono ferme.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rvfu/pratica.webp" alt="Scheda di una pratica di demolizione con la lavorazione e i documenti" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">La pratica, con le fasi della lavorazione a sinistra.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rvfu/deleghe.webp" alt="Elenco delle deleghe dei concessionari con il loro stato" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Le deleghe dei concessionari, con il loro stato.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

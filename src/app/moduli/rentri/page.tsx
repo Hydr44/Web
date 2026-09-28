@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { AlertCircle, ArrowLeft, ArrowRight, FileText, Layers, Scale, ShieldCheck, Truck, Warehouse } from "lucide-react";
 
 
@@ -112,6 +113,46 @@ export default function RENTRIPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Trasmissioni, certificati e un consulente sui tuoi dati</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Ogni invio al RENTRI resta elencato con il suo esito, quindi sai sempre cosa è passato e cosa no. I certificati di analisi hanno le loro scadenze, con l&rsquo;avviso prima che scadano. E un consulente risponde alle domande leggendo i tuoi dati reali: autorizzazioni, giacenze, codici. Non scrive nel registro e non trasmette niente: dice cosa fare, poi lo fai tu.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/rentri/registro.webp" alt="Registro di carico e scarico con i movimenti elencati e il pannello di dettaglio" width={1600} height={1075} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">Il registro di carico e scarico: ogni movimento con causale, codice EER, quantità e stato della trasmissione.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rentri/movimento-guidato.webp" alt="Movimento guidato che chiede un dato alla volta in italiano" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il movimento guidato: domande in italiano, non sigle.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rentri/controllo-giacenza.webp" alt="Controllo della giacenza che indica il movimento che sbilancia il conto" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il controllo della giacenza dice quale movimento non torna.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rentri/rifiuti-da-demolizione.webp" alt="Percorso guidato dai rifiuti di una demolizione al registro" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Dal veicolo demolito al registro, senza riscrivere i codici.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/rentri/formulari.webp" alt="Elenco dei formulari con lo stato del viaggio e della quarta copia" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">I formulari, con lo stato del viaggio e della quarta copia.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

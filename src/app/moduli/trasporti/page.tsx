@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Bell, CalendarDays, MapPin, Phone, Receipt, Truck } from "lucide-react";
 
 
@@ -104,6 +105,46 @@ export default function TrasportiPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Rendiconto per il committente e calendario</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Per ogni committente prepari il prospetto degli interventi del periodo, pronto da mandare insieme alla fattura. E i lavori programmati (trasporti, appuntamenti, scadenze) stanno sul calendario a giorno, settimana o mese, così sai già cosa ti aspetta domani.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/soccorso/elenco-interventi.webp" alt="Elenco degli interventi del giorno con il pannello di dettaglio aperto su un carro in viaggio" width={1600} height={676} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">L&rsquo;elenco del giorno con i filtri di stato. A destra il dettaglio dell&rsquo;intervento aperto: minuti all&rsquo;arrivo, autista, mezzo e le attività con l&rsquo;ora.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/soccorso/nuovo-intervento.webp" alt="Primo passo della creazione di un intervento: i dati della chiamata" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il nuovo intervento in quattro passi, a partire dalla chiamata.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/soccorso/mappa-mezzi.webp" alt="Mappa scura con la posizione dei mezzi e il percorso dell&rsquo;intervento" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">La mappa dei mezzi, scura come il resto del gestionale.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/soccorso/tariffario.webp" alt="Voce del tariffario con i prezzi per privati, clienti e convenzionati" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il tariffario diviso in privati, clienti e convenzionati.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/soccorso/calendario.webp" alt="Calendario con i trasporti programmati e le scadenze della settimana" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il calendario dei lavori programmati e delle scadenze.</figcaption>
+            </figure>
           </div>
         </div>
       </section>
