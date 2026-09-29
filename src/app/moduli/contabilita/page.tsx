@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Clock, Coins, FileText, Receipt, Scale, TrendingUp } from "lucide-react";
 
 
@@ -64,6 +65,34 @@ export default function ContabilitaPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Incassi e pagamenti con le loro date</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Quello che deve entrare e quello che deve uscire, con le scadenze. Collegato allo scadenzario delle fatture, così il conto in banca non è mai una sorpresa.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/contabilita/sintesi.webp" alt="Sintesi del mese con entrate, uscite, risultato e fatture da registrare" width={1600} height={562} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">La sintesi del mese: entrate, uscite, risultato e quante fatture restano da registrare.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/contabilita/movimenti.webp" alt="Elenco dei movimenti di prima nota con dare e avere" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">La prima nota: ogni movimento sul suo conto, con dare e avere.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/contabilita/piano-dei-conti.webp" alt="Piano dei conti con i saldi di ogni conto" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il piano dei conti, già impostato e adattabile.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

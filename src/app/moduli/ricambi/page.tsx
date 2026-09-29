@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Barcode, Layers, Package, Search, ShoppingCart, Store } from "lucide-react";
 
 
@@ -90,6 +91,34 @@ export default function RicambiPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Ordini e vendite</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Dall&rsquo;ordine alla consegna: righe, prezzi, stato dell&rsquo;ordine e documento di vendita. Quello che esce dal magazzino si scarica da solo e arriva in fattura senza riscriverlo.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/ricambi/magazzino.webp" alt="Elenco dei ricambi a magazzino con categoria, stato e veicolo di origine" width={1600} height={1075} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">Il magazzino: ogni pezzo con la sua categoria, il suo stato e il veicolo da cui viene.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/ricambi/scaffali.webp" alt="Scaffali del magazzino con le posizioni e il riempimento" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Gli scaffali, con le posizioni e quanto sono pieni.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/ricambi/vendite.webp" alt="Elenco degli ordini di vendita con il loro stato" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Gli ordini di vendita, dall&rsquo;ordine alla consegna.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

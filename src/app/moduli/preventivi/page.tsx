@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, FileText, Flag, ListChecks, Receipt, ShieldCheck, Users } from "lucide-react";
 
 
@@ -64,6 +65,28 @@ export default function PreventiviPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Duplica, oppure diventa ordine o fattura</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Un preventivo simile a uno già fatto si duplica in un attimo. Quando il cliente accetta, quello stesso preventivo diventa ordine o fattura: le righe non si riscrivono e non si sbagliano.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/preventivi/elenco-preventivi.webp" alt="Elenco dei preventivi con il loro stato" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">I preventivi, con lo stato di ognuno: bozza, inviato, accettato.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/preventivi/nuovo-preventivo.webp" alt="Nuovo preventivo con le voci del listino e i totali" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il nuovo preventivo: voci dal listino e totali che si fanno da soli.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

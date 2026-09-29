@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, BellRing, Clock, ShieldCheck, Smartphone, Truck, Wrench } from "lucide-react";
 
 
@@ -89,6 +90,20 @@ export default function MezziAutistiPage() {
               <p className="text-sm text-gray-600 leading-relaxed">Utenti e ruoli: chi vede le fatture, chi tocca il registro dei rifiuti, chi può solo prendere le chiamate. Ognuno entra con le proprie credenziali e resta traccia di chi ha fatto cosa.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/app-autisti/telefono.webp" alt="Tre schermate dell&rsquo;app degli autisti: interventi del giorno, viaggio in corso, firma del cliente" width={1600} height={1111} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">L&rsquo;app che l&rsquo;autista ha sul telefono: gli interventi del giorno, il viaggio in corso con gli stati, e la firma del cliente sul posto.</figcaption>
+          </figure>
         </div>
       </section>
 

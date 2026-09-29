@@ -92,10 +92,10 @@ export default function AutodemolizioniPage() {
           href: "/moduli/piazzale",
           cta: "Vedi il modulo Custodia veicoli",
           image: {
-            src: "/appshots/piazzalenuovo.png",
-            alt: "Piazzale e custodia veicoli in RescueManager",
-            width: 1024,
-            height: 648,
+            src: "/schermate/custodia/elenco-veicoli.webp",
+            alt: "Elenco dei veicoli in custodia con i giorni e l'importo maturato",
+            width: 1600,
+            height: 824,
           },
         },
         {

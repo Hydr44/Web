@@ -405,10 +405,10 @@ export default function HomeClient() {
                     <div className="grid lg:grid-cols-2 gap-10 items-center mb-16 lg:mb-20">
                         <div className="order-2 lg:order-1 rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
-                                src="/appshots/piazzalenuovo.png"
-                                alt="Gestione custodia veicoli RescueManager"
-                                width={1024}
-                                height={768}
+                                src="/schermate/custodia/elenco-veicoli.webp"
+                                alt="Elenco dei veicoli in custodia con i giorni e l'importo maturato"
+                                width={1600}
+                                height={824}
                                 className="w-full h-auto"
                                 quality={90}
                             />
@@ -465,10 +465,10 @@ export default function HomeClient() {
                         </div>
                         <div className="rounded-lg overflow-hidden shadow-lg border-2 border-[#0f172a]">
                             <Image
-                                src="/appshots/clientinuovo.png"
-                                alt="Gestione clienti RescueManager"
-                                width={1024}
-                                height={768}
+                                src="/schermate/clienti/elenco-clienti.webp"
+                                alt="Elenco dei clienti con i filtri fra aziende e privati"
+                                width={1600}
+                                height={587}
                                 className="w-full h-auto"
                                 quality={90}
                             />

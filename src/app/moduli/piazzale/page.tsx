@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Camera, Car, Clock, ListChecks, MapPin, Truck } from "lucide-react";
 
 
@@ -106,6 +107,34 @@ export default function PiazzalePage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Attaccato al soccorso e alla demolizione</h3>
               <p className="text-sm text-gray-600 leading-relaxed">Il veicolo recuperato entra in custodia dall&rsquo;intervento, e se finisce in demolizione passa alla pratica RVFU con i suoi dati. Non lo reinserisci mai due volte.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCHERMATE */}
+      <section className="py-16 bg-[#0f172a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
+          <figure className="m-0">
+            <div className="border border-slate-700 bg-[#0a1119]">
+              <Image src="/schermate/custodia/elenco-veicoli.webp" alt="Elenco dei veicoli in custodia con i giorni e l&rsquo;importo maturato" width={1600} height={824} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+            </div>
+            <figcaption className="text-sm text-slate-400 mt-4">I veicoli in custodia: posizione nel piazzale, giorni passati e importo maturato, aggiornati da soli.</figcaption>
+          </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/custodia/ingresso-veicolo.webp" alt="Ingresso di un veicolo in custodia con documenti e foto" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">L&rsquo;ingresso: targa, proprietario, autorità, foto e posizione.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/custodia/tariffa-custodia.webp" alt="Impostazioni della custodia con le tariffe giornaliere e le zone del piazzale" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Le tariffe e le zone del piazzale, da impostare una volta sola.</figcaption>
+            </figure>
           </div>
         </div>
       </section>

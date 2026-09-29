@@ -89,10 +89,10 @@ export default function SoccorsoStradalePage() {
           href: "/moduli/mezzi-autisti",
           cta: "Vedi il modulo Mezzi e autisti",
           image: {
-            src: "/appshots/autisti.png",
-            alt: "Gestione autisti e mezzi in RescueManager",
-            width: 1024,
-            height: 648,
+            src: "/schermate/app-autisti/telefono.webp",
+            alt: "Tre schermate dell'app degli autisti: interventi, viaggio in corso, firma del cliente",
+            width: 1600,
+            height: 1111,
           },
         },
         {
@@ -127,10 +127,10 @@ export default function SoccorsoStradalePage() {
           href: "/moduli/piazzale",
           cta: "Vedi il modulo Custodia veicoli",
           image: {
-            src: "/appshots/piazzalenuovo.png",
-            alt: "Custodia veicoli e piazzale in RescueManager",
-            width: 1024,
-            height: 648,
+            src: "/schermate/custodia/elenco-veicoli.webp",
+            alt: "Elenco dei veicoli in custodia con i giorni e l'importo maturato",
+            width: 1600,
+            height: 824,
           },
         },
       ]}

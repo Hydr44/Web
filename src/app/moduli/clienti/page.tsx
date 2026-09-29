@@ -100,13 +100,27 @@ export default function ClientiPage() {
       <section className="py-16 bg-[#0f172a]">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-2xl font-extrabold text-white mb-2 text-center">Ecco com&rsquo;è fatto</h2>
-          <p className="text-slate-400 text-center mb-10">La schermata è quella vera del gestionale, con dati di esempio.</p>
+          <p className="text-slate-400 text-center mb-10">Le schermate sono quelle vere del gestionale, con dati di esempio.</p>
           <figure className="m-0">
             <div className="border border-slate-700 bg-[#0a1119]">
-              <Image src="/schermate/clienti/cerca-cliente.webp" alt="Ricerca di un cliente dall&rsquo;anagrafica mentre si crea un intervento" width={1600} height={1400} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
+              <Image src="/schermate/clienti/elenco-clienti.webp" alt="Elenco dei clienti con i filtri fra aziende e privati" width={1600} height={587} className="w-full h-auto" sizes="(max-width: 1152px) 100vw, 1152px" />
             </div>
-            <figcaption className="text-sm text-slate-400 mt-4">Il cliente si cerca dall&rsquo;anagrafica mentre stai compilando, e se non c&rsquo;è lo crei senza perdere quello che hai scritto.</figcaption>
+            <figcaption className="text-sm text-slate-400 mt-4">L&rsquo;elenco dei clienti, con i filtri fra aziende e privati e il dettaglio a destra.</figcaption>
           </figure>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/clienti/scheda-cliente.webp" alt="Scheda di un cliente con anagrafica, dati fiscali e documenti collegati" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">La scheda: anagrafica, dati per la fattura, e tutto quello che gli riguarda.</figcaption>
+            </figure>
+            <figure className="m-0">
+              <div className="border border-slate-700 bg-[#0a1119]">
+                <Image src="/schermate/clienti/nuovo-cliente.webp" alt="Creazione di un cliente con i dati presi dalla partita IVA" width={1600} height={1000} className="w-full h-auto" sizes="(max-width: 768px) 100vw, 560px" />
+              </div>
+              <figcaption className="text-sm text-slate-400 mt-3">Il nuovo cliente: si compila dalla partita IVA.</figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
